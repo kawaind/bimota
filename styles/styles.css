@@ -12,11 +12,10 @@
 
 :root {
   /* colors */
-  --link-color: #ff0000;
+  --link-color: #f00;
   --link-hover-color: #1d1d1b;
   --background-color: white;
-  --button-color: #ff0000;
-
+  --button-color: #f00;
   --light-color: #eee;
   --dark-color: #ccc;
   --text-color: #1d1d1b;
@@ -24,7 +23,6 @@
   /* fonts */
   --body-font-family: "Oxygen", sans-serif;
   --heading-font-family: var(--body-font-family);
-
   --body-font-size: 16px;
 
   /* nav height */
@@ -59,7 +57,7 @@ h1, h2, h3, h4, h5, h6,
 
 h1,
 .h1 {
-  font-size: 1.80625rem;
+  font-size: 1.8063rem;
   line-height: 1.2;
   font-weight: 400;
   text-transform: uppercase;
@@ -100,7 +98,7 @@ h6,
   font-weight: 600;
 }
 
-@media (min-width: 960px) {
+@media (width >= 960px) {
   h1,
   .h1 {
     font-size: 2.125rem;
@@ -123,7 +121,7 @@ blockquote {
 }
 
 address, dl, fieldset, figure, ol, p, pre, ul {
-  margin: 0 0 20px 0;
+  margin: 0 0 20px;
 }
 
 code {
@@ -192,7 +190,7 @@ a.button:hover,
 a.button:focus,
 button:hover,
 button:focus {
-  background-color: rgba(255, 0, 0, 0);
+  background-color: rgb(255 0 0 / 0%);
   color: var(--link-hover-color);
   border-color: var(--link-hover-color);
 }
@@ -228,10 +226,6 @@ div[class$="-wrapper"]:not(:first-child) {
   div[class$="-wrapper"]:not(:first-child) {
     padding-top: 40px;
   }
-}
-
-main .section {
-  padding-top: 40px;
 }
 
 /* sections */
