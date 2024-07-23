@@ -1,0 +1,7 @@
+.text > div {
+  max-width: 750px;
+}
+
+.text.center > div {
+  margin: auto;
+}

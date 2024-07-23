@@ -19,11 +19,11 @@
   display: block;
 }
 
-@media (width >= 900px) {
+@media (width >= 960px) {
   .columns > div {
-    align-items: center;
+    align-items: flex-start;
     flex-direction: unset;
-    gap: 32px;
+    gap: 40px;
   }
 
   .columns > div > div {
