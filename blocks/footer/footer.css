@@ -1,14 +1,173 @@
 footer {
-  padding: 2rem;
-  background-color: var(--light-color);
-  font-size: var(--body-font-size-s);
+  background-color: #222;
+  color: #fff;
 }
 
-footer .footer {
-  max-width: 1200px;
-  margin: auto;
+.footer .section {
+  padding: 40px 15px 0;
 }
 
-footer .footer p {
+.footer .section:last-child {
+  padding-bottom: 40px;
+}
+
+.footer .footer-logo img {
+  width: 250px;
+  height: auto;
+}
+
+.footer .footer-column > * {
   margin: 0;
+}
+
+.footer .footer-column {
+  padding-bottom: 60px;
+  position: relative;
+}
+
+.footer .footer-column:last-child {
+  padding-bottom: 0;
+}
+
+.footer .footer-column::after {
+  border-top: 1px solid rgb(255 255 255 / 20%);
+  content: "";
+  display: block;
+  width: 100%;
+  position: absolute;
+  bottom: 30px;
+}
+
+.footer .footer-column:last-child::after {
+  display: none;
+}
+
+.footer .footer-column ul {
+  margin-top: 20px;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  gap: 10px;
+  flex-direction: column;
+}
+
+.footer .footer-list-item {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  color: rgb(255 255 255 / 70%);
+}
+
+.footer .footer-list-item a {
+  color: #fff;
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.footer .footer-list-item a:hover,
+.footer .footer-list-item a:active {
+  color: #fff;
+  text-decoration: none;
+}
+
+.footer #back-to-top {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  align-items: center;
+  margin: auto;
+  padding: 0;
+  background: inherit;
+  border: unset;
+  color: rgb(255 255 255 / 50%);
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.footer #back-to-top:hover,
+.footer #back-to-top:focus {
+  color: rgb(255 255 255 / 70%);
+}
+
+.footer #back-to-top svg {
+  padding: 5px;
+}
+
+.footer .section .default-content-wrapper {
+  padding-top: 10px;
+  text-align: center;
+  font-size: 14px;
+  line-height: 19.6px;
+}
+
+.footer .section .default-content-wrapper p {
+  margin-bottom: 10px;
+}
+
+.footer .section .default-content-wrapper p:last-child {
+  margin-bottom: 0;
+}
+
+.footer .footer-list-item .icon {
+  min-width: 20px;
+  width: 20px;
+  height: auto;
+}
+
+@media (width >= 768px) {
+  .footer .section {
+    padding: 10px 30px 40px;
+  }
+
+  .footer .columns > div {
+    flex-flow: row wrap;
+    justify-content: space-between;
+  }
+
+  .footer .footer-column {
+    width: calc(50% - 30px);
+    padding-bottom: 0;
+    margin-top: 30px;
+  }
+
+  .footer .footer-column::after {
+    width: 1px;
+    height: 100%;
+    border-top: unset;
+    border-right: 1px solid rgb(255 255 255 / 20%);
+    top: 0;
+    right: -30px;
+  }
+}
+
+@media (width >= 960px) {
+  .footer {
+    padding-top: 30px;
+  }
+
+  .footer .section {
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+
+  .footer .columns > div {
+    gap: 60px;
+    align-items: stretch;
+  }
+
+  .footer .footer-column {
+    width: 25%;
+    gap: 60px;
+  }
+
+  .footer .footer-logo .icon {
+    width: 100%;
+    height: auto;
+  }
+
+  .footer .footer-logo img {
+    width: auto;
+  }
 }
