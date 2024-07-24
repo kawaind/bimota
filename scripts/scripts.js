@@ -12,6 +12,7 @@ import {
   loadSections,
   loadCSS,
   sampleRUM,
+  fetchPlaceholders,
 } from './aem.js';
 
 /**
@@ -131,17 +132,13 @@ async function loadPage() {
 
 let placeholders;
 
-export async function getPlaceholders() {
-  const language = window.location.pathname.match(/\/fr\//);
-  let url = '/placeholder.json';
-  if (language) {
-    url = `${language[0]}placeholder.json`;
-  }
-  placeholders = await fetch(url).then((resp) => resp.json());
-}
-
 export function getTextLabel(key) {
-  return placeholders?.data.find((el) => el.Key === key)?.Text || key;
+  if (!placeholders) {
+    return key;
+  }
+
+  return placeholders[key] || key;
 }
 
+placeholders = await fetchPlaceholders();
 loadPage();

@@ -26,7 +26,7 @@ export default async function decorate(block) {
 
     column.classList.add('footer-column');
 
-    // each heading should be rended as h3
+    // each heading should be rendered as h3
     [...column.querySelectorAll('h1, h2, h3, h4, h5, h6')].forEach((heading) => heading.classList.add('h3'));
   });
 
@@ -38,7 +38,7 @@ export default async function decorate(block) {
       listItem.classList.add('footer-list-item');
       textEl.append(...listItem.childNodes);
 
-      // if the first child is icon then move it back to the listItem
+      // if the first child is an icon, move it back to the listItem
       const { nodeName, classList } = textEl.firstChild;
       if (nodeName.toLowerCase() === 'span' && classList.contains('icon')) {
         listItem.append(textEl.firstChild);
