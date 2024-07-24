@@ -55,6 +55,14 @@ function buildAutoBlocks(main) {
   }
 }
 
+function customDecorateBlocks(main) {
+  main.querySelectorAll('div.section > div > div').forEach((block) => {
+    if (block.classList.contains('full-width')) {
+      block.parentElement.classList.add('wrapper-full-width');
+    }
+  });
+}
+
 /**
  * Decorates the main element.
  * @param {Element} main The main element
@@ -67,6 +75,7 @@ export function decorateMain(main) {
   buildAutoBlocks(main);
   decorateSections(main);
   decorateBlocks(main);
+  customDecorateBlocks(main);
 }
 
 /**

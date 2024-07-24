@@ -1,9 +1,3 @@
-.section .image-wrapper-full-width {
-  margin: 0;
-  width: 100%;
-  max-width: 100vw;
-}
-
 .block.image picture {
   display: flex;
 }
@@ -11,9 +5,4 @@
 .block.image img {
   width: 100%;
   object-fit: cover;
-}
-
-.block.image.full-width {
-  margin-left: calc(-1 * var(--section-x-padding));
-  margin-right: calc(-1 * var(--section-x-padding));
 }
