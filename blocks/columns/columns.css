@@ -20,6 +20,10 @@
   display: block;
 }
 
+.columns > div > div > *:last-child {
+  margin-bottom: 0;
+}
+
 @media (width >= 768px) {
   .columns > div {
     flex-flow: row wrap;
