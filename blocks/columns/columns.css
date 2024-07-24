@@ -1,6 +1,7 @@
 .columns > div {
   display: flex;
   flex-direction: column;
+  gap: 30px;
 }
 
 .columns img {
@@ -19,15 +20,28 @@
   display: block;
 }
 
+@media (width >= 768px) {
+  .columns > div {
+    flex-flow: row wrap;
+    gap: 30px;
+    justify-content: center;
+  }
+
+  .columns > div > div {
+    width: calc(50% - 15px);
+  }
+}
+
 @media (width >= 960px) {
   .columns > div {
     align-items: flex-start;
-    flex-direction: unset;
+    flex-wrap: nowrap;
     gap: 40px;
   }
 
   .columns > div > div {
     flex: 1;
     order: unset;
+    width: auto;
   }
 }
