@@ -27,6 +27,10 @@
 
   /* nav height */
   --nav-height: 64px;
+
+  /* section paddings */
+  --section-y-padding: 15px;
+  --section-x-padding: 40px;
 }
 
 body {
@@ -217,18 +221,24 @@ div[class$="-wrapper"]:not(:first-child) {
 
 /* sections */
 main .section {
-  padding: 40px 15px;
+  padding: var(--section-y-padding) var(--section-x-padding);
+}
+
+main .section:last-child {
+  padding-bottom: 0;
 }
 
 @media (width >= 768px) {
-  main .section {
-    padding: 40px 30px;
+  :root {
+    --section-y-padding: 40px;
+    --section-x-padding: 30px;
   }
 }
 
 @media (width >= 960px) {
-  main .section {
-    padding: 70px 40px;
+  :root {
+    --section-y-padding: 70px;
+    --section-x-padding: 40px;
   }
 
   .section > div {
