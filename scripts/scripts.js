@@ -12,6 +12,7 @@ import {
   loadSections,
   loadCSS,
   sampleRUM,
+  fetchPlaceholders,
 } from './aem.js';
 
 /**
@@ -129,4 +130,15 @@ async function loadPage() {
   loadDelayed();
 }
 
+let placeholders;
+
+export function getTextLabel(key) {
+  if (!placeholders) {
+    return key;
+  }
+
+  return placeholders[key] || key;
+}
+
+placeholders = await fetchPlaceholders();
 loadPage();
