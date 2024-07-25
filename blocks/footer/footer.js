@@ -58,7 +58,7 @@ export default async function decorate(block) {
   const backToTopText = getTextLabel('top');
 
   const backToTopNode = document.createRange().createContextualFragment(`
-    <button id="back-to-top">
+    <button class="back-to-top">
       ${backToTopIcon}
       <span>${backToTopText}</span>
     </button>
@@ -66,7 +66,7 @@ export default async function decorate(block) {
 
   footer.querySelector('.section:last-child').prepend(backToTopNode);
 
-  footer.querySelector('#back-to-top').addEventListener('click', () => {
+  footer.querySelector('.back-to-top').addEventListener('click', () => {
     window.scrollTo({
       top: 0,
       behavior: 'smooth',

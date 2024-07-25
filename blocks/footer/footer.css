@@ -1,6 +1,6 @@
 footer {
   background-color: #222;
-  color: #fff;
+  color: var(--c-primary-white);
 }
 
 .footer .section {
@@ -59,7 +59,7 @@ footer {
 }
 
 .footer .footer-list-item a {
-  color: #fff;
+  color: var(--c-primary-white);
   display: flex;
   gap: 15px;
   align-items: center;
@@ -67,11 +67,11 @@ footer {
 
 .footer .footer-list-item a:hover,
 .footer .footer-list-item a:active {
-  color: #fff;
+  color: var(--c-primary-white);
   text-decoration: none;
 }
 
-.footer #back-to-top {
+.footer .back-to-top {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -86,12 +86,12 @@ footer {
   line-height: 24px;
 }
 
-.footer #back-to-top:hover,
-.footer #back-to-top:focus {
+.footer .back-to-top:hover,
+.footer .back-to-top:focus {
   color: rgb(255 255 255 / 70%);
 }
 
-.footer #back-to-top svg {
+.footer .back-to-top svg {
   padding: 5px;
 }
 
