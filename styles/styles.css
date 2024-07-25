@@ -278,3 +278,15 @@ main .section.light,
 main .section.highlight {
   background-color: var(--light-color);
 }
+
+/* heading with marker */
+.heading-with-marker::before {
+  content: "";
+  display: inline-block;
+  position: relative;
+  top: calc(-0.1* 1em);
+  vertical-align: middle;
+  height: calc(4px + 0.7em);
+  margin-right: calc(5px + 0.2em);
+  border-left: calc(5px + 0.1em) solid #f00;
+}

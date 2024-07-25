@@ -55,6 +55,16 @@ function buildAutoBlocks(main) {
   }
 }
 
+function customDecorateSections(main) {
+  main.querySelectorAll(':scope > div').forEach((section) => {
+    // adding the 'heading-with-marker' to section will affect the first heading
+    if (section.classList.contains('heading-with-marker')) {
+      section.querySelector('h1, h2, h3, h4, h5, h6')?.classList.add('heading-with-marker');
+      section.classList.remove('heading-with-marker');
+    }
+  });
+}
+
 function customDecorateBlocks(main) {
   main.querySelectorAll('div.section > div > div').forEach((block) => {
     if (block.classList.contains('full-width')) {
@@ -74,6 +84,7 @@ export function decorateMain(main) {
   decorateIcons(main);
   buildAutoBlocks(main);
   decorateSections(main);
+  customDecorateSections(main);
   decorateBlocks(main);
   customDecorateBlocks(main);
 }
