@@ -1,0 +1,8 @@
+.block.image picture {
+  display: flex;
+}
+
+.block.image img {
+  width: 100%;
+  object-fit: cover;
+}
