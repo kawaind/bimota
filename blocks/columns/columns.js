@@ -11,6 +11,12 @@ export default function decorate(block) {
         if (picWrapper && picWrapper.children.length === 1) {
           // picture is only content in column
           picWrapper.classList.add('columns-img-col');
+
+          const picWrapperChildren = picWrapper.children[0];
+          // remove paragraph wrapping picture
+          if (picWrapperChildren.tagName === 'P') {
+            picWrapperChildren.replaceWith(...picWrapperChildren.children);
+          }
         }
       }
     });
