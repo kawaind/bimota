@@ -1,0 +1,26 @@
+.carousel {
+  --slide-gap: 30px;
+  --slide-width: 50%;
+
+  overflow: hidden;
+}
+
+.carousel-slide-wrapper {
+  display: flex;
+  width: 100%;
+  flex-wrap: nowrap;
+  gap: var(--slide-gap);
+}
+
+.carousle-slide {
+  width: var(--slide-width);
+  min-width: var(--slide-width);
+}
+
+.carousel-buttons {
+  display: flex;
+}
+
+.carousel .transition-effect {
+  transition: transform 300ms ease-in-out;
+}
