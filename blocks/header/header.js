@@ -2,7 +2,7 @@ import { getMetadata } from '../../scripts/aem.js';
 import { loadFragment } from '../fragment/fragment.js';
 
 // media query match that indicates mobile/tablet width
-const isDesktop = window.matchMedia('(min-width: 900px)');
+const isDesktop = window.matchMedia('(min-width: 992px)');
 
 function closeOnEscape(e) {
   if (e.code === 'Escape') {
@@ -58,25 +58,18 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
   const button = nav.querySelector('.nav-hamburger button');
   document.body.style.overflowY = (expanded || isDesktop.matches) ? '' : 'hidden';
   nav.setAttribute('aria-expanded', expanded ? 'false' : 'true');
-  toggleAllNavSections(navSections, expanded || isDesktop.matches ? 'false' : 'true');
+  toggleAllNavSections(navSections, false);
   button.setAttribute('aria-label', expanded ? 'Open navigation' : 'Close navigation');
   // enable nav dropdown keyboard accessibility
   const navDrops = navSections.querySelectorAll('.nav-drop');
-  if (isDesktop.matches) {
-    navDrops.forEach((drop) => {
-      if (!drop.hasAttribute('tabindex')) {
-        drop.setAttribute('role', 'button');
-        drop.setAttribute('tabindex', 0);
-        drop.addEventListener('focus', focusNavSection);
-      }
-    });
-  } else {
-    navDrops.forEach((drop) => {
-      drop.removeAttribute('role');
-      drop.removeAttribute('tabindex');
-      drop.removeEventListener('focus', focusNavSection);
-    });
-  }
+  navDrops.forEach((drop) => {
+    if (!drop.hasAttribute('tabindex')) {
+      drop.setAttribute('role', 'button');
+      drop.setAttribute('tabindex', 0);
+      drop.addEventListener('focus', focusNavSection);
+    }
+  });
+
   // enable menu collapse on escape keypress
   if (!expanded || isDesktop.matches) {
     // collapse menu on escape press
@@ -86,6 +79,37 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
   }
 }
 
+function toggleSubNav(navSection, navSections) {
+  const expanded = navSection.getAttribute('aria-expanded') === 'true';
+  toggleAllNavSections(navSections);
+  navSection.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+}
+
+function checkForActiveLink(navSections) {
+  navSections.querySelectorAll(':scope .default-content-wrapper a').forEach((link) => {
+    const href = link.getAttribute('href');
+    if (href === window.location.pathname || href === window.location.href) {
+      const navParent = link.closest('.nav-drop');
+      navParent?.classList.add('active');
+      link.classList.add('active');
+    }
+  });
+}
+
+function redirectPage(event) {
+  const currentUrl = window.location;
+  let redirectUrl = currentUrl.origin;
+
+  if (event.target.innerHTML === 'ENG') {
+    if (!currentUrl.pathname.includes('/en/')) {
+      redirectUrl = `${redirectUrl}/en`;
+    }
+    redirectUrl = `${redirectUrl}${currentUrl.pathname}`;
+  } else {
+    redirectUrl = `${redirectUrl}${currentUrl.pathname.replace(/\/en\//, '/')}`;
+  }
+  window.location.replace(redirectUrl);
+}
 /**
  * loads and decorates the header, mainly the nav
  * @param {Element} block The header block element
@@ -116,34 +140,79 @@ export default async function decorate(block) {
   }
 
   const navSections = nav.querySelector('.nav-sections');
+  const mobileLogoWrapper = document.createElement('div');
+  mobileLogoWrapper.classList.add('nav-logo-mobile');
   if (navSections) {
     navSections.querySelectorAll(':scope .default-content-wrapper > ul > li').forEach((navSection) => {
-      if (navSection.querySelector('ul')) navSection.classList.add('nav-drop');
-      navSection.addEventListener('click', () => {
-        if (isDesktop.matches) {
-          const expanded = navSection.getAttribute('aria-expanded') === 'true';
-          toggleAllNavSections(navSections);
-          navSection.setAttribute('aria-expanded', expanded ? 'false' : 'true');
-        }
-      });
+      if (navSection.querySelector('ul')) {
+        const textWrapper = document.createElement('a');
+        textWrapper.classList.add('nav-drop-text');
+        textWrapper.append(navSection.firstChild);
+        navSection.prepend(textWrapper);
+        navSection.classList.add('nav-drop');
+      }
+
+      navSection.addEventListener('click', () => toggleSubNav(navSection, navSections));
     });
+    const defaultContentWrapper = navSections.querySelector('.default-content-wrapper');
+    const logoButton = defaultContentWrapper.querySelector('.default-content-wrapper .button');
+    if (logoButton) {
+      logoButton.className = 'nav-logo';
+      defaultContentWrapper.prepend(logoButton);
+      const buttonContainer = defaultContentWrapper.querySelector('.button-container');
+      mobileLogoWrapper.appendChild(logoButton.cloneNode(true));
+      buttonContainer.remove();
+    }
+  }
+
+  const navTools = nav.querySelector('.nav-tools');
+  if (navTools) {
+    const toolsWrapper = navTools.querySelector('ul');
+    toolsWrapper.classList.add('default-content-wrapper');
+    navTools.append(toolsWrapper);
+    navTools.firstElementChild.remove();
+    toolsWrapper.querySelectorAll('li').forEach((list) => {
+      list.addEventListener('click', redirectPage);
+    });
+  }
+
+  if (navSections && navTools) {
+    const navLinksWrapper = document.createElement('div');
+    navLinksWrapper.classList.add('nav-link-section');
+    navLinksWrapper.append(navSections, navTools);
+    nav.append(navLinksWrapper);
   }
 
   // hamburger for mobile
   const hamburger = document.createElement('div');
   hamburger.classList.add('nav-hamburger');
   hamburger.innerHTML = `<button type="button" aria-controls="nav" aria-label="Open navigation">
-      <span class="nav-hamburger-icon"></span>
+      <span class="nav-hamburger-icon"></a>
     </button>`;
   hamburger.addEventListener('click', () => toggleMenu(nav, navSections));
   nav.prepend(hamburger);
   nav.setAttribute('aria-expanded', 'false');
   // prevent mobile nav behavior on window resize
   toggleMenu(nav, navSections, isDesktop.matches);
-  isDesktop.addEventListener('change', () => toggleMenu(nav, navSections, isDesktop.matches));
+  isDesktop.addEventListener('change', () => {
+    toggleMenu(nav, navSections, isDesktop.matches);
+  });
 
   const navWrapper = document.createElement('div');
   navWrapper.className = 'nav-wrapper';
-  navWrapper.append(nav);
+  navWrapper.append(mobileLogoWrapper, nav);
   block.append(navWrapper);
+
+  checkForActiveLink(navSections);
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting && isDesktop) {
+        navWrapper.classList.add('hide');
+      } else if (isDesktop) {
+        navWrapper.classList.remove('hide');
+      }
+    });
+  }, { rootMargin: '0px 0px -1000px 0px' });
+  observer.observe(document.querySelector('main'));
 }
