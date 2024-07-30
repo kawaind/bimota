@@ -22,5 +22,29 @@
 }
 
 .carousel .transition-effect {
-  transition: transform 300ms ease-in-out;
+  transition: transform 500ms ease;
+}
+
+.carousel-nav {
+  padding: 0;
+  list-style: none;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.carousel-nav-button {
+  background-color: #fff;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  transition: 0.2s ease-in-out;
+  transition-property: color, background-color, border-color, box-shadow;
+  border: 1px solid rgb(29 29 27 / 40%);
+  padding: 0;
+}
+
+.carousel-nav-button-active {
+  background-color: rgb(29 29 27 / 60%);
+  border-color: transparent;
 }

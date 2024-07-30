@@ -1,3 +1,5 @@
+import { getTextLabel } from '../../scripts/scripts.js';
+
 const getCarouselPadding = (itemIndex) => `calc(-1 * (${itemIndex - 0.5} * var(--slide-width) + var(--slide-gap) * ${itemIndex - 1}))`;
 
 const recalcSlidePositions = (slides, activeSlideIndex, direction) => {
@@ -54,6 +56,7 @@ const supportSwiping = (swipeEl, onSwipe) => {
 
   const handleSwipe = () => {
     const minSwipeDistance = 50;
+
     if (touchEndX < touchStartX - minSwipeDistance) {
       // swipe left - next slide
       onSwipe('next');
@@ -97,9 +100,13 @@ export default async function decorate(block) {
   `);
 
   const carouselNav = document.createRange().createContextualFragment(
-    `<div class="carousel-nav">
-      ${slides.map((slide, index) => `<button>${index}</button>`).join('')}
-    </div>`,
+    `<ul class="carousel-nav">
+      ${slides.map((_, index) => `
+        <li class="carousel-nav-item">
+          <button class="carousel-nav-button">${getTextLabel('Slide')} ${index}</button>
+        </li>
+      `).join('')}
+    </ul>`,
   );
 
   block.append(slideWrapper);
@@ -108,6 +115,13 @@ export default async function decorate(block) {
 
   let activeSlideIndex = 0;
   let prevActiveSlideIndex = 0;
+
+  const getActiveSlideIndex = () => activeSlideIndex;
+
+  const setActiveSlideIndex = (value) => {
+    prevActiveSlideIndex = activeSlideIndex;
+    activeSlideIndex = value;
+  };
 
   recalcSlidePositions(slides, activeSlideIndex, null);
 
