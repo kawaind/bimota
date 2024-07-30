@@ -3,6 +3,7 @@
   --slide-width: 50%;
 
   overflow: hidden;
+  position: relative;
 }
 
 .carousel-slide-wrapper {
@@ -21,8 +22,33 @@
   display: flex;
 }
 
+.carousel-buttons button {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  background: transparent;
+  border: unset;
+  position: absolute;
+  top: 50%;
+}
+
+.carousel-buttons button:first-of-type {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.carousel-buttons button:last-of-type {
+  transform: translateY(-50%);
+  right: 0;
+}
+
+.carousel-buttons button img {
+  width: 24px;
+  height: 24px;
+  display: flex;
+}
+
 .carousel .transition-effect {
-  transition: transform 500ms ease;
+  transition: transform 250ms ease;
 }
 
 .carousel-nav {
@@ -44,7 +70,8 @@
   padding: 0;
 }
 
-.carousel-nav-button-active {
+.carousel-nav-button-active,
+.carousel-nav-button-active:focus {
   background-color: rgb(29 29 27 / 60%);
   border-color: transparent;
 }

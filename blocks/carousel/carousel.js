@@ -1,5 +1,17 @@
 import { getTextLabel } from '../../scripts/scripts.js';
 
+const createCarouselStateManager = (onUpdate) => {
+  let activeSlideIndex = 0;
+
+  return {
+    getActiveSlideIndex: () => activeSlideIndex,
+    setActiveSlideIndex: (value) => {
+      activeSlideIndex = value;
+      onUpdate(activeSlideIndex);
+    },
+  };
+};
+
 const getCarouselPadding = (itemIndex) => `calc(-1 * (${itemIndex - 0.5} * var(--slide-width) + var(--slide-gap) * ${itemIndex - 1}))`;
 
 const recalcSlidePositions = (slides, activeSlideIndex, direction) => {
@@ -38,6 +50,7 @@ const recalcSlidePositions = (slides, activeSlideIndex, direction) => {
     carouselEl.addEventListener('transitioncancel', () => {
       resolveTransition();
     }, { once: true });
+
     carouselEl.addEventListener('transitionend', () => {
       carouselEl.classList.remove('transition-effect');
       resolveTransition();
@@ -79,13 +92,9 @@ const supportSwiping = (swipeEl, onSwipe) => {
 export default async function decorate(block) {
   const slides = [...block.querySelectorAll(':scope > div > div ')];
 
-  slides.forEach((slide, index) => {
+  slides.forEach((slide) => {
     slide.classList.add('carousle-slide');
     slide.parentElement.replaceWith(slide);
-
-    const d = document.createElement('span');
-    d.innerHTML = index;
-    slide.append(d);
   });
 
   const slideWrapper = document.createElement('div');
@@ -94,8 +103,16 @@ export default async function decorate(block) {
 
   const buttons = document.createRange().createContextualFragment(`
     <div class="carousel-buttons">
-      <button>&lt;</button>
-      <button>&gt;</button>
+      <button aria-label="${getTextLabel('Prev slide')}">
+        <span class="icon icon-arrow">
+          <img data-icon-name="arrow" src="/icons/arrow.svg" alt="" loading="lazy">
+        </span>
+      </button>
+      <button aria-label="${getTextLabel('Next slide')}">
+        <span class="icon icon-arrow">
+          <img data-icon-name="arrow" src="/icons/arrow.svg" alt="" loading="lazy">
+        </span>
+      </button>
     </div>
   `);
 
@@ -113,60 +130,61 @@ export default async function decorate(block) {
   block.append(buttons.children[0]);
   block.append(carouselNav.children[0]);
 
-  let activeSlideIndex = 0;
-  let prevActiveSlideIndex = 0;
+  const onIndexUpdate = (activeIndex) => {
+    const navButtons = [...block.querySelectorAll('.carousel-nav .carousel-nav-button')];
 
-  const getActiveSlideIndex = () => activeSlideIndex;
-
-  const setActiveSlideIndex = (value) => {
-    prevActiveSlideIndex = activeSlideIndex;
-    activeSlideIndex = value;
+    navButtons.forEach((el) => el.classList.remove('carousel-nav-button-active'));
+    navButtons[activeIndex].classList.add('carousel-nav-button-active');
   };
 
-  recalcSlidePositions(slides, activeSlideIndex, null);
+  const { getActiveSlideIndex, setActiveSlideIndex } = createCarouselStateManager(onIndexUpdate);
+
+  onIndexUpdate(getActiveSlideIndex());
+  recalcSlidePositions(slides, getActiveSlideIndex(), null);
 
   [...block.querySelectorAll('.carousel-buttons button')].forEach((button, btnIndex) => {
     button.addEventListener('click', () => {
-      prevActiveSlideIndex = activeSlideIndex;
-
+      const activeIndex = getActiveSlideIndex();
       if (btnIndex === 0) {
-        activeSlideIndex = ((activeSlideIndex - 1 + slides.length) % slides.length);
+        setActiveSlideIndex((activeIndex - 1 + slides.length) % slides.length);
       } else {
-        activeSlideIndex = (activeSlideIndex + 1) % slides.length;
+        setActiveSlideIndex((activeIndex + 1) % slides.length);
       }
 
-      recalcSlidePositions(slides, activeSlideIndex, btnIndex === 0 ? 'prev' : 'next');
+      recalcSlidePositions(slides, getActiveSlideIndex(), btnIndex === 0 ? 'prev' : 'next');
     });
   });
 
   [...block.querySelectorAll('.carousel-nav button')].forEach((button, btnIndex) => {
-    button.addEventListener('click', () => {
-      prevActiveSlideIndex = activeSlideIndex;
-      activeSlideIndex = btnIndex;
+    button.addEventListener('click', async (event) => {
+      const { target } = event;
+      const activeIndex = getActiveSlideIndex();
+      const times = [...Array(Math.abs(activeIndex - btnIndex)).keys()];
+      const direction = btnIndex < activeIndex ? 'prev' : 'next';
 
-      const times = Array.from(Array(Math.abs(prevActiveSlideIndex - activeSlideIndex)).keys());
-      const direction = activeSlideIndex < prevActiveSlideIndex ? 'prev' : 'next';
-      let currentIndex = prevActiveSlideIndex;
+      [...target.closest('.carousel-nav').querySelectorAll('carousel-nav-button')].forEach((el) => el.classList.remove('carousel-nav-button-active'));
+      target.classList.add('carousel-nav-button-active');
 
-      times.forEach(async () => {
+      await times.reduce(async (previousPromise) => {
+        await previousPromise;
         if (direction === 'next') {
-          currentIndex += 1;
+          setActiveSlideIndex(getActiveSlideIndex() + 1);
         } else {
-          currentIndex -= 1;
+          setActiveSlideIndex(getActiveSlideIndex() - 1);
         }
-        await recalcSlidePositions(slides, currentIndex, direction);
-      });
+
+        await recalcSlidePositions(slides, getActiveSlideIndex(), direction);
+      }, Promise.resolve());
     });
   });
 
   const triggerSlideChange = (direction) => {
-    prevActiveSlideIndex = activeSlideIndex;
     if (direction === 'next') {
-      activeSlideIndex = (activeSlideIndex + 1) % slides.length;
+      setActiveSlideIndex((getActiveSlideIndex() + 1) % slides.length);
     } else if (direction === 'prev') {
-      activeSlideIndex = ((activeSlideIndex - 1 + slides.length) % slides.length);
+      setActiveSlideIndex((getActiveSlideIndex() - 1 + slides.length) % slides.length);
     }
-    recalcSlidePositions(slides, activeSlideIndex, direction);
+    recalcSlidePositions(slides, getActiveSlideIndex(), direction);
   };
 
   supportSwiping(block, triggerSlideChange);
