@@ -48,6 +48,31 @@ const recalcSlidePositions = (slides, activeSlideIndex, direction) => {
   return transitionEndPromise;
 };
 
+const supportSwiping = (swipeEl, onSwipe) => {
+  let touchStartX = 0;
+  let touchEndX = 0;
+
+  const handleSwipe = () => {
+    const minSwipeDistance = 50;
+    if (touchEndX < touchStartX - minSwipeDistance) {
+      // swipe left - next slide
+      onSwipe('next');
+    } else if (touchEndX > touchStartX + minSwipeDistance) {
+      // swipe right - previous slide
+      onSwipe('prev');
+    }
+  };
+
+  swipeEl.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, false);
+
+  swipeEl.addEventListener('touchend', (e) => {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+  }, false);
+};
+
 export default async function decorate(block) {
   const slides = [...block.querySelectorAll(':scope > div > div ')];
 
@@ -119,4 +144,16 @@ export default async function decorate(block) {
       });
     });
   });
+
+  const triggerSlideChange = (direction) => {
+    prevActiveSlideIndex = activeSlideIndex;
+    if (direction === 'next') {
+      activeSlideIndex = (activeSlideIndex + 1) % slides.length;
+    } else if (direction === 'prev') {
+      activeSlideIndex = ((activeSlideIndex - 1 + slides.length) % slides.length);
+    }
+    recalcSlidePositions(slides, activeSlideIndex, direction);
+  };
+
+  supportSwiping(block, triggerSlideChange);
 }
