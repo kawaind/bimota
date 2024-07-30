@@ -4,6 +4,7 @@
 
   overflow: hidden;
   position: relative;
+  user-select: none;
 }
 
 .carousel-slide-wrapper {
@@ -16,6 +17,7 @@
 .carousle-slide {
   width: var(--slide-width);
   min-width: var(--slide-width);
+  pointer-events: none;
 }
 
 .carousel-buttons {

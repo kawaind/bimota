@@ -64,28 +64,51 @@ const recalcSlidePositions = (slides, activeSlideIndex, direction) => {
 };
 
 const supportSwiping = (swipeEl, onSwipe) => {
-  let touchStartX = 0;
-  let touchEndX = 0;
+  let startX = 0;
+  let endX = 0;
+  let isDragging = false;
 
   const handleSwipe = () => {
     const minSwipeDistance = 50;
 
-    if (touchEndX < touchStartX - minSwipeDistance) {
+    if (endX < startX - minSwipeDistance) {
       // swipe left - next slide
       onSwipe('next');
-    } else if (touchEndX > touchStartX + minSwipeDistance) {
+    } else if (endX > startX + minSwipeDistance) {
       // swipe right - previous slide
       onSwipe('prev');
     }
   };
 
+  // touch events
   swipeEl.addEventListener('touchstart', (e) => {
-    touchStartX = e.changedTouches[0].screenX;
+    startX = e.changedTouches[0].screenX;
   }, false);
 
   swipeEl.addEventListener('touchend', (e) => {
-    touchEndX = e.changedTouches[0].screenX;
+    endX = e.changedTouches[0].screenX;
     handleSwipe();
+  }, false);
+
+  // mouse events
+  swipeEl.addEventListener('mousedown', (e) => {
+    startX = e.screenX;
+    isDragging = true;
+  }, false);
+
+  swipeEl.addEventListener('mouseup', (e) => {
+    if (isDragging) {
+      endX = e.screenX;
+      handleSwipe();
+      isDragging = false;
+    }
+  }, false);
+
+  swipeEl.addEventListener('mouseleave', () => {
+    // cancel swipe if dragging and mouse leaves element
+    if (isDragging) {
+      isDragging = false;
+    }
   }, false);
 };
 
