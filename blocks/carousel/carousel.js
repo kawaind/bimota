@@ -1,12 +1,14 @@
 const getCarouselPadding = (itemIndex) => `calc(-1 * (${itemIndex - 0.5} * var(--slide-width) + var(--slide-gap) * ${itemIndex - 1}))`;
 
-const recalcSlidePositions = (slides, activeSlideIndex, direction, prevActiveSlideIndex) => {
+const recalcSlidePositions = (slides, activeSlideIndex, direction) => {
   const slidesList = [...slides];
   const slidesCount = slidesList.length;
   const centerItemIndex = Math.floor(slidesCount / 2);
   const carouselEl = slides[0].closest('.carousel').querySelector('.carousel-slide-wrapper');
-
-  debugger;
+  let resolveTransition;
+  const transitionEndPromise = new Promise((resolve) => {
+    resolveTransition = resolve;
+  });
 
   slidesList.forEach((slide, index) => {
     slide.style.order = (index - activeSlideIndex + centerItemIndex + slidesCount) % slidesCount;
@@ -29,10 +31,21 @@ const recalcSlidePositions = (slides, activeSlideIndex, direction, prevActiveSli
     const { offsetHeight } = carouselEl; // Read property to force reflow
 
     carouselEl.classList.add('transition-effect');
-    carouselEl.addEventListener('transitionend', () => { carouselEl.classList.remove('transition-effect'); }, { once: true });
+    carouselEl.style.transform = `translateX(${toPaddingInCalc})`;
+
+    carouselEl.addEventListener('transitioncancel', () => {
+      resolveTransition();
+    }, { once: true });
+    carouselEl.addEventListener('transitionend', () => {
+      carouselEl.classList.remove('transition-effect');
+      resolveTransition();
+    }, { once: true });
+  } else {
+    carouselEl.style.transform = `translateX(${toPaddingInCalc})`;
+    resolveTransition();
   }
 
-  carouselEl.style.transform = `translateX(${toPaddingInCalc})`;
+  return transitionEndPromise;
 };
 
 export default async function decorate(block) {
@@ -91,7 +104,19 @@ export default async function decorate(block) {
     button.addEventListener('click', () => {
       prevActiveSlideIndex = activeSlideIndex;
       activeSlideIndex = btnIndex;
-      recalcSlidePositions(slides, activeSlideIndex, null, prevActiveSlideIndex);
+
+      const times = Array.from(Array(Math.abs(prevActiveSlideIndex - activeSlideIndex)).keys());
+      const direction = activeSlideIndex < prevActiveSlideIndex ? 'prev' : 'next';
+      let currentIndex = prevActiveSlideIndex;
+
+      times.forEach(async () => {
+        if (direction === 'next') {
+          currentIndex += 1;
+        } else {
+          currentIndex -= 1;
+        }
+        await recalcSlidePositions(slides, currentIndex, direction);
+      });
     });
   });
 }
