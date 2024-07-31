@@ -30,6 +30,22 @@ function buildHeroBlock(main) {
   }
 }
 
+function buildVideoBlock(main) {
+  const videoLinks = [...main.querySelectorAll('a[href$=".mp4"]')];
+
+  videoLinks.forEach((videoLink) => {
+    const videoEl = document.createElement('video');
+
+    videoEl.classList.add('mp4-video');
+    videoEl.setAttribute('src', videoLink.href);
+    videoEl.muted = true;
+    videoEl.autoplay = true;
+    videoEl.loop = true;
+
+    videoLink.replaceWith(videoEl);
+  });
+}
+
 /**
  * load fonts.css and set a session storage flag
  */
@@ -49,6 +65,7 @@ async function loadFonts() {
 function buildAutoBlocks(main) {
   try {
     buildHeroBlock(main);
+    buildVideoBlock(main);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Auto Blocking failed', error);

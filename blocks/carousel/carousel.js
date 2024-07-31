@@ -140,8 +140,13 @@ export default async function decorate(block) {
   const slides = [...block.querySelectorAll(':scope > div > div ')];
 
   slides.forEach((slide) => {
-    slide.classList.add('carousle-slide');
+    slide.classList.add('carousel-slide');
     slide.parentElement.replaceWith(slide);
+    slide.innerHTML = slide.innerHTML.trim(); // removing spaces and new lines
+
+    if (slide.childElementCount === 1 && slide.querySelector('picture, video')) {
+      slide.classList.add('carousel-slide-media-only');
+    }
   });
 
   const slideWrapper = document.createElement('div');
@@ -238,5 +243,14 @@ export default async function decorate(block) {
 
   if (block.classList.contains('autoplay')) {
     autoplay(block, triggerSlideChange);
+  }
+
+  // getting the slides ratio
+  const ratioClass = [...block.classList].find((cl) => cl.startsWith('ratio-'));
+  if (ratioClass) {
+    // eslint-disable-next-line no-unused-vars
+    const [_, a, b] = /ratio-(\d+)-(\d+)/.exec(ratioClass);
+
+    block.querySelector('.carousel-slide-wrapper').style.aspectRatio = `${a} / ${b}`;
   }
 }

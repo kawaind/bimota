@@ -208,6 +208,11 @@ main img {
   width: 100%;
 }
 
+video {
+  width: 100%;
+  height: auto;
+}
+
 /* blocks */
 div[class$="-wrapper"]:not(:first-child) {
   padding-top: 30px;
