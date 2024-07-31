@@ -12,7 +12,8 @@ const createCarouselStateManager = (onUpdate) => {
   };
 };
 
-const getCarouselPadding = (itemIndex) => `calc(-1 * (${itemIndex - 0.5} * var(--slide-width) + var(--slide-gap) * ${itemIndex - 1}))`;
+const getCarouselPadding = (itemIndex) => `calc(-1 * ((${itemIndex} - var(--slide-part-on-edge)) * var(--slide-width) + var(--slide-gap) * ${itemIndex - 1}))`;
+const getTransitionTiming = (el) => `${el.offsetWidth * 0.5 + 300}ms`;
 
 const recalcSlidePositions = (slides, activeSlideIndex, direction) => {
   const slidesList = [...slides];
@@ -23,6 +24,8 @@ const recalcSlidePositions = (slides, activeSlideIndex, direction) => {
   const transitionEndPromise = new Promise((resolve) => {
     resolveTransition = resolve;
   });
+
+  carouselEl.style.setProperty('--slide-transition-time', getTransitionTiming(carouselEl));
 
   slidesList.forEach((slide, index) => {
     slide.style.order = (index - activeSlideIndex + centerItemIndex + slidesCount) % slidesCount;
@@ -109,6 +112,27 @@ const supportSwiping = (swipeEl, onSwipe) => {
     if (isDragging) {
       isDragging = false;
     }
+  }, false);
+};
+
+const autoplay = (carouselEl, changeSlide) => {
+  let interval;
+  const startAutoPlay = () => {
+    interval = setInterval(() => {
+      changeSlide('next');
+    }, 6000);
+  };
+
+  startAutoPlay();
+
+  carouselEl.addEventListener('mouseover', () => {
+    if (interval) {
+      clearInterval(interval);
+    }
+  }, false);
+
+  carouselEl.addEventListener('mouseout', () => {
+    startAutoPlay();
   }, false);
 };
 
@@ -211,4 +235,8 @@ export default async function decorate(block) {
   };
 
   supportSwiping(block, triggerSlideChange);
+
+  if (block.classList.contains('autoplay')) {
+    autoplay(block, triggerSlideChange);
+  }
 }

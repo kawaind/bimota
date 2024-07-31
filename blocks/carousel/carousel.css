@@ -1,6 +1,8 @@
 .carousel {
-  --slide-gap: 30px;
-  --slide-width: 50%;
+  --slide-gap: 0px;
+  --slide-width: 100%;
+  --slide-part-on-edge: 0;
+  --slide-transition-time: 300ms;
 
   overflow: hidden;
   position: relative;
@@ -21,7 +23,7 @@
 }
 
 .carousel-buttons {
-  display: flex;
+  display: none;
 }
 
 .carousel-buttons button {
@@ -32,6 +34,7 @@
   border: unset;
   position: absolute;
   top: 50%;
+  margin: 0 30px;
 }
 
 .carousel-buttons button:first-of-type {
@@ -50,7 +53,7 @@
 }
 
 .carousel .transition-effect {
-  transition: transform 250ms ease;
+  transition: transform var(--slide-transition-time) ease;
 }
 
 .carousel-nav {
@@ -76,4 +79,22 @@
 .carousel-nav-button-active:focus {
   background-color: rgb(29 29 27 / 60%);
   border-color: transparent;
+}
+
+@media (width >= 768px) {
+  .carousel {
+    --slide-gap: 30px;
+    --slide-width: 50%;
+    --slide-part-on-edge: 0.5;
+  }
+
+  .carousel-buttons {
+    display: flex;
+  }
+}
+
+@media (width >= 960px) {
+  .carousel {
+    --slide-gap: 40px;
+  }
 }

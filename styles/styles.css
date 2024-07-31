@@ -29,8 +29,8 @@
   --nav-height: 64px;
 
   /* section paddings */
-  --section-y-padding: 15px;
-  --section-x-padding: 40px;
+  --section-y-padding: 40px;
+  --section-x-padding: 15px;
 }
 
 body {
