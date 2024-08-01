@@ -6,14 +6,26 @@ const SLIDE_CHANGE_DIRECTION = {
   PREV: 'prev',
 };
 
-const createCarouselStateManager = (onUpdate) => {
+const createCarouselStateManager = (onUpdate, slideNumber) => {
   let activeSlideIndex = 0;
+  const nextSlide = () => {
+    activeSlideIndex = (activeSlideIndex + 1) % slideNumber;
+    onUpdate(activeSlideIndex);
+  };
+  const prevSlide = () => {
+    activeSlideIndex = (activeSlideIndex - 1 + slideNumber) % slideNumber;
+    onUpdate(activeSlideIndex);
+  };
 
   return {
     getActiveSlideIndex: () => activeSlideIndex,
-    setActiveSlideIndex: (value) => {
-      activeSlideIndex = value;
-      onUpdate(activeSlideIndex);
+    swipe: (direction) => {
+      if (direction === SLIDE_CHANGE_DIRECTION.PREV) {
+        prevSlide();
+        return;
+      }
+
+      nextSlide();
     },
   };
 };
@@ -191,22 +203,17 @@ export default async function decorate(block) {
   };
 
   const {
-    getActiveSlideIndex, setActiveSlideIndex,
-  } = createCarouselStateManager(onActiveSlideIndexUpdate);
+    getActiveSlideIndex, swipe,
+  } = createCarouselStateManager(onActiveSlideIndexUpdate, slides.length);
 
   onActiveSlideIndexUpdate(getActiveSlideIndex());
   recalcSlidePositions(slides, getActiveSlideIndex(), null);
 
   [...block.querySelectorAll('.carousel-arrow-buttons button')].forEach((button, btnIndex) => {
     button.addEventListener('click', () => {
-      const activeIndex = getActiveSlideIndex();
-      if (btnIndex === 0) {
-        setActiveSlideIndex((activeIndex - 1 + slides.length) % slides.length);
-      } else {
-        setActiveSlideIndex((activeIndex + 1) % slides.length);
-      }
-
       const direction = btnIndex === 0 ? SLIDE_CHANGE_DIRECTION.PREV : SLIDE_CHANGE_DIRECTION.NEXT;
+
+      swipe(direction);
       recalcSlidePositions(slides, getActiveSlideIndex(), direction);
     });
   });
@@ -224,23 +231,14 @@ export default async function decorate(block) {
 
       await times.reduce(async (previousPromise) => {
         await previousPromise;
-        if (direction === SLIDE_CHANGE_DIRECTION.NEXT) {
-          setActiveSlideIndex(getActiveSlideIndex() + 1);
-        } else {
-          setActiveSlideIndex(getActiveSlideIndex() - 1);
-        }
-
+        swipe(direction);
         await recalcSlidePositions(slides, getActiveSlideIndex(), direction);
       }, Promise.resolve());
     });
   });
 
   const triggerSlideChange = (direction) => {
-    if (direction === SLIDE_CHANGE_DIRECTION.NEXT) {
-      setActiveSlideIndex((getActiveSlideIndex() + 1) % slides.length);
-    } else if (direction === SLIDE_CHANGE_DIRECTION.PREV) {
-      setActiveSlideIndex((getActiveSlideIndex() - 1 + slides.length) % slides.length);
-    }
+    swipe(direction);
     recalcSlidePositions(slides, getActiveSlideIndex(), direction);
   };
 
