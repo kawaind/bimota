@@ -245,7 +245,7 @@ export default async function decorate(block) {
     autoplay(block, triggerSlideChange);
   }
 
-  // getting the slides ratio
+  // setting the slides ratio
   const ratioClass = [...block.classList].find((cl) => cl.startsWith('ratio-'));
   if (ratioClass) {
     // eslint-disable-next-line no-unused-vars
@@ -253,4 +253,24 @@ export default async function decorate(block) {
 
     block.querySelector('.carousel-slide-wrapper').style.aspectRatio = `${a} / ${b}`;
   }
+
+  // autoplaying videos only when visible on the screan
+  const videos = block.querySelectorAll('video');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      const { target, isIntersecting } = entry;
+
+      if (isIntersecting) {
+        target.play();
+      } else {
+        target.pause();
+      }
+    });
+  }, {
+    threshold: 0.5,
+  });
+
+  videos.forEach((video) => {
+    observer.observe(video);
+  });
 }

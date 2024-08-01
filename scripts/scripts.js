@@ -35,13 +35,16 @@ function buildVideoBlock(main) {
 
   videoLinks.forEach((videoLink) => {
     const videoEl = document.createElement('video');
+    const sourceEl = document.createElement('source');
 
     videoEl.classList.add('mp4-video');
-    videoEl.setAttribute('src', videoLink.href);
     videoEl.muted = true;
     videoEl.autoplay = true;
     videoEl.loop = true;
+    sourceEl.setAttribute('src', videoLink.href);
+    sourceEl.setAttribute('type', 'video/mp4');
 
+    videoEl.append(sourceEl);
     videoLink.replaceWith(videoEl);
   });
 }
