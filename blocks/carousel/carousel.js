@@ -6,14 +6,14 @@ const SLIDE_CHANGE_DIRECTION = {
   PREV: 'prev',
 };
 
-const createCarouselStateManager = (onUpdate, slideNumber) => {
+const createCarouselStateManager = (onUpdate, slidesCount) => {
   let activeSlideIndex = 0;
   const nextSlide = () => {
-    activeSlideIndex = (activeSlideIndex + 1) % slideNumber;
+    activeSlideIndex = (activeSlideIndex + 1) % slidesCount;
     onUpdate(activeSlideIndex);
   };
   const prevSlide = () => {
-    activeSlideIndex = (activeSlideIndex - 1 + slideNumber) % slideNumber;
+    activeSlideIndex = (activeSlideIndex - 1 + slidesCount) % slidesCount;
     onUpdate(activeSlideIndex);
   };
 
@@ -84,7 +84,7 @@ function recalcSlidePositions(slides, activeSlideIndex, direction) {
   return transitionEndPromise;
 }
 
-// slide changes automatically every 6 seconds, with pause if cursor is over the slide
+// change slide automatically every 6 seconds, with pause if cursor is over the slide
 function autoSlide(carouselEl, changeSlide) {
   let interval;
   const startAutoSlideChange = () => {
@@ -140,6 +140,20 @@ function buildSlides(slidesList) {
 
     if (slide.childElementCount === 1 && slide.querySelector('picture, video')) {
       slide.classList.add('carousel-slide-media-only');
+    } else if (slide.firstChild.querySelector('picture, video')) {
+      // if the slide contains more that just media (text, button...)
+      // the media is displayed as background
+      const [mediaParagraph, restEls] = [...slide.children];
+      const media = mediaParagraph.children[0];
+
+      media.classList.add('carsousel-slide-media-as-background');
+      mediaParagraph.replaceWith(media); // removing wrapping parentElement
+
+      // the rest of the elements are wrapped into div
+      const wrapper = document.createElement('div');
+      wrapper.classList.add('carsousel-slide-content');
+      wrapper.append(restEls);
+      slide.append(wrapper);
     }
   });
 

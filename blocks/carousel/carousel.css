@@ -19,8 +19,12 @@
 .carousel-slide {
   width: var(--slide-width);
   min-width: var(--slide-width);
-  pointer-events: none;
   overflow: hidden;
+  position: relative;
+}
+
+.carousel-slide img {
+  pointer-events: none;
 }
 
 .carousel-arrow-buttons {
@@ -36,6 +40,26 @@
   position: absolute;
   top: 50%;
   margin: 0 30px;
+}
+
+.carsousel-slide-media-as-background {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+
+.carsousel-slide-media-as-background img,
+.carsousel-slide-media-as-background video {
+  width: 100%;
+  height: 100%;
+}
+
+.carsousel-slide-content {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  height: 100%;
 }
 
 .carousel-arrow-buttons button:first-of-type {
