@@ -1,5 +1,5 @@
 import { getTextLabel } from '../../scripts/scripts.js';
-import { addSwiping, callOnIntersection } from '../../scripts/helpers.js';
+import { addSwiping, callOnIntersection, isElementInViewport } from '../../scripts/helpers.js';
 
 const SLIDE_CHANGE_DIRECTION = {
   NEXT: 'next',
@@ -21,7 +21,7 @@ const createCarouselStateManager = (onUpdate) => {
 const getCarouselPadding = (itemIndex) => `calc(-1 * ((${itemIndex} - var(--slide-part-on-edge)) * var(--slide-width) + var(--slide-gap) * ${itemIndex - 1}))`;
 const getTransitionTiming = (el) => `${el.offsetWidth * 0.5 + 300}ms`;
 
-const recalcSlidePositions = (slides, activeSlideIndex, direction) => {
+function recalcSlidePositions(slides, activeSlideIndex, direction) {
   const slidesList = [...slides];
   const slidesCount = slidesList.length;
   const centerItemIndex = Math.floor(slidesCount / 2);
@@ -70,9 +70,10 @@ const recalcSlidePositions = (slides, activeSlideIndex, direction) => {
   }
 
   return transitionEndPromise;
-};
+}
 
-const autoSlide = (carouselEl, changeSlide) => {
+// slide changes automatically every 6 seconds, with pause if cursor is over the slide
+function autoSlide(carouselEl, changeSlide) {
   let interval;
   const startAutoSlideChange = () => {
     interval = setInterval(() => {
@@ -91,7 +92,40 @@ const autoSlide = (carouselEl, changeSlide) => {
   carouselEl.addEventListener('mouseout', () => {
     startAutoSlideChange();
   }, false);
-};
+}
+
+// set aspect ratio when block class has class like: ratio-16-9
+function setAspecRatio(block) {
+  const ratioClass = [...block.classList].find((cl) => cl.startsWith('ratio-'));
+  if (ratioClass) {
+    // eslint-disable-next-line no-unused-vars
+    const [_, a, b] = /ratio-(\d+)-(\d+)/.exec(ratioClass);
+
+    block.querySelector('.carousel-slide-wrapper').style.aspectRatio = `${a} / ${b}`;
+  }
+}
+
+function setAutoPlayForVideos(block) {
+  const videos = block.querySelectorAll('video');
+
+  // autoplaying videos only when visible on the screan
+  callOnIntersection(videos, (isIntersecting, target) => {
+    if (isIntersecting) {
+      target.play();
+      return;
+    }
+
+    target.pause();
+  });
+
+  // using setTimout to make sure that the elemnt is already added to the DOM
+  setTimeout(() => {
+    if (videos[0] && isElementInViewport(videos[0])) {
+      videos[0].muted = true;
+      videos[0].play();
+    }
+  }, 100);
+}
 
 export default async function decorate(block) {
   const slides = [...block.querySelectorAll(':scope > div > div ')];
@@ -205,23 +239,6 @@ export default async function decorate(block) {
   }
 
   // setting the slides ratio
-  const ratioClass = [...block.classList].find((cl) => cl.startsWith('ratio-'));
-  if (ratioClass) {
-    // eslint-disable-next-line no-unused-vars
-    const [_, a, b] = /ratio-(\d+)-(\d+)/.exec(ratioClass);
-
-    block.querySelector('.carousel-slide-wrapper').style.aspectRatio = `${a} / ${b}`;
-  }
-
-  // autoplaying videos only when visible on the screan
-  const videos = block.querySelectorAll('video');
-
-  callOnIntersection(videos, (isIntersecting, target) => {
-    if (isIntersecting) {
-      target.play();
-      return;
-    }
-
-    target.pause();
-  });
+  setAspecRatio(block);
+  setAutoPlayForVideos(block);
 }
