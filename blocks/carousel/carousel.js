@@ -1,4 +1,10 @@
 import { getTextLabel } from '../../scripts/scripts.js';
+import { addSwiping, callOnIntersection } from '../../scripts/helpers.js';
+
+const SLIDE_CHANGE_DIRECTION = {
+  NEXT: 'next',
+  PREV: 'prev',
+};
 
 const createCarouselStateManager = (onUpdate) => {
   let activeSlideIndex = 0;
@@ -34,9 +40,9 @@ const recalcSlidePositions = (slides, activeSlideIndex, direction) => {
   let fromPaddingInCalc;
   const toPaddingInCalc = getCarouselPadding(centerItemIndex);
 
-  if (direction === 'next') {
+  if (direction === SLIDE_CHANGE_DIRECTION.NEXT) {
     fromPaddingInCalc = getCarouselPadding(centerItemIndex - 1);
-  } else if (direction === 'prev') {
+  } else if (direction === SLIDE_CHANGE_DIRECTION.PREV) {
     fromPaddingInCalc = getCarouselPadding(centerItemIndex + 1);
   }
 
@@ -66,64 +72,15 @@ const recalcSlidePositions = (slides, activeSlideIndex, direction) => {
   return transitionEndPromise;
 };
 
-const supportSwiping = (swipeEl, onSwipe) => {
-  let startX = 0;
-  let endX = 0;
-  let isDragging = false;
-
-  const handleSwipe = () => {
-    const minSwipeDistance = 50;
-
-    if (endX < startX - minSwipeDistance) {
-      // swipe left - next slide
-      onSwipe('next');
-    } else if (endX > startX + minSwipeDistance) {
-      // swipe right - previous slide
-      onSwipe('prev');
-    }
-  };
-
-  // touch events
-  swipeEl.addEventListener('touchstart', (e) => {
-    startX = e.changedTouches[0].screenX;
-  }, false);
-
-  swipeEl.addEventListener('touchend', (e) => {
-    endX = e.changedTouches[0].screenX;
-    handleSwipe();
-  }, false);
-
-  // mouse events
-  swipeEl.addEventListener('mousedown', (e) => {
-    startX = e.screenX;
-    isDragging = true;
-  }, false);
-
-  swipeEl.addEventListener('mouseup', (e) => {
-    if (isDragging) {
-      endX = e.screenX;
-      handleSwipe();
-      isDragging = false;
-    }
-  }, false);
-
-  swipeEl.addEventListener('mouseleave', () => {
-    // cancel swipe if dragging and mouse leaves element
-    if (isDragging) {
-      isDragging = false;
-    }
-  }, false);
-};
-
-const autoplay = (carouselEl, changeSlide) => {
+const autoSlide = (carouselEl, changeSlide) => {
   let interval;
-  const startAutoPlay = () => {
+  const startAutoSlideChange = () => {
     interval = setInterval(() => {
-      changeSlide('next');
+      changeSlide(SLIDE_CHANGE_DIRECTION.NEXT);
     }, 6000);
   };
 
-  startAutoPlay();
+  startAutoSlideChange();
 
   carouselEl.addEventListener('mouseover', () => {
     if (interval) {
@@ -132,7 +89,7 @@ const autoplay = (carouselEl, changeSlide) => {
   }, false);
 
   carouselEl.addEventListener('mouseout', () => {
-    startAutoPlay();
+    startAutoSlideChange();
   }, false);
 };
 
@@ -203,7 +160,8 @@ export default async function decorate(block) {
         setActiveSlideIndex((activeIndex + 1) % slides.length);
       }
 
-      recalcSlidePositions(slides, getActiveSlideIndex(), btnIndex === 0 ? 'prev' : 'next');
+      const direction = btnIndex === 0 ? SLIDE_CHANGE_DIRECTION.PREV : SLIDE_CHANGE_DIRECTION.NEXT;
+      recalcSlidePositions(slides, getActiveSlideIndex(), direction);
     });
   });
 
@@ -212,14 +170,15 @@ export default async function decorate(block) {
       const { target } = event;
       const activeIndex = getActiveSlideIndex();
       const times = [...Array(Math.abs(activeIndex - btnIndex)).keys()];
-      const direction = btnIndex < activeIndex ? 'prev' : 'next';
+      const { PREV, NEXT } = SLIDE_CHANGE_DIRECTION;
+      const direction = btnIndex < activeIndex ? PREV : NEXT;
 
       [...target.closest('.carousel-nav').querySelectorAll('carousel-nav-button')].forEach((el) => el.classList.remove('carousel-nav-button-active'));
       target.classList.add('carousel-nav-button-active');
 
       await times.reduce(async (previousPromise) => {
         await previousPromise;
-        if (direction === 'next') {
+        if (direction === SLIDE_CHANGE_DIRECTION.NEXT) {
           setActiveSlideIndex(getActiveSlideIndex() + 1);
         } else {
           setActiveSlideIndex(getActiveSlideIndex() - 1);
@@ -231,18 +190,18 @@ export default async function decorate(block) {
   });
 
   const triggerSlideChange = (direction) => {
-    if (direction === 'next') {
+    if (direction === SLIDE_CHANGE_DIRECTION.NEXT) {
       setActiveSlideIndex((getActiveSlideIndex() + 1) % slides.length);
-    } else if (direction === 'prev') {
+    } else if (direction === SLIDE_CHANGE_DIRECTION.PREV) {
       setActiveSlideIndex((getActiveSlideIndex() - 1 + slides.length) % slides.length);
     }
     recalcSlidePositions(slides, getActiveSlideIndex(), direction);
   };
 
-  supportSwiping(block, triggerSlideChange);
+  addSwiping(block, triggerSlideChange);
 
   if (block.classList.contains('autoplay')) {
-    autoplay(block, triggerSlideChange);
+    autoSlide(block, triggerSlideChange);
   }
 
   // setting the slides ratio
@@ -256,21 +215,13 @@ export default async function decorate(block) {
 
   // autoplaying videos only when visible on the screan
   const videos = block.querySelectorAll('video');
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      const { target, isIntersecting } = entry;
 
-      if (isIntersecting) {
-        target.play();
-      } else {
-        target.pause();
-      }
-    });
-  }, {
-    threshold: 0.5,
-  });
+  callOnIntersection(videos, (isIntersecting, target) => {
+    if (isIntersecting) {
+      target.play();
+      return;
+    }
 
-  videos.forEach((video) => {
-    observer.observe(video);
+    target.pause();
   });
 }
