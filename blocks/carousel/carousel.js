@@ -1,5 +1,5 @@
 import { getTextLabel } from '../../scripts/scripts.js';
-import { addSwiping, callOnIntersection, isElementInViewport } from '../../scripts/helpers.js';
+import { addSwiping, callOnIntersection } from '../../scripts/helpers.js';
 
 const SLIDE_CHANGE_DIRECTION = {
   NEXT: 'next',
@@ -111,28 +111,19 @@ function setAutoPlayForVideos(block) {
   // autoplaying videos only when visible on the screan
   callOnIntersection(videos, (isIntersecting, target) => {
     if (isIntersecting) {
+      target.muted = true;
       target.play();
       return;
     }
 
     target.pause();
   });
-
-  // using setTimout to make sure that the elemnt is already added to the DOM
-  setTimeout(() => {
-    if (videos[0] && isElementInViewport(videos[0])) {
-      videos[0].muted = true;
-      videos[0].play();
-    }
-  }, 100);
 }
 
-export default async function decorate(block) {
-  const slides = [...block.querySelectorAll(':scope > div > div ')];
-
-  slides.forEach((slide) => {
+function buildSlides(slidesList) {
+  slidesList.forEach((slide) => {
     slide.classList.add('carousel-slide');
-    slide.parentElement.replaceWith(slide);
+    slide.parentElement.replaceWith(slide); // removing wrapping parent element
     slide.innerHTML = slide.innerHTML.trim(); // removing spaces and new lines
 
     if (slide.childElementCount === 1 && slide.querySelector('picture, video')) {
@@ -140,12 +131,26 @@ export default async function decorate(block) {
     }
   });
 
-  const slideWrapper = document.createElement('div');
-  slideWrapper.classList.add('carousel-slide-wrapper');
-  slideWrapper.append(...slides);
+  return slidesList;
+}
 
-  const buttons = document.createRange().createContextualFragment(`
-    <div class="carousel-buttons">
+function buildSlideDotsNav(slides) {
+  const dotNav = document.createRange().createContextualFragment(
+    `<ul class="carousel-nav">
+      ${slides.map((_, index) => `
+        <li class="carousel-nav-item">
+          <button class="carousel-nav-button">${getTextLabel('Slide')} ${index}</button>
+        </li>
+      `).join('')}
+    </ul>`,
+  );
+
+  return dotNav.children[0];
+}
+
+function createArrowsButtons() {
+  const arrowButtons = document.createRange().createContextualFragment(`
+    <div class="carousel-arrow-buttons">
       <button aria-label="${getTextLabel('Prev slide')}">
         <span class="icon icon-arrow">
           <img data-icon-name="arrow" src="/icons/arrow.svg" alt="" loading="lazy">
@@ -159,33 +164,40 @@ export default async function decorate(block) {
     </div>
   `);
 
-  const carouselNav = document.createRange().createContextualFragment(
-    `<ul class="carousel-nav">
-      ${slides.map((_, index) => `
-        <li class="carousel-nav-item">
-          <button class="carousel-nav-button">${getTextLabel('Slide')} ${index}</button>
-        </li>
-      `).join('')}
-    </ul>`,
-  );
+  return arrowButtons.children[0];
+}
+
+export default async function decorate(block) {
+  const slides = [...block.querySelectorAll(':scope > div > div ')];
+
+  buildSlides(slides);
+
+  const slideWrapper = document.createElement('div');
+  slideWrapper.classList.add('carousel-slide-wrapper');
+  slideWrapper.append(...slides);
+
+  const arrowsButtons = createArrowsButtons();
+  const donNav = buildSlideDotsNav(slides);
 
   block.append(slideWrapper);
-  block.append(buttons.children[0]);
-  block.append(carouselNav.children[0]);
+  block.append(arrowsButtons);
+  block.append(donNav);
 
-  const onIndexUpdate = (activeIndex) => {
+  const onActiveSlideIndexUpdate = (activeIndex) => {
     const navButtons = [...block.querySelectorAll('.carousel-nav .carousel-nav-button')];
 
     navButtons.forEach((el) => el.classList.remove('carousel-nav-button-active'));
     navButtons[activeIndex].classList.add('carousel-nav-button-active');
   };
 
-  const { getActiveSlideIndex, setActiveSlideIndex } = createCarouselStateManager(onIndexUpdate);
+  const {
+    getActiveSlideIndex, setActiveSlideIndex,
+  } = createCarouselStateManager(onActiveSlideIndexUpdate);
 
-  onIndexUpdate(getActiveSlideIndex());
+  onActiveSlideIndexUpdate(getActiveSlideIndex());
   recalcSlidePositions(slides, getActiveSlideIndex(), null);
 
-  [...block.querySelectorAll('.carousel-buttons button')].forEach((button, btnIndex) => {
+  [...block.querySelectorAll('.carousel-arrow-buttons button')].forEach((button, btnIndex) => {
     button.addEventListener('click', () => {
       const activeIndex = getActiveSlideIndex();
       if (btnIndex === 0) {
