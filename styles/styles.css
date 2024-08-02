@@ -139,7 +139,6 @@ a:any-link {
 }
 
 a:hover {
-  text-decoration: underline;
   color: var(--link-hover-color);
 }
 
@@ -289,4 +288,32 @@ main .section.highlight {
   height: calc(4px + 0.7em);
   margin-right: calc(5px + 0.2em);
   border-left: calc(5px + 0.1em) solid #f00;
+}
+
+.section .width-medium {
+  max-width: 300px;
+  margin: auto;
+}
+
+.section.text-center {
+  text-align: center;
+}
+
+main .border-top {
+  border-top: 1px solid #e5e5e5;
+  margin-top: 40px;
+  padding-top: 40px;
+}
+
+.button.secondary:any-link {
+  background-color: transparent;
+  border: none;
+  color: var(--link-color);
+  font-weight: 400;
+  font-size: 16px;
+  text-transform: capitalize;
+}
+
+.button.secondary:any-link:hover {
+  color: var(--text-color);
 }
