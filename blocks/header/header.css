@@ -23,6 +23,7 @@ header nav[aria-expanded='true'] {
   max-width: 350px;
   width: 50%;
   position: relative;
+  min-width: 270px
 }
 
 header .nav-brand,
@@ -170,6 +171,7 @@ header .nav-hamburger button {
   overflow: initial;
   text-overflow: initial;
   white-space: initial;
+  cursor: pointer;
 }
 
 header .nav-hamburger-icon,
@@ -240,8 +242,8 @@ header .nav-drop::after {
   content: '';
   display: inline-block;
   position: absolute;
-  top: 0.35em;
-  right: 8px;
+  top: 10px;
+  right: 5px;
   transform: rotate(135deg);
   width: 6px;
   height: 6px;
@@ -274,6 +276,12 @@ header nav[aria-expanded='true'] button:hover .nav-hamburger-icon::after,
 header nav[aria-expanded='true'] button:hover .nav-hamburger-icon::before,
 header .nav-drop[aria-expanded='true']:hover::after {
   color: #ffffffb2;
+}
+
+@media (width >= 640px) {
+  header .nav-drop::after {
+    top: 8px;
+  }
 }
 
 @media (width >= 992px) {
