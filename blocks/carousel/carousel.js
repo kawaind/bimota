@@ -5,33 +5,10 @@ const SLIDE_CHANGE_DIRECTION = {
   NEXT: 'next',
   PREV: 'prev',
 };
+const DEFAULT_TRANSITION_PARAMS = '500ms ease';
+const FAST_TRANSITION_PARAMS = '100ms linear';
 
-const createCarouselStateManager = (onUpdate, slidesCount) => {
-  let activeSlideIndex = 0;
-  const nextSlide = () => {
-    activeSlideIndex = (activeSlideIndex + 1) % slidesCount;
-    onUpdate(activeSlideIndex);
-  };
-  const prevSlide = () => {
-    activeSlideIndex = (activeSlideIndex - 1 + slidesCount) % slidesCount;
-    onUpdate(activeSlideIndex);
-  };
-
-  return {
-    getActiveSlideIndex: () => activeSlideIndex,
-    swipe: (direction) => {
-      if (direction === SLIDE_CHANGE_DIRECTION.PREV) {
-        prevSlide();
-        return;
-      }
-
-      nextSlide();
-    },
-  };
-};
-
-const getCarouselPadding = (itemIndex) => `calc(-1 * ((${itemIndex} - var(--slide-part-on-edge)) * var(--slide-width) + var(--slide-gap) * ${itemIndex - 1}))`;
-const getTransitionTiming = (el) => `${el.offsetWidth * 0.5 + 300}ms`;
+const getCarouselPadding = (centerItemIndex) => `calc(-1 * ((${centerItemIndex} - var(--slide-part-on-edge)) * var(--slide-width) + var(--slide-gap) * ${centerItemIndex - 1}))`;
 
 function initTransition(target, onEnd, onCancell) {
   target.addEventListener('transitioncancel', () => {
@@ -43,54 +20,93 @@ function initTransition(target, onEnd, onCancell) {
   }, { once: true });
 }
 
-function recalcSlidePositions(slides, activeSlideIndex, direction) {
-  const slidesList = [...slides];
-  const slidesCount = slidesList.length;
+function setUpTransition(block, onUpdate) {
+  const slides = [...block.querySelectorAll(':scope .carousel-slide')];
+  const slidesWrapper = block.querySelector('.carousel-slide-wrapper');
+  const slidesCount = slides.length;
   const centerItemIndex = Math.floor(slidesCount / 2);
-  const carouselEl = slides[0].closest('.carousel').querySelector('.carousel-slide-wrapper');
-  let resolveTransition;
-  const transitionEndPromise = new Promise((resolve) => {
-    resolveTransition = resolve;
-  });
+  const transitionsQueue = [];
+  let activeSlideIndex = 0;
 
-  carouselEl.style.setProperty('--slide-transition-time', getTransitionTiming(carouselEl));
+  const setSlidesOrder = () => {
+    slides.forEach((slide, index) => {
+      slide.style.order = (index - activeSlideIndex + centerItemIndex + slidesCount) % slidesCount;
+    });
+  };
 
-  slidesList.forEach((slide, index) => {
-    slide.style.order = (index - activeSlideIndex + centerItemIndex + slidesCount) % slidesCount;
-  });
+  const getActiveSlideIndex = () => activeSlideIndex;
 
-  let fromPaddingInCalc;
-  const toPaddingInCalc = getCarouselPadding(centerItemIndex);
+  async function goToSlide(
+    direction,
+    times = 1,
+    transformFunction = DEFAULT_TRANSITION_PARAMS,
+    int = false,
+  ) {
+    let resolveTransition;
+    const transitionPromise = new Promise((resolve) => { resolveTransition = resolve; });
 
-  if (direction === SLIDE_CHANGE_DIRECTION.NEXT) {
-    fromPaddingInCalc = getCarouselPadding(centerItemIndex - 1);
-  } else if (direction === SLIDE_CHANGE_DIRECTION.PREV) {
-    fromPaddingInCalc = getCarouselPadding(centerItemIndex + 1);
-  }
+    if (!int) {
+      transitionsQueue.push(transitionPromise);
 
-  if (fromPaddingInCalc) {
-    carouselEl.style.transform = `translateX(${fromPaddingInCalc})`;
+      const indexInQueue = transitionsQueue.findIndex((p) => p === resolveTransition);
+      const earlierPromises = transitionsQueue.slice(0, indexInQueue);
+      await Promise.allSettled(earlierPromises);
+    }
 
-    // Force reflow/repaint to ensure the transition is truly disabled for the first transform
-    // eslint-disable-next-line no-unused-vars
-    const { offsetHeight } = carouselEl; // Read property to force reflow
+    block.style.setProperty('--slide-transition-params', transformFunction);
 
-    carouselEl.classList.add('transition-effect');
-    carouselEl.style.transform = `translateX(${toPaddingInCalc})`;
+    if (times > 1) {
+      await goToSlide(direction, times - 1, FAST_TRANSITION_PARAMS, true);
+    }
 
-    const onTransitionEnd = () => {
-      carouselEl.classList.remove('transition-effect');
+    let fromPaddingInCalc;
+    const toPaddingInCalc = getCarouselPadding(centerItemIndex);
+
+    if (direction === SLIDE_CHANGE_DIRECTION.NEXT) {
+      activeSlideIndex = (activeSlideIndex + 1) % slidesCount;
+      fromPaddingInCalc = getCarouselPadding(centerItemIndex - 1);
+    } else if (direction === SLIDE_CHANGE_DIRECTION.PREV) {
+      activeSlideIndex = (activeSlideIndex - 1 + slidesCount) % slidesCount;
+      fromPaddingInCalc = getCarouselPadding(centerItemIndex + 1);
+    }
+
+    setSlidesOrder();
+
+    if (fromPaddingInCalc) {
+      slidesWrapper.style.transform = `translateX(${fromPaddingInCalc})`;
+      // Force reflow/repaint to ensure the transition is truly disabled for the first transform
+      // eslint-disable-next-line no-unused-vars
+      const { offsetHeight } = slidesWrapper; // Read property to force reflow
+
+      slidesWrapper.classList.add('transition-effect');
+      onUpdate(activeSlideIndex);
+
+      const onTransitionEnd = () => {
+        slidesWrapper.classList.remove('transition-effect');
+        resolveTransition();
+      };
+      const onTransitionCancelled = () => {
+        resolveTransition();
+      };
+
+      initTransition(slidesWrapper, onTransitionEnd, onTransitionCancelled);
+      slidesWrapper.style.transform = `translateX(${toPaddingInCalc})`;
+    } else {
+      onUpdate(activeSlideIndex);
       resolveTransition();
-    };
-    const onTransitionCancelled = () => resolveTransition();
+    }
 
-    initTransition(carouselEl, onTransitionEnd, onTransitionCancelled);
-  } else {
-    carouselEl.style.transform = `translateX(${toPaddingInCalc})`;
-    resolveTransition();
+    return transitionPromise;
   }
 
-  return transitionEndPromise;
+  setSlidesOrder();
+  slidesWrapper.style.transform = `translateX(${getCarouselPadding(centerItemIndex)})`;
+  onUpdate(activeSlideIndex);
+
+  return {
+    goToSlide,
+    getActiveSlideIndex,
+  };
 }
 
 // change slide automatically every 6 seconds, with pause if cursor is over the slide
@@ -225,19 +241,12 @@ export default async function decorate(block) {
     navButtons[activeIndex].classList.add('carousel-nav-button-active');
   };
 
-  const {
-    getActiveSlideIndex, swipe,
-  } = createCarouselStateManager(onActiveSlideIndexUpdate, slides.length);
-
-  onActiveSlideIndexUpdate(getActiveSlideIndex());
-  recalcSlidePositions(slides, getActiveSlideIndex(), null);
+  const { goToSlide, getActiveSlideIndex } = setUpTransition(block, onActiveSlideIndexUpdate);
 
   [...block.querySelectorAll('.carousel-arrow-buttons button')].forEach((button, btnIndex) => {
     button.addEventListener('click', () => {
       const direction = btnIndex === 0 ? SLIDE_CHANGE_DIRECTION.PREV : SLIDE_CHANGE_DIRECTION.NEXT;
-
-      swipe(direction);
-      recalcSlidePositions(slides, getActiveSlideIndex(), direction);
+      goToSlide(direction);
     });
   });
 
@@ -245,24 +254,23 @@ export default async function decorate(block) {
     button.addEventListener('click', async (event) => {
       const { target } = event;
       const activeIndex = getActiveSlideIndex();
-      const times = [...Array(Math.abs(activeIndex - btnIndex)).keys()];
+      const times = Math.abs(activeIndex - btnIndex);
       const { PREV, NEXT } = SLIDE_CHANGE_DIRECTION;
       const direction = btnIndex < activeIndex ? PREV : NEXT;
+
+      if (!times) {
+        return;
+      }
 
       [...target.closest('.carousel-nav').querySelectorAll('carousel-nav-button')].forEach((el) => el.classList.remove('carousel-nav-button-active'));
       target.classList.add('carousel-nav-button-active');
 
-      await times.reduce(async (previousPromise) => {
-        await previousPromise;
-        swipe(direction);
-        await recalcSlidePositions(slides, getActiveSlideIndex(), direction);
-      }, Promise.resolve());
+      goToSlide(direction, times);
     });
   });
 
   const triggerSlideChange = (direction) => {
-    swipe(direction);
-    recalcSlidePositions(slides, getActiveSlideIndex(), direction);
+    goToSlide(direction);
   };
 
   addSwiping(block, triggerSlideChange);

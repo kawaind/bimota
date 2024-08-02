@@ -2,7 +2,7 @@
   --slide-gap: 0px;
   --slide-width: 100%;
   --slide-part-on-edge: 0;
-  --slide-transition-time: 300ms;
+  --slide-transition-params: 1000ms ease;
 
   overflow: hidden;
   position: relative;
@@ -78,7 +78,7 @@
 }
 
 .carousel .transition-effect {
-  transition: transform var(--slide-transition-time) ease;
+  transition: transform var(--slide-transition-params);
 }
 
 .carousel-nav {
