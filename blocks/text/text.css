@@ -2,6 +2,6 @@
   max-width: 750px;
 }
 
-.text--center > div {
+.text.center > div {
   margin: auto;
 }

@@ -2,11 +2,11 @@
   display: flex;
 }
 
-.block.image img:not(.image--center img) {
+.block.image img:not(.image.center img) {
   width: 100%;
   object-fit: cover;
 }
 
-.image--center picture {
+.image.center picture {
   justify-content: center;
 }
