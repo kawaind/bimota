@@ -33,6 +33,16 @@ const createCarouselStateManager = (onUpdate, slidesCount) => {
 const getCarouselPadding = (itemIndex) => `calc(-1 * ((${itemIndex} - var(--slide-part-on-edge)) * var(--slide-width) + var(--slide-gap) * ${itemIndex - 1}))`;
 const getTransitionTiming = (el) => `${el.offsetWidth * 0.5 + 300}ms`;
 
+function initTransition(target, onEnd, onCancell) {
+  target.addEventListener('transitioncancel', () => {
+    onCancell();
+  }, { once: true });
+
+  target.addEventListener('transitionend', () => {
+    onEnd();
+  }, { once: true });
+}
+
 function recalcSlidePositions(slides, activeSlideIndex, direction) {
   const slidesList = [...slides];
   const slidesCount = slidesList.length;
@@ -68,14 +78,13 @@ function recalcSlidePositions(slides, activeSlideIndex, direction) {
     carouselEl.classList.add('transition-effect');
     carouselEl.style.transform = `translateX(${toPaddingInCalc})`;
 
-    carouselEl.addEventListener('transitioncancel', () => {
-      resolveTransition();
-    }, { once: true });
-
-    carouselEl.addEventListener('transitionend', () => {
+    const onTransitionEnd = () => {
       carouselEl.classList.remove('transition-effect');
       resolveTransition();
-    }, { once: true });
+    };
+    const onTransitionCancelled = () => resolveTransition();
+
+    initTransition(carouselEl, onTransitionEnd, onTransitionCancelled);
   } else {
     carouselEl.style.transform = `translateX(${toPaddingInCalc})`;
     resolveTransition();
