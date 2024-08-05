@@ -36,25 +36,27 @@
       const library = document.createElement("sidekick-library");
       library.config = {
         base: "/tools/sidekick/library.json",
-        blocks: {
-          viewPorts: [
-            {
-              width: "375px",
-              label: "Small",
-              icon: "device-phone",
-            },
-            {
-              width: "768px",
-              label: "Medium",
-              icon: "device-tablet",
-            },
-            {
-              width: "100%",
-              label: "Large",
-              icon: "device-desktop",
-              default: true,
-            },
-          ],
+        plugins: {
+          blocks: {
+            viewPorts: [
+              {
+                width: "375px",
+                label: "Small",
+                icon: "device-phone",
+              },
+              {
+                width: "768px",
+                label: "Medium",
+                icon: "device-tablet",
+              },
+              {
+                width: "100%",
+                label: "Large",
+                icon: "device-desktop",
+                default: true,
+              },
+            ],
+          },
         },
       };
 
