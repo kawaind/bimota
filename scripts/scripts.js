@@ -162,12 +162,3 @@ export function getTextLabel(key) {
 
 placeholders = await fetchPlaceholders();
 loadPage();
-
-export const variantsClassesToBEM = (blockClasses, expectedVariantsNames, blockName) => {
-  expectedVariantsNames.forEach((variant) => {
-    if (blockClasses.contains(variant)) {
-      blockClasses.remove(variant);
-      blockClasses.add(`${blockName}--${variant}`);
-    }
-  });
-};
