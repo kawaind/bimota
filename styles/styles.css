@@ -317,3 +317,8 @@ main .border-top {
 .button.secondary:any-link:hover {
   color: var(--text-color);
 }
+
+.width-400 {
+  max-width: 400px;
+  margin: auto;
+}
