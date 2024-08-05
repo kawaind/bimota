@@ -35,6 +35,7 @@
 .columns.download em {
   color: var(--link-color)
 }
+
 .download .secondary:any-link {
   padding: 0;
 }
