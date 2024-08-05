@@ -129,6 +129,17 @@ function autoSlide(carouselEl, changeSlide) {
   carouselEl.addEventListener('mouseout', () => {
     startAutoSlideChange();
   }, false);
+
+  // autop slide only when the tab is active
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      if (interval) {
+        clearInterval(interval);
+      }
+    } else if (document.visibilityState === 'visible') {
+      startAutoSlideChange();
+    }
+  });
 }
 
 // set aspect ratio when block class has class like: ratio-16-9
