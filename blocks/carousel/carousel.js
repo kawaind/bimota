@@ -179,7 +179,7 @@ function buildSlides(slidesList) {
     } else if (slide.firstChild.querySelector('picture, video')) {
       // if the slide contains more that just media (text, button...)
       // the media is displayed as background
-      const [mediaParagraph, restEls] = [...slide.children];
+      const [mediaParagraph, ...restEls] = [...slide.children];
       const media = mediaParagraph.children[0];
 
       media.classList.add('carsousel-slide-media-as-background');
@@ -188,7 +188,7 @@ function buildSlides(slidesList) {
       // the rest of the elements are wrapped into div
       const wrapper = document.createElement('div');
       wrapper.classList.add('carsousel-slide-content');
-      wrapper.append(restEls);
+      wrapper.append(...restEls);
       slide.append(wrapper);
     }
   });
