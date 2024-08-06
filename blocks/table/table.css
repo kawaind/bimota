@@ -1,0 +1,31 @@
+.table .table-element {
+  border-collapse: collapse;
+}
+
+.table td {
+  padding: 8px;
+  border-top: 1px solid #ddd;
+  vertical-align: top;
+}
+
+.table tr:first-of-type td {
+  border-top: none;
+}
+
+.table td p {
+  margin: 0;
+}
+
+.table tr:nth-child(2n) td {
+  background-color: #fff;
+  color: #111;
+}
+
+.table tr:nth-child(2n + 1) td {
+  background-color: #f9f9f9;
+  color: #111;
+}
+
+.table tr:hover td {
+  background-color: #f3f3f3;
+}
