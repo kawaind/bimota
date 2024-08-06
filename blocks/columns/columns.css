@@ -18,7 +18,7 @@
   margin-right: auto;
 }
 
-.columns > div > .columns-img-col {
+.columns > div > .columns-img-col:not(.columns.image-no-order > div > .columns-img-col) {
   order: 0;
 }
 
@@ -58,11 +58,11 @@
   }
 
   .columns.grid > div .col-wide {
-    flex-basis: 48%;
+    flex-basis: calc((100% / 2) - 15px);
   }
 
   .columns.grid > div .col-narrow {
-    flex-basis: 31%;
+    flex-basis: calc((100% / 3) - 20px);
   }
 }
 
