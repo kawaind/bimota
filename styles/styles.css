@@ -29,8 +29,8 @@
   --nav-height: 80px;
 
   /* section paddings */
-  --section-y-padding: 15px;
-  --section-x-padding: 40px;
+  --section-y-padding: 40px;
+  --section-x-padding: 15px;
 }
 
 body {
@@ -206,6 +206,11 @@ main img {
 .icon img {
   height: 100%;
   width: 100%;
+}
+
+video {
+  width: 100%;
+  height: auto;
 }
 
 /* blocks */
