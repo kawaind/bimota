@@ -61,6 +61,7 @@
   flex-direction: column;
   align-items: center;
   height: 100%;
+  box-sizing: border-box;
 }
 
 .carousel-arrow-buttons button:first-of-type {
@@ -91,7 +92,7 @@
 }
 
 .carousel-nav-button {
-  background-color: #fff;
+  background-color: inherit;
   width: 10px;
   height: 10px;
   border-radius: 50%;
@@ -129,6 +130,18 @@
 
 .carousel.full-width .carousel-slide-wrapper {
   min-height: 300px;
+}
+
+.carousel.carousel.full-width .carousel-nav {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  margin: 0;
+  margin: 30px 0;
+}
+
+.carousel.carousel.full-width .carsousel-slide-content {
+  padding-bottom: 80px;
 }
 
 @media (width >= 768px) {
