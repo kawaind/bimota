@@ -1,3 +1,7 @@
+.table {
+  overflow: auto;
+}
+
 .table .table-element {
   border-collapse: collapse;
 }
@@ -17,7 +21,7 @@
 }
 
 .table tr:nth-child(2n) td {
-  background-color: #fff;
+  background-color: var(--c-primary-white);
   color: #111;
 }
 
@@ -28,4 +32,10 @@
 
 .table tr:hover td {
   background-color: #f3f3f3;
+}
+
+.table.with-borders tr td {
+  background-color: inherit;
+  border: 1px solid #1d1d1b;
+  vertical-align: middle;
 }
