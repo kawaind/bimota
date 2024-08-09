@@ -20,9 +20,10 @@ footer {
   margin: 0;
 }
 
-.footer .footer-column {
+.footer .columns .footer-column {
   padding-bottom: 60px;
   position: relative;
+  margin: 0;
 }
 
 .footer .footer-column:last-child {
