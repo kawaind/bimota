@@ -18,15 +18,7 @@ async function createForm(formHref) {
     }
   });
 
-  // group fields into fieldsets
-  const fieldsets = form.querySelectorAll('fieldset');
-  fieldsets.forEach((fieldset) => {
-    form.querySelectorAll(`[data-fieldset="${fieldset.name}"`).forEach((field) => {
-      fieldset.append(field);
-    });
-  });
-
-  // create general erro form message
+  // create general error form message
   const generalErrorWrapper = document.createElement('div');
   const generalErrorText = document.createElement('span');
   generalErrorWrapper.classList.add('form-general-error-wrapper');
