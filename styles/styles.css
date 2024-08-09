@@ -187,7 +187,10 @@ button:focus {
 
 button:disabled,
 button:disabled:hover {
-  cursor: unset;
+  cursor: not-allowed;
+  background-color: transparent;
+  color: #999;
+  border: 1px solid #e5e5e5;
 }
 
 main img {
@@ -325,5 +328,10 @@ main .border-top {
 
 .width-400 {
   max-width: 400px;
+  margin: auto;
+}
+
+.width-700 {
+  max-width: 704px;
   margin: auto;
 }
