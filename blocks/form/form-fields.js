@@ -163,6 +163,21 @@ const createSubmit = (fd) => {
   return { field: button, fieldWrapper };
 };
 
+const createTextArea = (fd) => {
+  const field = document.createElement('textarea');
+  setCommonAttributes(field, fd);
+
+  const fieldWrapper = createFieldWrapper(fd);
+  const label = createLabel(fd);
+  field.setAttribute('aria-labelledby', label.id);
+  field.setAttribute('rows', 5);
+  fieldWrapper.append(field);
+  fieldWrapper.prepend(label);
+  fieldWrapper.append(createErrorMessage());
+
+  return { field, fieldWrapper };
+};
+
 const createInput = (fd) => {
   const field = document.createElement('input');
   field.type = fd.Type;
@@ -196,6 +211,7 @@ const FIELD_CREATOR_FUNCTIONS = {
   submit: createSubmit,
   confirmation: createConfirmation,
   checkbox: createCheckbox,
+  textarea: createTextArea,
 };
 
 export default async function createField(fd, form) {

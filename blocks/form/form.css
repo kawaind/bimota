@@ -7,11 +7,13 @@
 }
 
 .form .text-wrapper label,
+.form .textarea-wrapper label,
 .form .field-wrapper.email-wrapper label {
   display: none;
 }
 
-.form input {
+.form input,
+.form textarea {
   box-sizing: border-box;
   height: 40px;
   max-width: 100%;
@@ -27,6 +29,10 @@
   font-family: var(--body-font-family);
 }
 
+.form textarea {
+  height: auto;
+}
+
 .form input[type="checkbox"] {
   width: 16px;
   height: 16px;
@@ -39,7 +45,8 @@
   border-color: red;
 }
 
-input::placeholder {
+input::placeholder,
+textarea::placeholder {
   color: #1d1d1b;
 }
 
@@ -65,7 +72,8 @@ input::placeholder {
   justify-content: center;
 }
 
-.form .field-wrapper.error input {
+.form .field-wrapper.error input,
+.form .field-wrapper.error textarea {
   border-color: red;
 }
 
