@@ -327,3 +327,12 @@ main .border-top {
   max-width: 400px;
   margin: auto;
 }
+
+/* styles to override onetrust */
+
+#onetrust-consent-sdk #onetrust-pc-sdk button:not(#clear-filters-handler, .ot-close-icon, #filter-btn-handler, .ot-remove-objection-handler, .ot-obj-leg-btn-handler, [aria-expanded], .ot-link-btn),
+#onetrust-banner-sdk #onetrust-reject-all-handler,
+#onetrust-consent-sdk #onetrust-accept-btn-handler {
+  background-color: var(--link-color) !important;
+  border-color: transparent !important;
+}
