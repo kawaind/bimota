@@ -351,6 +351,11 @@ main .border-top {
   color: var(--text-color);
 }
 
+.section-small {
+  max-width: 900px;
+  margin: auto;
+}
+
 .width-400 {
   max-width: 400px;
   margin: auto;
@@ -389,3 +394,7 @@ main .border-top {
 }
 
 /* article styles - end */
+.section-center .button-container {
+  display: flex;
+  justify-content: center;
+}

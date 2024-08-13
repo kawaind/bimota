@@ -8,6 +8,6 @@
 }
 
 /* centering by set the text aling in the document */
-.text [data-align="center"] {
+.section-center .text {
   text-align: center;
 }
