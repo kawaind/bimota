@@ -326,6 +326,15 @@ main .border-top {
   color: var(--text-color);
 }
 
+main .section:first-child {
+  padding-top: 0;
+}
+
+.section-small {
+  max-width: 900px;
+  margin: auto;
+}
+
 .width-400 {
   max-width: 400px;
   margin: auto;
@@ -334,4 +343,13 @@ main .border-top {
 .width-700 {
   max-width: 704px;
   margin: auto;
+}
+
+.section.padding-bottom-0 {
+  padding-bottom: 0;
+}
+
+.section-center .button-container {
+  display: flex;
+  justify-content: center;
 }

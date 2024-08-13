@@ -5,3 +5,7 @@
 .text.center > div {
   margin: auto;
 }
+
+.section-center .text {
+  text-align: center;
+}
