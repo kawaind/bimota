@@ -1,3 +1,4 @@
+/* stylelint-disable no-descending-specificity */
 .columns > div {
   display: flex;
   flex-direction: column;
@@ -44,6 +45,90 @@
   padding: 0;
 }
 
+/* styles for column gallery variant */
+.columns.gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.columns.gallery > div {
+  flex-direction: row;
+}
+
+.columns.gallery .columns-img-col {
+  position: relative;
+}
+
+.columns.gallery .columns-img-col::after {
+  content: '';
+  transition: .3s ease-out;
+  transition-property: opacity;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  top: 0;
+  position: absolute;
+  left: 0;
+  background: rgb(34 34 34 / 80%);
+}
+
+.columns.gallery .columns-img-col:hover::after,
+.columns.gallery .columns-img-col:hover:active {
+  opacity: 1;
+}
+
+/* styles for columns location variant */
+.columns.locations {
+  display: flex;
+  flex-direction: column
+}
+
+.columns.locations,
+.columns.locations > div {
+  gap: 60px;
+}
+
+.columns.locations > div > div {
+  gap: 60px;
+  margin: 0;
+  position: relative;
+  text-wrap: wrap;
+  overflow-wrap: anywhere;
+}
+
+.columns.locations > div > div::after {
+  content: "";
+  position: absolute;
+  border-top: 1px solid #e5e5e5;
+  left: 0;
+  width: 100%;
+  bottom: -30px;
+}
+
+.columns.locations > div:last-of-type > div:last-of-type {
+  padding-bottom: 30px;
+}
+
+.columns.locations > div:last-of-type > div:last-of-type::after {
+  border: unset;
+}
+
+/* styles for produsts variant */
+.columns.products .icon {
+  max-width: 400px;
+  width: auto;
+  height: auto;
+  display: block;
+  margin: auto;
+}
+
+/* ratio variants */
+.columns.ratio > div > div {
+  margin: unset;
+}
+
 @media (width >= 640px) {
   /* styles for column grid variant */
   .columns.grid > div {
@@ -84,8 +169,40 @@
     padding-top: 0;
   }
 
-  .columns.grid > div .col-wide, 
+  .columns.grid > div .col-wide,
   .columns.grid > div .col-narrow {
     flex-basis: 0;
+  }
+
+  /* styles for column gallery variant */
+  .columns.gallery {
+    gap: 40px;
+  }
+
+  .columns.locations {
+    padding-bottom: 40px;
+  }
+
+  .columns.locations > div {
+    align-items: stretch;
+  }
+
+  .columns.locations > div > div::after {
+    border-top: unset;
+    border-right: 1px solid #e5e5e5;
+    height: 100%;
+    right: -20px;
+    top: 0;
+    width: 1px;
+    left: unset;
+  }
+
+  .columns.locations > div > div:last-of-type::after {
+    display: none;
+  }
+
+  /* ratio variants */
+  .columns.ratio > div {
+    display: grid;
   }
 }
