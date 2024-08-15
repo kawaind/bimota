@@ -1,0 +1,104 @@
+.form {
+  margin-bottom: 20px;
+}
+
+.form label {
+  padding-right: 10px;
+}
+
+.form .text-wrapper label,
+.form .textarea-wrapper label,
+.form .field-wrapper.email-wrapper label {
+  display: none;
+}
+
+.form input,
+.form textarea {
+  box-sizing: border-box;
+  height: 40px;
+  max-width: 100%;
+  padding: 0 10px;
+  width: 100%;
+  background: rgb(255 255 255 / 0%);
+  color: #1d1d1b;
+  transition: 0.2s ease-in-out;
+  transition-property: color, background-color, border-color, box-shadow;
+  border: 1px solid rgb(29 29 27);
+  font-size: 16px;
+  line-height: 24px;
+  font-family: var(--body-font-family);
+}
+
+.form textarea {
+  height: auto;
+  padding: 10px;
+}
+
+.form input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}
+
+.form input:focus {
+  outline: 0;
+  background-color: rgb(255 255 255 / 0%);
+  color: red;
+  border-color: red;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #1d1d1b;
+}
+
+.form.block .field-wrapper {
+  padding-top: 20px;
+}
+
+.form .field-wrapper.plaintext-wrapper {
+  padding-top: 0;
+}
+
+.form .field-wrapper.plaintext-wrapper p {
+  margin: 0;
+}
+
+.form .field-wrapper input[type="checkbox"] {
+  margin-left: 16px;
+}
+
+
+.field-wrapper.submit-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.form .field-wrapper.error input,
+.form .field-wrapper.error textarea {
+  border-color: red;
+}
+
+.form .field-wrapper.error input[type="checkbox"] {
+  outline: solid 1px red;
+}
+
+.form .field-wrapper .form-error-message-wrapper {
+  display: none;
+  padding: 0;
+  color: red;
+}
+
+.form .error .form-error-message-wrapper {
+  display: flex;
+}
+
+.form .form-general-error-wrapper {
+  border: 2px solid rgb(255 185 0);
+  padding: 8px 16px;
+  margin-top: 20px;
+  display: none;
+}
+
+.form .form-general-error-wrapper.show {
+  display: flex;
+}
