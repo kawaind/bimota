@@ -102,6 +102,22 @@ h6,
   font-weight: 600;
 }
 
+* + .h1,
+* + .h2,
+* + .h3,
+* + .h4,
+* + .h5,
+* + .h6,
+* + h1,
+* + h2,
+* + h3,
+* + h4,
+* + h5,
+* + h6 {
+  margin-top: 40px;
+}
+
+
 p,
 dl,
 ol,
@@ -110,6 +126,10 @@ pre,
 blockquote {
   margin-top: 1em;
   margin-bottom: 1em;
+}
+
+ul {
+  padding-left: 30px;
 }
 
 address, dl, fieldset, figure, ol, p, pre, ul {
@@ -335,3 +355,32 @@ main .border-top {
   max-width: 704px;
   margin: auto;
 }
+
+/* styles to override onetrust */
+#onetrust-consent-sdk #onetrust-pc-sdk button:not(#clear-filters-handler, .ot-close-icon, #filter-btn-handler, .ot-remove-objection-handler, .ot-obj-leg-btn-handler, [aria-expanded], .ot-link-btn),
+#onetrust-banner-sdk #onetrust-reject-all-handler,
+#onetrust-consent-sdk #onetrust-accept-btn-handler {
+  background-color: var(--link-color) !important;
+  border-color: transparent !important;
+}
+
+/* article styles - start */
+.article h1 {
+  font-size: 2.2313rem;
+  line-height: 1.2;
+  color: #333;
+  font-weight: 400;
+  margin-bottom: 40px
+}
+
+.article em {
+  color: rgb(240 80 110);
+}
+
+@media (width >= 960px) {
+  .article h1 {
+      font-size:2.625rem
+  }
+}
+
+/* article styles - end */
