@@ -13,7 +13,7 @@
   order: 1;
 }
 
-.columns > div > div:not(.columns-img-col) {
+.columns > div > div:not(.columns-img-col, .columns.locations > div > div) {
   max-width: 750px;
   margin-left: auto;
   margin-right: auto;
