@@ -60,6 +60,7 @@
 
 .columns.gallery .columns-img-col {
   position: relative;
+  width: calc((100% - 90px) / 4);
 }
 
 .columns.gallery .columns-img-col::after {
@@ -131,7 +132,7 @@
   margin: auto;
 }
 
-.columns.products img {
+.columns.products p > picture img {
   aspect-ratio: 10 / 7;
 }
 
