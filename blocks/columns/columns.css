@@ -118,6 +118,7 @@
 /* styles for produsts variant */
 .columns.products .icon {
   max-width: 400px;
+  aspect-ratio: 106/75;
   width: auto;
   height: auto;
   display: block;
