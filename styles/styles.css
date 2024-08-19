@@ -251,7 +251,12 @@ main .section {
   padding: var(--section-y-padding) var(--section-x-padding);
 }
 
-main .section:last-child {
+main .section:first-child {
+  padding-top: 0;
+}
+
+main .section:last-child,
+main .section.padding-bottom-0 {
   padding-bottom: 0;
 }
 
@@ -346,6 +351,11 @@ main .border-top {
   color: var(--text-color);
 }
 
+.section-small {
+  max-width: 900px;
+  margin: auto;
+}
+
 .width-400 {
   max-width: 400px;
   margin: auto;
@@ -384,3 +394,7 @@ main .border-top {
 }
 
 /* article styles - end */
+.section-center .button-container {
+  display: flex;
+  justify-content: center;
+}

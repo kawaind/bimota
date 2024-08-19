@@ -2,6 +2,12 @@
   max-width: 750px;
 }
 
+/* centering by variant */
 .text.center > div {
   margin: auto;
+}
+
+/* centering by set the text aling in the document */
+.section-center .text {
+  text-align: center;
 }
