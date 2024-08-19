@@ -1,3 +1,5 @@
+import { createOptimizedPicture } from '../../scripts/aem.js';
+
 const borderClassName = 'border-top';
 
 export default function decorate(block) {
@@ -13,9 +15,25 @@ export default function decorate(block) {
   const isDownloadVariant = block.classList.contains('download');
 
   const isGridVariant = block.classList.contains('grid');
+  const isGalleryVariant = block.classList.contains('gallery');
+  const ratioClass = [...block.classList].find((cl) => cl.startsWith('ratio-'));
+  let rationNumbers;
+
+  if (ratioClass) {
+    const regex = /(\d+)/g;
+
+    rationNumbers = [...ratioClass.matchAll(regex).map((match) => parseInt(match[1], 10))];
+    block.classList.add('ratio');
+  }
+
   // setup image columns
   [...block.children].forEach((row) => {
     const rows = [...row.children];
+
+    if (rationNumbers) {
+      row.style.gridTemplateColumns = rationNumbers.map((v) => `${v}fr`).join(' ');
+    }
+
     rows.forEach((col, index) => {
       const pic = col.querySelector('picture');
       if (pic) {
@@ -46,6 +64,22 @@ export default function decorate(block) {
         } else {
           col.classList.add('col-narrow');
         }
+      }
+
+      // handel gallery variant
+      if (isGalleryVariant) {
+        const imageSrc = pic.querySelector('img').src;
+        const breakpoints = [
+          { media: '(min-width: 1800px)', width: '620' },
+          { media: '(min-width: 1500px)', width: '460' },
+          { media: '(min-width: 1200px)', width: '345' },
+          { media: '(min-width: 960px)', width: '238' },
+          { media: '(min-width: 640px)', width: '218' },
+          { width: '138' },
+        ];
+        const newPic = createOptimizedPicture(imageSrc, '', false, breakpoints);
+
+        pic.replaceWith(newPic);
       }
     });
   });

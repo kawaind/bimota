@@ -128,12 +128,12 @@ blockquote {
   margin-bottom: 1em;
 }
 
-ul {
-  padding-left: 30px;
-}
-
 address, dl, fieldset, figure, ol, p, pre, ul {
   margin: 0 0 20px;
+}
+
+ul {
+  padding: 0 30px;
 }
 
 code {
