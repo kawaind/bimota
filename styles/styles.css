@@ -251,7 +251,12 @@ main .section {
   padding: var(--section-y-padding) var(--section-x-padding);
 }
 
-main .section:last-child {
+main .section:first-child {
+  padding-top: 0;
+}
+
+main .section:last-child,
+main .section.padding-bottom-0 {
   padding-bottom: 0;
 }
 
