@@ -351,10 +351,6 @@ main .border-top {
   color: var(--text-color);
 }
 
-main .section:first-child {
-  padding-top: 0;
-}
-
 .section-small {
   max-width: 900px;
   margin: auto;
@@ -374,6 +370,7 @@ main .section:first-child {
   display: flex;
   justify-content: center;
 }
+
 /* styles to override onetrust */
 #onetrust-consent-sdk #onetrust-pc-sdk button:not(#clear-filters-handler, .ot-close-icon, #filter-btn-handler, .ot-remove-objection-handler, .ot-obj-leg-btn-handler, [aria-expanded], .ot-link-btn),
 #onetrust-banner-sdk #onetrust-reject-all-handler,
