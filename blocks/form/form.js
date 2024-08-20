@@ -104,10 +104,11 @@ export default async function decorate(block) {
 
   /* enabling the submit button only when all of the checkboxes are checked */
   const checkboxList = [...form.querySelectorAll('input[type="checkbox"]')];
-  checkboxList.forEach(checkbox => {
+  checkboxList.forEach((checkbox) => {
     checkbox.addEventListener('input', () => {
-      submitButton.disabled = checkboxList.length !== checkboxList.filter(ch => ch.checked).length
-    })
+      const disabled = checkboxList.length !== checkboxList.filter((ch) => ch.checked).length;
+      submitButton.disabled = disabled;
+    });
   });
 
   form.addEventListener('submit', (e) => {
