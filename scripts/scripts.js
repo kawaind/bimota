@@ -76,6 +76,24 @@ function customDecorateBlocks(main) {
   });
 }
 
+function swappingPlacesBlock(main) {
+  const idLinks = [...main.querySelectorAll('a[href*="#id-"]')];
+  const elWithId = [...main.querySelectorAll('.block, .section')]
+    .filter((el) => [...el.classList].find((className) => className.startsWith('id-')));
+
+  idLinks.forEach((link) => {
+    const id = link.href.split('#')[1];
+    const selectedEl = elWithId.find((el) => el.classList.contains(id));
+    let targetEl = link;
+
+    if (link.closest('.button-container')) {
+      targetEl = link.closest('.button-container');
+    }
+
+    targetEl.replaceWith(selectedEl);
+  });
+}
+
 /**
  * Decorates the main element.
  * @param {Element} main The main element
@@ -90,6 +108,7 @@ export function decorateMain(main) {
   customDecorateSections(main);
   decorateBlocks(main);
   customDecorateBlocks(main);
+  swappingPlacesBlock(main);
 }
 
 /**

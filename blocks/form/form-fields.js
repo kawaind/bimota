@@ -160,6 +160,7 @@ const createSubmit = (fd) => {
 
   const fieldWrapper = createFieldWrapper(fd);
   fieldWrapper.append(button);
+  button.disabled = true;
   return { field: button, fieldWrapper };
 };
 
