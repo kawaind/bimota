@@ -5,6 +5,7 @@ export default async function decorate(block) {
   dealerLocator.classList.add('dealer-locator-map');
   dealerLocator.setAttribute('id', 'dealer-locator');
   block.append(dealerLocator);
+  const language = /\/en\//.test(window.location.pathname) ? 'en' : 'it';
   loadScript('/blocks/dealer-locator/vendor/jquery.min.js', { type: 'text/javascript', charset: 'UTF-8' })
     .then(() => {
       // these scripts depend on jquery:
@@ -18,7 +19,7 @@ export default async function decorate(block) {
               provider: 'woosmap',
               channel: '',
               localities: {
-                language: 'en',
+                language,
                 data: 'advanced',
               },
             },
@@ -32,7 +33,7 @@ export default async function decorate(block) {
               distanceMatrixProvider: 'woosmap',
             },
             internationalization: {
-              lang: 'en',
+              lang: language,
             },
             woosmapview: {
               initialCenter: {
