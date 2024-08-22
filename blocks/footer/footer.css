@@ -127,7 +127,7 @@ footer {
     justify-content: space-between;
   }
 
-  .footer .footer-column {
+  .footer .columns .footer-column {
     width: calc(50% - 30px);
     padding-bottom: 0;
     margin-top: 30px;

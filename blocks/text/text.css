@@ -7,6 +7,10 @@
   margin: auto;
 }
 
+.text.center .button-container {
+  text-align: center;
+}
+
 /* centering by set the text aling in the document */
 .section-center .text {
   text-align: center;

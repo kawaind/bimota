@@ -20,5 +20,9 @@ export default async function decorate(block) {
 
   block.innerHTML = '';
   table.append(tBody);
+
+  // links should be displayed as links - no buttons in table
+  table.querySelectorAll('.button').forEach((link) => link.classList.remove('button'));
+
   block.append(table);
 }
