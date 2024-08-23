@@ -24,7 +24,7 @@ export default async function decorate(block) {
               },
             },
             theme: {
-              primaryColor: '#008a2f',
+              primaryColor: '#ff0000',
             },
             datasource: {
               maxResponses: 5,
