@@ -79,6 +79,18 @@ export default async function decorate(block) {
                     },
                   ],
                 },
+                {
+                  featureType: 'administrative.country',
+                  elementType: 'geometry.stroke',
+                  stylers: [
+                    {
+                      color: '#ffffff',
+                    },
+                    {
+                      weight: 1,
+                    },
+                  ],
+                },
               ],
               style: {
                 default: {
