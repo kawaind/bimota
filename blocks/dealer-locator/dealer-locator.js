@@ -48,6 +48,38 @@ export default async function decorate(block) {
                 minSize: 10,
               },
               breakPoint: 10,
+              baseMapStyle: [
+                {
+                  featureType: 'water',
+                  elementType: 'geometry',
+                  stylers: [
+                    { color: '#9c3030' },
+                  ],
+                },
+                {
+                  featureType: 'road',
+                  elementType: 'geometry',
+                  stylers: [
+                    { color: '#7e4c4c' },
+                  ],
+                },
+                {
+                  featureType: 'landscape',
+                  elementType: 'geometry.fill',
+                  stylers: [
+                    { color: '#562c2c' },
+                  ],
+                },
+                {
+                  featureType: 'poi.park',
+                  elementType: 'geometry.fill',
+                  stylers: [
+                    {
+                      color: '#3c3838',
+                    },
+                  ],
+                },
+              ],
               style: {
                 default: {
                   icon: {
