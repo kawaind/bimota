@@ -6,6 +6,54 @@ export default async function decorate(block) {
   dealerLocator.setAttribute('id', 'dealer-locator');
   block.append(dealerLocator);
   const language = /\/en\//.test(window.location.pathname) ? 'en' : 'it';
+  const isRedVariant = block.classList.contains('red');
+  const redConfig = [
+    {
+      featureType: 'water',
+      elementType: 'geometry',
+      stylers: [
+        { color: '#9c3030' },
+      ],
+    },
+    {
+      featureType: 'road',
+      elementType: 'geometry',
+      stylers: [
+        { color: '#7e4c4c' },
+      ],
+    },
+    {
+      featureType: 'landscape',
+      elementType: 'geometry.fill',
+      stylers: [
+        { color: '#562c2c' },
+      ],
+    },
+    {
+      featureType: 'poi.park',
+      elementType: 'geometry.fill',
+      stylers: [
+        {
+          color: '#3c3838',
+        },
+      ],
+    },
+    {
+      featureType: 'administrative.country',
+      elementType: 'geometry.stroke',
+      stylers: [
+        {
+          color: '#ffffff',
+        },
+        {
+          weight: 1,
+        },
+      ],
+    },
+  ];
+
+  const colorsConfig = isRedVariant ? redConfig : [];
+
   loadScript('/blocks/dealer-locator/vendor/jquery.min.js', { type: 'text/javascript', charset: 'UTF-8' })
     .then(() => {
       // these scripts depend on jquery:
@@ -48,50 +96,7 @@ export default async function decorate(block) {
                 minSize: 10,
               },
               breakPoint: 10,
-              baseMapStyle: [
-                {
-                  featureType: 'water',
-                  elementType: 'geometry',
-                  stylers: [
-                    { color: '#9c3030' },
-                  ],
-                },
-                {
-                  featureType: 'road',
-                  elementType: 'geometry',
-                  stylers: [
-                    { color: '#7e4c4c' },
-                  ],
-                },
-                {
-                  featureType: 'landscape',
-                  elementType: 'geometry.fill',
-                  stylers: [
-                    { color: '#562c2c' },
-                  ],
-                },
-                {
-                  featureType: 'poi.park',
-                  elementType: 'geometry.fill',
-                  stylers: [
-                    {
-                      color: '#3c3838',
-                    },
-                  ],
-                },
-                {
-                  featureType: 'administrative.country',
-                  elementType: 'geometry.stroke',
-                  stylers: [
-                    {
-                      color: '#ffffff',
-                    },
-                    {
-                      weight: 1,
-                    },
-                  ],
-                },
-              ],
+              baseMapStyle: colorsConfig,
               style: {
                 default: {
                   icon: {
