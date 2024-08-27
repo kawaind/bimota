@@ -1,0 +1,13 @@
+.dealer-locator-map {
+  height: 400px;
+  position: relative;
+  overflow: hidden;
+}
+
+.dealer-locator.height-big .dealer-locator-map {
+  height: 600px;
+}
+
+.woosmap-slw-listview-desktop-partial {
+  display: none;
+}
