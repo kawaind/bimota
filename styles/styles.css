@@ -428,6 +428,11 @@ button.secondary.small {
   color: var(--black);
 }
 
+.dark a.button.secondary:any-link,
+.dark button.secondary {
+  background-color: transparent;
+}
+
 .dark a.button.primary:hover,
 .dark button.primary:hover {
   color: #ed1c24;
