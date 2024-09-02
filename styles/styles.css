@@ -523,16 +523,6 @@ main .section.padding-bottom-0 {
   .section > div.full-width {
     max-width: 100vw;
   }
-
-  h1,
-  .h1 {
-    font-size: 2.125rem;
-  }
-
-  h2,
-  .h2 {
-    font-size: 2rem;
-  }
 }
 
 /* full width styles */
@@ -617,24 +607,3 @@ main .border-top {
   background-color: var(--link-color) !important;
   border-color: transparent !important;
 }
-
-/* article styles - start */
-.article h1 {
-  font-size: 2.2313rem;
-  line-height: 1.2;
-  color: #333;
-  font-weight: 400;
-  margin-bottom: 40px;
-}
-
-.article em {
-  color: rgb(240 80 110);
-}
-
-@media (width >= 960px) {
-  .article h1 {
-    font-size: 2.625rem;
-  }
-}
-
-/* article styles - end */
