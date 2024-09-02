@@ -297,7 +297,7 @@ main pre {
 }
 
 /* buttons */
-a.button:any-link,
+a:any-link,
 button {
   font-family: var(--body-font-family);
   box-sizing: border-box;
@@ -323,12 +323,12 @@ button {
   letter-spacing: 0.44px;
 }
 
-a.button:hover,
+a:hover,
 button:hover {
   color: var(--action-hover);
 }
 
-a.button:focus,
+a:focus,
 button:focus {
   color: var(--action-focus);
   outline: none;
@@ -417,7 +417,7 @@ button.secondary.small {
   padding: 3px 12px;
 }
 
-.dark a.button:any-link,
+.dark a:any-link,
 .dark button {
   background-color: transparent;
 }
