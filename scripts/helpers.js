@@ -62,3 +62,10 @@ export function callOnIntersection(elements, onChange) {
     observer.observe(video);
   });
 }
+
+export function addTitleAttributeToIconLink(element) {
+  const iconElement = element.querySelector('[data-icon-name]');
+  if (iconElement) {
+    element.setAttribute('title', iconElement.getAttribute('data-icon-name'));
+  }
+}
