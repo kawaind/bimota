@@ -28,7 +28,6 @@ export default async function decorate(block) {
 
   // a11y for social icons
   const socialIconLinks = footer.querySelectorAll('.footer-column:has(a[title=""]) a[title=""]');
-  console.log('🚀 ~ decorate ~ socialIcons:', socialIconLinks);
   socialIconLinks.forEach((anchor) => addTitleAttributeToIconLink(anchor));
 
   const lists = [...footer.querySelectorAll('ul')];
