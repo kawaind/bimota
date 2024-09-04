@@ -17,20 +17,14 @@ footer {
   margin: 0;
 }
 
-.footer .block.columns .footer-column {
-  padding-bottom: 20px;
-  position: relative;
-  margin: 0;
-}
-
 .footer .footer-column:last-child {
   padding-bottom: 0;
 }
 
-.footer .footer-column:last-child ul {
-  display: flex;
-  flex-direction: row;
-  gap: 20px;
+.footer .block.columns .footer-column {
+  padding-bottom: 20px;
+  position: relative;
+  margin: 0;
 }
 
 .footer .footer-column ul {
@@ -117,11 +111,12 @@ footer {
   right: 40px;
   top: 0;
 }
+
 .footer .section .default-content-wrapper p:last-child {
   margin-bottom: 0;
 }
 
-.footer .default-content-wrapper ul {
+.footer .section .default-content-wrapper ul {
   display: flex;
   gap: 40px;
   justify-content: center;
@@ -160,7 +155,6 @@ footer {
 }
 
 @media (width >= 960px) {
-
   .footer .columns > div {
     gap: 24px;
     align-items: stretch;
