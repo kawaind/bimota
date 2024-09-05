@@ -32,8 +32,13 @@ footer {
   padding: 0;
   list-style: none;
   display: flex;
-  gap: 10px;
+  gap: 24px;
   flex-direction: column;
+}
+
+.footer .footer-column:last-child ul {
+  flex-direction: row;
+  gap: 20px;
 }
 
 .footer .footer-column .font-small {
@@ -82,7 +87,7 @@ footer {
   border: unset;
   color: rgb(255 255 255 / 50%);
   font-size: 16px;
-  line-height: 24px;
+  line-height: 150%;
 }
 
 .footer .back-to-top:hover,
@@ -97,11 +102,11 @@ footer {
 .footer .section .default-content-wrapper {
   text-align: center;
   font-size: 14px;
-  line-height: 19.6px;
+  line-height: 150%;
 }
 
 .footer .section .default-content-wrapper p {
-  margin-bottom: 10px;
+  margin-bottom: 0;
 }
 
 .footer .section .default-content-wrapper .icon {
@@ -121,6 +126,7 @@ footer {
   gap: 40px;
   justify-content: center;
   padding: 0;
+  margin-bottom: 0;
 }
 
 .footer .section:not(.columns-container) .default-content-wrapper {
@@ -130,7 +136,7 @@ footer {
   padding: 40px 0;
   align-items: flex-start;
   font-size: 16px;
-  line-height: 1.5;
+  line-height: 150%;
 }
 
 @media (width >= 768px) {
