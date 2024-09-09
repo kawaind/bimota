@@ -76,23 +76,22 @@ footer {
 }
 
 .footer .back-to-top {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  align-items: center;
-  margin: auto;
-  padding: 0;
-  background: inherit;
-  border: unset;
-  color: rgb(255 255 255 / 50%);
-  font-size: 16px;
-  line-height: 150%;
+  width: 32px;
+  height: 32px;
+  position: fixed;
+  right: 20px;
+  bottom: 40px;
+  display: none;
+  background-color: var(--grey-10);
+  color: var(--white);
+  border: none;
+  cursor: pointer;
+  z-index: 1000;
 }
 
 .footer .back-to-top:hover,
 .footer .back-to-top:focus {
-  color: rgb(255 255 255 / 70%);
+  background-color: var(--grey-30);
 }
 
 .footer .back-to-top svg {

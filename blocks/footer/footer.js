@@ -1,5 +1,4 @@
 import { getMetadata } from '../../scripts/aem.js';
-// import { getTextLabel } from '../../scripts/scripts.js';
 import { loadFragment } from '../fragment/fragment.js';
 import { addTitleAttributeToIconLink } from '../../scripts/helpers.js';
 
@@ -48,31 +47,47 @@ export default async function decorate(block) {
     });
   });
 
-  // TODO add back to top button
-  // const backToTopIcon = `
-  //   <svg width="18" height="10" viewBox="0 0 18 10">
-  //     <polyline fill="none" stroke="currentColor" stroke-width="1.2" points="1 9 9 1 17 9">
-  // </polyline>
-  //   </svg>
-  // `;
+  // Back to top button
+  const backToTopNode = document.createRange().createContextualFragment(`
+    <button class="back-to-top">
+      <img data-icon-name="arrow" src="/icons/chevron-up.svg" alt="" loading="lazy">
+    </button>
+  `);
 
-  // const backToTopText = getTextLabel('top');
+  footer.prepend(backToTopNode);
 
-  // const backToTopNode = document.createRange().createContextualFragment(`
-  //   <button class="back-to-top">
-  //     ${backToTopIcon}
-  //     <span>${backToTopText}</span>
-  //   </button>
-  // `);
+  const backToTopButton = footer.querySelector('.back-to-top');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        backToTopButton.style.position = 'absolute';
+        backToTopButton.style.bottom = `${entry.boundingClientRect.height + 80}px`;
+      } else {
+        backToTopButton.style.position = 'fixed';
+        backToTopButton.style.bottom = '80px';
+      }
+    });
+  });
+  observer.observe(footer);
 
-  // footer.querySelector('.section:last-child').prepend(backToTopNode);
+  window.addEventListener('scroll', () => {
+    const scrollPosition = window.scrollY + window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
 
-  // footer.querySelector('.back-to-top').addEventListener('click', () => {
-  //   window.scrollTo({
-  //     top: 0,
-  //     behavior: 'smooth',
-  //   });
-  // });
+    // Display button if user scrolls close to the bottom, 40px above the footer
+    if (scrollPosition >= documentHeight / 3) {
+      backToTopButton.style.display = 'block';
+    } else {
+      backToTopButton.style.display = 'none';
+    }
+  });
+
+  footer.querySelector('.back-to-top').addEventListener('click', () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  });
 
   block.append(footer);
 }
