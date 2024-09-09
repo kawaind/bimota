@@ -48,49 +48,46 @@ export default async function decorate(block) {
   });
 
   // Back to top button
-  const path = window.location.pathname;
-  if (!(path.includes('importatori-dealer') || path.includes('import-dealers'))) {
-    const backToTopNode = document.createRange().createContextualFragment(`
+  const backToTopNode = document.createRange().createContextualFragment(`
     <button class="back-to-top">
       <img data-icon-name="arrow" src="/icons/chevron-up.svg" alt="" loading="lazy">
     </button>
   `);
 
-    footer.prepend(backToTopNode);
+  footer.prepend(backToTopNode);
 
-    const backToTopButton = footer.querySelector('.back-to-top');
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          backToTopButton.style.position = 'absolute';
-          backToTopButton.style.bottom = `${entry.boundingClientRect.height + 80}px`;
-        } else {
-          backToTopButton.style.position = 'fixed';
-          backToTopButton.style.bottom = '80px';
-        }
-      });
-    });
-    observer.observe(footer);
-
-    window.addEventListener('scroll', () => {
-      const scrollPosition = window.scrollY + window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight;
-
-      // Display button if user scrolls close to the bottom, 40px above the footer
-      if (scrollPosition >= documentHeight / 3) {
-        backToTopButton.style.display = 'block';
+  const backToTopButton = footer.querySelector('.back-to-top');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        backToTopButton.style.position = 'absolute';
+        backToTopButton.style.bottom = `${entry.boundingClientRect.height + 80}px`;
       } else {
-        backToTopButton.style.display = 'none';
+        backToTopButton.style.position = 'fixed';
+        backToTopButton.style.bottom = '80px';
       }
     });
+  });
+  observer.observe(footer);
 
-    footer.querySelector('.back-to-top').addEventListener('click', () => {
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth',
-      });
+  window.addEventListener('scroll', () => {
+    const scrollPosition = window.scrollY + window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+
+    // Display button if user scrolls close to the bottom, 40px above the footer
+    if (scrollPosition >= documentHeight / 3) {
+      backToTopButton.style.display = 'block';
+    } else {
+      backToTopButton.style.display = 'none';
+    }
+  });
+
+  footer.querySelector('.back-to-top').addEventListener('click', () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
     });
-  }
+  });
 
   block.append(footer);
 }
