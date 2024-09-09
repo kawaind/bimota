@@ -58,19 +58,17 @@ footer {
 }
 
 .footer .footer-list-item a:hover,
+.footer .footer-list-item a:focus,
 .footer .footer-list-item a:active {
   border-bottom: 1px solid var(--c-primary-white);
 }
 
-.footer .footer-list-item a:focus {
-  color: var(--action-focus);
-  text-decoration: none;
-}
 
+.footer .footer-list-item a:has(span.icon):hover,
 .footer .footer-list-item a:has(span.icon):focus,
-.footer .footer-list-item a:has(span.icon):hover {
+.footer .footer-list-item a:has(span.icon):active {
   filter: brightness(2);
-  border: none;
+  border-bottom: 1px solid transparent;
 }
 
 .footer .back-to-top {
