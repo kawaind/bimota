@@ -36,4 +36,3 @@ if (!window.location.pathname.includes('srcdoc')
     });
   };
 }
-
