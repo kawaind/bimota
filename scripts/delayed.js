@@ -13,6 +13,11 @@ if (!window.location.pathname.includes('srcdoc')
     'data-domain-script': '0190e9aa-e486-72b8-ada6-bda52c32aa2c',
   });
 
+  loadScript('https://assets.adobedtm.com/53c8e773d591/d826b4085ef5/launch-1bb397cb091a-development.min.js', {
+    type: 'text/javascript',
+    charset: 'UTF-8',
+  });
+
   window.OptanonWrapper = () => {
     const currentOnetrustActiveGroups = window.OnetrustActiveGroups;
 
@@ -31,3 +36,4 @@ if (!window.location.pathname.includes('srcdoc')
     });
   };
 }
+
