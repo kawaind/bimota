@@ -124,9 +124,7 @@ function handleTransparentAndScrolling(nav) {
   const header = nav.closest('header');
   let prevScrollingPosition = 0;
 
-  document.addEventListener('scroll', () => {
-    const { scrollY } = window;
-
+  const changeToTransparentIfNeeded = (scrollY) => {
     if (useTransparentVariant) {
       header.classList.add('transparent', 'can-be-transparent');
 
@@ -136,6 +134,12 @@ function handleTransparentAndScrolling(nav) {
         header.classList.add('transparent');
       }
     }
+  };
+
+  document.addEventListener('scroll', () => {
+    const { scrollY } = window;
+
+    changeToTransparentIfNeeded(scrollY);
 
     if (scrollY - prevScrollingPosition > 0 && scrollY > 200) {
       header.classList.add('fade-out');
@@ -145,6 +149,8 @@ function handleTransparentAndScrolling(nav) {
 
     prevScrollingPosition = scrollY;
   });
+
+  changeToTransparentIfNeeded(window.scrollY);
 }
 
 /**
