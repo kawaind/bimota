@@ -214,6 +214,16 @@ header .nav-drop[aria-expanded="false"] ul {
   display: none;
 }
 
+header .nav-drop .chevron-icon {
+  transition: transform 200ms ease-in-out;
+  transform-origin: center center;
+  display: flex;
+}
+
+header .nav-drop[aria-expanded="true"] .chevron-icon {
+  transform: rotate(180deg);
+}
+
 .nav-sections .nav-drop-text {
   display: flex;
   justify-content: space-between;
