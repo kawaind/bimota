@@ -223,7 +223,7 @@ export default async function decorate(block) {
     toolsWrapper.querySelectorAll('li').forEach((item) => {
       item.addEventListener('click', redirectPage);
 
-      const urlLang = document.location.pathname.includes('/en/') ? 'en' : 'ita';
+      const urlLang = document.location.pathname.includes('/en/') ? 'en' : 'it';
       const listItemLang = item.textContent.trim().toLowerCase();
 
       if (urlLang === listItemLang) {

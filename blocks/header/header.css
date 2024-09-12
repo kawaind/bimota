@@ -193,7 +193,7 @@ header .nav-tools .default-content-wrapper li.active::after {
   display: block;
   width: 100%;
   height: 1px;
-  background: black;
+  background: currentcolor;
 }
 
 
