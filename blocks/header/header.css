@@ -184,7 +184,17 @@ header .nav-tools .default-content-wrapper {
 
 header .nav-tools .default-content-wrapper li {
   margin: 0;
+  position: relative;
 }
+
+header .nav-tools .default-content-wrapper li.active::after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: black;
+}
+
 
 header .nav-tools .default-content-wrapper li a:any-link {
   font-size: 0.875rem;
@@ -221,6 +231,10 @@ header .nav-drop {
 
 header .nav-drop[aria-expanded="false"] ul {
   display: none;
+}
+
+header .nav-sections .nav-drop[aria-expanded="true"] {
+  color: var(--action-default);
 }
 
 header .nav-drop .icon-chevron {
@@ -385,6 +399,20 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
     width: auto;
   }
 
+  header .nav-sections .nav-drop[aria-expanded="true"] .nav-drop-text {
+    color: var(--black);
+  }
+
+  header .nav-sections .nav-drop[aria-expanded="true"] .nav-drop-text::after {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 1px;
+    position: absolute;
+    bottom: 0;
+    background: currentcolor;
+  }
+
   /* expanded menu item content */
   header .nav-sections .nav-drop ul {
     position: fixed;
@@ -434,19 +462,34 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
   }
 
   header.transparent nav[aria-expanded="true"] .nav-link-section a:any-link,
-  header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
+  header.transparent
+    nav[aria-expanded="true"]
+    .nav-link-section
+    a.nav-drop-text {
     color: var(--white);
   }
 
-  header.transparent nav[aria-expanded="true"] .nav-link-section .nav-drop a:any-link {
+  header.transparent
+    nav[aria-expanded="true"]
+    .nav-link-section
+    .nav-drop
+    a:any-link {
     color: var(--grey-90);
   }
 
-  header.transparent nav[aria-expanded="true"] .nav-link-section .nav-drop a:focus {
+  header.transparent
+    nav[aria-expanded="true"]
+    .nav-link-section
+    .nav-drop
+    a:focus {
     color: var(--action-focus);
   }
 
-  header.transparent nav[aria-expanded="true"] .nav-link-section .nav-drop a:hover {
+  header.transparent
+    nav[aria-expanded="true"]
+    .nav-link-section
+    .nav-drop
+    a:hover {
     color: var(--action-hover);
   }
 }
