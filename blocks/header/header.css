@@ -15,6 +15,7 @@ header.fade-out {
 header .nav-wrapper {
   width: 100%;
   color: var(--grey-90);
+  background-color: var(--white);
 }
 
 header nav {
@@ -273,6 +274,10 @@ header .nav-backdrop.hide {
 header.transparent nav {
   background-color: transparent;
   color: var(--white);
+}
+
+header.transparent .nav-wrapper {
+  background-color: transparent;
 }
 
 /* stylelint-disable-next-line no-descending-specificity */

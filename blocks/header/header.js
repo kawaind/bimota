@@ -108,7 +108,7 @@ function redirectPage(event) {
   const currentUrl = window.location;
   let redirectUrl = currentUrl.origin;
 
-  if (event.target.innerHTML === 'ENG') {
+  if (event.target.innerHTML.toLowerCase() === 'en') {
     if (!currentUrl.pathname.includes('/en/')) {
       redirectUrl = `${redirectUrl}/en`;
     }
@@ -154,8 +154,7 @@ function handleTransparentAndScrolling(nav) {
 export default async function decorate(block) {
   // load nav as fragment
   const navMeta = getMetadata('nav');
-  // const navPath = navMeta ? new URL(navMeta, window.location).pathname : '/nav';
-  const navPath = '/drafts/tdziezyk/v3-nav';
+  const navPath = navMeta ? new URL(navMeta, window.location).pathname : '/nav';
   const fragment = await loadFragment(navPath);
 
   // decorate nav DOM
@@ -211,8 +210,15 @@ export default async function decorate(block) {
     toolsWrapper.classList.add('default-content-wrapper');
     navTools.append(toolsWrapper);
     navTools.firstElementChild.remove();
-    toolsWrapper.querySelectorAll('li').forEach((list) => {
-      list.addEventListener('click', redirectPage);
+    toolsWrapper.querySelectorAll('li').forEach((item) => {
+      item.addEventListener('click', redirectPage);
+
+      const urlLang = document.location.pathname.includes('/en/') ? 'en' : 'ita';
+      const listItemLang = item.textContent.trim().toLowerCase();
+
+      if (urlLang === listItemLang) {
+        item.classList.add('active');
+      }
     });
   }
 
