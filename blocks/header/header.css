@@ -118,10 +118,19 @@ header .nav-close-button {
   margin-bottom: 20px;
 }
 
+header .icon-close {
+  display: flex;
+  color: var(--grey-90);
+}
+
 header .nav-flag {
   position: absolute;
   bottom: 0;
   right: 20px;
+  display: flex;
+}
+
+header .nav-flag .icon {
   display: flex;
 }
 
@@ -214,13 +223,13 @@ header .nav-drop[aria-expanded="false"] ul {
   display: none;
 }
 
-header .nav-drop .chevron-icon {
+header .nav-drop .icon-chevron {
   transition: transform 200ms ease-in-out;
   transform-origin: center center;
   display: flex;
 }
 
-header .nav-drop[aria-expanded="true"] .chevron-icon {
+header .nav-drop[aria-expanded="true"] .icon-chevron {
   transform: rotate(180deg);
 }
 
@@ -328,7 +337,7 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
   header .nav-hamburger,
   header .nav-close-button,
   header .nav-flag,
-  header .nav-drop-text .chevron-icon {
+  header .nav-drop-text .icon-chevron {
     display: none;
   }
 

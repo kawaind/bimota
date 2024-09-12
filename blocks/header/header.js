@@ -1,42 +1,9 @@
 import { getMetadata } from '../../scripts/aem.js';
+import { customDecoreateIcons } from '../../scripts/scripts.js';
 import { loadFragment } from '../fragment/fragment.js';
 
 // media query match that indicates mobile/tablet width
 const isDesktop = window.matchMedia('(min-width: 1024px)');
-
-const hamburgerIcon = `
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-    <g clip-path="url(#clip0_2319_4806)">
-      <path d="M4 18H20C20.55 18 21 17.55 21 17C21 16.45 20.55 16 20 16H4C3.45 16 3 16.45 3 17C3 17.55 3.45 18 4 18ZM4 13H20C20.55 13 21 12.55 21 12C21 11.45 20.55 11 20 11H4C3.45 11 3 11.45 3 12C3 12.55 3.45 13 4 13ZM3 7C3 7.55 3.45 8 4 8H20C20.55 8 21 7.55 21 7C21 6.45 20.55 6 20 6H4C3.45 6 3 6.45 3 7Z" fill="currentColor"/>
-    </g>
-    <defs>
-      <clipPath id="clip0_2319_4806">
-        <rect width="24" height="24" fill="white"/>
-      </clipPath>
-    </defs>
-  </svg>
-`;
-
-const chevronIcon = `
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-    <path d="M15.88 9.29L12 13.17L8.11998 9.29C7.72998 8.9 7.09998 8.9 6.70998 9.29C6.31998 9.68 6.31998 10.31 6.70998 10.7L11.3 15.29C11.69 15.68 12.32 15.68 12.71 15.29L17.3 10.7C17.69 10.31 17.69 9.68 17.3 9.29C16.91 8.91 16.27 8.9 15.88 9.29Z" fill="currentColor"/>
-  </svg>
-`;
-
-const flag = `
-  <svg width="100" height="40" viewBox="0 0 100 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect width="14.2857" height="40" fill="#ED1C24"/>
-    <rect x="28.5714" width="14.2857" height="40" fill="#ED1C24"/>
-    <rect x="57.1428" width="14.2857" height="40" fill="black"/>
-    <rect x="85.7142" width="14.2857" height="40" fill="black"/>
-  </svg>
-`;
-
-const closeIcon = `
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <path d="M19.6451 4.36708C19.1718 3.89382 18.4073 3.89382 17.934 4.36708L12 10.289L6.06598 4.35495C5.59272 3.88168 4.82821 3.88168 4.35495 4.35495C3.88168 4.82821 3.88168 5.59272 4.35495 6.06598L10.289 12L4.35495 17.934C3.88168 18.4073 3.88168 19.1718 4.35495 19.6451C4.82821 20.1183 5.59272 20.1183 6.06598 19.6451L12 13.711L17.934 19.6451C18.4073 20.1183 19.1718 20.1183 19.6451 19.6451C20.1183 19.1718 20.1183 18.4073 19.6451 17.934L13.711 12L19.6451 6.06598C20.1062 5.60485 20.1062 4.82821 19.6451 4.36708Z" fill="black"/>
-  </svg>
-`;
 
 function closeOnEscape(e) {
   if (e.code === 'Escape') {
@@ -218,7 +185,7 @@ export default async function decorate(block) {
         const textWrapper = document.createElement('a');
         textWrapper.classList.add('nav-drop-text');
         textWrapper.append(navSection.firstChild);
-        textWrapper.innerHTML += `<span class="chevron-icon">${chevronIcon}</span>`;
+        textWrapper.innerHTML += '<span class="icon icon-chevron"></span>';
         navSection.prepend(textWrapper);
         navSection.classList.add('nav-drop');
 
@@ -259,10 +226,10 @@ export default async function decorate(block) {
     navLinksWrapper.classList.add('nav-link-section');
     const flagEl = document.createElement('span');
     flagEl.classList.add('nav-flag');
-    flagEl.innerHTML = flag;
+    flagEl.innerHTML = '<span class="icon icon-logo-flag-black"></span>';
     const closeEl = document.createElement('button');
     closeEl.classList.add('nav-close-button');
-    closeEl.innerHTML = closeIcon;
+    closeEl.innerHTML = '<span class="icon icon-close"></span>';
     closeEl.addEventListener('click', () => toggleMenu(nav, navSections));
     navLinksWrapper.append(closeEl, navSections, navTools, flagEl);
     nav.append(navLinksWrapper);
@@ -278,7 +245,7 @@ export default async function decorate(block) {
   const hamburger = document.createElement('div');
   hamburger.classList.add('nav-hamburger');
   hamburger.innerHTML = `<button type="button" aria-controls="nav" aria-label="Open navigation">
-      ${hamburgerIcon}
+      <span class="icon icon-hamburger"></span>
     </button>`;
   hamburger.addEventListener('click', () => toggleMenu(nav, navSections));
   nav.append(hamburger);
@@ -308,4 +275,6 @@ export default async function decorate(block) {
   observer.observe(document.querySelector('main'));
 
   handleTransparentAndScrolling(nav);
+
+  customDecoreateIcons(nav);
 }
