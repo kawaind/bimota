@@ -1,8 +1,19 @@
 /* header and nav layout */
+
+header {
+  position: fixed;
+  top: 0;
+  transition: 500ms all;
+  width: 100vw;
+  z-index: var(--z-index-header);
+}
+
+header.fade-out {
+  top: calc(-1 * var(--nav-height));
+}
+
 header .nav-wrapper {
   width: 100%;
-  z-index: var(--z-index-header);
-  position: fixed;
   color: var(--grey-90);
 }
 
@@ -231,6 +242,7 @@ header.transparent nav {
   color: var(--white);
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 header.transparent a:any-link {
   color: var(--white);
 }

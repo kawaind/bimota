@@ -151,6 +151,35 @@ function redirectPage(event) {
   }
   window.location.replace(redirectUrl);
 }
+
+function handleTransparentAndScrolling(nav) {
+  const useTransparentVariant = !!document.querySelector('main > .section > .hero-wrapper');
+  const header = nav.closest('header');
+  let prevScrollingPosition = 0;
+
+  document.addEventListener('scroll', () => {
+    const { scrollY } = window;
+
+    if (useTransparentVariant) {
+      header.classList.add('transparent', 'can-be-transparent');
+
+      if (scrollY > 100) {
+        header.classList.remove('transparent');
+      } else {
+        header.classList.add('transparent');
+      }
+    }
+
+    if (scrollY - prevScrollingPosition > 0 && scrollY > 200) {
+      header.classList.add('fade-out');
+    } else if (prevScrollingPosition - scrollY > 0) {
+      header.classList.remove('fade-out');
+    }
+
+    prevScrollingPosition = scrollY;
+  });
+}
+
 /**
  * loads and decorates the header, mainly the nav
  * @param {Element} block The header block element
@@ -277,4 +306,6 @@ export default async function decorate(block) {
     });
   }, { rootMargin: '0px 0px -1000px 0px' });
   observer.observe(document.querySelector('main'));
+
+  handleTransparentAndScrolling(nav);
 }

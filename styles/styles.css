@@ -496,6 +496,10 @@ div[class$="-wrapper"]:not(:first-child) {
   }
 }
 
+header:not(.can-be-transparent) + main {
+  margin-top: var(--nav-height);
+}
+
 /* sections */
 main .section {
   padding: var(--section-y-padding) var(--section-x-padding);
