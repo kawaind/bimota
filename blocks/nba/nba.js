@@ -23,7 +23,7 @@ export default async function decorate(block) {
     const buttonClass = index < 1 ? 'primary' : 'secondary';
     button.classList.add('button', buttonClass);
     if (button.parentElement.classList.contains('button-container')) {
-      button.parentElement.remove();
+      button.parentElement.removeAttribute('class');
     }
     buttonWrapper.append(button);
   });
