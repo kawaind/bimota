@@ -45,6 +45,7 @@
   --error: #b81f2d;
 
   /* old variables */
+  --text-red: var(--action-default);
   --link-color: var(--action-default);
   --link-hover-color: var(--action-hover);
   --c-primary-white: var(--white);
@@ -108,7 +109,7 @@ h6,
 
 h1,
 .h1 {
-  font-size: 2.25rem;
+  font-size: 2.875rem;
   font-style: normal;
   font-weight: 500;
   line-height: 140%;
@@ -160,15 +161,15 @@ h6,
   letter-spacing: 0.15px;
 }
 
-@media (width >= 768px) {
+@media (width >= 1025px) {
   h1,
   .h1 {
-    font-size: 2.5rem;
+    font-size: 3.75rem;
   }
 
   h2,
   .h2 {
-    font-size: 2.25rem;
+    font-size: 2.5rem;
   }
 
   h3,
@@ -192,7 +193,7 @@ h6,
   }
 }
 
-@media (width >= 1024px) {
+@media (width >= 1440px) {
   h1,
   .h1 {
     font-size: 4.375rem;
