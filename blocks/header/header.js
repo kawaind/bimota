@@ -91,6 +91,10 @@ function toggleSubNav(navSection, navSections) {
   const expanded = navSection.getAttribute('aria-expanded') === 'true';
   toggleAllNavSections(navSections);
   navSection.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+
+  if (!expanded) {
+    document.querySelector('header').classList.remove('transparent');
+  }
 }
 
 function checkForActiveLink(navSections) {
