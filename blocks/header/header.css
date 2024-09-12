@@ -3,6 +3,7 @@ header .nav-wrapper {
   width: 100%;
   z-index: var(--z-index-header);
   position: fixed;
+  color: var(--grey-90);
 }
 
 header nav {
@@ -12,6 +13,7 @@ header nav {
   padding: 20px;
   max-width: 1240px;
   margin: auto;
+  background-color: var(--white);
 }
 
 header nav p {
@@ -62,13 +64,23 @@ header .nav-dealer-locator a.button {
   gap: 8px;
   border-radius: 26px;
   background: var(--white);
-  color: var(--black);
   text-align: center;
   font-size: 0.75rem;
   font-style: normal;
   font-weight: 600;
   line-height: 150%;
   letter-spacing: 0.44px;
+  border: solid 1px var(--action-default);
+}
+
+header .nav-dealer-locator a.button:hover {
+  border-color: var(--action-hover);
+  color: var(--action-hover);
+}
+
+header .nav-dealer-locator a.button:focus {
+  border-color: var(--action-focus);
+  color: var(--action-focus);
 }
 
 header .nav-drop picture {
@@ -177,6 +189,10 @@ header .nav-hamburger button {
   cursor: pointer;
 }
 
+header .nav-hamburger button svg {
+  color: var(--grey-90);
+}
+
 /* nav-drop */
 header .nav-drop {
   position: relative;
@@ -208,6 +224,40 @@ header .nav-backdrop {
 
 header .nav-backdrop.hide {
   display: none;
+}
+
+header.transparent nav {
+  background-color: transparent;
+  color: var(--white);
+}
+
+header.transparent a:any-link {
+  color: var(--white);
+}
+
+header.transparent .nav-hamburger svg {
+  color: var(--white);
+}
+
+header.transparent .nav-dealer-locator a.button {
+  background-color: var(--white);
+  border-color: transparent;
+  color: var(--black);
+}
+
+header.transparent .nav-dealer-locator a.button:hover {
+  border-color: var(--action-hover);
+  color: var(--action-hover);
+}
+
+header.transparent .nav-dealer-locator a.button:focus {
+  border-color: var(--action-focus);
+  color: var(--action-focus);
+}
+
+header.transparent nav[aria-expanded="true"] .nav-link-section a:any-link,
+header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
+  color: var(--grey-90);
 }
 
 @media (width >= 768px) {
@@ -340,7 +390,7 @@ header .nav-backdrop.hide {
   }
 
   header .nav-drop[aria-expanded="true"]::after {
-    content: '';
+    content: "";
     display: block;
     width: 100vw;
     height: calc(100vh - var(--nav-height));
@@ -351,9 +401,26 @@ header .nav-backdrop.hide {
     z-index: -1;
     cursor: auto;
   }
+
+  header.transparent nav[aria-expanded="true"] .nav-link-section a:any-link,
+  header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
+    color: var(--white);
+  }
+
+  header.transparent nav[aria-expanded="true"] .nav-link-section .nav-drop a:any-link {
+    color: var(--grey-90);
+  }
+
+  header.transparent nav[aria-expanded="true"] .nav-link-section .nav-drop a:focus {
+    color: var(--action-focus);
+  }
+
+  header.transparent nav[aria-expanded="true"] .nav-link-section .nav-drop a:hover {
+    color: var(--action-hover);
+  }
 }
 
-@media (width >= 1024px) {
+@media (width >= 1440px) {
   header nav {
     padding-left: 0;
     padding-right: 0;
