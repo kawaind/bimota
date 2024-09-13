@@ -95,7 +95,8 @@ header .nav-dealer-locator a.button:focus {
   color: var(--action-focus);
 }
 
-header .nav-drop picture {
+header .nav-drop picture,
+header .nav-sublist > span {
   display: none;
 }
 
@@ -160,13 +161,13 @@ header .nav-drop ul {
   cursor: auto;
 }
 
-header .nav-sections ul > li > ul {
+header .nav-sections ul > li .nav-sublist ul {
   margin: 0;
   gap: 16px;
   padding: 10px 0 0;
 }
 
-header .nav-sections ul > li > ul a:any-link {
+header .nav-sections ul > li .nav-sublist ul a:any-link {
   font-size: 0.875rem;
   font-style: normal;
   font-weight: 500;
@@ -197,6 +198,7 @@ header .nav-tools .default-content-wrapper li.active::after {
 }
 
 
+/* stylelint-disable-next-line no-descending-specificity */
 header .nav-tools .default-content-wrapper li a:any-link {
   font-size: 0.875rem;
   font-style: normal;
@@ -230,7 +232,7 @@ header .nav-drop {
   cursor: pointer;
 }
 
-header .nav-drop[aria-expanded="false"] ul {
+header .nav-drop[aria-expanded="false"] .nav-sublist {
   display: none;
 }
 
@@ -419,7 +421,7 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
   }
 
   /* expanded menu item content */
-  header .nav-sections .nav-drop ul {
+  header .nav-sections .nav-drop .nav-sublist {
     position: fixed;
     top: var(--nav-height);
     padding: 40px;
@@ -427,6 +429,10 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
     left: 0;
     height: auto;
     background: var(--white);
+  }
+
+  header .nav-sections .nav-drop ul {
+    padding: 0;
     gap: unset;
     justify-content: space-between;
     flex-wrap: wrap;
@@ -444,8 +450,19 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
     line-height: 140%;
   }
 
-  header .nav-sections .nav-drop ul picture {
+  header .nav-sections .nav-drop ul picture,
+  header .nav-sublist > span {
     display: flex;
+  }
+
+
+  header .nav-sublist > span {
+    padding: 0 40px 24px;
+    font-weight: 500;
+    font-size: 1.75rem;
+    line-height: 2.275;
+    color: var(--black);
+    cursor: auto;
   }
 
   header .nav-sections .nav-drop ul img {

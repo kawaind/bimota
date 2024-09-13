@@ -190,7 +190,8 @@ export default async function decorate(block) {
 
   if (navSections) {
     navSections.querySelectorAll(':scope .default-content-wrapper > ul > li').forEach((navSection) => {
-      if (navSection.querySelector('ul')) {
+      const sublist = navSection.querySelector('ul');
+      if (sublist) {
         const textWrapper = document.createElement('a');
         textWrapper.classList.add('nav-drop-text');
         textWrapper.append(navSection.firstChild);
@@ -204,10 +205,21 @@ export default async function decorate(block) {
 
           link.prepend(picture);
         });
+
+        const sublistWrapper = document.createElement('div');
+        sublistWrapper.classList.add('nav-sublist');
+        const sublistHeading = document.createElement('span');
+        sublistHeading.textContent = textWrapper.textContent;
+        sublist.replaceWith(sublistWrapper);
+        sublistWrapper.append(sublistHeading);
+        sublistWrapper.append(sublist);
       }
 
       navSection.addEventListener('click', (event) => {
-        if (event.target.classList.contains('nav-drop-text') || event.target.closest('.nav-drop-text')) {
+        if (
+          event.target.classList.contains('nav-drop-text')
+          || event.target.classList.contains('nav-drop')
+          || event.target.closest('.nav-drop-text')) {
           toggleSubNav(navSection, navSections);
         }
       });
@@ -278,19 +290,6 @@ export default async function decorate(block) {
   block.append(navWrapper);
 
   checkForActiveLink(navSections);
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting && isDesktop) {
-        navWrapper.classList.add('hide');
-      } else if (isDesktop) {
-        navWrapper.classList.remove('hide');
-      }
-    });
-  }, { rootMargin: '0px 0px -1000px 0px' });
-  observer.observe(document.querySelector('main'));
-
   handleTransparentAndScrolling(nav);
-
   customDecoreateIcons(nav);
 }
