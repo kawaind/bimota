@@ -44,7 +44,7 @@ header a:any-link {
 header a:active,
 header a:focus,
 header a:hover {
-  color: var(--action-default);
+  color: var(--action-hover);
 }
 
 /* brand */
@@ -335,7 +335,7 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
   }
 }
 
-@media (width >= 1024px) {
+@media (width >= 1025px) {
   header .nav-brand {
     flex-grow: unset;
   }
