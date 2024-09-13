@@ -94,6 +94,9 @@ function toggleSubNav(navSection, navSections) {
 
   if (!expanded) {
     document.querySelector('header').classList.remove('transparent');
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = '';
   }
 }
 
