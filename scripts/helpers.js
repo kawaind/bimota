@@ -69,3 +69,57 @@ export function addTitleAttributeToIconLink(element) {
     element.setAttribute('title', iconElement.getAttribute('data-icon-name'));
   }
 }
+
+export const adjustPretitle = (element) => {
+  const headingSelector = 'h1, h2, h3, h4, h5, h6';
+
+  [...element.querySelectorAll(headingSelector)].forEach((heading) => {
+    const isNextElHeading = heading.nextElementSibling?.matches(headingSelector);
+
+    if (!isNextElHeading) {
+      return;
+    }
+
+    const currentLevel = Number(heading.tagName[1]);
+    const nextElLevel = Number(heading.nextElementSibling.tagName[1]);
+
+    if (currentLevel > nextElLevel) {
+      const pretitle = document.createElement('span');
+      pretitle.classList.add('pretitle');
+      pretitle.append(...heading.childNodes);
+
+      heading.replaceWith(pretitle);
+    }
+  });
+};
+
+export const unwrapDivs = (element, options = {}) => {
+  const stack = [element];
+  const { ignoreDataAlign = false } = options;
+
+  while (stack.length > 0) {
+    const currentElement = stack.pop();
+
+    let i = 0;
+    while (i < currentElement.children.length) {
+      const node = currentElement.children[i];
+      const attributesLength = [...node.attributes].filter((el) => {
+        if (ignoreDataAlign) {
+          return !(el.name.startsWith('data-align') || el.name.startsWith('data-valign'));
+        }
+
+        return el;
+      }).length;
+
+      if (node.tagName === 'DIV' && attributesLength === 0) {
+        while (node.firstChild) {
+          currentElement.insertBefore(node.firstChild, node);
+        }
+        node.remove();
+      } else {
+        stack.push(node);
+        i += 1;
+      }
+    }
+  }
+};
