@@ -258,9 +258,13 @@ export default async function decorate(block) {
 
         // wrapping pictures with links if the link follows immediately after the picture
         navSection.querySelectorAll('ul picture + a').forEach((link) => {
-          const picture = link.previousElementSibling;
+          const pictures = link.parentElement.querySelectorAll('picture');
 
-          link.prepend(picture);
+          if (pictures.length === 2) {
+            link.classList.add('swipe-on-hover');
+          }
+
+          link.prepend(...pictures);
         });
 
         // setting transtion delay for every list item

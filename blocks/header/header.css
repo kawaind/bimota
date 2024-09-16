@@ -455,7 +455,7 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
     line-height: 140%;
   }
 
-  header .nav-sections .nav-drop ul picture,
+  header .nav-sections .nav-drop ul picture:first-child,
   header .nav-sublist > div > span {
     display: flex;
   }
@@ -463,6 +463,14 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
   header .nav-sections .nav-sublist li {
     transition: opacity 400ms linear;
     opacity: 0;
+  }
+
+  header .nav-sections .nav-sublist a.swipe-on-hover:hover picture:first-child {
+    display: none;
+  }
+
+  header .nav-sections .nav-sublist a.swipe-on-hover:hover picture:nth-child(2) {
+    display: flex;
   }
 
   header .nav-sections .nav-sublist.subnav-fadein li {
