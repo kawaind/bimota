@@ -430,10 +430,12 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
     height: auto;
     background: var(--white);
     padding: 0;
+    overflow: hidden;
   }
 
   header .nav-sections .nav-drop .nav-sublist > div {
     padding: 40px;
+    margin: auto;
   }
 
   header .nav-sections .nav-drop ul {
@@ -546,5 +548,17 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
   header .nav-sections .nav-drop ul {
     padding-left: calc((100vw - 1240px) / 2);
     padding-right: calc((100vw - 1240px) / 2);
+  }
+
+  header .nav-sections .nav-drop .nav-sublist > div {
+    width: 1440px;
+    max-width: 1440px;
+    padding-left: 100px;
+    padding-right: 100px;
+  }
+
+  header .nav-sections .nav-drop .nav-sublist > div > span {
+    padding-left: 0;
+    padding-right: 0;
   }
 }
