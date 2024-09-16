@@ -96,8 +96,12 @@ header .nav-dealer-locator a.button:focus {
 }
 
 header .nav-drop picture,
-header .nav-sublist > span {
+header .nav-sublist > div > span {
   display: none;
+}
+
+header .nav-sublist > div {
+  overflow: hidden;
 }
 
 header .nav-link-section {
@@ -133,10 +137,6 @@ header .nav-flag {
 }
 
 header .nav-flag .icon {
-  display: flex;
-}
-
-header nav[aria-expanded="true"] .nav-link-section {
   display: flex;
 }
 
@@ -349,6 +349,7 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
     height: auto;
     flex-grow: 1;
     align-items: center;
+    display: flex;
   }
 
   header .nav-backdrop {
@@ -424,11 +425,15 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
   header .nav-sections .nav-drop .nav-sublist {
     position: fixed;
     top: var(--nav-height);
-    padding: 40px;
     width: 100vw;
     left: 0;
     height: auto;
     background: var(--white);
+    padding: 0;
+  }
+
+  header .nav-sections .nav-drop .nav-sublist > div {
+    padding: 40px;
   }
 
   header .nav-sections .nav-drop ul {
@@ -451,12 +456,12 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
   }
 
   header .nav-sections .nav-drop ul picture,
-  header .nav-sublist > span {
+  header .nav-sublist > div > span {
     display: flex;
   }
 
 
-  header .nav-sublist > span {
+  header .nav-sublist > div > span {
     padding: 0 40px 24px;
     font-weight: 500;
     font-size: 1.75rem;

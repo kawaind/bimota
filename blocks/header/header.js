@@ -5,6 +5,45 @@ import { loadFragment } from '../fragment/fragment.js';
 // media query match that indicates mobile/tablet width
 const isDesktop = window.matchMedia('(min-width: 1025px)');
 
+const animateInOut = (animateTarget, isFadeIn, initStyles, startStyles, endStyles) => {
+  animateTarget.style.transition = 'all 300ms ease-in-out';
+
+  const setStyles = (targetEl, stylesObject) => {
+    Object.entries(stylesObject).forEach(([key, value]) => {
+      targetEl.style[key] = value;
+    });
+  };
+
+  const cssReflow = () => {
+    // trigger reflow to ensure the transition starts from the current state
+    // read more here: https://gist.github.com/paulirish/5d52fb081b3570c81e3a
+    // eslint-disable-next-line no-unused-expressions
+    animateTarget.offsetWidth;
+  };
+
+  const restoreDisplayPropAfterHide = () => {
+    const transitionEndEvent = () => {
+      animateTarget.style.display = '';
+      animateTarget.removeEventListener('transitionend', transitionEndEvent);
+    };
+
+    animateTarget.addEventListener('transitionend', transitionEndEvent);
+  };
+
+  setStyles(animateTarget, initStyles);
+
+  if (isFadeIn) {
+    setStyles(animateTarget, startStyles);
+    cssReflow();
+    setStyles(animateTarget, endStyles);
+  } else {
+    setStyles(animateTarget, endStyles);
+    cssReflow();
+    restoreDisplayPropAfterHide();
+    setStyles(animateTarget, startStyles);
+  }
+};
+
 function closeOnEscape(e) {
   if (e.code === 'Escape') {
     const nav = document.getElementById('nav');
@@ -73,8 +112,18 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
 
   const backdropEl = nav.querySelector('.nav-backdrop');
   if (!expanded) {
+    if (document.querySelector('header nav .nav-link-section')) {
+      const animateTarget = document.querySelector('header nav .nav-link-section');
+
+      animateInOut(animateTarget, !expanded, { display: 'flex' }, { right: '-320px' }, { right: '0' });
+    }
     backdropEl.classList.remove('hide');
   } else {
+    if (document.querySelector('header nav .nav-link-section')) {
+      const animateTarget = document.querySelector('header nav .nav-link-section');
+
+      animateInOut(animateTarget, !expanded, { display: 'flex' }, { right: '-320px' }, { right: '0' });
+    }
     backdropEl.classList.add('hide');
   }
 
@@ -90,14 +139,17 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
 function toggleSubNav(navSection, navSections) {
   const expanded = navSection.getAttribute('aria-expanded') === 'true';
   toggleAllNavSections(navSections);
-  navSection.setAttribute('aria-expanded', expanded ? 'false' : 'true');
 
   if (!expanded) {
     document.querySelector('header').classList.remove('transparent');
     document.body.style.overflow = 'hidden';
+    animateInOut(navSection.querySelector('.nav-sublist'), expanded, { display: 'grid' }, { gridTemplateRows: '1fr' }, { gridTemplateRows: '0fr' });
   } else {
     document.body.style.overflow = '';
+    animateInOut(navSection.querySelector('.nav-sublist'), !expanded, { display: 'grid' }, { gridTemplateRows: '0fr' }, { gridTemplateRows: '1fr' });
   }
+
+  navSection.setAttribute('aria-expanded', expanded ? 'false' : 'true');
 }
 
 function checkForActiveLink(navSections) {
@@ -209,13 +261,16 @@ export default async function decorate(block) {
           link.prepend(picture);
         });
 
-        const sublistWrapper = document.createElement('div');
-        sublistWrapper.classList.add('nav-sublist');
-        const sublistHeading = document.createElement('span');
-        sublistHeading.textContent = textWrapper.textContent;
-        sublist.replaceWith(sublistWrapper);
-        sublistWrapper.append(sublistHeading);
-        sublistWrapper.append(sublist);
+        const navSublist = document.createRange().createContextualFragment(`
+          <div class="nav-sublist">
+            <div>
+              <span>${textWrapper.textContent}</span>
+              ${sublist.outerHTML}
+            </div>
+          </div>
+        `).children[0];
+
+        sublist.replaceWith(navSublist);
       }
 
       navSection.addEventListener('click', (event) => {
