@@ -138,15 +138,16 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
 
 function toggleSubNav(navSection, navSections) {
   const expanded = navSection.getAttribute('aria-expanded') === 'true';
+  const navSublist = navSection.querySelector('.nav-sublist');
   toggleAllNavSections(navSections);
 
-  if (!expanded) {
+  if (expanded) {
+    document.body.style.overflow = '';
+    animateInOut(navSublist, !expanded, { display: 'grid' }, { gridTemplateRows: '0fr' }, { gridTemplateRows: '1fr' });
+  } else {
     document.querySelector('header').classList.remove('transparent');
     document.body.style.overflow = 'hidden';
-    animateInOut(navSection.querySelector('.nav-sublist'), expanded, { display: 'grid' }, { gridTemplateRows: '1fr' }, { gridTemplateRows: '0fr' });
-  } else {
-    document.body.style.overflow = '';
-    animateInOut(navSection.querySelector('.nav-sublist'), !expanded, { display: 'grid' }, { gridTemplateRows: '0fr' }, { gridTemplateRows: '1fr' });
+    animateInOut(navSublist, !expanded, { display: 'grid' }, { gridTemplateRows: '0fr' }, { gridTemplateRows: '1fr' });
   }
 
   navSection.setAttribute('aria-expanded', expanded ? 'false' : 'true');
