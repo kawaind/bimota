@@ -4,9 +4,10 @@ import { loadFragment } from '../fragment/fragment.js';
 
 // media query match that indicates mobile/tablet width
 const isDesktop = window.matchMedia('(min-width: 1025px)');
+const fadeTransitionTime = 300;
 
 const animateInOut = (animateTarget, isFadeIn, initStyles, startStyles, endStyles) => {
-  animateTarget.style.transition = 'all 300ms ease-in-out';
+  animateTarget.style.transition = `all ${fadeTransitionTime}ms ease-in-out`;
 
   const setStyles = (targetEl, stylesObject) => {
     Object.entries(stylesObject).forEach(([key, value]) => {
@@ -139,8 +140,13 @@ function toggleSubNav(navSection, navSections) {
 
   if (expanded) {
     document.body.style.overflow = '';
+    navSublist.classList.remove('subnav-fadein');
   } else {
     document.querySelector('header').classList.remove('transparent');
+
+    setTimeout(() => {
+      navSublist.classList.add('subnav-fadein');
+    }, 0);
     document.body.style.overflow = 'hidden';
   }
 
@@ -255,6 +261,11 @@ export default async function decorate(block) {
           const picture = link.previousElementSibling;
 
           link.prepend(picture);
+        });
+
+        // setting transtion delay for every list item
+        navSection.querySelectorAll('ul li').forEach((li, index) => {
+          li.style.transitionDelay = `${fadeTransitionTime + index * 200}ms`;
         });
 
         const navSublist = document.createRange().createContextualFragment(`

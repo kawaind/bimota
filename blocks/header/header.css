@@ -460,6 +460,14 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
     display: flex;
   }
 
+  header .nav-sections .nav-sublist li {
+    transition: opacity 400ms linear;
+    opacity: 0;
+  }
+
+  header .nav-sections .nav-sublist.subnav-fadein li {
+    opacity: 1;
+  }
 
   header .nav-sublist > div > span {
     padding: 0 40px 24px;
