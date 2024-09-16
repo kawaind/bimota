@@ -112,19 +112,15 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
 
   const backdropEl = nav.querySelector('.nav-backdrop');
   if (!expanded) {
-    if (document.querySelector('header nav .nav-link-section')) {
-      const animateTarget = document.querySelector('header nav .nav-link-section');
-
-      animateInOut(animateTarget, !expanded, { display: 'flex' }, { right: '-320px' }, { right: '0' });
-    }
     backdropEl.classList.remove('hide');
   } else {
-    if (document.querySelector('header nav .nav-link-section')) {
-      const animateTarget = document.querySelector('header nav .nav-link-section');
-
-      animateInOut(animateTarget, !expanded, { display: 'flex' }, { right: '-320px' }, { right: '0' });
-    }
     backdropEl.classList.add('hide');
+  }
+
+  if (document.querySelector('header nav .nav-link-section')) {
+    const animateTarget = document.querySelector('header nav .nav-link-section');
+
+    animateInOut(animateTarget, !expanded, { display: 'flex' }, { right: '-320px' }, { right: '0' });
   }
 
   // enable menu collapse on escape keypress
@@ -143,13 +139,12 @@ function toggleSubNav(navSection, navSections) {
 
   if (expanded) {
     document.body.style.overflow = '';
-    animateInOut(navSublist, !expanded, { display: 'grid' }, { gridTemplateRows: '0fr' }, { gridTemplateRows: '1fr' });
   } else {
     document.querySelector('header').classList.remove('transparent');
     document.body.style.overflow = 'hidden';
-    animateInOut(navSublist, !expanded, { display: 'grid' }, { gridTemplateRows: '0fr' }, { gridTemplateRows: '1fr' });
   }
 
+  animateInOut(navSublist, !expanded, { display: 'grid' }, { gridTemplateRows: '0fr' }, { gridTemplateRows: '1fr' });
   navSection.setAttribute('aria-expanded', expanded ? 'false' : 'true');
 }
 
