@@ -96,18 +96,23 @@ function checkForActiveLink(navSections) {
   });
 }
 
+function getAvailableLanguages() {
+  return [...document.querySelectorAll('header .section.nav-tools a')]
+    .map((link) => new URL(link.href).pathname.split('/')[1])
+    .filter((val) => val);
+}
+
 function redirectPage(event) {
   const currentUrl = window.location;
-  let redirectUrl = currentUrl.origin;
+  const currentFirstLevelFolderName = currentUrl.pathname.split('/')[1];
+  const newLang = new URL(event.target.href).pathname.split('/')[1];
+  const availableLangs = getAvailableLanguages();
+  const currentLang = availableLangs.includes(currentFirstLevelFolderName) ? currentFirstLevelFolderName : '';
+  const currentPathWithoutLang = currentLang ? currentUrl.pathname.replace(`/${currentLang}`, '') : currentUrl.pathname;
+  const newPathname = newLang ? `/${newLang}${currentPathWithoutLang}` : currentPathWithoutLang;
+  const redirectUrl = `${currentUrl.origin}${newPathname}`;
 
-  if (event.target.innerHTML === 'ENG') {
-    if (!currentUrl.pathname.includes('/en/')) {
-      redirectUrl = `${redirectUrl}/en`;
-    }
-    redirectUrl = `${redirectUrl}${currentUrl.pathname}`;
-  } else {
-    redirectUrl = `${redirectUrl}${currentUrl.pathname.replace(/\/en\//, '/')}`;
-  }
+  event.preventDefault();
   window.location.replace(redirectUrl);
 }
 /**
@@ -171,8 +176,8 @@ export default async function decorate(block) {
     toolsWrapper.classList.add('default-content-wrapper');
     navTools.append(toolsWrapper);
     navTools.firstElementChild.remove();
-    toolsWrapper.querySelectorAll('li').forEach((list) => {
-      list.addEventListener('click', redirectPage);
+    toolsWrapper.querySelectorAll('li a').forEach((link) => {
+      link.addEventListener('click', redirectPage);
     });
   }
 
