@@ -1,3 +1,5 @@
+import { throttle } from '../../scripts/helpers.js';
+
 const gatherButtons = (buttonsContainers) => {
   let currentButtonContainer;
 
@@ -15,9 +17,9 @@ const moveImageOnScroll = (block, settings = {}) => {
   const [firstImage, secondImage] = block.querySelectorAll('.column-with-images img');
   let inProgress = false;
   const {
-    startOverlap = 0.1,
-    endOverlap = 0.5,
-    durationRatio = 0.66,
+    startOverlap = 0.1, // how much of the 2nd image should overlap the 1st one at the start (in %)
+    endOverlap = 0.5, // how much of the 2nd image should overlap the 1st one at the end (in %)
+    durationRatio = 0.66, // how much of the viewport should be scrolled to finish the animation
   } = settings;
 
   const onScroll = () => {
@@ -43,7 +45,7 @@ const moveImageOnScroll = (block, settings = {}) => {
     block.style.setProperty('--text-image-max-overlap', `${endOverlap * secondImageHeight}px`);
   };
 
-  window.addEventListener('scroll', () => {
+  const onScrollListener = () => {
     if (!inProgress) {
       window.requestAnimationFrame(() => {
         onScroll();
@@ -52,7 +54,9 @@ const moveImageOnScroll = (block, settings = {}) => {
 
       inProgress = true;
     }
-  });
+  };
+
+  window.addEventListener('scroll', throttle(onScrollListener, 200));
 };
 
 export default async function decorate(block) {
