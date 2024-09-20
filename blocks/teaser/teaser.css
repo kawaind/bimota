@@ -137,23 +137,23 @@ div.teaser-wrapper + div.teaser-wrapper {
   }
 }
 
-/* teaser 30%-60% */
+/* teaser 33%-66% */
 @media (width >= 1025px) {
   .teaser.one-two > ul {
-    grid-template-columns: 33% 66%;
+    grid-template-columns: 1fr 2fr;
   }
 }
 
 /* teaser 66%-33% */
 @media (width >= 1025px) {
   .teaser.two-one > ul {
-    grid-template-columns: 66% 33%;
+    grid-template-columns: 2fr 1fr;
   }
 }
 
 /* teaser 1-1 */
 @media (width >= 1025px) {
   .teaser.one-one > ul {
-    grid-template-columns: 50% 50%;
+    grid-template-columns: 1fr 1fr;
   }
 }
