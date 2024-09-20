@@ -111,7 +111,7 @@
 }
 
 .text-with-image.wide-stacked-images .column-with-images p:nth-child(2) img {
-  width: 149px;
+  width: var(--text-image-2nd-image-height);
   right: 21px;
   position: absolute;
   bottom: 0;
