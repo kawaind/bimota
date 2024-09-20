@@ -3,6 +3,10 @@
   padding-bottom: 60px;
 }
 
+.text-with-image span[class^="icon-"] {
+  display: flex;
+}
+
 .dark .text-with-image {
   color: var(--white);
 }

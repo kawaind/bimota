@@ -97,7 +97,7 @@ function swappingPlacesBlock(main) {
 export function customDecoreateIcons(main) {
   // inline icons give the possibility to change its colors using the css variables
   const decorateInlineIcons = (rootElement) => {
-    const inlineIcons = ['icon-logo', 'icon-hamburger', 'icon-chevron', 'icon-close'];
+    const inlineIcons = ['icon-logo', 'icon-hamburger', 'icon-chevron', 'icon-close', 'icon-mail', 'icon-chevron-right'];
     const isInlineIcon = (el) => {
       const isInline = (className) => inlineIcons.includes(className);
       return [...el.classList].some(isInline);

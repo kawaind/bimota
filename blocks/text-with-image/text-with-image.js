@@ -13,7 +13,7 @@ const gatherButtons = (buttonsContainers) => {
 
 const moveImageOnScroll = (block, settings = {}) => {
   const [firstImage, secondImage] = block.querySelectorAll('.column-with-images img');
-  let inProgeress = false;
+  let inProgress = false;
   const {
     minOverlap = 0.1,
     maxOverlap = 0.5,
@@ -46,13 +46,13 @@ const moveImageOnScroll = (block, settings = {}) => {
   };
 
   window.addEventListener('scroll', () => {
-    if (!inProgeress) {
+    if (!inProgress) {
       window.requestAnimationFrame(() => {
         onScroll();
-        inProgeress = false;
+        inProgress = false;
       });
 
-      inProgeress = true;
+      inProgress = true;
     }
   });
 };
