@@ -15,8 +15,8 @@ const moveImageOnScroll = (block, settings = {}) => {
   const [firstImage, secondImage] = block.querySelectorAll('.column-with-images img');
   let inProgress = false;
   const {
-    minOverlap = 0.1,
-    maxOverlap = 0.5,
+    startOverlap = 0.1,
+    endOverlap = 0.5,
     durationRatio = 0.66,
   } = settings;
 
@@ -27,22 +27,19 @@ const moveImageOnScroll = (block, settings = {}) => {
     const rect = firstImage.getBoundingClientRect();
     const distanceFromTheBottom = windowHeight - rect.bottom;
     const secondImageHeight = secondImage.height;
-    let overlapInPx = 0;
+    let distance = 0;
 
     if (distanceFromTheBottom >= durationInPx) {
-      overlapInPx = (1 - maxOverlap) * secondImageHeight;
+      distance = endOverlap * 100;
     } else if (distanceFromTheBottom < 0) {
-      overlapInPx = (1 - minOverlap) * secondImageHeight;
+      distance = startOverlap * 100;
     } else {
-      const shiftRatio = (distanceFromTheBottom / durationInPx) * (maxOverlap - minOverlap);
-      overlapInPx = (1 - (shiftRatio + minOverlap)) * secondImageHeight;
+      const shiftRatio = (distanceFromTheBottom / durationInPx) * (endOverlap - startOverlap);
+      distance = (shiftRatio + startOverlap) * 100;
     }
 
-    // fix for strange scroll event with less then 1px
-    if (Math.abs(firstImage.style.marginBottom.split('px')[0] - overlapInPx) > 1) {
-      firstImage.style.marginBottom = `${overlapInPx}px`;
-      block.style.setProperty('--text-image-distance', `${secondImageHeight - overlapInPx}px`);
-    }
+    const distanaceToPx = (distance * secondImageHeight) / 100;
+    block.style.setProperty('--text-image-distance', `${distanaceToPx}px`);
   };
 
   window.addEventListener('scroll', () => {
@@ -78,11 +75,7 @@ export default async function decorate(block) {
 
   gatherButtons(block.querySelectorAll('.button-container'));
 
-  if (block.classList.contains('stacked-images')) {
-    moveImageOnScroll(block);
-  }
-
-  if (block.classList.contains('wide-stacked-images')) {
-    moveImageOnScroll(block, { minOverlap: -1, maxOverlap: 0.4, durationRatio: 0.3 });
+  if (block.classList.contains('stacked-images') || block.classList.contains('wide-stacked-images')) {
+    moveImageOnScroll(block, { startOverlap: -1, endOverlap: 0.3, durationRatio: 0.33 });
   }
 }
