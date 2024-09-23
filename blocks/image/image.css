@@ -5,6 +5,7 @@
 .block.image picture img {
   aspect-ratio: 16 / 9;
   width: 100%;
+  border-radius: 4px;
 }
 
 /* 2 images */
