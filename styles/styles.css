@@ -17,7 +17,7 @@
   --body-font-size: 16px;
 
   /* nav height */
-  --nav-height: 80px;
+  --nav-height: 70px;
 
   /* section paddings */
   --section-y-padding: 40px;
@@ -43,6 +43,9 @@
   --success: #2d9d78;
   --warning: #e68619;
   --error: #b81f2d;
+
+  /* z indexes */
+  --z-index-header: 2;
 
   /* old variables */
   --text-red: var(--action-default);
@@ -82,6 +85,7 @@ body {
   display: none;
   -webkit-font-smoothing: antialiased;
   font-feature-settings: "liga" off, "clig" off;
+  overflow-x: hidden;
 }
 
 body.appear {
@@ -491,6 +495,10 @@ div[class$="-wrapper"]:not(:first-child) {
   div[class$="-wrapper"]:not(:first-child) {
     padding-top: 40px;
   }
+}
+
+header:not(.can-be-transparent) + main {
+  margin-top: var(--nav-height);
 }
 
 /* sections */

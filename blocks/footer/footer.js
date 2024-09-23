@@ -61,10 +61,10 @@ export default async function decorate(block) {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
         backToTopButton.style.position = 'absolute';
-        backToTopButton.style.bottom = `${entry.boundingClientRect.height + 80}px`;
+        backToTopButton.style.bottom = `${entry.boundingClientRect.height + 40}px`;
       } else {
         backToTopButton.style.position = 'fixed';
-        backToTopButton.style.bottom = '80px';
+        backToTopButton.style.bottom = '40px';
       }
     });
   });

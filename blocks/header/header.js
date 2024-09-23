@@ -1,8 +1,49 @@
 import { getMetadata } from '../../scripts/aem.js';
+import { customDecoreateIcons } from '../../scripts/scripts.js';
 import { loadFragment } from '../fragment/fragment.js';
 
 // media query match that indicates mobile/tablet width
-const isDesktop = window.matchMedia('(min-width: 992px)');
+const isDesktop = window.matchMedia('(min-width: 1025px)');
+const fadeTransitionTime = 300;
+
+const animateInOut = (animateTarget, isFadeIn, initStyles, startStyles, endStyles) => {
+  animateTarget.style.transition = `all ${fadeTransitionTime}ms ease-in-out`;
+
+  const setStyles = (targetEl, stylesObject) => {
+    Object.entries(stylesObject).forEach(([key, value]) => {
+      targetEl.style[key] = value;
+    });
+  };
+
+  const cssReflow = () => {
+    // trigger reflow to ensure the transition starts from the current state
+    // read more here: https://gist.github.com/paulirish/5d52fb081b3570c81e3a
+    // eslint-disable-next-line no-unused-expressions
+    animateTarget.offsetWidth;
+  };
+
+  const restoreDisplayPropAfterHide = () => {
+    const transitionEndEvent = () => {
+      animateTarget.style.display = '';
+      animateTarget.removeEventListener('transitionend', transitionEndEvent);
+    };
+
+    animateTarget.addEventListener('transitionend', transitionEndEvent);
+  };
+
+  setStyles(animateTarget, initStyles);
+
+  if (isFadeIn) {
+    setStyles(animateTarget, startStyles);
+    cssReflow();
+    setStyles(animateTarget, endStyles);
+  } else {
+    setStyles(animateTarget, endStyles);
+    cssReflow();
+    restoreDisplayPropAfterHide();
+    setStyles(animateTarget, startStyles);
+  }
+};
 
 function closeOnEscape(e) {
   if (e.code === 'Escape') {
@@ -70,6 +111,19 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
     }
   });
 
+  const backdropEl = nav.querySelector('.nav-backdrop');
+  if (!expanded) {
+    backdropEl.classList.remove('hide');
+  } else {
+    backdropEl.classList.add('hide');
+  }
+
+  if (document.querySelector('header nav .nav-link-section')) {
+    const animateTarget = document.querySelector('header nav .nav-link-section');
+
+    animateInOut(animateTarget, !expanded, { display: 'flex' }, { right: '-320px' }, { right: '0' });
+  }
+
   // enable menu collapse on escape keypress
   if (!expanded || isDesktop.matches) {
     // collapse menu on escape press
@@ -81,7 +135,22 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
 
 function toggleSubNav(navSection, navSections) {
   const expanded = navSection.getAttribute('aria-expanded') === 'true';
+  const navSublist = navSection.querySelector('.nav-sublist');
   toggleAllNavSections(navSections);
+
+  if (expanded) {
+    document.body.style.overflow = '';
+    navSublist.classList.remove('subnav-fadein');
+  } else {
+    document.querySelector('header').classList.remove('transparent');
+
+    setTimeout(() => {
+      navSublist.classList.add('subnav-fadein');
+    }, 0);
+    document.body.style.overflow = 'hidden';
+  }
+
+  animateInOut(navSublist, !expanded, { display: 'grid' }, { gridTemplateRows: '0fr' }, { gridTemplateRows: '1fr' });
   navSection.setAttribute('aria-expanded', expanded ? 'false' : 'true');
 }
 
@@ -100,7 +169,7 @@ function redirectPage(event) {
   const currentUrl = window.location;
   let redirectUrl = currentUrl.origin;
 
-  if (event.target.innerHTML === 'ENG') {
+  if (event.target.innerHTML.toLowerCase() === 'en') {
     if (!currentUrl.pathname.includes('/en/')) {
       redirectUrl = `${redirectUrl}/en`;
     }
@@ -110,6 +179,41 @@ function redirectPage(event) {
   }
   window.location.replace(redirectUrl);
 }
+
+function handleTransparentAndScrolling(nav) {
+  const useTransparentVariant = !!document.querySelector('main > .section > .hero-wrapper');
+  const header = nav.closest('header');
+  let prevScrollingPosition = 0;
+
+  const changeToTransparentIfNeeded = (scrollY) => {
+    if (useTransparentVariant) {
+      header.classList.add('transparent', 'can-be-transparent');
+
+      if (scrollY > 100) {
+        header.classList.remove('transparent');
+      } else {
+        header.classList.add('transparent');
+      }
+    }
+  };
+
+  document.addEventListener('scroll', () => {
+    const { scrollY } = window;
+
+    changeToTransparentIfNeeded(scrollY);
+
+    if (scrollY - prevScrollingPosition > 0 && scrollY > 200) {
+      header.classList.add('fade-out');
+    } else if (prevScrollingPosition - scrollY > 0) {
+      header.classList.remove('fade-out');
+    }
+
+    prevScrollingPosition = scrollY;
+  });
+
+  changeToTransparentIfNeeded(window.scrollY);
+}
+
 /**
  * loads and decorates the header, mainly the nav
  * @param {Element} block The header block element
@@ -126,7 +230,7 @@ export default async function decorate(block) {
   nav.id = 'nav';
   while (fragment.firstElementChild) nav.append(fragment.firstElementChild);
 
-  const classes = ['brand', 'sections', 'tools'];
+  const classes = ['brand', 'sections', 'tools', 'dealer-locator'];
   classes.forEach((c, i) => {
     const section = nav.children[i];
     if (section) section.classList.add(`nav-${c}`);
@@ -140,29 +244,55 @@ export default async function decorate(block) {
   }
 
   const navSections = nav.querySelector('.nav-sections');
-  const mobileLogoWrapper = document.createElement('div');
-  mobileLogoWrapper.classList.add('nav-logo-mobile');
+
   if (navSections) {
     navSections.querySelectorAll(':scope .default-content-wrapper > ul > li').forEach((navSection) => {
-      if (navSection.querySelector('ul')) {
+      const sublist = navSection.querySelector('ul');
+      if (sublist) {
         const textWrapper = document.createElement('a');
         textWrapper.classList.add('nav-drop-text');
         textWrapper.append(navSection.firstChild);
+        textWrapper.innerHTML += '<span class="icon icon-chevron"></span>';
         navSection.prepend(textWrapper);
         navSection.classList.add('nav-drop');
+
+        // wrapping pictures with links if the link follows immediately after the picture
+        navSection.querySelectorAll('ul picture + a').forEach((link) => {
+          const pictures = link.parentElement.querySelectorAll('picture');
+
+          if (pictures.length === 2) {
+            link.classList.add('swipe-on-hover');
+          }
+
+          link.prepend(...pictures);
+        });
+
+        // setting transtion delay for every list item
+        navSection.querySelectorAll('ul li').forEach((li, index) => {
+          li.style.transitionDelay = `${fadeTransitionTime + index * 200}ms`;
+        });
+
+        const navSublist = document.createRange().createContextualFragment(`
+          <div class="nav-sublist">
+            <div>
+              <span>${textWrapper.textContent}</span>
+              ${sublist.outerHTML}
+            </div>
+          </div>
+        `).children[0];
+
+        sublist.replaceWith(navSublist);
       }
 
-      navSection.addEventListener('click', () => toggleSubNav(navSection, navSections));
+      navSection.addEventListener('click', (event) => {
+        if (
+          event.target.classList.contains('nav-drop-text')
+          || event.target.classList.contains('nav-drop')
+          || event.target.closest('.nav-drop-text')) {
+          toggleSubNav(navSection, navSections);
+        }
+      });
     });
-    const defaultContentWrapper = navSections.querySelector('.default-content-wrapper');
-    const logoButton = defaultContentWrapper.querySelector('.default-content-wrapper .button');
-    if (logoButton) {
-      logoButton.className = 'nav-logo';
-      defaultContentWrapper.prepend(logoButton);
-      const buttonContainer = defaultContentWrapper.querySelector('.button-container');
-      mobileLogoWrapper.appendChild(logoButton.cloneNode(true));
-      buttonContainer.remove();
-    }
   }
 
   const navTools = nav.querySelector('.nav-tools');
@@ -171,26 +301,51 @@ export default async function decorate(block) {
     toolsWrapper.classList.add('default-content-wrapper');
     navTools.append(toolsWrapper);
     navTools.firstElementChild.remove();
-    toolsWrapper.querySelectorAll('li').forEach((list) => {
-      list.addEventListener('click', redirectPage);
+    toolsWrapper.querySelectorAll('li').forEach((item) => {
+      item.addEventListener('click', redirectPage);
+
+      const urlLang = document.location.pathname.includes('/en/') ? 'en' : 'it';
+      const listItemLang = item.textContent.trim().toLowerCase();
+
+      if (urlLang === listItemLang) {
+        item.classList.add('active');
+      }
     });
   }
+
+  const navDealerLocator = nav.querySelector('.nav-dealer-locator');
+  const dealerLocatorButton = navDealerLocator.querySelector('a');
+  navDealerLocator.innerHTML = '';
+  navDealerLocator.append(dealerLocatorButton);
 
   if (navSections && navTools) {
     const navLinksWrapper = document.createElement('div');
     navLinksWrapper.classList.add('nav-link-section');
-    navLinksWrapper.append(navSections, navTools);
+    const flagEl = document.createElement('span');
+    flagEl.classList.add('nav-flag');
+    flagEl.innerHTML = '<span class="icon icon-logo-flag-black"></span>';
+    const closeEl = document.createElement('button');
+    closeEl.classList.add('nav-close-button');
+    closeEl.innerHTML = '<span class="icon icon-close"></span>';
+    closeEl.addEventListener('click', () => toggleMenu(nav, navSections));
+    navLinksWrapper.append(closeEl, navSections, navTools, flagEl);
     nav.append(navLinksWrapper);
+
+    const backdrop = document.createElement('div');
+    backdrop.classList.add('nav-backdrop');
+    nav.append(backdrop);
   }
+
+  nav.append(navDealerLocator);
 
   // hamburger for mobile
   const hamburger = document.createElement('div');
   hamburger.classList.add('nav-hamburger');
   hamburger.innerHTML = `<button type="button" aria-controls="nav" aria-label="Open navigation">
-      <span class="nav-hamburger-icon"></a>
+      <span class="icon icon-hamburger"></span>
     </button>`;
   hamburger.addEventListener('click', () => toggleMenu(nav, navSections));
-  nav.prepend(hamburger);
+  nav.append(hamburger);
   nav.setAttribute('aria-expanded', 'false');
   // prevent mobile nav behavior on window resize
   toggleMenu(nav, navSections, isDesktop.matches);
@@ -200,19 +355,10 @@ export default async function decorate(block) {
 
   const navWrapper = document.createElement('div');
   navWrapper.className = 'nav-wrapper';
-  navWrapper.append(mobileLogoWrapper, nav);
+  navWrapper.append(nav);
   block.append(navWrapper);
 
   checkForActiveLink(navSections);
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting && isDesktop) {
-        navWrapper.classList.add('hide');
-      } else if (isDesktop) {
-        navWrapper.classList.remove('hide');
-      }
-    });
-  }, { rootMargin: '0px 0px -1000px 0px' });
-  observer.observe(document.querySelector('main'));
+  handleTransparentAndScrolling(nav);
+  customDecoreateIcons(nav);
 }
