@@ -44,11 +44,22 @@ picture::after {
   overflow: hidden;
 }
 
+.highlight-slides-container {
+  transition: transform 500ms ease-in-out;
+  transform: translateY(0);
+}
+
 .highlight .highlight-slide {
   min-height: 100%;
   display: flex;
   align-items: flex-end;
   padding: 0 20px 56px;
+  opacity: 0;
+  transition: opacity 750ms ease-in-out;
+}
+
+.highlight .highlight-slide.active {
+  opacity: 1;
 }
 
 .highlight .highlight-slide div {
