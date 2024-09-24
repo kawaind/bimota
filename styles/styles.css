@@ -84,6 +84,7 @@ body {
   display: none;
   -webkit-font-smoothing: antialiased;
   font-feature-settings: "liga" off, "clig" off;
+  overflow-x: hidden;
 }
 
 body.appear {
