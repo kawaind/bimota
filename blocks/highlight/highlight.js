@@ -35,8 +35,15 @@ const scrollToSlide = (slidersContainer, slideIndex) => {
 function preventScroll({ moveDown, moveUp }) {
   let startX;
   let startY;
+  let isInitPause = true; // pause the moving event for 1s - fix for Firefox
+
+  setTimeout(() => { isInitPause = false; }, 1000);
 
   const move = throttle((direction) => {
+    if (isInitPause) {
+      return;
+    }
+
     if (direction === 'down') {
       moveDown();
       return;
@@ -49,6 +56,7 @@ function preventScroll({ moveDown, moveUp }) {
     // Store the starting touch position
     startX = event.touches[0].pageX;
     startY = event.touches[0].pageY;
+    document.body.style.overflow = 'hidden';
   };
 
   const touchMove = (event) => {
@@ -69,7 +77,12 @@ function preventScroll({ moveDown, moveUp }) {
   };
 
   const onWheel = (event) => {
-    event.preventDefault();
+    if (event.cancelable) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    document.body.style.overflow = 'hidden';
 
     if (event.deltaY > 0) {
       move('down');
@@ -94,8 +107,14 @@ function preventScroll({ moveDown, moveUp }) {
 const trapScrollingForSlides = (block, { prevSlide, nextSlide }) => {
   const observer = new IntersectionObserver((entries) => {
     let enableScoll = null;
-    const moveDown = () => { nextSlide(enableScoll); };
-    const moveUp = () => { prevSlide(enableScoll); };
+    const moveDown = () => {
+      nextSlide(enableScoll);
+      document.body.style.overflow = '';
+    };
+    const moveUp = () => {
+      prevSlide(enableScoll);
+      document.body.style.overflow = '';
+    };
 
     entries.forEach((entry) => {
       if (entry.isIntersecting && entry.intersectionRatio >= 0.9) {
