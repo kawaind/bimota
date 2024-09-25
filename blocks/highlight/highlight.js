@@ -104,11 +104,13 @@ function preventScroll({ moveDown, moveUp }) {
     }
   };
 
+  console.log('start');
   window.addEventListener('touchstart', touchStart, { passive: false });
   window.addEventListener('touchmove', touchMove, { passive: false });
   window.addEventListener('wheel', onWheel, { passive: false });
 
   const enableScroll = () => {
+    console.log('end');
     window.removeEventListener('touchstart', touchStart, { passive: false });
     window.removeEventListener('touchmove', touchMove, { passive: false });
     window.removeEventListener('wheel', onWheel, { passive: false });
@@ -118,8 +120,9 @@ function preventScroll({ moveDown, moveUp }) {
 }
 
 const trapScrollingForSlides = (block, { prevSlide, nextSlide }) => {
+  let enableScoll = null;
+
   const observer = new IntersectionObserver((entries) => {
-    let enableScoll = null;
     const moveDown = () => {
       nextSlide(enableScoll);
       document.body.style.overflow = '';
@@ -132,6 +135,9 @@ const trapScrollingForSlides = (block, { prevSlide, nextSlide }) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting && entry.intersectionRatio >= 0.9) {
         block.classList.add('active');
+        if (enableScoll) {
+          enableScoll();
+        }
         enableScoll = preventScroll({ moveDown, moveUp });
       } else {
         block.classList.remove('active');
