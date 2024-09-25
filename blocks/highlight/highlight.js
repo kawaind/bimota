@@ -1,24 +1,37 @@
 import { throttle } from '../../scripts/helpers.js';
 
-const setInitScaleForPicture = (block, picture) => {
-  const isNotMobile = window.matchMedia('(width >= 768px)').matches;
-  const mobileAspectRatio = 3 / 4;
-  const noneMobileAspectRatio = 16 / 9;
-  const aspectRatio = isNotMobile ? noneMobileAspectRatio : mobileAspectRatio;
+const setScaleForPicture = (block, picture) => {
+  const setScale = () => {
+    const isNotMobile = window.matchMedia('(width >= 768px)').matches;
+    const mobileAspectRatio = 3 / 4;
+    const noneMobileAspectRatio = 16 / 9;
+    const aspectRatio = isNotMobile ? noneMobileAspectRatio : mobileAspectRatio;
 
-  const maxWidth = document.body.clientWidth;
-  const maxHeight = maxWidth / aspectRatio;
+    const maxWidth = document.body.clientWidth;
+    const maxHeight = maxWidth / aspectRatio;
 
-  // for some reason the block.clientWidth is 0
-  // so we need to wait for the repaint
-  setTimeout(() => {
     const initialWidth = block.clientWidth;
     block.style.height = maxHeight;
 
     const initScale = initialWidth / maxWidth;
 
     picture.style.transform = `scale(${initScale})`;
-  }, 100);
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.intersectionRatio > 0) {
+        setScale(block, picture);
+        observer.disconnect();
+      }
+    });
+  }, { threshold: [0.1], rootMargin: '100px' });
+
+  observer.observe(block);
+
+  window.addEventListener('resize', throttle(() => {
+    setScale(block, picture);
+  }, 250));
 };
 
 const getActiveSlideIndex = (block) => [...block.querySelectorAll('.highlight-slide')]
@@ -157,7 +170,7 @@ export default async function decorate(block) {
   const picture = pictureWrapper.querySelector('picture');
   pictureWrapper.replaceWith(picture);
 
-  setInitScaleForPicture(block, picture);
+  setScaleForPicture(block, picture);
 
   // trapping the scrolling so the user will scroll the next slides of the slider
   const container = block.querySelector('.highlight-slides-container');
