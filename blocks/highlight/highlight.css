@@ -47,6 +47,7 @@ picture::after {
 .highlight-slides-container {
   transition: transform 500ms ease-in-out;
   transform: translateY(0);
+  max-height: 100%;
 }
 
 .highlight .highlight-slide {
