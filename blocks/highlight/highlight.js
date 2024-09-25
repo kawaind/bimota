@@ -104,13 +104,11 @@ function preventScroll({ moveDown, moveUp }) {
     }
   };
 
-  console.log('start');
   window.addEventListener('touchstart', touchStart, { passive: false });
   window.addEventListener('touchmove', touchMove, { passive: false });
   window.addEventListener('wheel', onWheel, { passive: false });
 
   const enableScroll = () => {
-    console.log('end');
     window.removeEventListener('touchstart', touchStart, { passive: false });
     window.removeEventListener('touchmove', touchMove, { passive: false });
     window.removeEventListener('wheel', onWheel, { passive: false });
