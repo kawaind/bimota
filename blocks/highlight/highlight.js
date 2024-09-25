@@ -19,7 +19,8 @@ const setInitScaleForPicture = (block, picture) => {
   }, 100);
 };
 
-const getActiveSlideIndex = (slidersContainer) => [...slidersContainer.querySelectorAll('.highlight-slide')].findIndex((slide) => slide.classList.contains('active'));
+const getActiveSlideIndex = (block) => [...block.querySelectorAll('.highlight-slide')]
+  .findIndex((slide) => slide.classList.contains('active'));
 
 const scrollToSlide = (slidersContainer, slideIndex) => {
   slidersContainer.style.transform = `translateY(-${slideIndex * 100}%)`;
@@ -29,65 +30,72 @@ const scrollToSlide = (slidersContainer, slideIndex) => {
   });
 };
 
-const getOnScroll = (block) => {
-  const container = block.querySelector('.highlight-slides-container');
-  let prevScrollY = window.scrollY;
-  let pause = false;
+function preventScroll({ moveDown, moveUp }) {
+  let startX;
+  let startY;
 
-  const pauseForMoment = () => {
-    pause = true;
-
-    setTimeout(() => {
-      pause = false;
-    }, 1000);
+  const touchStart = (event) => {
+    // Store the starting touch position
+    startX = event.touches[0].pageX;
+    startY = event.touches[0].pageY;
   };
 
-  pauseForMoment();
+  const touchMove = (event) => {
+    event.preventDefault();
 
-  const onScroll = () => {
-    if (pause) {
-      block.scrollIntoView({ block: 'end', behavior: 'instant' });
-      return;
+    // Calculate the distance moved in both directions
+    const moveX = event.touches[0].pageX - startX;
+    const moveY = event.touches[0].pageY - startY;
+
+    // Determine direction
+    if (Math.abs(moveY) > Math.abs(moveX)) {
+      if (moveY > 0) {
+        moveUp();
+      } else {
+        moveDown();
+      }
     }
+  };
 
-    const activeSlideIndex = getActiveSlideIndex(container);
-    const slideCount = container.querySelectorAll('.highlight-slide').length;
-    const deltaY = window.scrollY - prevScrollY;
+  const onWheel = (event) => {
+    event.preventDefault();
 
-    pauseForMoment();
-
-    if (deltaY > 0 && activeSlideIndex < slideCount - 1) {
-      scrollToSlide(container, activeSlideIndex + 1);
-      block.scrollIntoView({ block: 'end' });
-    } else if (deltaY < 0 && activeSlideIndex > 0) {
-      scrollToSlide(container, activeSlideIndex - 1);
-      block.scrollIntoView({ block: 'end' });
+    if (event.deltaY > 0) {
+      moveUp();
     } else {
-      // remove the listener when there is no more slides in the direction
-      window.removeEventListener('scroll', onScroll, { passive: false });
+      moveDown();
     }
-
-    prevScrollY = window.scrollY;
   };
 
-  return onScroll;
-};
+  window.addEventListener('touchstart', touchStart, { passive: false });
+  window.addEventListener('touchmove', touchMove, { passive: false });
+  window.addEventListener('wheel', onWheel, { passive: false });
 
-const trap = (block) => {
-  const onScroll = getOnScroll(block);
+  const enableScroll = () => {
+    window.removeEventListener('touchstart', touchStart, { passive: false });
+    window.removeEventListener('touchmove', touchMove, { passive: false });
+    window.removeEventListener('wheel', onWheel, { passive: false });
+  };
 
-  window.addEventListener('scroll', onScroll, { passive: false });
-  block.scrollIntoView({ block: 'end' });
-};
+  return enableScroll;
+}
 
-const observeWhenBlockIsFullyVisible = (block) => {
+const trapScrollingForSlides = (block, { prevSlide, nextSlide }) => {
   const observer = new IntersectionObserver((entries) => {
+    let enableScoll = null;
+    const moveDown = () => { nextSlide(enableScoll); };
+    const moveUp = () => { prevSlide(enableScoll); };
+
     entries.forEach((entry) => {
       if (entry.isIntersecting && entry.intersectionRatio >= 0.9) {
         block.classList.add('active');
-        trap(block);
+        enableScoll = preventScroll({ moveDown, moveUp });
       } else {
         block.classList.remove('active');
+        if (enableScoll) {
+          enableScoll();
+          enableScoll = null;
+        }
       }
     });
   }, { threshold: [0.1, 0.9] });
@@ -120,5 +128,30 @@ export default async function decorate(block) {
   pictureWrapper.replaceWith(picture);
 
   setInitScaleForPicture(block, picture);
-  observeWhenBlockIsFullyVisible(block);
+
+  // trapping the scrolling so the user will scroll the next slides of the slider
+  const container = block.querySelector('.highlight-slides-container');
+  const prevSlide = (onNoPreSlide) => {
+    const activeSlideIndex = getActiveSlideIndex(block);
+
+    if (activeSlideIndex <= 0) {
+      onNoPreSlide();
+      return;
+    }
+
+    scrollToSlide(container, activeSlideIndex - 1);
+  };
+  const nextSlide = (onNoNextSlide) => {
+    const activeSlideIndex = getActiveSlideIndex(block);
+    const slideCount = block.querySelectorAll('.highlight-slide').length;
+
+    if (activeSlideIndex >= slideCount - 1) {
+      onNoNextSlide();
+      return;
+    }
+
+    scrollToSlide(container, activeSlideIndex + 1);
+  };
+
+  trapScrollingForSlides(block, { prevSlide, nextSlide });
 }
