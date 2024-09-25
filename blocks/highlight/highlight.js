@@ -1,3 +1,5 @@
+import { throttle } from '../../scripts/helpers.js';
+
 const setInitScaleForPicture = (block, picture) => {
   const isNotMobile = window.matchMedia('(width >= 768px)').matches;
   const mobileAspectRatio = 3 / 4;
@@ -34,6 +36,15 @@ function preventScroll({ moveDown, moveUp }) {
   let startX;
   let startY;
 
+  const move = throttle((direction) => {
+    if (direction === 'down') {
+      moveDown();
+      return;
+    }
+
+    moveUp();
+  }, 1000);
+
   const touchStart = (event) => {
     // Store the starting touch position
     startX = event.touches[0].pageX;
@@ -50,9 +61,9 @@ function preventScroll({ moveDown, moveUp }) {
     // Determine direction
     if (Math.abs(moveY) > Math.abs(moveX)) {
       if (moveY > 0) {
-        moveUp();
+        move('up');
       } else {
-        moveDown();
+        move('down');
       }
     }
   };
@@ -61,9 +72,9 @@ function preventScroll({ moveDown, moveUp }) {
     event.preventDefault();
 
     if (event.deltaY > 0) {
-      moveUp();
+      move('down');
     } else {
-      moveDown();
+      move('up');
     }
   };
 
