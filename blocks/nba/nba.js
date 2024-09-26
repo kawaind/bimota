@@ -6,7 +6,7 @@ export default async function decorate(block) {
 
   const headings = block.querySelectorAll('h1, h2, h3, h4, h5, h6');
   [...headings].forEach((heading) => {
-    heading.classList.add('heading');
+    heading.classList.add('h3');
     textWrapper.append(heading);
   });
 
