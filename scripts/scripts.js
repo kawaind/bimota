@@ -182,5 +182,8 @@ export function getTextLabel(key) {
   return placeholders[key] || key;
 }
 
-placeholders = await fetchPlaceholders();
+fetchPlaceholders().then((p) => {
+  placeholders = p;
+});
+
 loadPage();
