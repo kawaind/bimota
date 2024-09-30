@@ -17,7 +17,7 @@
   transform: scale(1) !important;
 }
 
-picture::after {
+.highlight picture::after {
   display: block;
   content: "";
   background: linear-gradient(180deg, rgb(0 0 0 / 0%), rgb(0 0 0 / 40%));
