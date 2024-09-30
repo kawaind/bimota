@@ -60,6 +60,7 @@
 
 .dark {
   background-color: var(--black);
+  color: var(--white);
 }
 
 :root .dark {
@@ -440,8 +441,8 @@ button.secondary.small {
 
 .dark a.button.primary:hover,
 .dark button.primary:hover {
-  color: #ed1c24;
-  border-color: #ed1c24;
+  color: #ae2d27;
+  border-color: #ae2d27;
 }
 
 .dark a.button.primary:focus,

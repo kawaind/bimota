@@ -93,9 +93,8 @@ export const adjustPretitle = (element) => {
   });
 };
 
-export const unwrapDivs = (element, options = {}) => {
+export const unwrapDivs = (element) => {
   const stack = [element];
-  const { ignoreDataAlign = false } = options;
 
   while (stack.length > 0) {
     const currentElement = stack.pop();
@@ -103,15 +102,9 @@ export const unwrapDivs = (element, options = {}) => {
     let i = 0;
     while (i < currentElement.children.length) {
       const node = currentElement.children[i];
-      const attributesLength = [...node.attributes].filter((el) => {
-        if (ignoreDataAlign) {
-          return !(el.name.startsWith('data-align') || el.name.startsWith('data-valign'));
-        }
+      const attributesLength = [...node.attributes].filter((el) => el).length;
 
-        return el;
-      }).length;
-
-      if (node.tagName === 'DIV' && attributesLength === 0) {
+      if (node && attributesLength === 0) {
         while (node.firstChild) {
           currentElement.insertBefore(node.firstChild, node);
         }
