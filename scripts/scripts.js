@@ -132,6 +132,22 @@ export function customDecoreateIcons(main) {
   decorateIcons(main);
 }
 
+const animatedHeadings = (main) => {
+  main.querySelectorAll('.heading-animated').forEach((animatedHeading) => {
+    const observer = new IntersectionObserver((entries) => {
+      // Step 3: Define the callback function
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('heading-animated-visible');
+          observer.unobserve();
+        }
+      });
+    });
+
+    observer.observe(animatedHeading);
+  });
+};
+
 /**
  * Decorates the main element.
  * @param {Element} main The main element
@@ -189,6 +205,7 @@ async function loadLazy(doc) {
 
   loadHeader(doc.querySelector('header'));
   loadFooter(doc.querySelector('footer'));
+  animatedHeadings(main);
 
   loadCSS(`${window.hlx.codeBasePath}/styles/lazy-styles.css`);
   loadFonts();

@@ -447,8 +447,8 @@ button.secondary.small {
 
 .dark a.button.primary:focus,
 .dark button.primary:focus {
-  color: #82221D;
-  border-color: #82221D;
+  color: #82221d;
+  border-color: #82221d;
   background: var(--action-hover);
 }
 
@@ -619,4 +619,58 @@ main .border-top {
 #onetrust-consent-sdk #onetrust-accept-btn-handler {
   background-color: var(--link-color) !important;
   border-color: transparent !important;
+}
+
+/* animated heading */
+.heading-animated {
+  text-align: center;
+  padding: 180px 0 40px;
+  margin: 0;
+  position: relative;
+}
+
+.heading-animated::before {
+  content: '';
+  width: 3px;
+  height: 10px;
+  display: block;
+  background: var(--action-default);
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 150px;
+  transition: all 200ms ease-in;
+}
+
+.heading-animated.heading-animated-visible::before {
+  top: 80px;
+  height: 80px;
+}
+
+@media (width >= 768px) {
+  .heading-animated {
+    padding-top: 160px;
+  }
+
+  .heading-animated::before {
+    top: 130px;
+  }
+
+  .heading-animated.heading-animated-visible::before {
+    top: 60px;
+  }
+}
+
+@media (width >= 1025px) {
+  .heading-animated {
+    padding: 220px 0 60px
+  }
+
+  .heading-animated::before {
+    top: 190px;
+  }
+
+  .heading-animated.heading-animated-visible::before {
+    top: 120px;
+  }
 }
