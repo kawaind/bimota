@@ -133,13 +133,27 @@ export function customDecoreateIcons(main) {
 }
 
 const animatedHeadings = (main) => {
-  main.querySelectorAll('.heading-animated').forEach((animatedHeading) => {
+  main.querySelectorAll('.animated-heading').forEach((el) => {
+    let animatedHeading = el;
+
+    // if the class is added to the section then the first heading
+    // will be animated one
+    if (el.classList.contains('section')) {
+      const heading = el.querySelector('h1, h2, h3, h4, h5, h6');
+
+      if (heading) {
+        animatedHeading = heading;
+        el.classList.remove('animated-heading');
+        heading.classList.add('animated-heading');
+      }
+    }
+
     const observer = new IntersectionObserver((entries) => {
       // Step 3: Define the callback function
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          entry.target.classList.add('heading-animated-visible');
-          observer.unobserve();
+          entry.target.classList.add('animated-heading-visible');
+          observer.unobserve(animatedHeading);
         }
       });
     });
@@ -221,6 +235,133 @@ function loadDelayed() {
   // load anything that can be postponed to the latest here
 }
 
+export function addAnimateInOut(animateTarget, {
+  initStyles = {}, startStyles = {}, endStyles = {}, time = 300,
+}) {
+  const fadeTransitionTime = time;
+
+  const animateInOut = (isFadeIn) => {
+    animateTarget.style.transition = `all ${fadeTransitionTime}ms ease-in-out`;
+
+    const setStyles = (targetEl, stylesObject) => {
+      Object.entries(stylesObject).forEach(([key, value]) => {
+        targetEl.style[key] = value;
+      });
+    };
+
+    const cssReflow = () => {
+      // trigger reflow to ensure the transition starts from the current state
+      // read more here: https://gist.github.com/paulirish/5d52fb081b3570c81e3a
+      // eslint-disable-next-line no-unused-expressions
+      animateTarget.offsetWidth;
+    };
+
+    const restoreDisplayPropAfterHide = () => {
+      const transitionEndEvent = () => {
+        animateTarget.style.display = '';
+        animateTarget.removeEventListener('transitionend', transitionEndEvent);
+      };
+
+      animateTarget.addEventListener('transitionend', transitionEndEvent);
+    };
+
+    setStyles(animateTarget, initStyles);
+
+    if (isFadeIn) {
+      setStyles(animateTarget, startStyles);
+      cssReflow();
+      setStyles(animateTarget, endStyles);
+    } else {
+      setStyles(animateTarget, endStyles);
+      cssReflow();
+      restoreDisplayPropAfterHide();
+      setStyles(animateTarget, startStyles);
+    }
+  };
+
+  return animateInOut;
+}
+
+function addModalHandling() {
+  const modalLinks = document.querySelectorAll('a[href^="/#modal-"]');
+  const modalContentMap = new Map();
+
+  modalLinks.forEach((mLink) => {
+    const modalContentId = mLink.getAttribute('href').split('modal-')[1];
+    const modalContentEl = document.querySelector(`.${modalContentId}`);
+
+    if (modalContentEl) {
+      modalContentEl.parentElement.remove();
+      modalContentMap.set(modalContentId, modalContentEl);
+    }
+
+    mLink.addEventListener('click', (event) => {
+      event.preventDefault();
+      const modalEvent = new CustomEvent('show-modal', { detail: modalContentId });
+
+      window.dispatchEvent(modalEvent);
+    });
+  });
+
+  const modalEl = document.createRange().createContextualFragment(`
+    <div class="modal modal-hidden">
+      <div class="modal-background"></div>
+      <div class="modal-content"></div>
+      <button class="modal-close-button">
+        <span class="icon icon-close"></span>
+      </button>
+    </div>
+  `).children[0];
+
+  document.body.append(modalEl);
+  customDecoreateIcons(modalEl);
+
+  document.body.querySelector('.modal-close-button').addEventListener('click', () => {
+    const closeModalEvent = new CustomEvent('hide-modal');
+    window.dispatchEvent(closeModalEvent);
+  });
+
+  const modalContent = document.querySelector('.modal-content');
+  const closeButton = document.querySelector('.modal-close-button');
+  const modalXSmallAnimationConfig = {
+    startStyles: { transform: 'var(--modal-content-animation-start)' },
+    endStyles: { transform: 'var(--modal-content-animation-end)' },
+  };
+  const closeXSmallAnimationConfig = {
+    startStyles: { transform: 'var(--modal-close-button-animation-start)' },
+    endStyles: { transform: 'var(--modal-close-button-animation-end)' },
+  };
+
+  const modalContentAnimation = addAnimateInOut(modalContent, modalXSmallAnimationConfig);
+  const closeButtonAnimation = addAnimateInOut(closeButton, closeXSmallAnimationConfig);
+
+  window.addEventListener('show-modal', (event) => {
+    const elId = event.detail;
+    const content = modalContentMap.get(elId);
+
+    const modal = document.querySelector('.modal');
+    modalContent.append(content);
+    modal.classList.remove('modal-hidden');
+    document.body.classList.add('modal-visible');
+
+    modalContentAnimation(true);
+    closeButtonAnimation(true);
+  });
+
+  window.addEventListener('hide-modal', () => {
+    const modal = document.querySelector('.modal');
+    document.body.classList.remove('modal-visible');
+
+    // removing the modal content after the fade out
+    modalContentAnimation(false);
+    closeButtonAnimation(false);
+
+    setTimeout(() => {
+      modal.classList.add('modal-hidden');
+    }, 3000);
+  });
+}
+
 async function loadPage() {
   await loadEager(document);
   await loadLazy(document);
@@ -239,3 +380,4 @@ export function getTextLabel(key) {
 
 placeholders = await fetchPlaceholders();
 loadPage();
+addModalHandling();

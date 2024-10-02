@@ -622,15 +622,15 @@ main .border-top {
 }
 
 /* animated heading */
-.heading-animated {
+.animated-heading {
   text-align: center;
   padding: 180px 0 40px;
   margin: 0;
   position: relative;
 }
 
-.heading-animated::before {
-  content: '';
+.animated-heading::before {
+  content: "";
   width: 3px;
   height: 10px;
   display: block;
@@ -642,35 +642,143 @@ main .border-top {
   transition: all 200ms ease-in;
 }
 
-.heading-animated.heading-animated-visible::before {
+.animated-heading.animated-heading-visible::before {
   top: 80px;
   height: 80px;
 }
 
 @media (width >= 768px) {
-  .heading-animated {
+  .animated-heading {
     padding-top: 160px;
   }
 
-  .heading-animated::before {
+  .animated-heading::before {
     top: 130px;
   }
 
-  .heading-animated.heading-animated-visible::before {
+  .animated-heading.animated-heading-visible::before {
     top: 60px;
   }
 }
 
 @media (width >= 1025px) {
-  .heading-animated {
-    padding: 220px 0 60px
+  .animated-heading {
+    padding: 220px 0 60px;
   }
 
-  .heading-animated::before {
+  .animated-heading::before {
     top: 190px;
   }
 
-  .heading-animated.heading-animated-visible::before {
+  .animated-heading.animated-heading-visible::before {
     top: 120px;
+  }
+}
+
+/* modal styles */
+body.modal-visible {
+  overflow: hidden;
+}
+
+.modal {
+  --modal-content-animation-start: translateY(calc(100%));
+  --modal-content-animation-end: translateY(0);
+  --modal-close-button-animation-start: translate(-50%, 90px);
+  --modal-close-button-animation-end: translate(-50%, 0);
+
+  z-index: 1001;
+  position: relative;
+}
+
+.modal.modal-hidden {
+  display: none;
+}
+
+.modal .modal-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #0006;
+}
+
+.modal .modal-content {
+  padding: 40px 20px;
+  width: 100vw;
+  height: 100vh;
+  overflow: auto;
+  position: fixed;
+  background: var(--white);
+  top: 0;
+}
+
+.modal .modal-close-button {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translate(-50%, 0);
+  width: 42px;
+  height: 42px;
+  background: var(--white);
+  border-radius: 50%;
+  border: solid 1px var(--action-default);
+}
+
+.modal .modal-close-button:hover,
+.modal .modal-close-button:active {
+  border-color: var(--action-hover);
+}
+
+.modal .modal-close-button span {
+  display: flex;
+}
+
+.modal .modal-close-button svg {
+  height: 18px;
+  width: 18px;
+}
+
+@media (width >= 768px) {
+  .modal {
+    --modal-content-animation-start: translateX(100%);
+    --modal-content-animation-end: translateX(0);
+    --modal-close-button-animation-start: translate(66px, 0);
+    --modal-close-button-animation-end: translate(-694px, 0);
+  }
+
+  .modal .modal-content {
+    padding: 60px 30px;
+    top: 0;
+    max-width: 670px;
+    right: 0;
+  }
+
+  .modal .modal-close-button {
+    bottom: 50%;
+    left: unset;
+    right: 0;
+  }
+}
+
+@media (width >= 1025px) {
+  .modal {
+    --modal-close-button-animation-end: translate(-928px, 0);
+  }
+
+  .modal .modal-content {
+    padding: 60px 40px;
+    max-width: 904px;
+  }
+}
+
+@media (width >= 1440px) {
+  .modal {
+    --modal-close-button-animation-end: translate(-1158px, 0);
+  }
+
+  .modal .modal-content {
+    padding: 60px 100px;
+    max-width: 1134px;
   }
 }
