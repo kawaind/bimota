@@ -120,7 +120,7 @@ export const unwrapDivs = (element) => {
 export const throttle = (func, limit) => {
   let inThrottle;
 
-  return function (...args) {
+  return function thrttledFunction(...args) {
     const context = this;
     if (!inThrottle) {
       func.apply(context, args);
