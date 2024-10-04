@@ -9,21 +9,18 @@ export default async function decorate(block) {
   }
 
   if (block.classList.contains('sticky')) {
-    const bgImg = new Image();
     const img = block.querySelector('img');
     const pictureEl = createOptimizedPicture(img.src, '', false, [{ width: window.innerWidth }]);
-    const imgUrl = pictureEl.querySelector('img').src;
-    bgImg.onload = () => {
-      block.style.backgroundImage = `url(${imgUrl})`;
-      block.style.aspectRatio = `${bgImg.naturalWidth} / ${bgImg.naturalHeight}`;
-    };
-    bgImg.src = imgUrl;
 
-    block.innerHTML = '';
-
+    block.querySelector('picture').replaceWith(pictureEl);
     window.addEventListener('scroll', throttle(() => {
-      const backgroundStyle = block.getBoundingClientRect().top > 0 ? 'scroll' : 'fixed';
-      block.style.backgroundAttachment = backgroundStyle;
+      const { top } = block.getBoundingClientRect();
+
+      if (top < 0) {
+        pictureEl.style.top = `${top * -1}px`;
+      } else {
+        pictureEl.style.top = 0;
+      }
     }), 100);
   }
 }
