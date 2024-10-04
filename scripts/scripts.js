@@ -240,7 +240,7 @@ export function addAnimateInOut(animateTarget, {
 }) {
   const fadeTransitionTime = time;
 
-  const animateInOut = (isFadeIn) => {
+  const animateInOut = (isFadeIn, { afterOut } = {}) => {
     animateTarget.style.transition = `all ${fadeTransitionTime}ms ease-in-out`;
 
     const setStyles = (targetEl, stylesObject) => {
@@ -260,6 +260,9 @@ export function addAnimateInOut(animateTarget, {
       const transitionEndEvent = () => {
         animateTarget.style.display = '';
         animateTarget.removeEventListener('transitionend', transitionEndEvent);
+        if (afterOut) {
+          afterOut();
+        }
       };
 
       animateTarget.addEventListener('transitionend', transitionEndEvent);
@@ -353,12 +356,12 @@ function addModalHandling() {
     document.body.classList.remove('modal-visible');
 
     // removing the modal content after the fade out
-    modalContentAnimation(false);
+    modalContentAnimation(false, {
+      afterOut: () => {
+        modal.classList.add('modal-hidden');
+      },
+    });
     closeButtonAnimation(false);
-
-    setTimeout(() => {
-      modal.classList.add('modal-hidden');
-    }, 3000);
   });
 }
 
