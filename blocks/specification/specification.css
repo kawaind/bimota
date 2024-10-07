@@ -40,6 +40,25 @@
   width: 100%;
 }
 
+.specification .specification-images {
+  position: relative;
+}
+
+.specification .specification-images p {
+  margin: 0;
+  transition: opacity 300ms linear;
+}
+
+.specification .specification-images p:not(:first-child) {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.specification .specification-images picture {
+  display: flex;
+}
+
 @media (width >= 768px) {
   .specification .specification-content {
     flex-direction: row;

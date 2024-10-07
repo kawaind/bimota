@@ -680,6 +680,10 @@ body.modal-visible {
   overflow: hidden;
 }
 
+body.modal-visible > *:not(.modal) {
+  filter: blur(4px);
+}
+
 .modal {
   --modal-content-animation-start: translateY(calc(100%));
   --modal-content-animation-end: translateY(0);

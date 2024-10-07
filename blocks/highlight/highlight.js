@@ -1,4 +1,4 @@
-import { throttle } from '../../scripts/helpers.js';
+import { preventScroll, throttle } from '../../scripts/helpers.js';
 
 const setScaleForPicture = (block, picture) => {
   const setScale = () => {
@@ -44,78 +44,6 @@ const scrollToSlide = (slidersContainer, slideIndex) => {
     slide.classList[addOrRemove]('active');
   });
 };
-
-function preventScroll({ moveDown, moveUp }) {
-  let startX;
-  let startY;
-  let isInitPause = true; // pause the moving event for 1s - fix for Firefox
-
-  setTimeout(() => { isInitPause = false; }, 1000);
-
-  const move = throttle((direction) => {
-    if (isInitPause) {
-      return;
-    }
-
-    if (direction === 'down') {
-      moveDown();
-      return;
-    }
-
-    moveUp();
-  }, 1000);
-
-  const touchStart = (event) => {
-    // Store the starting touch position
-    startX = event.touches[0].pageX;
-    startY = event.touches[0].pageY;
-    document.body.style.overflow = 'hidden';
-  };
-
-  const touchMove = (event) => {
-    event.preventDefault();
-
-    // Calculate the distance moved in both directions
-    const moveX = event.touches[0].pageX - startX;
-    const moveY = event.touches[0].pageY - startY;
-
-    // Determine direction
-    if (Math.abs(moveY) > Math.abs(moveX)) {
-      if (moveY > 0) {
-        move('up');
-      } else {
-        move('down');
-      }
-    }
-  };
-
-  const onWheel = (event) => {
-    if (event.cancelable) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-
-    document.body.style.overflow = 'hidden';
-
-    if (event.deltaY > 0) {
-      move('down');
-    } else {
-      move('up');
-    }
-  };
-
-  window.addEventListener('touchstart', touchStart, { passive: false });
-  window.addEventListener('touchmove', touchMove, { passive: false });
-  window.addEventListener('wheel', onWheel, { passive: false });
-
-  const enableScroll = () => {
-    window.removeEventListener('touchstart', touchStart, { passive: false });
-    window.removeEventListener('touchmove', touchMove, { passive: false });
-    window.removeEventListener('wheel', onWheel, { passive: false });
-  };
-
-  return enableScroll;
-}
 
 const trapScrollingForSlides = (block, { prevSlide, nextSlide }) => {
   let enableScoll = null;
