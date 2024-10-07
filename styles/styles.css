@@ -621,60 +621,6 @@ main .border-top {
   border-color: transparent !important;
 }
 
-/* animated heading */
-.animated-heading {
-  text-align: center;
-  padding: 180px 0 40px;
-  margin: 0;
-  position: relative;
-}
-
-.animated-heading::before {
-  content: "";
-  width: 3px;
-  height: 10px;
-  display: block;
-  background: var(--action-default);
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  top: 150px;
-  transition: all 200ms ease-in;
-}
-
-.animated-heading.animated-heading-visible::before {
-  top: 80px;
-  height: 80px;
-}
-
-@media (width >= 768px) {
-  .animated-heading {
-    padding-top: 160px;
-  }
-
-  .animated-heading::before {
-    top: 130px;
-  }
-
-  .animated-heading.animated-heading-visible::before {
-    top: 60px;
-  }
-}
-
-@media (width >= 1025px) {
-  .animated-heading {
-    padding: 220px 0 60px;
-  }
-
-  .animated-heading::before {
-    top: 190px;
-  }
-
-  .animated-heading.animated-heading-visible::before {
-    top: 120px;
-  }
-}
-
 /* modal styles */
 body.modal-visible {
   overflow: hidden;

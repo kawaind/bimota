@@ -132,36 +132,6 @@ export function customDecoreateIcons(main) {
   decorateIcons(main);
 }
 
-const animatedHeadings = (main) => {
-  main.querySelectorAll('.animated-heading').forEach((el) => {
-    let animatedHeading = el;
-
-    // if the class is added to the section then the first heading
-    // will be animated one
-    if (el.classList.contains('section')) {
-      const heading = el.querySelector('h1, h2, h3, h4, h5, h6');
-
-      if (heading) {
-        animatedHeading = heading;
-        el.classList.remove('animated-heading');
-        heading.classList.add('animated-heading');
-      }
-    }
-
-    const observer = new IntersectionObserver((entries) => {
-      // Step 3: Define the callback function
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('animated-heading-visible');
-          observer.unobserve(animatedHeading);
-        }
-      });
-    });
-
-    observer.observe(animatedHeading);
-  });
-};
-
 /**
  * Decorates the main element.
  * @param {Element} main The main element
@@ -219,7 +189,6 @@ async function loadLazy(doc) {
 
   loadHeader(doc.querySelector('header'));
   loadFooter(doc.querySelector('footer'));
-  animatedHeadings(main);
 
   loadCSS(`${window.hlx.codeBasePath}/styles/lazy-styles.css`);
   loadFonts();
