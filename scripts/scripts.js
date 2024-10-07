@@ -336,6 +336,7 @@ function addModalHandling() {
 
 async function loadPage() {
   await loadEager(document);
+  addModalHandling();
   await loadLazy(document);
   loadDelayed();
 }
@@ -352,4 +353,3 @@ export function getTextLabel(key) {
 
 placeholders = await fetchPlaceholders();
 loadPage();
-addModalHandling();
