@@ -162,7 +162,6 @@ export const preventScroll = ({ move }) => {
 
   const onWheel = (event) => {
     if (event.cancelable) {
-      console.log('cancelable');
       event.preventDefault();
       event.stopPropagation();
     }
@@ -176,14 +175,11 @@ export const preventScroll = ({ move }) => {
 
   window.addEventListener('touchstart', touchStart, { passive: false });
   window.addEventListener('touchmove', touchMove, { passive: false });
-  window.addEventListener('wheel', onWheel, { passive: false, capture: true });
   window.addEventListener('wheel', onWheel, { passive: false });
 
   const enableScroll = () => {
-    console.log('remove events listeners');
     window.removeEventListener('touchstart', touchStart, { passive: false });
     window.removeEventListener('touchmove', touchMove, { passive: false });
-    window.removeEventListener('wheel', onWheel, { passive: false, capture: true });
     window.removeEventListener('wheel', onWheel, { passive: false });
   };
 
