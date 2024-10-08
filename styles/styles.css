@@ -626,6 +626,18 @@ body.modal-visible {
   overflow: hidden;
 }
 
+/*
+  Hiding modal content when it is not in the modal yet.
+  By default the block needs to be added to the body until the js and css
+  are fetched for the block, but it should not be visible for the user.
+  Otherwhise (if the block is cutted from the body to early) the js and css
+  files for block won't load.
+*/
+:not(.modal-content) > .block[class^="modal-"],
+:not(.modal-content) > .block[class*=" modal-"] {
+  display: none;
+}
+
 body.modal-visible > *:not(.modal) {
   filter: blur(4px);
 }

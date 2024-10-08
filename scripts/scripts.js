@@ -259,17 +259,17 @@ function addModalHandling() {
   const modalContentMap = new Map();
 
   modalLinks.forEach((mLink) => {
-    const modalContentId = mLink.getAttribute('href').split('modal-')[1];
-    const modalContentEl = document.querySelector(`.${modalContentId}`);
+    const modalContentName = mLink.getAttribute('href').split('/#')[1];
+    const modalContentEl = document.querySelector(`.${modalContentName}`);
 
     if (modalContentEl) {
-      modalContentEl.parentElement.remove();
-      modalContentMap.set(modalContentId, modalContentEl);
+      modalContentEl.parentElement.replaceWith(modalContentEl);
+      modalContentMap.set(modalContentName, modalContentEl);
     }
 
     mLink.addEventListener('click', (event) => {
       event.preventDefault();
-      const modalEvent = new CustomEvent('show-modal', { detail: modalContentId });
+      const modalEvent = new CustomEvent('show-modal', { detail: modalContentName });
 
       window.dispatchEvent(modalEvent);
     });
@@ -293,7 +293,7 @@ function addModalHandling() {
     window.dispatchEvent(closeModalEvent);
   });
 
-  const modalContent = document.querySelector('.modal-content');
+  const modalContent = document.querySelector('.modal .modal-content');
   const closeButton = document.querySelector('.modal-close-button');
   const modalXSmallAnimationConfig = {
     startStyles: { transform: 'var(--modal-content-animation-start)' },
@@ -310,8 +310,8 @@ function addModalHandling() {
   window.addEventListener('show-modal', (event) => {
     const elId = event.detail;
     const content = modalContentMap.get(elId);
-
     const modal = document.querySelector('.modal');
+
     modalContent.append(content);
     modal.classList.remove('modal-hidden');
     document.body.classList.add('modal-visible');
