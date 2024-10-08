@@ -165,18 +165,23 @@ function checkForActiveLink(navSections) {
   });
 }
 
+function getAvailableLanguages() {
+  return [...document.querySelectorAll('header .section.nav-tools a')]
+    .map((link) => new URL(link.href).pathname.split('/')[1])
+    .filter((val) => val);
+}
+
 function redirectPage(event) {
   const currentUrl = window.location;
-  let redirectUrl = currentUrl.origin;
+  const currentFirstLevelFolderName = currentUrl.pathname.split('/')[1];
+  const newLang = new URL(event.target.href).pathname.split('/')[1];
+  const availableLangs = getAvailableLanguages();
+  const currentLang = availableLangs.includes(currentFirstLevelFolderName) ? currentFirstLevelFolderName : '';
+  const currentPathWithoutLang = currentLang ? currentUrl.pathname.replace(`/${currentLang}`, '') : currentUrl.pathname;
+  const newPathname = newLang ? `/${newLang}${currentPathWithoutLang}` : currentPathWithoutLang;
+  const redirectUrl = `${currentUrl.origin}${newPathname}`;
 
-  if (event.target.innerHTML.toLowerCase() === 'en') {
-    if (!currentUrl.pathname.includes('/en/')) {
-      redirectUrl = `${redirectUrl}/en`;
-    }
-    redirectUrl = `${redirectUrl}${currentUrl.pathname}`;
-  } else {
-    redirectUrl = `${redirectUrl}${currentUrl.pathname.replace(/\/en\//, '/')}`;
-  }
+  event.preventDefault();
   window.location.replace(redirectUrl);
 }
 
@@ -221,7 +226,8 @@ function handleTransparentAndScrolling(nav) {
 export default async function decorate(block) {
   // load nav as fragment
   const navMeta = getMetadata('nav');
-  const navPath = navMeta ? new URL(navMeta, window.location).pathname : '/nav';
+  // const navPath = navMeta ? new URL(navMeta, window.location).pathname : '/nav';
+  const navPath = '/drafts/tdziezyk/nav';
   const fragment = await loadFragment(navPath);
 
   // decorate nav DOM
@@ -304,10 +310,12 @@ export default async function decorate(block) {
     toolsWrapper.querySelectorAll('li').forEach((item) => {
       item.addEventListener('click', redirectPage);
 
-      const urlLang = document.location.pathname.includes('/en/') ? 'en' : 'it';
-      const listItemLang = item.textContent.trim().toLowerCase();
+      const availableLanguages = [...toolsWrapper.querySelectorAll('li a')].map((el) => new URL(el.href).pathname.split('/')[1]);
+      const firstPathnamePart = document.location.pathname.split('/')[1];
+      const currentLang = availableLanguages.includes(firstPathnamePart) ? firstPathnamePart : '';
+      const listItemLang = new URL(item.querySelector('a').href).pathname.split('/')[1];
 
-      if (urlLang === listItemLang) {
+      if (currentLang === listItemLang) {
         item.classList.add('active');
       }
     });
