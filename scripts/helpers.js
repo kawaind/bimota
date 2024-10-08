@@ -130,35 +130,21 @@ export const throttle = (func, limit) => {
   };
 };
 
-export const preventScroll = ({ moveDown, moveUp }) => {
+export const preventScroll = ({ move }) => {
   let startX;
   let startY;
-  let isInitPause = true; // pause the moving event for 1s - fix for Firefox
-
-  setTimeout(() => { isInitPause = false; }, 1000);
-
-  const move = throttle((direction) => {
-    if (isInitPause) {
-      return;
-    }
-
-    if (direction === 'down') {
-      moveDown();
-      return;
-    }
-
-    moveUp();
-  }, 1000);
 
   const touchStart = (event) => {
     // Store the starting touch position
     startX = event.touches[0].pageX;
     startY = event.touches[0].pageY;
-    document.body.style.overflow = 'hidden';
   };
 
   const touchMove = (event) => {
-    event.preventDefault();
+    if (event.cancelable) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
 
     // Calculate the distance moved in both directions
     const moveX = event.touches[0].pageX - startX;
@@ -176,11 +162,10 @@ export const preventScroll = ({ moveDown, moveUp }) => {
 
   const onWheel = (event) => {
     if (event.cancelable) {
+      console.log('cancelable');
       event.preventDefault();
       event.stopPropagation();
     }
-
-    document.body.style.overflow = 'hidden';
 
     if (event.deltaY > 0) {
       move('down');
@@ -191,13 +176,29 @@ export const preventScroll = ({ moveDown, moveUp }) => {
 
   window.addEventListener('touchstart', touchStart, { passive: false });
   window.addEventListener('touchmove', touchMove, { passive: false });
+  window.addEventListener('wheel', onWheel, { passive: false, capture: true });
   window.addEventListener('wheel', onWheel, { passive: false });
 
   const enableScroll = () => {
+    console.log('remove events listeners');
     window.removeEventListener('touchstart', touchStart, { passive: false });
     window.removeEventListener('touchmove', touchMove, { passive: false });
+    window.removeEventListener('wheel', onWheel, { passive: false, capture: true });
     window.removeEventListener('wheel', onWheel, { passive: false });
   };
 
   return enableScroll;
+};
+
+export const isInViewport = (element) => {
+  const rect = element.getBoundingClientRect();
+  const windowHeight = (window.visualViewport || window).height;
+  const windowWidth = (window.visualViewport || window).width;
+
+  return (
+    rect.top >= 0
+    && rect.left >= 0
+    && rect.bottom <= windowHeight
+    && rect.right <= windowWidth
+  );
 };

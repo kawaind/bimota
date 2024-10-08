@@ -1,4 +1,4 @@
-import { preventScroll, throttle } from '../../scripts/helpers.js';
+import { isInViewport, preventScroll, throttle } from '../../scripts/helpers.js';
 
 const setScaleForPicture = (block, picture) => {
   const setScale = () => {
@@ -45,37 +45,37 @@ const scrollToSlide = (slidersContainer, slideIndex) => {
   });
 };
 
-const trapScrollingForSlides = (block, { prevSlide, nextSlide }) => {
-  let enableScoll = null;
+const trapScrollingForSlides = (block, {
+  hasNextSlide, hasPrevSlide, move,
+}) => {
+  let enableScroll = null;
+  let prevY = window.scrollY;
 
-  const observer = new IntersectionObserver((entries) => {
-    const moveDown = () => {
-      nextSlide(enableScoll);
-      document.body.style.overflow = '';
-    };
-    const moveUp = () => {
-      prevSlide(enableScoll);
-      document.body.style.overflow = '';
-    };
+  window.addEventListener('scroll', () => {
+    const hasSlideInDirection = prevY < window.scrollY ? hasNextSlide() : hasPrevSlide();
+    prevY = window.scrollY;
 
-    entries.forEach((entry) => {
-      if (entry.isIntersecting && entry.intersectionRatio >= 0.9) {
-        block.classList.add('active');
-        if (enableScoll) {
-          enableScoll();
+    if (isInViewport(block)) {
+      block.classList.add('active');
+
+      if (hasSlideInDirection) {
+        if (enableScroll) {
+          // enablingScroll just to make sure that all of the event listener blocking it are removed
+          // they will be replaced by the preventScroll with new ones
+          enableScroll();
         }
-        enableScoll = preventScroll({ moveDown, moveUp });
-      } else {
-        block.classList.remove('active');
-        if (enableScoll) {
-          enableScoll();
-          enableScoll = null;
-        }
+        block.scrollIntoView({ block: 'nearest', behaviour: 'smooth' });
+
+        enableScroll = preventScroll({ move: (direction) => move(direction, enableScroll) });
       }
-    });
-  }, { threshold: [0.1, 0.9] });
-
-  observer.observe(block);
+    } else {
+      block.classList.remove('active');
+      if (enableScroll) {
+        enableScroll();
+        enableScroll = null;
+      }
+    }
+  });
 };
 
 export default async function decorate(block) {
@@ -106,10 +106,22 @@ export default async function decorate(block) {
 
   // trapping the scrolling so the user will scroll the next slides of the slider
   const container = block.querySelector('.highlight-slides-container');
+  const hasPrevSlide = () => {
+    const activeSlideIndex = getActiveSlideIndex(block);
+    return activeSlideIndex > 0;
+  };
+
+  const hasNextSlide = () => {
+    const activeSlideIndex = getActiveSlideIndex(block);
+    const slideCount = block.querySelectorAll('.highlight-slide').length;
+
+    return activeSlideIndex < slideCount - 1;
+  };
+
   const prevSlide = (onNoPreSlide) => {
     const activeSlideIndex = getActiveSlideIndex(block);
 
-    if (activeSlideIndex <= 0) {
+    if (!hasPrevSlide()) {
       onNoPreSlide();
       return;
     }
@@ -118,9 +130,8 @@ export default async function decorate(block) {
   };
   const nextSlide = (onNoNextSlide) => {
     const activeSlideIndex = getActiveSlideIndex(block);
-    const slideCount = block.querySelectorAll('.highlight-slide').length;
 
-    if (activeSlideIndex >= slideCount - 1) {
+    if (!hasNextSlide()) {
       onNoNextSlide();
       return;
     }
@@ -128,5 +139,25 @@ export default async function decorate(block) {
     scrollToSlide(container, activeSlideIndex + 1);
   };
 
-  trapScrollingForSlides(block, { prevSlide, nextSlide });
+  const move = throttle((direction, onNoSlide) => {
+    if (direction === 'up') {
+      if (!hasPrevSlide()) {
+        onNoSlide();
+        return;
+      }
+
+      prevSlide();
+    } else {
+      if (!hasNextSlide()) {
+        onNoSlide();
+        return;
+      }
+
+      nextSlide();
+    }
+  }, 1000);
+
+  trapScrollingForSlides(block, {
+    hasNextSlide, hasPrevSlide, move,
+  });
 }

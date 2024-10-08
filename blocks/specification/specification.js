@@ -1,4 +1,4 @@
-import { preventScroll } from '../../scripts/helpers.js';
+import { isInViewport, preventScroll, throttle } from '../../scripts/helpers.js';
 
 export default function decorate(block) {
   const content = block.querySelector(':scope > div');
@@ -43,33 +43,35 @@ export default function decorate(block) {
   });
 
   // trapping the scrolling so the user will scroll the next slides of the slider
-  const trapScrollingForSlides = ({ prevSlide, nextSlide }) => {
-    let enableScoll = null;
+  const trapScrollingForSlides = ({ hasNextSlide, hasPrevSlide, move }) => {
+    let enableScroll = null;
+    let prevY = window.scrollY;
 
-    const observer = new IntersectionObserver((entries) => {
-      const moveDown = () => {
-        nextSlide(enableScoll);
-        document.body.style.overflow = '';
-      };
-      const moveUp = () => {
-        prevSlide(enableScoll);
-        document.body.style.overflow = '';
-      };
+    window.addEventListener('scroll', () => {
+      const hasSlideInDirection = prevY < window.scrollY ? hasNextSlide() : hasPrevSlide();
+      prevY = window.scrollY;
 
-      entries.forEach((entry) => {
-        if (entry.isIntersecting && entry.intersectionRatio >= 0.9) {
-          if (enableScoll) {
-            enableScoll();
+      if (isInViewport(block)) {
+        block.classList.add('active');
+
+        if (hasSlideInDirection) {
+          if (enableScroll) {
+            // enablingScroll just to make sure that all of the event listener
+            // blocking it are removed they will be replaced by the preventScroll with new ones
+            enableScroll();
           }
-          enableScoll = preventScroll({ moveDown, moveUp });
-        } else if (enableScoll) {
-          enableScoll();
-          enableScoll = null;
-        }
-      });
-    }, { threshold: [0.1, 0.9] });
+          block.scrollIntoView({ block: 'nearest', behaviour: 'smooth' });
 
-    observer.observe(block);
+          enableScroll = preventScroll({ move: (direction) => move(direction, enableScroll) });
+        }
+      } else {
+        block.classList.remove('active');
+        if (enableScroll) {
+          enableScroll();
+          enableScroll = null;
+        }
+      }
+    });
   };
 
   const getActiveSlideIndex = () => [...block.querySelectorAll('.specification-images > *')]
@@ -88,10 +90,22 @@ export default function decorate(block) {
       });
   };
 
-  const prevSlide = (onNoPreSlide) => {
-    const activeSlideIndex = getActiveSlideIndex(block);
+  const hasPrevSlide = () => {
+    const activeSlideIndex = getActiveSlideIndex();
+    return activeSlideIndex > 0;
+  };
 
-    if (activeSlideIndex <= 0) {
+  const hasNextSlide = () => {
+    const activeSlideIndex = getActiveSlideIndex();
+    const slideCount = block.querySelectorAll('.specification-images > *').length;
+
+    return activeSlideIndex < slideCount - 1;
+  };
+
+  const prevSlide = (onNoPreSlide) => {
+    const activeSlideIndex = getActiveSlideIndex();
+
+    if (!hasPrevSlide()) {
       onNoPreSlide();
       return;
     }
@@ -99,10 +113,9 @@ export default function decorate(block) {
     scrollToSlide(activeSlideIndex - 1);
   };
   const nextSlide = (onNoNextSlide) => {
-    const activeSlideIndex = getActiveSlideIndex(block);
-    const slideCount = block.querySelectorAll('.specification-images > *').length;
+    const activeSlideIndex = getActiveSlideIndex();
 
-    if (activeSlideIndex >= slideCount - 1) {
+    if (!hasNextSlide()) {
       onNoNextSlide();
       return;
     }
@@ -110,6 +123,24 @@ export default function decorate(block) {
     scrollToSlide(activeSlideIndex + 1);
   };
 
+  const move = throttle((direction, onNoSlide) => {
+    if (direction === 'up') {
+      if (!hasPrevSlide()) {
+        onNoSlide();
+        return;
+      }
+
+      prevSlide();
+    } else {
+      if (!hasNextSlide()) {
+        onNoSlide();
+        return;
+      }
+
+      nextSlide();
+    }
+  }, 1000);
+
   scrollToSlide(0);
-  trapScrollingForSlides({ prevSlide, nextSlide });
+  trapScrollingForSlides({ hasNextSlide, hasPrevSlide, move });
 }
