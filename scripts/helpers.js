@@ -130,6 +130,14 @@ export const throttle = (func, limit) => {
   };
 };
 
+export function stripEmptyTags(main, child) {
+  if (child !== main && child.innerHTML.trim() === '') {
+    const parent = child.parentNode;
+    child.remove();
+    stripEmptyTags(main, parent);
+  }
+}
+
 /**
  * Create an element with the given id and classes.
  * @param {string} tagName the tag

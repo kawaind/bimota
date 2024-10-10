@@ -1,16 +1,8 @@
 /* eslint-disable max-len */
-import { createElement } from '../../scripts/helpers.js';
+import { createElement, stripEmptyTags } from '../../scripts/helpers.js';
 import { smoothScrollHorizontal } from '../../scripts/motion-helper.js';
 
 const blockName = 'vehicle-selector';
-
-function stripEmptyTags(main, child) {
-  if (child !== main && child.innerHTML.trim() === '') {
-    const parent = child.parentNode;
-    child.remove();
-    stripEmptyTags(main, parent);
-  }
-}
 
 function buildTabNavigation(tabItems, clickHandler) {
   const tabNavigation = createElement('ul', { classes: `${blockName}__navigation` });
@@ -210,18 +202,36 @@ export default function decorate(block) {
     headings.forEach((heading) => {
       heading.classList.add('h6');
     });
+    // Create description items
+    const listItems = descriptionItems[i].querySelectorAll(':scope > ul > li');
+    const fragment = document.createDocumentFragment();
 
-    const descItem = descriptionItems[i].querySelectorAll('p');
-    descItem.forEach((element) => {
-      const currentContainer = createElement('div', { classes: `${blockName}__text` });
-      element.parentNode.appendChild(currentContainer);
-      let nextElement = element.nextElementSibling;
-      while (nextElement && nextElement.classList.contains('h6')) {
-        currentContainer.appendChild(nextElement);
-        nextElement = element.nextElementSibling;
+    listItems.forEach((li) => {
+      const containerDiv = document.createElement('div');
+      containerDiv.classList.add(`${blockName}__text`);
+
+      const subList = li.querySelector('ul');
+      if (subList) {
+        const h4Element = document.createElement('h4');
+        h4Element.textContent = li.childNodes[0].textContent.trim();
+        containerDiv.appendChild(h4Element);
+
+        const subItems = subList.querySelectorAll('li');
+        subItems.forEach((subLi) => {
+          const pElement = document.createElement('p');
+          pElement.classList.add('h6');
+          pElement.textContent = subLi.textContent.trim();
+          containerDiv.appendChild(pElement);
+        });
       }
-      currentContainer.insertAdjacentElement('afterbegin', element);
+
+      fragment.appendChild(containerDiv);
     });
+    const button = descriptionItems[i].querySelector('.button-container');
+    fragment.appendChild(button);
+
+    descriptionItems[i].innerHTML = '';
+    descriptionItems[i].appendChild(fragment);
   });
 
   // Update the button indicator on scroll
@@ -233,4 +243,6 @@ export default function decorate(block) {
     const index = [...activeItem.parentNode.children].indexOf(activeItem);
     updateActiveItem(index);
   });
+
+  block.classList.add('full-width');
 }

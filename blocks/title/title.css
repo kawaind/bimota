@@ -22,6 +22,11 @@
     align-items: center;
 }
 
+.title.center {
+    margin-inline: auto;
+    text-align: center;
+}
+
 .vertical-line-wrapper {
     height: 80px;
     width: 2px;
