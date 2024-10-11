@@ -92,21 +92,15 @@
   transition: opacity 0.5s var(--easing-entrance) var(--duration-medium);
 }
 
-.vehicle-selector__text {
-  display: flex;
-  flex-direction: column;
-  text-wrap: balance;
-}
-
-.vehicle-selector__text * {
-  margin: 0;
-}
-
-.vehicle-selector__text h4 {
+.description-label {
   margin-bottom: 6px;
   color: var(--grey-60);
   font-size: 14px;
   line-height: 150%;
+}
+
+.description-value .h6 {
+  font-weight: 600;
 }
 
 .vehicle-selector .button-container {

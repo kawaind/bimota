@@ -202,36 +202,29 @@ export default function decorate(block) {
     headings.forEach((heading) => {
       heading.classList.add('h6');
     });
-    // Create description items
-    const listItems = descriptionItems[i].querySelectorAll(':scope > ul > li');
-    const fragment = document.createDocumentFragment();
+    // Creating the description list (as in specification component)
+    descriptionItems[i].querySelectorAll('p').forEach((paragraph) => {
+      const strongEls = paragraph.querySelectorAll('strong');
+      const hasButton = paragraph.classList.contains('button-container');
 
-    listItems.forEach((li) => {
-      const containerDiv = document.createElement('div');
-      containerDiv.classList.add(`${blockName}__text`);
-
-      const subList = li.querySelector('ul');
-      if (subList) {
-        const h4Element = document.createElement('h4');
-        h4Element.textContent = li.childNodes[0].textContent.trim();
-        containerDiv.appendChild(h4Element);
-
-        const subItems = subList.querySelectorAll('li');
-        subItems.forEach((subLi) => {
-          const pElement = document.createElement('p');
-          pElement.classList.add('h6');
-          pElement.textContent = subLi.textContent.trim();
-          containerDiv.appendChild(pElement);
+      if (strongEls.length > 0) {
+        paragraph.classList.add('font-small', 'description-value');
+        strongEls.forEach((el) => {
+          el.classList.add('h6');
         });
+      } else if (!hasButton) {
+        paragraph.classList.add('font-small', 'description-label');
       }
-
-      fragment.appendChild(containerDiv);
     });
-    const button = descriptionItems[i].querySelector('.button-container');
-    fragment.appendChild(button);
+    Array.from(descriptionItems[i].querySelectorAll('.description-label')).reverse().forEach((el) => {
+      const stat = document.createElement('div');
+      stat.classList.add('description-stat');
+      const valueEl = el.nextElementSibling;
 
-    descriptionItems[i].innerHTML = '';
-    descriptionItems[i].appendChild(fragment);
+      stat.append(el);
+      stat.append(valueEl);
+      descriptionItems[i].prepend(stat);
+    });
   });
 
   // Update the button indicator on scroll
