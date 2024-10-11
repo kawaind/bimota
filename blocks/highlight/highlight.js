@@ -1,4 +1,4 @@
-import { throttle } from '../../scripts/helpers.js';
+import { isInViewport, preventScroll, throttle } from '../../scripts/helpers.js';
 
 const setScaleForPicture = (block, picture) => {
   const setScale = () => {
@@ -45,109 +45,37 @@ const scrollToSlide = (slidersContainer, slideIndex) => {
   });
 };
 
-function preventScroll({ moveDown, moveUp }) {
-  let startX;
-  let startY;
-  let isInitPause = true; // pause the moving event for 1s - fix for Firefox
+const trapScrollingForSlides = (block, {
+  hasNextSlide, hasPrevSlide, move,
+}) => {
+  let enableScroll = null;
+  let prevY = window.scrollY;
 
-  setTimeout(() => { isInitPause = false; }, 1000);
+  window.addEventListener('scroll', () => {
+    const hasSlideInDirection = prevY < window.scrollY ? hasNextSlide() : hasPrevSlide();
+    prevY = window.scrollY;
 
-  const move = throttle((direction) => {
-    if (isInitPause) {
-      return;
-    }
+    if (isInViewport(block)) {
+      block.classList.add('active');
 
-    if (direction === 'down') {
-      moveDown();
-      return;
-    }
+      if (hasSlideInDirection) {
+        if (enableScroll) {
+          // enablingScroll just to make sure that all of the event listener blocking it are removed
+          // they will be replaced by the preventScroll with new ones
+          enableScroll();
+        }
+        block.scrollIntoView({ block: 'nearest', behaviour: 'smooth' });
 
-    moveUp();
-  }, 1000);
-
-  const touchStart = (event) => {
-    // Store the starting touch position
-    startX = event.touches[0].pageX;
-    startY = event.touches[0].pageY;
-    document.body.style.overflow = 'hidden';
-  };
-
-  const touchMove = (event) => {
-    event.preventDefault();
-
-    // Calculate the distance moved in both directions
-    const moveX = event.touches[0].pageX - startX;
-    const moveY = event.touches[0].pageY - startY;
-
-    // Determine direction
-    if (Math.abs(moveY) > Math.abs(moveX)) {
-      if (moveY > 0) {
-        move('up');
-      } else {
-        move('down');
+        enableScroll = preventScroll({ move: (direction) => move(direction, enableScroll) });
       }
-    }
-  };
-
-  const onWheel = (event) => {
-    if (event.cancelable) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-
-    document.body.style.overflow = 'hidden';
-
-    if (event.deltaY > 0) {
-      move('down');
     } else {
-      move('up');
-    }
-  };
-
-  window.addEventListener('touchstart', touchStart, { passive: false });
-  window.addEventListener('touchmove', touchMove, { passive: false });
-  window.addEventListener('wheel', onWheel, { passive: false });
-
-  const enableScroll = () => {
-    window.removeEventListener('touchstart', touchStart, { passive: false });
-    window.removeEventListener('touchmove', touchMove, { passive: false });
-    window.removeEventListener('wheel', onWheel, { passive: false });
-  };
-
-  return enableScroll;
-}
-
-const trapScrollingForSlides = (block, { prevSlide, nextSlide }) => {
-  let enableScoll = null;
-
-  const observer = new IntersectionObserver((entries) => {
-    const moveDown = () => {
-      nextSlide(enableScoll);
-      document.body.style.overflow = '';
-    };
-    const moveUp = () => {
-      prevSlide(enableScoll);
-      document.body.style.overflow = '';
-    };
-
-    entries.forEach((entry) => {
-      if (entry.isIntersecting && entry.intersectionRatio >= 0.9) {
-        block.classList.add('active');
-        if (enableScoll) {
-          enableScoll();
-        }
-        enableScoll = preventScroll({ moveDown, moveUp });
-      } else {
-        block.classList.remove('active');
-        if (enableScoll) {
-          enableScoll();
-          enableScoll = null;
-        }
+      block.classList.remove('active');
+      if (enableScroll) {
+        enableScroll();
+        enableScroll = null;
       }
-    });
-  }, { threshold: [0.1, 0.9] });
-
-  observer.observe(block);
+    }
+  });
 };
 
 export default async function decorate(block) {
@@ -178,10 +106,22 @@ export default async function decorate(block) {
 
   // trapping the scrolling so the user will scroll the next slides of the slider
   const container = block.querySelector('.highlight-slides-container');
+  const hasPrevSlide = () => {
+    const activeSlideIndex = getActiveSlideIndex(block);
+    return activeSlideIndex > 0;
+  };
+
+  const hasNextSlide = () => {
+    const activeSlideIndex = getActiveSlideIndex(block);
+    const slideCount = block.querySelectorAll('.highlight-slide').length;
+
+    return activeSlideIndex < slideCount - 1;
+  };
+
   const prevSlide = (onNoPreSlide) => {
     const activeSlideIndex = getActiveSlideIndex(block);
 
-    if (activeSlideIndex <= 0) {
+    if (!hasPrevSlide()) {
       onNoPreSlide();
       return;
     }
@@ -190,9 +130,8 @@ export default async function decorate(block) {
   };
   const nextSlide = (onNoNextSlide) => {
     const activeSlideIndex = getActiveSlideIndex(block);
-    const slideCount = block.querySelectorAll('.highlight-slide').length;
 
-    if (activeSlideIndex >= slideCount - 1) {
+    if (!hasNextSlide()) {
       onNoNextSlide();
       return;
     }
@@ -200,5 +139,25 @@ export default async function decorate(block) {
     scrollToSlide(container, activeSlideIndex + 1);
   };
 
-  trapScrollingForSlides(block, { prevSlide, nextSlide });
+  const move = throttle((direction, onNoSlide) => {
+    if (direction === 'up') {
+      if (!hasPrevSlide()) {
+        onNoSlide();
+        return;
+      }
+
+      prevSlide();
+    } else {
+      if (!hasNextSlide()) {
+        onNoSlide();
+        return;
+      }
+
+      nextSlide();
+    }
+  }, 1000);
+
+  trapScrollingForSlides(block, {
+    hasNextSlide, hasPrevSlide, move,
+  });
 }
