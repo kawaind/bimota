@@ -1,0 +1,99 @@
+.specification .specification-content {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 24px;
+}
+
+.specification .specification-stats-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px 16px;
+}
+
+.specification .specification-stats-wrapper > * {
+  width: calc(50% - 8px);
+}
+
+.specification .specification-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.specification .specification-stat p {
+  margin-bottom: 0;
+}
+
+.specification .specification-label {
+  color: var(--grey-70);
+}
+
+.specification .specification-value {
+  font-weight: 600;
+}
+
+.specification .button-container {
+  margin-top: 40px;
+}
+
+.specification .button-container .button {
+  width: 100%;
+}
+
+.specification .specification-images {
+  position: relative;
+}
+
+.specification .specification-images p {
+  margin: 0;
+  transition: opacity 300ms linear;
+}
+
+.specification .specification-images p:not(:first-child) {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.specification .specification-images picture {
+  display: flex;
+}
+
+@media (width >= 768px) {
+  .specification .specification-content {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .specification .specification-text-content {
+    width: 250px;
+  }
+
+  .specification .specification-stats-wrapper {
+    flex-direction: column;
+  }
+
+  .specification .specification-stat {
+    width: auto;
+  }
+
+  .specification .button-container {
+    margin-top: 60px;
+  }
+
+  .specification .button-container .button {
+    width: auto;
+  }
+}
+
+@media (width >= 1024px) {
+  .specification .specification-text-content {
+    width: 296px;
+  }
+}
+
+@media (width >= 1440px) {
+  .specification .specification-text-content {
+    width: 398px;
+  }
+}

@@ -459,8 +459,8 @@ button.secondary.small {
 
 .dark a.button.primary:focus,
 .dark button.primary:focus {
-  color: #82221D;
-  border-color: #82221D;
+  color: #82221d;
+  border-color: #82221d;
   background: var(--action-hover);
 }
 
@@ -631,4 +631,128 @@ main .border-top {
 #onetrust-consent-sdk #onetrust-accept-btn-handler {
   background-color: var(--link-color) !important;
   border-color: transparent !important;
+}
+
+/* modal styles */
+body.modal-visible {
+  overflow: hidden;
+}
+
+/*
+  Hiding modal content when it is not in the modal yet.
+  By default the block needs to be added to the body until the js and css
+  are fetched for the block, but it should not be visible for the user.
+  Otherwhise (if the block is cutted from the body to early) the js and css
+  files for block won't load.
+*/
+:not(.modal-content) > .block[class^="modal-"],
+:not(.modal-content) > .block[class*=" modal-"] {
+  display: none;
+}
+
+body.modal-visible > *:not(.modal) {
+  filter: blur(4px);
+}
+
+.modal {
+  --modal-content-animation-start: translateY(calc(100%));
+  --modal-content-animation-end: translateY(0);
+  --modal-close-button-animation-start: translate(-50%, 90px);
+  --modal-close-button-animation-end: translate(-50%, 0);
+
+  z-index: 1001;
+  position: relative;
+}
+
+.modal.modal-hidden {
+  display: none;
+}
+
+.modal .modal-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #0006;
+}
+
+.modal .modal-content {
+  padding: 40px 20px;
+  width: 100vw;
+  height: 100vh;
+  overflow: auto;
+  position: fixed;
+  background: var(--white);
+  top: 0;
+}
+
+.modal .modal-close-button {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translate(-50%, 0);
+  width: 42px;
+  height: 42px;
+  background: var(--white);
+  border-radius: 50%;
+  border: solid 1px var(--action-default);
+}
+
+.modal .modal-close-button:hover,
+.modal .modal-close-button:active {
+  border-color: var(--action-hover);
+}
+
+.modal .modal-close-button span {
+  display: flex;
+}
+
+.modal .modal-close-button svg {
+  height: 18px;
+  width: 18px;
+}
+
+@media (width >= 768px) {
+  .modal {
+    --modal-content-animation-start: translateX(100%);
+    --modal-content-animation-end: translateX(0);
+    --modal-close-button-animation-start: translate(66px, 0);
+    --modal-close-button-animation-end: translate(-694px, 0);
+  }
+
+  .modal .modal-content {
+    padding: 60px 30px;
+    top: 0;
+    max-width: 670px;
+    right: 0;
+  }
+
+  .modal .modal-close-button {
+    bottom: 50%;
+    left: unset;
+    right: 0;
+  }
+}
+
+@media (width >= 1025px) {
+  .modal {
+    --modal-close-button-animation-end: translate(-928px, 0);
+  }
+
+  .modal .modal-content {
+    padding: 60px 40px;
+    max-width: 904px;
+  }
+}
+
+@media (width >= 1440px) {
+  .modal {
+    --modal-close-button-animation-end: translate(-1158px, 0);
+  }
+
+  .modal .modal-content {
+    padding: 60px 100px;
+    max-width: 1134px;
+  }
 }

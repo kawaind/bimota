@@ -5,6 +5,7 @@ export default async function decorate(block) {
   dealerLocator.classList.add('dealer-locator-map');
   dealerLocator.setAttribute('id', 'dealer-locator');
   block.append(dealerLocator);
+  const isOneLocationVariant = block.classList.contains('one-location');
   const language = /\/en\//.test(window.location.pathname) ? 'en' : 'it';
   const isRedVariant = block.classList.contains('red');
   const redConfig = [
@@ -54,6 +55,69 @@ export default async function decorate(block) {
 
   const colorsConfig = isRedVariant ? redConfig : [];
 
+  const selectedLocationConfig = {
+    initialZoom: 11,
+    breakPoint: 10,
+    baseMapStyle: colorsConfig,
+    tileStyle: {
+      color: '#ed1d24',
+      size: 13,
+      minSize: 7,
+    },
+    style: {
+      default: {
+        icon: {
+          url: 'https://www.kawasaki.eu/content/dam/dealerlocator/location-default-bimoto.png',
+          scaledSize: {
+            height: 16,
+            width: 16,
+          },
+        },
+        selectedIcon: {
+          url: 'https://www.kawasaki.eu/content/dam/dealerlocator/location-active-bimoto.png',
+          scaledSize: {
+            height: 32,
+            width: 32,
+          },
+        },
+      },
+    },
+  };
+
+  const defaultLocationConfig = {
+    initialCenter: {
+      lat: 52.4862,
+      lng: 1.8904,
+    },
+    initialZoom: 5,
+    fitBounds: true,
+    tileStyle: {
+      color: '#ed1d24',
+      size: 12,
+      minSize: 10,
+    },
+    breakPoint: 10,
+    baseMapStyle: colorsConfig,
+    style: {
+      default: {
+        icon: {
+          url: 'https://www.kawasaki.eu/content/dam/dealerlocator/location-default-bimoto.png',
+          anchor: {
+            x: 16,
+            y: 16,
+          },
+        },
+        selectedIcon: {
+          url: 'https://www.kawasaki.eu/content/dam/dealerlocator/location-active-bimoto.png',
+          anchor: {
+            x: 16,
+            y: 16,
+          },
+        },
+      },
+    },
+  };
+
   loadScript('/blocks/dealer-locator/vendor/jquery.min.js', { type: 'text/javascript', charset: 'UTF-8' })
     .then(() => {
       // these scripts depend on jquery:
@@ -72,7 +136,7 @@ export default async function decorate(block) {
               },
             },
             theme: {
-              primaryColor: '#ff0000',
+              primaryColor: '#ed1d24',
             },
             datasource: {
               maxResponses: 5,
@@ -83,41 +147,12 @@ export default async function decorate(block) {
             internationalization: {
               lang: language,
             },
-            woosmapview: {
-              initialCenter: {
-                lat: 52.4862,
-                lng: 1.8904,
-              },
-              initialZoom: 5,
-              fitBounds: true,
-              tileStyle: {
-                color: '#ed1d24',
-                size: 12,
-                minSize: 10,
-              },
-              breakPoint: 10,
-              baseMapStyle: colorsConfig,
-              style: {
-                default: {
-                  icon: {
-                    url: 'https://www.kawasaki.eu/content/dam/dealerlocator/location-default-bimoto.png',
-                    anchor: {
-                      x: 16,
-                      y: 16,
-                    },
-                  },
-                  selectedIcon: {
-                    url: 'https://www.kawasaki.eu/content/dam/dealerlocator/location-active-bimoto.png',
-                    anchor: {
-                      x: 16,
-                      y: 16,
-                    },
-                  },
-                },
-              },
-            },
+            woosmapview: isOneLocationVariant ? selectedLocationConfig : defaultLocationConfig,
           };
           webapp.setConf(config);
+          if (isOneLocationVariant) {
+            webapp.setInitialStateToSelectedStore('990002');
+          }
           webapp.render();
         }
         loadWebApp();

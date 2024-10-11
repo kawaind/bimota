@@ -1,49 +1,10 @@
 import { getMetadata } from '../../scripts/aem.js';
-import { customDecoreateIcons } from '../../scripts/scripts.js';
+import { addAnimateInOut, customDecoreateIcons } from '../../scripts/scripts.js';
 import { loadFragment } from '../fragment/fragment.js';
 
 // media query match that indicates mobile/tablet width
 const isDesktop = window.matchMedia('(min-width: 1025px)');
 const fadeTransitionTime = 300;
-
-const animateInOut = (animateTarget, isFadeIn, initStyles, startStyles, endStyles) => {
-  animateTarget.style.transition = `all ${fadeTransitionTime}ms ease-in-out`;
-
-  const setStyles = (targetEl, stylesObject) => {
-    Object.entries(stylesObject).forEach(([key, value]) => {
-      targetEl.style[key] = value;
-    });
-  };
-
-  const cssReflow = () => {
-    // trigger reflow to ensure the transition starts from the current state
-    // read more here: https://gist.github.com/paulirish/5d52fb081b3570c81e3a
-    // eslint-disable-next-line no-unused-expressions
-    animateTarget.offsetWidth;
-  };
-
-  const restoreDisplayPropAfterHide = () => {
-    const transitionEndEvent = () => {
-      animateTarget.style.display = '';
-      animateTarget.removeEventListener('transitionend', transitionEndEvent);
-    };
-
-    animateTarget.addEventListener('transitionend', transitionEndEvent);
-  };
-
-  setStyles(animateTarget, initStyles);
-
-  if (isFadeIn) {
-    setStyles(animateTarget, startStyles);
-    cssReflow();
-    setStyles(animateTarget, endStyles);
-  } else {
-    setStyles(animateTarget, endStyles);
-    cssReflow();
-    restoreDisplayPropAfterHide();
-    setStyles(animateTarget, startStyles);
-  }
-};
 
 function closeOnEscape(e) {
   if (e.code === 'Escape') {
@@ -120,8 +81,14 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
 
   if (document.querySelector('header nav .nav-link-section')) {
     const animateTarget = document.querySelector('header nav .nav-link-section');
-
-    animateInOut(animateTarget, !expanded, { display: 'flex' }, { right: '-320px' }, { right: '0' });
+    const animationConfig = {
+      initStyles: { display: 'flex' },
+      startStyles: { right: '-320px' },
+      endStyles: { right: '0' },
+      time: fadeTransitionTime,
+    };
+    const animateInOut = addAnimateInOut(animateTarget, animationConfig);
+    animateInOut(!expanded);
   }
 
   // enable menu collapse on escape keypress
@@ -150,7 +117,15 @@ function toggleSubNav(navSection, navSections) {
     document.body.style.overflow = 'hidden';
   }
 
-  animateInOut(navSublist, !expanded, { display: 'grid' }, { gridTemplateRows: '0fr' }, { gridTemplateRows: '1fr' });
+  const animationConfig = {
+    initStyles: { display: 'grid' },
+    startStyles: { gridTemplateRows: '0fr' },
+    endStyles: { gridTemplateRows: '1fr' },
+    time: fadeTransitionTime,
+  };
+  const animateInOut = addAnimateInOut(navSublist, animationConfig);
+
+  animateInOut(!expanded);
   navSection.setAttribute('aria-expanded', expanded ? 'false' : 'true');
 }
 
@@ -165,18 +140,23 @@ function checkForActiveLink(navSections) {
   });
 }
 
+function getAvailableLanguages() {
+  return [...document.querySelectorAll('header .section.nav-tools a')]
+    .map((link) => new URL(link.href).pathname.split('/')[1])
+    .filter((val) => val);
+}
+
 function redirectPage(event) {
   const currentUrl = window.location;
-  let redirectUrl = currentUrl.origin;
+  const currentFirstLevelFolderName = currentUrl.pathname.split('/')[1];
+  const newLang = new URL(event.target.href).pathname.split('/')[1];
+  const availableLangs = getAvailableLanguages();
+  const currentLang = availableLangs.includes(currentFirstLevelFolderName) ? currentFirstLevelFolderName : '';
+  const currentPathWithoutLang = currentLang ? currentUrl.pathname.replace(`/${currentLang}`, '') : currentUrl.pathname;
+  const newPathname = newLang ? `/${newLang}${currentPathWithoutLang}` : currentPathWithoutLang;
+  const redirectUrl = `${currentUrl.origin}${newPathname}`;
 
-  if (event.target.innerHTML.toLowerCase() === 'en') {
-    if (!currentUrl.pathname.includes('/en/')) {
-      redirectUrl = `${redirectUrl}/en`;
-    }
-    redirectUrl = `${redirectUrl}${currentUrl.pathname}`;
-  } else {
-    redirectUrl = `${redirectUrl}${currentUrl.pathname.replace(/\/en\//, '/')}`;
-  }
+  event.preventDefault();
   window.location.replace(redirectUrl);
 }
 
@@ -304,10 +284,12 @@ export default async function decorate(block) {
     toolsWrapper.querySelectorAll('li').forEach((item) => {
       item.addEventListener('click', redirectPage);
 
-      const urlLang = document.location.pathname.includes('/en/') ? 'en' : 'it';
-      const listItemLang = item.textContent.trim().toLowerCase();
+      const availableLanguages = [...toolsWrapper.querySelectorAll('li a')].map((el) => new URL(el.href).pathname.split('/')[1]);
+      const firstPathnamePart = document.location.pathname.split('/')[1];
+      const currentLang = availableLanguages.includes(firstPathnamePart) ? firstPathnamePart : '';
+      const listItemLang = new URL(item.querySelector('a').href).pathname.split('/')[1];
 
-      if (urlLang === listItemLang) {
+      if (currentLang === listItemLang) {
         item.classList.add('active');
       }
     });
