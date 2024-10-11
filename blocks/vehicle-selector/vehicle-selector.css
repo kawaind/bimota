@@ -223,6 +223,11 @@ ul.vehicle-selector__navigation {
   ul.vehicle-selector__navigation {
     gap: 60px;
   }
+
+  .vehicle-selector .button-container {
+    align-self: center;
+    margin: 0;
+  }
 }
 
 @media screen and (width >= 1024px) {
