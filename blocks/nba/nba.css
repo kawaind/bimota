@@ -37,8 +37,10 @@
   gap: var(--row-gap)
 }
 
-.nba .h3 {
+.nba .h3,
+.nba .h6 {
   margin-bottom: 0;
+  margin-top: 0;
 }
 
 @media (width >= 768px) {
