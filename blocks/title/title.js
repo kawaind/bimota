@@ -4,10 +4,13 @@ export default async function decorate(block) {
   unwrapDivs(block);
   adjustPretitle(block);
 
-  const headings = block.querySelectorAll('h1, h2, h3, h4, h5, h6');
-  [...headings].forEach((heading) => heading.classList.add('heading'));
-
   const isLineVariant = block.classList.contains('line');
+
+  const headings = block.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  [...headings].forEach((heading) => {
+    const headingClass = isLineVariant ? '.h2' : '.h1';
+    heading.classList.add(headingClass);
+  });
 
   if (isLineVariant) {
     const lineEle = document.createElement('div');

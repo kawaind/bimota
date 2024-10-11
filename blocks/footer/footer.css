@@ -82,7 +82,7 @@ footer {
   color: var(--white);
   border: none;
   cursor: pointer;
-  z-index: 1000;
+  z-index: 1;
 }
 
 .footer .back-to-top:hover,
