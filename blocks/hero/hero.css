@@ -6,17 +6,19 @@ main .hero-container {
   padding: 0;
 }
 
-.hero {
-  position: relative;
-  padding: 32px;
-  min-height: 300px;
+main .hero-container .hero-wrapper {
+  padding: 0;
 }
 
-.hero h1 {
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-  color: white;
+.hero {
+  position: relative;
+  height: 100vh;
+}
+
+/* stylelint-disable-next-line no-descending-specificity */
+.hero > div:first-child,
+.hero > div:first-child > div {
+  height: 100%;
 }
 
 .hero picture {
@@ -31,4 +33,225 @@ main .hero-container {
   object-fit: cover;
   width: 100%;
   height: 100%;
+}
+
+.hero video {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+
+.hero picture::after,
+.hero video::after {
+  background: var(--black);
+  content: "";
+  width: 100%;
+  height: 100%;
+  display: block;
+  position: absolute;
+  top: 0;
+  opacity: 0.3;
+}
+
+.hero span.icon {
+  display: flex;
+}
+
+.hero .hero-text-wrapper {
+  margin: 0;
+  padding: 20px;
+  text-align: center;
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+  background-color: transparent;
+}
+
+.hero .button span {
+  display: flex;
+}
+
+.hero .hero-pause-button {
+  position: absolute;
+  right: 20px;
+  top: calc(var(--nav-height) + 24px);
+  width: 32px;
+  height: 32px;
+  border: solid 1px var(--white);
+  border-radius: 50%;
+}
+
+.hero .hero-scroll-icon {
+  position: absolute;
+  left: 50%;
+  translate: -50% 0;
+  bottom: 24px;
+  border: solid 1px var(--white);
+  width: 26px;
+  height: 40px;
+  border-radius: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero .hero-scroll-icon span {
+  height: 20px;
+  width: 14px;
+}
+
+.hero h1 {
+  margin-bottom: 6px;
+}
+
+.hero p:not(:last-child) {
+  margin-bottom: 32px;
+}
+
+.hero p:last-child {
+  margin-bottom: 0;
+}
+
+.hero span.hidden {
+  display: none;
+}
+
+.hero .hero-flag {
+  translate: 20px -50%;
+  display: flex;
+  width: 60px;
+  height: 50px;
+  position: absolute;
+}
+
+.hero .hero-countdown {
+  text-align: center;
+  line-height: 91px;
+  font-size: 70px;
+  font-weight: 500;
+  display: flex;
+  justify-content: space-between;
+  margin: 32px 0 43px;
+  max-width: 320px;
+  align-self: center;
+  width: 100%;
+}
+
+.hero.countdown .hero-text-wrapper {
+  font-size: 24px;
+  line-height: 33.6px;
+}
+
+.hero .hero-countdown .hero-days-label,
+.hero .hero-countdown .hero-hours-label,
+.hero .hero-countdown .hero-minutes-label {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 500;
+}
+
+@media (width >= 768px) {
+  .hero .hero-text-wrapper {
+    max-width: 475px;
+    text-align: left;
+    padding: 0 0 0 30px;
+  }
+
+  .hero .hero-pause-button {
+    top: unset;
+    bottom: 30px;
+    right: 30px;
+  }
+
+  .hero .hero-flag {
+    translate: 30px -50%;
+  }
+
+  .hero.countdown .hero-text-wrapper {
+    max-width: 652px;
+    padding: 0;
+    margin: auto;
+    text-align: center;
+    font-size: 34px;
+    line-height: 47.6px;
+  }
+
+  .hero.countdown .button-container {
+    display: flex;
+    justify-content: center;
+  }
+
+  .hero .hero-countdown {
+    font-size: 160px;
+    line-height: 224px;
+    max-width: unset;
+    margin: 20px 0 64px;
+  }
+
+  .hero .hero-countdown .hero-days-label,
+  .hero .hero-countdown .hero-hours-label,
+  .hero .hero-countdown .hero-minutes-label {
+    font-size: 28px;
+    line-height: 36.4px;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    translate: -50% 0;
+  }
+
+  .hero .hero-time {
+    position: relative;
+  }
+}
+
+@media (width >= 1025px) {
+  .hero .hero-text-wrapper {
+    max-width: 500px;
+    padding: 0 0 0 40px;
+  }
+
+  .hero .hero-pause-button {
+    bottom: 24px;
+    right: 40px;
+  }
+
+  .hero .hero-flag {
+    translate: 40px -50%;
+  }
+
+  .hero h1 {
+    margin-bottom: 20px;
+  }
+}
+
+@media (width >= 1440px) {
+  .hero .hero-text-wrapper {
+    max-width: 707px;
+    padding: 0 0 0 100px;
+  }
+
+  .hero .hero-pause-button {
+    right: 100px;
+  }
+
+  .hero .hero-flag {
+    translate: 62px -50%;
+  }
+
+  .hero h1 {
+    margin-bottom: 20px;
+  }
+
+  .hero.countdown p {
+    margin: 0;
+  }
+
+  .hero .hero-countdown {
+    margin-bottom: 80px;
+  }
 }
