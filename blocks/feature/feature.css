@@ -83,8 +83,8 @@
   }
 
   .feature .feature-text {
-    width: 251px;
-    padding-right: 0;
+    max-width: 50%;
+    padding-right: 67px;
   }
 
   .feature .feature-slides-nav {
@@ -116,7 +116,7 @@
   }
 
   .feature .feature-text {
-    width: 330px;
+    padding-right: 72px;
   }
 
   .feature .feature-slides-nav {
@@ -127,6 +127,6 @@
 
 @media (width >= 1440px) {
   .feature .feature-text {
-    width: 450px;
+    padding-right: 110px;
   }
 }
