@@ -1,17 +1,4 @@
-import { throttle } from '../../scripts/helpers.js';
-
-const gatherButtons = (buttonsContainers) => {
-  let currentButtonContainer;
-
-  buttonsContainers.forEach((buttonContainer) => {
-    if (currentButtonContainer?.nextElementSibling === buttonContainer) {
-      currentButtonContainer.append(buttonContainer.children[0]);
-      buttonContainer.remove();
-    } else {
-      currentButtonContainer = buttonContainer;
-    }
-  });
-};
+import { throttle, gatherButtons } from '../../scripts/helpers.js';
 
 const moveImageOnScroll = (block, settings = {}) => {
   const [firstImage, secondImage] = block.querySelectorAll('.column-with-images img');
