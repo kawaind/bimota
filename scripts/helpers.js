@@ -198,3 +198,16 @@ export const isInViewport = (element) => {
     && rect.right <= windowWidth
   );
 };
+
+export const gatherButtons = (buttonsContainers) => {
+  let currentButtonContainer;
+
+  buttonsContainers.forEach((buttonContainer) => {
+    if (currentButtonContainer?.nextElementSibling === buttonContainer) {
+      currentButtonContainer.append(buttonContainer.children[0]);
+      buttonContainer.remove();
+    } else {
+      currentButtonContainer = buttonContainer;
+    }
+  });
+};
