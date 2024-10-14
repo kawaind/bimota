@@ -134,6 +134,10 @@ footer {
   line-height: 150%;
 }
 
+.footer-wrapper {
+  border-top: 1px solid var(--white);  
+}
+
 @media (width >= 768px) {
   footer {
     padding: 0 40px;
