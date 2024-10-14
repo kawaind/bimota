@@ -130,7 +130,7 @@ const startCountdown = (block, eventDate) => {
     minutesLabel.textContent = getTextLabel(minutes > 1 ? 'minutes' : 'minute');
   };
 
-  setTimeout(updateCountdow, MINUTE_IN_MILISECONDS);
+  setInterval(updateCountdow, MINUTE_IN_MILISECONDS);
   updateCountdow();
 };
 
@@ -147,7 +147,7 @@ export default function decorate(block) {
   }
 
   if (video) {
-    video.parentElement.replaceWith(video);
+    video.parentElement.classList.add('video-wrapper');
     addPauseButton(block);
   }
 
