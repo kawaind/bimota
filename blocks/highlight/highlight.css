@@ -79,6 +79,21 @@
   margin: 0;
 }
 
+.highlight.block .flag-wrapper {
+  position: absolute;
+  display: flex;
+  bottom: var(--flag-margin);
+  right: calc(var(--flag-margin) + var(--section-x-padding) * -1 + 30px);
+  translate: 0 50%;
+  padding: 0;
+  transition: all 300ms ease-in-out;
+}
+
+.highlight.block.active .flag-wrapper {
+  right: calc(var(--section-x-padding) * -1 + 30px);
+  bottom: 0;
+}
+
 @media (width >= 768px) {
   .highlight {
     aspect-ratio: 16/9;
@@ -109,5 +124,9 @@
 
   .highlight .highlight-slide div {
     gap: 24px;
+  }
+
+  .highlight.block .flag-wrapper {
+    right: 30px;
   }
 }
