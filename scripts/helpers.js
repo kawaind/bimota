@@ -130,7 +130,7 @@ export const throttle = (func, limit) => {
   };
 };
 
-export const preventScroll = ({ move }) => {
+export const onSlideUpOrDown = ({ move, onEnd }) => {
   let startX;
   let startY;
 
@@ -177,13 +177,17 @@ export const preventScroll = ({ move }) => {
   window.addEventListener('touchmove', touchMove, { passive: false });
   window.addEventListener('wheel', onWheel, { passive: false });
 
-  const enableScroll = () => {
+  const clean = () => {
     window.removeEventListener('touchstart', touchStart, { passive: false });
     window.removeEventListener('touchmove', touchMove, { passive: false });
     window.removeEventListener('wheel', onWheel, { passive: false });
+
+    if (onEnd) {
+      onEnd();
+    }
   };
 
-  return enableScroll;
+  return clean;
 };
 
 export const isInViewport = (element) => {

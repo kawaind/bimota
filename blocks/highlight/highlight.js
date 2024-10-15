@@ -1,4 +1,4 @@
-import { isInViewport, preventScroll, throttle } from '../../scripts/helpers.js';
+import { isInViewport, onSlideUpOrDown, throttle } from '../../scripts/helpers.js';
 
 const setScaleForPicture = (block, picture) => {
   const setScale = () => {
@@ -48,10 +48,17 @@ const scrollToSlide = (slidersContainer, slideIndex) => {
 const trapScrollingForSlides = (block, {
   hasNextSlide, hasPrevSlide, move,
 }) => {
-  let enableScroll = null;
+  let restoreScolling = null;
   let prevY = window.scrollY;
+  let blockedScrollYPosition = null;
+  let paused = false;
 
   window.addEventListener('scroll', () => {
+    if (paused) {
+      window.scrollTo({ top: blockedScrollYPosition, behavior: 'instant' });
+      return;
+    }
+
     const hasSlideInDirection = prevY < window.scrollY ? hasNextSlide() : hasPrevSlide();
     prevY = window.scrollY;
 
@@ -59,21 +66,23 @@ const trapScrollingForSlides = (block, {
       block.classList.add('active');
 
       if (hasSlideInDirection) {
-        if (enableScroll) {
-          // enablingScroll just to make sure that all of the event listener blocking it are removed
-          // they will be replaced by the preventScroll with new ones
-          enableScroll();
-        }
-        block.scrollIntoView({ block: 'nearest', behaviour: 'smooth' });
+        paused = true;
+        blockedScrollYPosition = window.scrollY;
 
-        enableScroll = preventScroll({ move: (direction) => move(direction, enableScroll) });
+        window.scrollTo({ top: blockedScrollYPosition, behavior: 'instant' });
+        restoreScolling = onSlideUpOrDown({
+          move: (direction) => move(direction, restoreScolling),
+          onEnd: () => { paused = false; },
+        });
+        return;
       }
     } else {
       block.classList.remove('active');
-      if (enableScroll) {
-        enableScroll();
-        enableScroll = null;
-      }
+    }
+
+    if (restoreScolling) {
+      restoreScolling();
+      restoreScolling = null;
     }
   });
 };
