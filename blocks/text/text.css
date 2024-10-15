@@ -1,13 +1,91 @@
-.text > div {
-  max-width: 750px;
+.text .h3 {
+  margin-bottom: 24px;
 }
 
-/* centering by variant */
-.text.center > div {
-  margin: auto;
+.text-quote-wrapper {
+  padding-top: 64px;
+  padding-bottom: 40px;
+  display: flex;
+  flex-flow: column;
+  gap: 24px;
 }
 
-/* centering by set the text aling in the document */
-.section-center .text {
-  text-align: center;
+.text-quote-wrapper .h4 {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.text-close-quotes {
+  align-self: flex-end;
+}
+
+.text-close-quotes img,
+.text-open-quotes img {
+  width: 41px;
+  max-width: none;
+}
+
+.text-button-wrapper {
+  padding-bottom: 32px;
+  padding-left: 53px;
+  display: flex;
+  gap: 32px;
+  align-items: center;
+}
+
+.button-container {
+  display: flex;
+  gap: 32px;
+  padding-bottom: 12px;
+}
+
+.text-container .button-container  span[class^="icon-"] {
+  display: flex;
+}
+
+@media (width >= 768px) {
+  .text .h3 {
+    margin-bottom: 40px;
+  }
+
+  .text .h3,
+  .text-content,
+  .button-container {
+    padding-left: 53px;
+    padding-right: 53px;
+  }
+
+  .text-quote-wrapper {
+    flex-flow: row;
+    gap: 12px;
+    padding-bottom: 60px;
+  }
+}
+
+@media (width >= 1025px) {
+  .text .h3 {
+    margin-bottom: 32px;
+  }
+
+  .text-quote-wrapper {
+    padding-bottom: 80px;
+  }
+}
+
+@media (width >= 1440px) {
+  .text .h3 {
+    margin-bottom: 40px;
+  }
+
+  .text-quote-wrapper {
+    padding-top: 78px;
+  }
+
+  .text-button-wrapper {
+    padding-bottom: 40px;
+  }
+
+  .button-container {
+    padding-bottom: 20px;
+  }
 }

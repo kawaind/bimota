@@ -21,7 +21,7 @@
 
   /* section paddings */
   --section-y-padding: 40px;
-  --section-x-padding: 15px;
+  --section-x-padding: 20px;
 
   /* v2 */
   --white: #fff;
@@ -534,19 +534,25 @@ main .section.padding-bottom-0 {
   }
 }
 
-@media (width >= 960px) {
+@media (width >= 1025px) {
   :root {
     --section-y-padding: 70px;
     --section-x-padding: 40px;
   }
 
   .section > div {
-    max-width: 1200px;
+    max-width: 1240px;
     margin: auto;
   }
 
   .section > div.full-width {
     max-width: 100vw;
+  }
+}
+
+@media (width >= 1440px) {
+  :root {
+    --section-x-padding: calc((100vw - 1240px) / 2);
   }
 }
 
