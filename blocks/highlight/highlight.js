@@ -1,6 +1,6 @@
 import { isInViewport, onSlideUpOrDown, throttle } from '../../scripts/helpers.js';
 
-const setScaleForPicture = (block, picture) => {
+const setScaleForPicture = (block, picture, onSetScale) => {
   const setScale = () => {
     const isNotMobile = window.matchMedia('(width >= 768px)').matches;
     const mobileAspectRatio = 3 / 4;
@@ -16,6 +16,7 @@ const setScaleForPicture = (block, picture) => {
     const initScale = initialWidth / maxWidth;
 
     picture.style.transform = `scale(${initScale})`;
+    onSetScale(initScale);
   };
 
   const observer = new IntersectionObserver((entries) => {
@@ -87,6 +88,22 @@ const trapScrollingForSlides = (block, {
   });
 };
 
+const addFlag = (block) => {
+  const falgEl = `
+    <svg width="60" height="50" viewBox="0 0 60 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="8.57143" height="50" fill="#ED1C24"/>
+      <rect x="17.1431" width="8.57143" height="50" fill="#ED1C24"/>
+      <rect x="34.2856" width="8.57143" height="50" fill="black"/>
+      <rect x="51.4287" width="8.57143" height="50" fill="black"/>
+    </svg>
+  `;
+
+  const flagWrapper = document.createElement('div');
+  flagWrapper.classList.add('flag-wrapper');
+  flagWrapper.innerHTML = (falgEl);
+  block.append(flagWrapper);
+};
+
 export default async function decorate(block) {
   const [pictureWrapper, ...slides] = block.querySelectorAll(':scope > div');
   const slidesWrapper = document.createElement('div');
@@ -111,7 +128,12 @@ export default async function decorate(block) {
   const picture = pictureWrapper.querySelector('picture');
   pictureWrapper.replaceWith(picture);
 
-  setScaleForPicture(block, picture);
+  addFlag(block);
+  const onSetScaleForPicture = (value) => {
+    const space = ((1 - value) / 2) * 100;
+    block.style.setProperty('--flag-margin', `${space}%`);
+  };
+  setScaleForPicture(block, picture, onSetScaleForPicture);
 
   // trapping the scrolling so the user will scroll the next slides of the slider
   const container = block.querySelector('.highlight-slides-container');
