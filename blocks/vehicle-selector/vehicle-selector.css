@@ -230,7 +230,7 @@ ul.vehicle-selector__navigation {
   }
 }
 
-@media screen and (width >= 1024px) {
+@media screen and (width >= 1025px) {
   .vehicle-selector__desc-item {
     padding-inline: 100px;
   }
