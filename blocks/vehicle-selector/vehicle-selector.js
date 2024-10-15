@@ -13,7 +13,6 @@ function buildTabNavigation(tabItems, clickHandler) {
     const button = createElement('button');
     button.classList.add('h5');
     button.addEventListener('click', () => clickHandler(i));
-    // TODO make surer i target the right heading
     const tabTitle = tabItem.querySelector('h1,h2,h3,h4,h5,h6');
     button.innerText = tabTitle.innerText;
     tabTitle.remove();
