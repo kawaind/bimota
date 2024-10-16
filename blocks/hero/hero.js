@@ -1,3 +1,4 @@
+import { createOptimizedPicture } from '../../scripts/aem.js';
 import { customDecoreateIcons, getTextLabel } from '../../scripts/scripts.js';
 
 const addPauseButton = (block) => {
@@ -136,14 +137,23 @@ const startCountdown = (block, eventDate) => {
 
 export default function decorate(block) {
   const firstCell = block.querySelector(':scope > div > div');
-  const picture = firstCell.querySelector('picture');
+  const [picture, xsPicture] = firstCell.querySelectorAll('picture');
   const video = firstCell.querySelector('video');
   const headings = firstCell.querySelectorAll('h1, h2, h3, h4, h5, h6');
   const links = firstCell.querySelectorAll('a');
   const dateEl = block.querySelector(':scope > div:nth-child(2) > div');
 
   if (picture) {
-    picture.parentElement.replaceWith(picture);
+    const img = picture.querySelector('img');
+    const pictureEl = createOptimizedPicture(img.src, '', false, [{ width: window.innerWidth }]);
+    picture.parentElement.replaceWith(pictureEl);
+  }
+
+  if (xsPicture) {
+    const img = xsPicture.querySelector('img');
+    const pictureEl = createOptimizedPicture(img.src, '', false, [{ width: window.innerWidth }]);
+    xsPicture.parentElement.replaceWith(pictureEl);
+    block.classList.add('hero-multiple-images');
   }
 
   if (video) {
