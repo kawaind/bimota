@@ -27,6 +27,9 @@ export default function decorate(block) {
   block.innerHTML = '';
   block.append(tableHeader);
 
+  const dataContainer = document.createElement('div');
+  dataContainer.classList.add('st-data-container');
+
   data.forEach((categoryRow) => {
     const categoryWrapper = document.createElement('div');
     categoryWrapper.classList.add('st-category-wrapper');
@@ -41,6 +44,7 @@ export default function decorate(block) {
       categoryDataWrapper.append(wrapper);
     });
     categoryWrapper.append(categoryDataWrapper);
-    block.append(categoryWrapper);
+    dataContainer.append(categoryWrapper);
   });
+  block.append(dataContainer);
 }
