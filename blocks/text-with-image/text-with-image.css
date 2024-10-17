@@ -69,7 +69,9 @@
 }
 
 .text-with-image.stacked-images .column-with-text {
-  transform: translateY(calc(var(--text-image-2nd-image-height) - var(--text-image-distance)));
+  transform: translateY(
+    calc(var(--text-image-2nd-image-height) - var(--text-image-distance))
+  );
   transition: transform var(--animation-time) linear;
 }
 
@@ -165,6 +167,10 @@
   }
 
   /* stacked images variant */
+  .text-with-image.stacked-images .text-with-image-row {
+    gap: 60px;
+  }
+
   .text-with-image.stacked-images .column-with-text {
     transform: unset;
   }
@@ -201,7 +207,9 @@
   .text-with-image.wide-stacked-images .column-with-text {
     margin: 0;
     margin-top: 80px;
-    transform: translateY(calc(var(--text-image-max-overlap) - var(--text-image-distance)));
+    transform: translateY(
+      calc(var(--text-image-max-overlap) - var(--text-image-distance))
+    );
   }
 
   .text-with-image.wide-stacked-images .column-with-images p:nth-child(2) img {
@@ -241,6 +249,10 @@
   }
 
   /* stacked images variant */
+  .text-with-image.stacked-images .text-with-image-row  {
+    gap: 104px;
+  }
+
   .text-with-image.stacked-images .column-with-images p:nth-child(2) img {
     width: 216px;
     right: 81px;
@@ -279,6 +291,10 @@
   /* wide stacked images variant */
   .text-with-image.wide-stacked-images {
     --text-image-2nd-image-height: 506px;
+  }
+
+  .text-with-image.stacked-images .text-with-image-row  {
+    gap: 130px;
   }
 
   .text-with-image.wide-stacked-images .column-with-images p:nth-child(2) img {
