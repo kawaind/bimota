@@ -32,6 +32,11 @@
   margin-bottom: 24px;
 }
 
+.news-stories.single .news-stories-card-body p:nth-of-type(2) {
+  font-size: 20px;
+  line-height: 140%;
+}
+
 .news-stories .news-stories-card-image {
   line-height: 0;
 }
