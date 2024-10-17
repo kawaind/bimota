@@ -27,6 +27,11 @@ main .hero-container .hero-wrapper {
   inset: 0;
   object-fit: cover;
   box-sizing: border-box;
+  background-color: var(--black);
+}
+
+.hero.hero-multiple-images > div > div picture:first-of-type {
+  display: none;
 }
 
 .hero img {
@@ -165,6 +170,14 @@ main .hero-container .hero-wrapper {
 }
 
 @media (width >= 768px) {
+  .hero.hero-multiple-images > div > div picture:first-of-type {
+    display: block;
+  }
+
+  .hero.hero-multiple-images > div > div picture:nth-of-type(2) {
+    display: none;
+  }
+
   .hero .hero-text-wrapper {
     max-width: 475px;
     text-align: left;
