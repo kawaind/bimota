@@ -15,6 +15,16 @@
   margin-bottom: 0;
 }
 
+.text-quotes-container {
+  display: flex;
+  flex-flow: column;
+  gap:12px;
+}
+
+.text-quotes-container p {
+  margin-bottom: 0;
+}
+
 .text-close-quotes {
   align-self: flex-end;
 }
