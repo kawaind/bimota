@@ -47,6 +47,14 @@
   /* z indexes */
   --z-index-header: 2;
 
+  /* vehicle selector */
+  --vehicle-lineup-img-width: 60%;
+  --duration-medium: 240ms;
+  --easing-entrance: cubic-bezier(0, 0, 0.4, 1);
+  --easing-exit: cubic-bezier(0.2, 0, 1, 1);
+  --duration-small: 160ms;
+  --easing-standard: cubic-bezier(0.2, 0, 0.1, 1);
+
   /* old variables */
   --text-red: var(--action-default);
   --link-color: var(--action-default);
@@ -345,6 +353,10 @@ button:disabled:hover {
   cursor: not-allowed;
   color: var(--grey-50);
   border: none;
+}
+
+a.button span[class^='icon'] {
+  display: inline-flex;
 }
 
 a.button.primary:any-link,
