@@ -23,6 +23,9 @@
   --section-y-padding: 40px;
   --section-x-padding: 20px;
 
+  /* grid gap */
+  --grid-gap: 16px;
+
   /* v2 */
   --white: #fff;
   --grey-5: #f2f2f2;
@@ -355,7 +358,7 @@ button:disabled:hover {
   border: none;
 }
 
-a.button span[class^='icon'] {
+a.button span[class^="icon"] {
   display: inline-flex;
 }
 
@@ -531,6 +534,7 @@ main .section.padding-bottom-0 {
   :root {
     --section-y-padding: 40px;
     --section-x-padding: 30px;
+    --grid-gap: 24px;
   }
 }
 
@@ -552,7 +556,7 @@ main .section.padding-bottom-0 {
 
 @media (width >= 1440px) {
   :root {
-    --section-x-padding: calc((100vw - 1240px) / 2);
+    --section-x-padding: calc((100% - 1240px) / 2);
   }
 }
 
