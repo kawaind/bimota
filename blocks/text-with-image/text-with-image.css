@@ -143,8 +143,8 @@
   }
 
   .text-with-image .column-with-images {
-    min-width: 50%;
-    width: 50%;
+    min-width: calc(50% - var(--grid-gap) / 2);
+    width: calc(50% - var(--grid-gap) / 2);
   }
 
   .text-with-image-row:has(.column-with-text + .column-with-images) {
@@ -220,7 +220,7 @@
 
 @media (width >= 1025px) {
   .text-with-image .text-with-image-row {
-    gap: 104px;
+    gap: 105px;
   }
 
   .text-with-image .column-with-text {
@@ -235,7 +235,7 @@
 
   .text-with-image.sticky-image .column-with-images.left-column img,
   .text-with-image.sticky-image .column-with-images.right-column img {
-    width: 50vw;
+    width: calc(50vw - var(--grid-gap) / 2);
   }
 
   .text-with-image.sticky-image .column-with-images.left-column img {
@@ -249,8 +249,8 @@
   }
 
   /* stacked images variant */
-  .text-with-image.stacked-images .text-with-image-row  {
-    gap: 104px;
+  .text-with-image.stacked-images .text-with-image-row {
+    gap: 105px;
   }
 
   .text-with-image.stacked-images .column-with-images p:nth-child(2) img {
@@ -293,7 +293,7 @@
     --text-image-2nd-image-height: 506px;
   }
 
-  .text-with-image.stacked-images .text-with-image-row  {
+  .text-with-image.stacked-images .text-with-image-row {
     gap: 130px;
   }
 
