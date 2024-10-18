@@ -98,8 +98,8 @@
   font-size: 14px;
   line-height: 150%;
 }
-
-.description-value .h6 {
+.description-value .h6 em {
+  font-style: normal;
   font-weight: 600;
 }
 
@@ -238,6 +238,10 @@ ul.vehicle-selector__navigation {
   .vehicle-selector__slider-wrapper {
     width: 100vw;
     margin-left: calc((100vw - 100%)* -1 / 2);
+  }
+
+  .description-value .h6 {
+    font-weight: 600;
   }
 }
 
