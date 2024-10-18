@@ -130,7 +130,43 @@ export const throttle = (func, limit) => {
   };
 };
 
-export const preventScroll = ({ move }) => {
+export function stripEmptyTags(main, child) {
+  if (child !== main && child.innerHTML.trim() === '') {
+    const parent = child.parentNode;
+    child.remove();
+    stripEmptyTags(main, parent);
+  }
+}
+
+/**
+ * Create an element with the given id and classes.
+ * @param {string} tagName the tag
+ * @param {Object} options the element options
+ * @param {string[]|string} [options.classes=[]] the class or classes to add
+ * @param {Object} [options.props={}] any other attributes to add to the element
+ * @returns {HTMLElement} the element
+ */
+export function createElement(tagName, options = {}) {
+  const { classes = [], props = {} } = options;
+  const elem = document.createElement(tagName);
+  const isString = typeof classes === 'string';
+  if (classes || (isString && classes !== '') || (!isString && classes.length > 0)) {
+    const classesArr = isString ? [classes] : classes;
+    elem.classList.add(...classesArr);
+  }
+  if (!isString && classes.length === 0) elem.removeAttribute('class');
+
+  if (props) {
+    Object.keys(props).forEach((propName) => {
+      const value = propName === props[propName] ? '' : props[propName];
+      elem.setAttribute(propName, value);
+    });
+  }
+
+  return elem;
+}
+
+export const onSlideUpOrDown = ({ move, onEnd }) => {
   let startX;
   let startY;
 
@@ -177,13 +213,17 @@ export const preventScroll = ({ move }) => {
   window.addEventListener('touchmove', touchMove, { passive: false });
   window.addEventListener('wheel', onWheel, { passive: false });
 
-  const enableScroll = () => {
+  const clean = () => {
     window.removeEventListener('touchstart', touchStart, { passive: false });
     window.removeEventListener('touchmove', touchMove, { passive: false });
     window.removeEventListener('wheel', onWheel, { passive: false });
+
+    if (onEnd) {
+      onEnd();
+    }
   };
 
-  return enableScroll;
+  return clean;
 };
 
 export const isInViewport = (element) => {

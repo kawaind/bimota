@@ -68,7 +68,7 @@ function customDecorateSections(main) {
   });
 }
 
-function customDecorateBlocks(main) {
+export function customDecorateBlocks(main) {
   main.querySelectorAll('div.section > div > div').forEach((block) => {
     if (block.classList.contains('full-width')) {
       block.parentElement.classList.add('wrapper-full-width');

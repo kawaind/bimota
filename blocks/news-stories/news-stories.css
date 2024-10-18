@@ -28,10 +28,6 @@
   margin-bottom: 24px;
 }
 
-.news-stories .news-stories-card-body .icon-arrow-right {
-  display: inline-flex;
-}
-
 .news-stories .news-stories-card-image {
   line-height: 0;
 }
@@ -78,7 +74,14 @@ div.news-stories-wrapper + div.news-stories-wrapper {
 
 .news-stories.single .news-stories-card-body p:nth-of-type(2) {
   margin-bottom: 36px;
+  font-size: 20px;
+  line-height: 140%;
 }
+
+.news-stories:not(.news-stories.single) .news-stories-card-body p:first-of-type {
+  font-size: 14px;
+}
+
 
 @media (width >= 768px) {
   .news-stories.single > ul {

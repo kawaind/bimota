@@ -23,6 +23,9 @@
   --section-y-padding: 40px;
   --section-x-padding: 20px;
 
+  /* grid gap */
+  --grid-gap: 16px;
+
   /* v2 */
   --white: #fff;
   --grey-5: #f2f2f2;
@@ -46,6 +49,14 @@
 
   /* z indexes */
   --z-index-header: 2;
+
+  /* vehicle selector */
+  --vehicle-lineup-img-width: 60%;
+  --duration-medium: 240ms;
+  --easing-entrance: cubic-bezier(0, 0, 0.4, 1);
+  --easing-exit: cubic-bezier(0.2, 0, 1, 1);
+  --duration-small: 160ms;
+  --easing-standard: cubic-bezier(0.2, 0, 0.1, 1);
 
   /* old variables */
   --text-red: var(--action-default);
@@ -347,6 +358,10 @@ button:disabled:hover {
   border: none;
 }
 
+a.button span[class^="icon"] {
+  display: inline-flex;
+}
+
 a.button.primary:any-link,
 button.primary,
 a.button.secondary:any-link,
@@ -519,6 +534,7 @@ main .section.padding-bottom-0 {
   :root {
     --section-y-padding: 40px;
     --section-x-padding: 30px;
+    --grid-gap: 24px;
   }
 }
 
@@ -540,7 +556,7 @@ main .section.padding-bottom-0 {
 
 @media (width >= 1440px) {
   :root {
-    --section-x-padding: calc((100vw - 1240px) / 2);
+    --section-x-padding: calc((100% - 1240px) / 2);
   }
 }
 

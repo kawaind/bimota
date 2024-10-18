@@ -1,7 +1,7 @@
 .specification-table.block {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 32px;
 }
 
 .specification-table p,
@@ -36,6 +36,12 @@
   color: var(--grey-70);
 }
 
+.specification-table .st-data-container {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
 @media (width >= 768px) {
   .specification-table.block .st-category-wrapper {
     flex-direction: row;
@@ -45,6 +51,10 @@
     width: 143px;
     min-width: 143px;
     padding-top: 8px;
+  }
+
+  .specification-table .st-data-container {
+    gap: 24px;
   }
 
   .specification-table .st-category-wrapper .st-category-data-wrapper {

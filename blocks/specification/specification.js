@@ -1,4 +1,4 @@
-import { isInViewport, preventScroll, throttle } from '../../scripts/helpers.js';
+import { isInViewport, onSlideUpOrDown, throttle } from '../../scripts/helpers.js';
 
 export default function decorate(block) {
   const content = block.querySelector(':scope > div');
@@ -44,10 +44,17 @@ export default function decorate(block) {
 
   // trapping the scrolling so the user will scroll the next slides of the slider
   const trapScrollingForSlides = ({ hasNextSlide, hasPrevSlide, move }) => {
-    let enableScroll = null;
+    let restoreScolling = null;
     let prevY = window.scrollY;
+    let blockedScrollYPosition = null;
+    let paused = false;
 
     window.addEventListener('scroll', () => {
+      if (paused) {
+        window.scrollTo({ top: blockedScrollYPosition, behavior: 'instant' });
+        return;
+      }
+
       const hasSlideInDirection = prevY < window.scrollY ? hasNextSlide() : hasPrevSlide();
       prevY = window.scrollY;
 
@@ -55,21 +62,23 @@ export default function decorate(block) {
         block.classList.add('active');
 
         if (hasSlideInDirection) {
-          if (enableScroll) {
-            // enablingScroll just to make sure that all of the event listener
-            // blocking it are removed they will be replaced by the preventScroll with new ones
-            enableScroll();
-          }
-          block.scrollIntoView({ block: 'nearest', behaviour: 'smooth' });
+          paused = true;
+          blockedScrollYPosition = window.scrollY;
 
-          enableScroll = preventScroll({ move: (direction) => move(direction, enableScroll) });
+          window.scrollTo({ top: blockedScrollYPosition, behavior: 'instant' });
+          restoreScolling = onSlideUpOrDown({
+            move: (direction) => move(direction, restoreScolling),
+            onEnd: () => { paused = false; },
+          });
+          return;
         }
       } else {
         block.classList.remove('active');
-        if (enableScroll) {
-          enableScroll();
-          enableScroll = null;
-        }
+      }
+
+      if (restoreScolling) {
+        restoreScolling();
+        restoreScolling = null;
       }
     });
   };

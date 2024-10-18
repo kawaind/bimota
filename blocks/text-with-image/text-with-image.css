@@ -69,7 +69,9 @@
 }
 
 .text-with-image.stacked-images .column-with-text {
-  transform: translateY(calc(var(--text-image-2nd-image-height) - var(--text-image-distance)));
+  transform: translateY(
+    calc(var(--text-image-2nd-image-height) - var(--text-image-distance))
+  );
   transition: transform var(--animation-time) linear;
 }
 
@@ -141,8 +143,8 @@
   }
 
   .text-with-image .column-with-images {
-    min-width: 50%;
-    width: 50%;
+    min-width: calc(50% - var(--grid-gap) / 2);
+    width: calc(50% - var(--grid-gap) / 2);
   }
 
   .text-with-image-row:has(.column-with-text + .column-with-images) {
@@ -165,6 +167,10 @@
   }
 
   /* stacked images variant */
+  .text-with-image.stacked-images .text-with-image-row {
+    gap: 60px;
+  }
+
   .text-with-image.stacked-images .column-with-text {
     transform: unset;
   }
@@ -201,7 +207,9 @@
   .text-with-image.wide-stacked-images .column-with-text {
     margin: 0;
     margin-top: 80px;
-    transform: translateY(calc(var(--text-image-max-overlap) - var(--text-image-distance)));
+    transform: translateY(
+      calc(var(--text-image-max-overlap) - var(--text-image-distance))
+    );
   }
 
   .text-with-image.wide-stacked-images .column-with-images p:nth-child(2) img {
@@ -212,7 +220,7 @@
 
 @media (width >= 1025px) {
   .text-with-image .text-with-image-row {
-    gap: 104px;
+    gap: 105px;
   }
 
   .text-with-image .column-with-text {
@@ -227,7 +235,7 @@
 
   .text-with-image.sticky-image .column-with-images.left-column img,
   .text-with-image.sticky-image .column-with-images.right-column img {
-    width: 50vw;
+    width: calc(50vw - var(--grid-gap) / 2);
   }
 
   .text-with-image.sticky-image .column-with-images.left-column img {
@@ -241,6 +249,10 @@
   }
 
   /* stacked images variant */
+  .text-with-image.stacked-images .text-with-image-row {
+    gap: 105px;
+  }
+
   .text-with-image.stacked-images .column-with-images p:nth-child(2) img {
     width: 216px;
     right: 81px;
@@ -279,6 +291,10 @@
   /* wide stacked images variant */
   .text-with-image.wide-stacked-images {
     --text-image-2nd-image-height: 506px;
+  }
+
+  .text-with-image.stacked-images .text-with-image-row {
+    gap: 130px;
   }
 
   .text-with-image.wide-stacked-images .column-with-images p:nth-child(2) img {
