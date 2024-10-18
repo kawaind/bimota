@@ -1,9 +1,7 @@
-import { unwrapDivs, adjustPretitle } from '../../scripts/helpers.js';
+import { adjustPretitle } from '../../scripts/helpers.js';
 
 export default async function decorate(block) {
-  unwrapDivs(block);
   adjustPretitle(block);
-
   const isLineVariant = block.classList.contains('line');
 
   const headings = block.querySelectorAll('h1, h2, h3, h4, h5, h6');
@@ -11,6 +9,9 @@ export default async function decorate(block) {
     const headingClass = isLineVariant ? 'h2' : 'h1';
     heading.classList.add(headingClass);
   });
+
+  const pretitle = block.querySelector('.pretitle');
+  pretitle.classList.add('h5');
 
   if (isLineVariant) {
     const lineEle = document.createElement('div');

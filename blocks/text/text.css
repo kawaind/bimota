@@ -54,6 +54,11 @@
 }
 
 @media (width >= 768px) {
+  .text {
+    padding-left: 28px;
+    padding-right: 28px;
+  }
+
   .text .h3 {
     margin-bottom: 40px;
   }
@@ -61,8 +66,8 @@
   .text .h3,
   .text-content,
   .button-container {
-    padding-left: 53px;
-    padding-right: 53px;
+    padding-left: 50px;
+    padding-right: 50px;
   }
 
   .text-quote-wrapper {
@@ -83,6 +88,11 @@
 }
 
 @media (width >= 1440px) {
+  .text {
+    padding-left: 112px;
+    padding-right: 112px;
+  }
+
   .text .h3 {
     margin-bottom: 40px;
   }
