@@ -120,7 +120,7 @@ export default async function decorate(block) {
   });
 
   slidesWrapper.classList.add('highlight-slides-wrapper');
-  slidesContainer.classList.add('highlight-slides-container');
+  slidesContainer.classList.add('highlight-slides-container', 'h6');
   slidesContainer.append(...slides);
   slidesWrapper.append(slidesContainer);
   block.append(slidesWrapper);
