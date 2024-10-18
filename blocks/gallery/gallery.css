@@ -6,6 +6,7 @@
 
 .gallery img {
   border-radius: 2px;
+  display: block;
 }
 
 @media (width >= 768px) {

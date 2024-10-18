@@ -1,3 +1,5 @@
+import { onAppReady } from '../../scripts/helpers.js';
+
 const createNavigation = (block, slideCount, onClick) => {
   const slidesDots = (new Array(slideCount))
     .fill(0)
@@ -79,14 +81,7 @@ export default async function decorate(block) {
     firstTextEl.style.minHeight = `calc(${minHeight} + 20px)`;
   };
 
-  const interval = setInterval(() => {
-    // initial calculaton when the page is ready
-    // (EDS adds the appear class when the page is ready)
-    if (document.body.classList.contains('appear')) {
-      clearInterval(interval);
-      onResize();
-    }
-  }, 100);
+  onAppReady(onResize);
 
   window.addEventListener('resize', onResize);
 }

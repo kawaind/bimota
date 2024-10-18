@@ -1,37 +1,54 @@
+import { onAppReady } from '../../scripts/helpers.js';
+
 export default async function decorate(block) {
   const targets = block.querySelectorAll('.gallery div:has(>picture)');
 
-  const buildThresholdArray = (steps) => Array(steps + 1)
-    .fill(0)
-    .map((_, index) => index / steps || 0);
+  const calcImagesIntersectionRatio = () => {
+    [...targets].forEach((el) => {
+      const { top, bottom, height } = el.getBoundingClientRect();
+      let imageVisibleInPx = height;
 
-  const intersectionObserver = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      const isIntersectingAtTop = entry.boundingClientRect.top < 0;
-      if (isIntersectingAtTop) {
-        // only update when intersecting in or out at the bottom of screen
-        return;
+      if (top > window.innerHeight) {
+        imageVisibleInPx = 0;
+      } else if (top > 0 && bottom > window.innerHeight) {
+        imageVisibleInPx = window.innerHeight - top;
+      } else if (top < 0 && bottom > window.innerHeight) {
+        imageVisibleInPx = window.innerHeight + Math.abs(top);
+      } else if (top < 0 && bottom < window.innerHeight) {
+        imageVisibleInPx = bottom + Math.abs(top);
       }
+      const imageVisibilityInPercent = (imageVisibleInPx * 100) / height;
 
-      const intersectionRatio = Math.ceil(entry.intersectionRatio * 100);
-      entry.target.style.setProperty('--gallery-intersection-ratio', intersectionRatio);
+      el.style.setProperty('--gallery-intersection-ratio', imageVisibilityInPercent);
     });
-  }, {
-    threshold: buildThresholdArray(20),
-  });
+  };
 
-  const observeTargets = () => targets.forEach((target) => intersectionObserver.observe(target));
+  let scrollEventListener = null;
+  const startImagesAnimation = () => {
+    calcImagesIntersectionRatio();
+
+    window.addEventListener('scroll', calcImagesIntersectionRatio);
+  };
+
+  const endImagesAnimation = () => {
+    if (scrollEventListener) {
+      window.removeEventListener('scroll', scrollEventListener);
+      scrollEventListener = null;
+    }
+  };
 
   // only observe on large screens
   const isSmallUp = window.matchMedia('(min-width: 768px)');
 
-  if (isSmallUp.matches) observeTargets();
+  if (isSmallUp.matches) {
+    onAppReady(startImagesAnimation);
+  }
 
   isSmallUp.addEventListener('change', (evt) => {
     if (evt.matches) {
-      observeTargets();
+      startImagesAnimation();
     } else {
-      intersectionObserver.disconnect();
+      endImagesAnimation();
     }
   });
 }
