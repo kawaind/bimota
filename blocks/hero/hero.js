@@ -162,7 +162,7 @@ export default function decorate(block) {
   }
 
   const textWrapper = document.createElement('div');
-  textWrapper.classList.add('hero-text-wrapper', 'h6', 'dark');
+  textWrapper.classList.add('hero-text-wrapper', 'dark');
   textWrapper.append(...firstCell.querySelectorAll(':scope > *:not(picture, video)'));
 
   firstCell.append(textWrapper);
@@ -184,7 +184,6 @@ export default function decorate(block) {
     }
 
     block.classList.add('countdown');
-    textWrapper.classList.remove('h6');
     generateTimeElements(block);
     startCountdown(block, date);
   }
