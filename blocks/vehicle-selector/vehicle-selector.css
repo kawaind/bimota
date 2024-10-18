@@ -185,7 +185,7 @@ ul.vehicle-selector__navigation {
   font-size: 0;
   line-height: 0;
   margin: 0;
-  padding: 12px;
+  padding: 7px;
   position: relative;
   opacity: 0;
   transition: opacity var(--duration-small) var(--easing-standard);
