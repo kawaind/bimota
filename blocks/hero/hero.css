@@ -257,6 +257,10 @@ main .hero-container .hero-wrapper {
     padding: 0 0 0 100px;
   }
 
+  .hero .hero-text-wrapper .h1 {
+    margin-bottom: 24px;
+  }
+
   .hero .hero-pause-button {
     right: 100px;
   }
