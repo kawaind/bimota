@@ -84,6 +84,9 @@ main .hero-container .hero-wrapper {
   height: 100%;
   justify-content: center;
   background-color: transparent;
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 500;
 }
 
 .hero .button span {
