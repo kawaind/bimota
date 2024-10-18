@@ -251,3 +251,14 @@ export const gatherButtons = (buttonsContainers) => {
     }
   });
 };
+
+export const onAppReady = (onReady) => {
+  const interval = setInterval(() => {
+    // initial calculaton when the page is ready
+    // (EDS adds the appear class when the page is ready)
+    if (document.body.classList.contains('appear')) {
+      clearInterval(interval);
+      onReady();
+    }
+  }, 100);
+};
