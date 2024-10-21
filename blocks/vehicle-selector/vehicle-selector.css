@@ -121,7 +121,7 @@ ul.vehicle-selector__navigation {
   margin: 0;
   order: 1;
   overflow: auto;
-  padding: 10px 32px;
+  padding: 10px 32px 40px;
   position: relative;
   scrollbar-width: none;
 }
