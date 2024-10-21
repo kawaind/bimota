@@ -15,8 +15,8 @@
 }
 
 .feature .feature-image {
-  width: 100vw;
   margin-left: calc((100vw - 100%) / -2);
+  margin-right: calc((100vw - 100%) / -2);
 }
 
 .feature .feature-image picture {
@@ -36,6 +36,7 @@
   right: 0;
   top: calc(75vw + 40px);
   margin-right: calc(var(--section-x-padding) * -1);
+  z-index: 1;
 }
 
 .feature .feature-slide-nav-item {
@@ -80,6 +81,7 @@
 
   .feature .feature-image {
     width: calc(50vw - 12px);
+    margin-right: unset;
   }
 
   .feature .feature-text {
