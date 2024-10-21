@@ -1,4 +1,33 @@
-import { onAppReady } from '../../scripts/helpers.js';
+import {
+  onAppReady,
+} from '../../scripts/helpers.js';
+import addSliding from '../../scripts/slide-helper.js';
+
+const setActiveSlide = (newActiveIndex, block) => {
+  const slides = block.querySelectorAll('.feature-slides > div');
+  const navItems = [...block.querySelectorAll('.feature-slide-nav-item')];
+
+  slides.forEach((slide, index) => {
+    if (newActiveIndex === index) {
+      slide.style.opacity = '1';
+      slide.style.zIndex = '1';
+      slide.classList.add('active');
+      navItems[index].classList.add('active');
+    } else {
+      slide.style.opacity = '0';
+      slide.style.zIndex = '0';
+      slide.classList.remove('active');
+      navItems[index].classList.remove('active');
+    }
+  });
+};
+
+const getActiveSlideIndex = (block) => [...block.querySelectorAll('.feature-slide')]
+  .findIndex((slide) => slide.classList.contains('active'));
+
+const scrollToSlide = (block, slideIndex) => {
+  setActiveSlide(slideIndex, block);
+};
 
 const createNavigation = (block, slideCount, onClick) => {
   const slidesDots = (new Array(slideCount))
@@ -16,7 +45,7 @@ const createNavigation = (block, slideCount, onClick) => {
       dotEl.textContent = index + 1;
 
       navItem.append(dotEl);
-      navItem.addEventListener('click', () => onClick(index));
+      navItem.addEventListener('click', () => onClick(index, block));
 
       return navItem;
     });
@@ -52,25 +81,8 @@ export default async function decorate(block) {
     heading.classList.add('h5');
   });
 
-  const slides = block.querySelectorAll('.feature-slides > div');
-  const setActiveSlide = (newActiveIndex) => {
-    const navItems = [...block.querySelectorAll('.feature-slide-nav-item')];
-
-    slides.forEach((slide, index) => {
-      if (newActiveIndex === index) {
-        slide.style.opacity = '1';
-        slide.style.zIndex = '1';
-        navItems[index].classList.add('active');
-      } else {
-        slide.style.opacity = '0';
-        slide.style.zIndex = '0';
-        navItems[index].classList.remove('active');
-      }
-    });
-  };
-
   createNavigation(block, slideCount, setActiveSlide);
-  setActiveSlide(0);
+  setActiveSlide(0, block);
 
   // making sure that the slide gets enought space to display slide navigation
   const onResize = () => {
@@ -84,4 +96,6 @@ export default async function decorate(block) {
   onAppReady(onResize);
 
   window.addEventListener('resize', onResize);
+
+  addSliding(block, { getActiveSlideIndex, slideCount, scrollToSlide });
 }
