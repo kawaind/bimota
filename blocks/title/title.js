@@ -11,7 +11,7 @@ export default async function decorate(block) {
   });
 
   const pretitle = block.querySelector('.pretitle');
-  pretitle.classList.add('h5');
+  pretitle?.classList.add('h5');
 
   if (isLineVariant) {
     const lineEle = document.createElement('div');
