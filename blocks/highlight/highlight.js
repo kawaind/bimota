@@ -1,4 +1,5 @@
-import { isInViewport, onSlideUpOrDown, throttle } from '../../scripts/helpers.js';
+import { throttle } from '../../scripts/helpers.js';
+import addSliding from '../../scripts/slide-helper.js';
 
 const setScaleForPicture = (block, picture, onSetScale) => {
   const setScale = () => {
@@ -38,53 +39,12 @@ const setScaleForPicture = (block, picture, onSetScale) => {
 const getActiveSlideIndex = (block) => [...block.querySelectorAll('.highlight-slide')]
   .findIndex((slide) => slide.classList.contains('active'));
 
-const scrollToSlide = (slidersContainer, slideIndex) => {
+const scrollToSlide = (block, slideIndex) => {
+  const slidersContainer = block.querySelector('.highlight-slides-container');
   slidersContainer.style.transform = `translateY(-${slideIndex * 100}%)`;
   slidersContainer.querySelectorAll('.highlight-slide').forEach((slide, index) => {
     const addOrRemove = index === slideIndex ? 'add' : 'remove';
     slide.classList[addOrRemove]('active');
-  });
-};
-
-const trapScrollingForSlides = (block, {
-  hasNextSlide, hasPrevSlide, move,
-}) => {
-  let restoreScolling = null;
-  let prevY = window.scrollY;
-  let blockedScrollYPosition = null;
-  let paused = false;
-
-  window.addEventListener('scroll', () => {
-    if (paused) {
-      window.scrollTo({ top: blockedScrollYPosition, behavior: 'instant' });
-      return;
-    }
-
-    const hasSlideInDirection = prevY < window.scrollY ? hasNextSlide() : hasPrevSlide();
-    prevY = window.scrollY;
-
-    if (isInViewport(block)) {
-      block.classList.add('active');
-
-      if (hasSlideInDirection) {
-        paused = true;
-        blockedScrollYPosition = window.scrollY;
-
-        window.scrollTo({ top: blockedScrollYPosition, behavior: 'instant' });
-        restoreScolling = onSlideUpOrDown({
-          move: (direction) => move(direction, restoreScolling),
-          onEnd: () => { paused = false; },
-        });
-        return;
-      }
-    } else {
-      block.classList.remove('active');
-    }
-
-    if (restoreScolling) {
-      restoreScolling();
-      restoreScolling = null;
-    }
   });
 };
 
@@ -135,60 +95,16 @@ export default async function decorate(block) {
   };
   setScaleForPicture(block, picture, onSetScaleForPicture);
 
-  // trapping the scrolling so the user will scroll the next slides of the slider
-  const container = block.querySelector('.highlight-slides-container');
-  const hasPrevSlide = () => {
-    const activeSlideIndex = getActiveSlideIndex(block);
-    return activeSlideIndex > 0;
-  };
-
-  const hasNextSlide = () => {
-    const activeSlideIndex = getActiveSlideIndex(block);
-    const slideCount = block.querySelectorAll('.highlight-slide').length;
-
-    return activeSlideIndex < slideCount - 1;
-  };
-
-  const prevSlide = (onNoPreSlide) => {
-    const activeSlideIndex = getActiveSlideIndex(block);
-
-    if (!hasPrevSlide()) {
-      onNoPreSlide();
-      return;
-    }
-
-    scrollToSlide(container, activeSlideIndex - 1);
-  };
-  const nextSlide = (onNoNextSlide) => {
-    const activeSlideIndex = getActiveSlideIndex(block);
-
-    if (!hasNextSlide()) {
-      onNoNextSlide();
-      return;
-    }
-
-    scrollToSlide(container, activeSlideIndex + 1);
-  };
-
-  const move = throttle((direction, onNoSlide) => {
-    if (direction === 'up') {
-      if (!hasPrevSlide()) {
-        onNoSlide();
-        return;
-      }
-
-      prevSlide();
+  const onInViewport = (inViewport) => {
+    if (inViewport) {
+      block.classList.add('active');
     } else {
-      if (!hasNextSlide()) {
-        onNoSlide();
-        return;
-      }
-
-      nextSlide();
+      block.classList.remove('active');
     }
-  }, 1000);
+  };
+  const slideCount = [...block.querySelectorAll('.highlight-slide')].length;
 
-  trapScrollingForSlides(block, {
-    hasNextSlide, hasPrevSlide, move,
+  addSliding(block, {
+    getActiveSlideIndex, slideCount, scrollToSlide, onInViewport,
   });
 }

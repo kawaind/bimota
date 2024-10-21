@@ -1,6 +1,7 @@
 import {
-  isInViewport, onAppReady, onSlideUpOrDown, throttle,
+  onAppReady,
 } from '../../scripts/helpers.js';
+import addSliding from '../../scripts/slide-helper.js';
 
 const setActiveSlide = (newActiveIndex, block) => {
   const slides = block.querySelectorAll('.feature-slides > div');
@@ -55,44 +56,6 @@ const createNavigation = (block, slideCount, onClick) => {
   block.append(wrapper);
 };
 
-const trapScrollingForSlides = (block, {
-  hasNextSlide, hasPrevSlide, move,
-}) => {
-  let restoreScolling = null;
-  let prevY = window.scrollY;
-  let blockedScrollYPosition = null;
-  let paused = false;
-
-  window.addEventListener('scroll', () => {
-    if (paused) {
-      window.scrollTo({ top: blockedScrollYPosition, behavior: 'instant' });
-      return;
-    }
-
-    const hasSlideInDirection = prevY < window.scrollY ? hasNextSlide() : hasPrevSlide();
-    prevY = window.scrollY;
-
-    if (isInViewport(block)) {
-      if (hasSlideInDirection) {
-        paused = true;
-        blockedScrollYPosition = window.scrollY;
-
-        window.scrollTo({ top: blockedScrollYPosition, behavior: 'instant' });
-        restoreScolling = onSlideUpOrDown({
-          move: (direction) => move(direction, restoreScolling),
-          onEnd: () => { paused = false; },
-        });
-        return;
-      }
-    }
-
-    if (restoreScolling) {
-      restoreScolling();
-      restoreScolling = null;
-    }
-  });
-};
-
 export default async function decorate(block) {
   const slideCount = block.querySelectorAll(':scope > div').length;
   const slideWrapper = document.createElement('div');
@@ -134,58 +97,5 @@ export default async function decorate(block) {
 
   window.addEventListener('resize', onResize);
 
-  // trapping the scrolling so the user will scroll the next slides of the slider
-  const hasPrevSlide = () => {
-    const activeSlideIndex = getActiveSlideIndex(block);
-    return activeSlideIndex > 0;
-  };
-
-  const hasNextSlide = () => {
-    const activeSlideIndex = getActiveSlideIndex(block);
-
-    return activeSlideIndex < slideCount - 1;
-  };
-
-  const prevSlide = (onNoPreSlide) => {
-    const activeSlideIndex = getActiveSlideIndex(block);
-
-    if (!hasPrevSlide()) {
-      onNoPreSlide();
-      return;
-    }
-
-    scrollToSlide(block, activeSlideIndex - 1);
-  };
-  const nextSlide = (onNoNextSlide) => {
-    const activeSlideIndex = getActiveSlideIndex(block);
-
-    if (!hasNextSlide()) {
-      onNoNextSlide();
-      return;
-    }
-
-    scrollToSlide(block, activeSlideIndex + 1);
-  };
-
-  const move = throttle((direction, onNoSlide) => {
-    if (direction === 'up') {
-      if (!hasPrevSlide()) {
-        onNoSlide();
-        return;
-      }
-
-      prevSlide();
-    } else {
-      if (!hasNextSlide()) {
-        onNoSlide();
-        return;
-      }
-
-      nextSlide();
-    }
-  }, 1000);
-
-  trapScrollingForSlides(block, {
-    hasNextSlide, hasPrevSlide, move,
-  });
+  addSliding(block, { getActiveSlideIndex, slideCount, scrollToSlide });
 }

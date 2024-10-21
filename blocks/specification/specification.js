@@ -1,4 +1,4 @@
-import { isInViewport, onSlideUpOrDown, throttle } from '../../scripts/helpers.js';
+import addSliding from '../../scripts/slide-helper.js';
 
 export default function decorate(block) {
   const content = block.querySelector(':scope > div');
@@ -42,51 +42,10 @@ export default function decorate(block) {
     specificationStatsWrapper.append(stat);
   });
 
-  // trapping the scrolling so the user will scroll the next slides of the slider
-  const trapScrollingForSlides = ({ hasNextSlide, hasPrevSlide, move }) => {
-    let restoreScolling = null;
-    let prevY = window.scrollY;
-    let blockedScrollYPosition = null;
-    let paused = false;
-
-    window.addEventListener('scroll', () => {
-      if (paused) {
-        window.scrollTo({ top: blockedScrollYPosition, behavior: 'instant' });
-        return;
-      }
-
-      const hasSlideInDirection = prevY < window.scrollY ? hasNextSlide() : hasPrevSlide();
-      prevY = window.scrollY;
-
-      if (isInViewport(block)) {
-        block.classList.add('active');
-
-        if (hasSlideInDirection) {
-          paused = true;
-          blockedScrollYPosition = window.scrollY;
-
-          window.scrollTo({ top: blockedScrollYPosition, behavior: 'instant' });
-          restoreScolling = onSlideUpOrDown({
-            move: (direction) => move(direction, restoreScolling),
-            onEnd: () => { paused = false; },
-          });
-          return;
-        }
-      } else {
-        block.classList.remove('active');
-      }
-
-      if (restoreScolling) {
-        restoreScolling();
-        restoreScolling = null;
-      }
-    });
-  };
-
   const getActiveSlideIndex = () => [...block.querySelectorAll('.specification-images > *')]
     .findIndex((slide) => slide.classList.contains('active'));
 
-  const scrollToSlide = (slideIndex) => {
+  const scrollToSlide = (_, slideIndex) => {
     [...block.querySelectorAll('.specification-images > *')]
       .forEach((el, index) => {
         if (slideIndex === index) {
@@ -99,57 +58,18 @@ export default function decorate(block) {
       });
   };
 
-  const hasPrevSlide = () => {
-    const activeSlideIndex = getActiveSlideIndex();
-    return activeSlideIndex > 0;
-  };
+  scrollToSlide(block, 0);
 
-  const hasNextSlide = () => {
-    const activeSlideIndex = getActiveSlideIndex();
-    const slideCount = block.querySelectorAll('.specification-images > *').length;
-
-    return activeSlideIndex < slideCount - 1;
-  };
-
-  const prevSlide = (onNoPreSlide) => {
-    const activeSlideIndex = getActiveSlideIndex();
-
-    if (!hasPrevSlide()) {
-      onNoPreSlide();
-      return;
-    }
-
-    scrollToSlide(activeSlideIndex - 1);
-  };
-  const nextSlide = (onNoNextSlide) => {
-    const activeSlideIndex = getActiveSlideIndex();
-
-    if (!hasNextSlide()) {
-      onNoNextSlide();
-      return;
-    }
-
-    scrollToSlide(activeSlideIndex + 1);
-  };
-
-  const move = throttle((direction, onNoSlide) => {
-    if (direction === 'up') {
-      if (!hasPrevSlide()) {
-        onNoSlide();
-        return;
-      }
-
-      prevSlide();
+  const slideCount = block.querySelectorAll('.specification-images > *').length;
+  const onInViewport = (inViewport) => {
+    if (inViewport) {
+      block.classList.add('active');
     } else {
-      if (!hasNextSlide()) {
-        onNoSlide();
-        return;
-      }
-
-      nextSlide();
+      block.classList.remove('active');
     }
-  }, 1000);
+  };
 
-  scrollToSlide(0);
-  trapScrollingForSlides({ hasNextSlide, hasPrevSlide, move });
+  addSliding(block, {
+    getActiveSlideIndex, slideCount, scrollToSlide, onInViewport,
+  });
 }
