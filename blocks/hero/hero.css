@@ -3,7 +3,7 @@ main .hero-container > div {
 }
 
 main .hero-container {
-  padding: 0;
+  padding: 0 0 var(--section-bottom-padding);
 }
 
 main .hero-container .hero-wrapper {

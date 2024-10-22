@@ -20,7 +20,7 @@
   --nav-height: 70px;
 
   /* section paddings */
-  --section-y-padding: 40px;
+  --section-bottom-padding: 60px;
   --section-x-padding: 20px;
 
   /* grid gap */
@@ -78,6 +78,11 @@
   --action-default: #fff;
   --action-hover: #bbb;
   --action-focus: #999;
+}
+
+:root .homepage,
+:root .pdp {
+  --section-bottom-padding: 80px;
 }
 
 * {
@@ -506,12 +511,12 @@ video {
 
 /* blocks */
 div[class$="-wrapper"]:not(:first-child) {
-  padding-top: 30px;
+  padding-top: 40px;
 }
 
-@media (width >= 960px) {
+@media (width >= 1025px) {
   div[class$="-wrapper"]:not(:first-child) {
-    padding-top: 40px;
+    padding-top: 60px;
   }
 }
 
@@ -521,21 +526,20 @@ header:not(.can-be-transparent) + main {
 
 /* sections */
 main .section {
-  padding: var(--section-y-padding) var(--section-x-padding);
+  padding: 0 var(--section-x-padding) var(--section-bottom-padding);
 }
 
 main .section:first-child {
   padding-top: 0;
 }
 
-main .section:last-child,
+main .section.nba-container:last-child,
 main .section.padding-bottom-0 {
   padding-bottom: 0;
 }
 
 @media (width >= 768px) {
   :root {
-    --section-y-padding: 40px;
     --section-x-padding: 30px;
     --grid-gap: 24px;
   }
@@ -543,8 +547,13 @@ main .section.padding-bottom-0 {
 
 @media (width >= 1025px) {
   :root {
-    --section-y-padding: 70px;
+    --section-bottom-padding: 80px;
     --section-x-padding: 40px;
+  }
+
+  :root .homepage,
+  :root .pdp {
+    --section-bottom-padding: 120px;
   }
 
   .section > div {
@@ -573,6 +582,13 @@ main .section.padding-bottom-0 {
 .block.full-width {
   margin-left: calc(-1 * var(--section-x-padding));
   margin-right: calc(-1 * var(--section-x-padding));
+}
+
+@media (width >= 1440px) {
+  .block.full-width {
+    margin-left: calc((100vw - 1240px) / -2);
+    margin-right: calc((100vw - 1240px) / -2);
+  }
 }
 
 /* section metadata */

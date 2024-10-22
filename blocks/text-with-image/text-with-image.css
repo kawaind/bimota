@@ -1,8 +1,8 @@
 .text-with-image {
   --animation-time: 300ms;
 
-  padding-top: 60px;
-  padding-bottom: 60px;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .text-with-image span[class^="icon-"] {
@@ -94,6 +94,8 @@
 /* wide stacked images variant */
 .text-with-image.wide-stacked-images {
   --text-image-2nd-image-height: 149px;
+
+  overflow-y: clip;
 }
 
 .text-with-image.wide-stacked-images .text-with-image-row {
@@ -123,11 +125,6 @@
 }
 
 @media (width >= 768px) {
-  .text-with-image {
-    padding-top: 80px;
-    padding-bottom: 80px;
-  }
-
   .text-with-image .text-with-image-row {
     gap: 60px;
     flex-direction: row;
