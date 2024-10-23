@@ -161,7 +161,7 @@ function redirectPage(event) {
 }
 
 function handleTransparentAndScrolling(nav) {
-  const useTransparentVariant = !!document.querySelector('main > .section > .hero-wrapper');
+  const useTransparentVariant = !!document.querySelector('main > .section:first-child > .hero-wrapper:first-child');
   const header = nav.closest('header');
   let prevScrollingPosition = 0;
 

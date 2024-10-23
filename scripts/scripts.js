@@ -149,6 +149,12 @@ export function decorateMain(main) {
   swappingPlacesBlock(main);
 }
 
+function setMainPosition(main) {
+  if (main.querySelector(':scope > .section:first-child > .hero-wrapper:first-child')) {
+    main.classList.add('no-top-margin');
+  }
+}
+
 /**
  * Loads everything needed to get to LCP.
  * @param {Element} doc The container element
@@ -159,6 +165,7 @@ async function loadEager(doc) {
   const main = doc.querySelector('main');
   if (main) {
     decorateMain(main);
+    setMainPosition(main);
     document.body.classList.add('appear');
     await loadSection(main.querySelector('.section'), waitForFirstImage);
   }
