@@ -166,66 +166,6 @@ export function createElement(tagName, options = {}) {
   return elem;
 }
 
-export const onSlideUpOrDown = ({ move, onEnd }) => {
-  let startX;
-  let startY;
-
-  const touchStart = (event) => {
-    // Store the starting touch position
-    startX = event.touches[0].pageX;
-    startY = event.touches[0].pageY;
-  };
-
-  const touchMove = (event) => {
-    if (event.cancelable) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-
-    // Calculate the distance moved in both directions
-    const moveX = event.touches[0].pageX - startX;
-    const moveY = event.touches[0].pageY - startY;
-
-    // Determine direction
-    if (Math.abs(moveY) > Math.abs(moveX)) {
-      if (moveY > 0) {
-        move('up');
-      } else {
-        move('down');
-      }
-    }
-  };
-
-  const onWheel = (event) => {
-    if (event.cancelable) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-
-    if (event.deltaY > 0) {
-      move('down');
-    } else {
-      move('up');
-    }
-  };
-
-  window.addEventListener('touchstart', touchStart, { passive: false });
-  window.addEventListener('touchmove', touchMove, { passive: false });
-  window.addEventListener('wheel', onWheel, { passive: false });
-
-  const clean = () => {
-    window.removeEventListener('touchstart', touchStart, { passive: false });
-    window.removeEventListener('touchmove', touchMove, { passive: false });
-    window.removeEventListener('wheel', onWheel, { passive: false });
-
-    if (onEnd) {
-      onEnd();
-    }
-  };
-
-  return clean;
-};
-
 export const isInViewport = (element) => {
   const rect = element.getBoundingClientRect();
   const windowHeight = (window.visualViewport || window).height;
@@ -261,4 +201,27 @@ export const onAppReady = (onReady) => {
       onReady();
     }
   }, 100);
+};
+
+export const autoScrollSlidesWhenInView = (block, {
+  getActiveIndex, slideCount, scrollToSlide,
+}) => {
+  let interval = null;
+
+  window.addEventListener('scroll', throttle(() => {
+    if (isInViewport(block) && !interval) {
+      block.classList.add('active');
+
+      interval = setInterval(() => {
+        const activeIndex = getActiveIndex(block);
+        const newActiveIndex = activeIndex === slideCount - 1 ? 0 : activeIndex + 1;
+
+        scrollToSlide(block, newActiveIndex);
+      }, 3000);
+    } else if (!isInViewport(block)) {
+      block.classList.remove('active');
+      clearInterval(interval);
+      interval = null;
+    }
+  }, 100));
 };

@@ -1,5 +1,4 @@
-import { throttle } from '../../scripts/helpers.js';
-import addSliding from '../../scripts/slide-helper.js';
+import { autoScrollSlidesWhenInView, throttle } from '../../scripts/helpers.js';
 
 const setScaleForPicture = (block, picture, onSetScale) => {
   const setScale = () => {
@@ -95,16 +94,11 @@ export default async function decorate(block) {
   };
   setScaleForPicture(block, picture, onSetScaleForPicture);
 
-  const onInViewport = (inViewport) => {
-    if (inViewport) {
-      block.classList.add('active');
-    } else {
-      block.classList.remove('active');
-    }
-  };
   const slideCount = [...block.querySelectorAll('.highlight-slide')].length;
 
-  addSliding(block, {
-    getActiveSlideIndex, slideCount, scrollToSlide, onInViewport,
+  autoScrollSlidesWhenInView(block, {
+    getActiveIndex: getActiveSlideIndex,
+    slideCount,
+    scrollToSlide,
   });
 }
