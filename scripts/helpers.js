@@ -130,6 +130,19 @@ export const throttle = (func, limit) => {
   };
 };
 
+export const debounce = (func, wait) => {
+  let timeout;
+
+  return function debouncedFunction(...args) {
+    const context = this;
+
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      func.apply(context, args);
+    }, wait);
+  };
+};
+
 export function stripEmptyTags(main, child) {
   if (child !== main && child.innerHTML.trim() === '') {
     const parent = child.parentNode;
@@ -208,7 +221,7 @@ export const autoScrollSlidesWhenInView = (block, {
 }) => {
   let interval = null;
 
-  window.addEventListener('scroll', throttle(() => {
+  window.addEventListener('scroll', debounce(() => {
     if (isInViewport(block) && !interval) {
       block.classList.add('active');
 
