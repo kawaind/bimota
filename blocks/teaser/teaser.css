@@ -32,7 +32,7 @@
 }
 
 .teaser .teaser-card-body .h4,
-.teaser .teaser-card-body p {
+.teaser .teaser-card-body p:not(.button-container) {
   margin-bottom: 16px;
 }
 
@@ -128,6 +128,10 @@ div.teaser-wrapper + div.teaser-wrapper {
 @media (width >= 1025px) {
   .teaser.image li {
     min-height: 451px;
+  }
+
+  .teaser.image .teaser-card-body {
+    padding: 28px 20px;
   }
 }
 
