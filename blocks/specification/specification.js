@@ -1,6 +1,9 @@
-import addSliding from '../../scripts/slide-helper.js';
+import { autoScrollSlidesWhenInView } from '../../scripts/helpers.js';
 
 export default function decorate(block) {
+  const animationTime = [...block.classList]
+    .find((el) => el.startsWith('time-'))
+    ?.split('time-')[1].replace('-', '.');
   const content = block.querySelector(':scope > div');
   content.classList.add('specification-content');
   const textContent = block.querySelector(':scope > div > div:first-child');
@@ -61,15 +64,11 @@ export default function decorate(block) {
   scrollToSlide(block, 0);
 
   const slideCount = block.querySelectorAll('.specification-images > *').length;
-  const onInViewport = (inViewport) => {
-    if (inViewport) {
-      block.classList.add('active');
-    } else {
-      block.classList.remove('active');
-    }
-  };
 
-  addSliding(block, {
-    getActiveSlideIndex, slideCount, scrollToSlide, onInViewport,
+  autoScrollSlidesWhenInView(block, {
+    getActiveIndex: getActiveSlideIndex,
+    slideCount,
+    scrollToSlide,
+    animationTime,
   });
 }
