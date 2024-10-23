@@ -204,7 +204,7 @@ export const onAppReady = (onReady) => {
 };
 
 export const autoScrollSlidesWhenInView = (block, {
-  getActiveIndex, slideCount, scrollToSlide,
+  getActiveIndex, slideCount, scrollToSlide, animationTime = 3,
 }) => {
   let interval = null;
 
@@ -217,7 +217,7 @@ export const autoScrollSlidesWhenInView = (block, {
         const newActiveIndex = activeIndex === slideCount - 1 ? 0 : activeIndex + 1;
 
         scrollToSlide(block, newActiveIndex);
-      }, 3000);
+      }, animationTime * 1000);
     } else if (!isInViewport(block)) {
       block.classList.remove('active');
       clearInterval(interval);

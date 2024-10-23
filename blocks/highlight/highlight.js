@@ -67,6 +67,9 @@ export default async function decorate(block) {
   const [pictureWrapper, ...slides] = block.querySelectorAll(':scope > div');
   const slidesWrapper = document.createElement('div');
   const slidesContainer = document.createElement('div');
+  const animationTime = [...block.classList]
+    .find((el) => el.startsWith('time-'))
+    ?.split('time-')[1].replace('-', '.');
 
   slides.forEach((slide, index) => {
     slide.classList.add('highlight-slide');
@@ -100,5 +103,6 @@ export default async function decorate(block) {
     getActiveIndex: getActiveSlideIndex,
     slideCount,
     scrollToSlide,
+    animationTime,
   });
 }

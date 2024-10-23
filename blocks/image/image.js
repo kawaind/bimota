@@ -21,6 +21,6 @@ export default async function decorate(block) {
       } else {
         pictureEl.style.top = 0;
       }
-    }), 100);
+    }), 10);
   }
 }
