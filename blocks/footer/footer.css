@@ -132,10 +132,11 @@ footer {
   align-items: flex-start;
   font-size: 16px;
   line-height: 150%;
+  gap: 24px;
 }
 
 .footer-wrapper {
-  border-top: 1px solid var(--white);  
+  border-top: 1px solid var(--white);
 }
 
 @media (width >= 768px) {
