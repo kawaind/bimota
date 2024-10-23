@@ -42,11 +42,13 @@
 
 .specification .specification-images {
   position: relative;
+  flex-grow: 1;
 }
 
 .specification .specification-images p {
   margin: 0;
   transition: opacity 300ms linear;
+  width: 100%;
 }
 
 .specification .specification-images p:not(:first-child) {
@@ -57,6 +59,10 @@
 
 .specification .specification-images picture {
   display: flex;
+}
+
+.specification .specification-images picture img {
+  width: 100%;
 }
 
 @media (width >= 768px) {
