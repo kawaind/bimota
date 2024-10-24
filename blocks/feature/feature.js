@@ -1,7 +1,6 @@
 import {
   onAppReady,
 } from '../../scripts/helpers.js';
-import addSliding from '../../scripts/slide-helper.js';
 
 const setActiveSlide = (newActiveIndex, block) => {
   const slides = block.querySelectorAll('.feature-slides > div');
@@ -20,13 +19,6 @@ const setActiveSlide = (newActiveIndex, block) => {
       navItems[index].classList.remove('active');
     }
   });
-};
-
-const getActiveSlideIndex = (block) => [...block.querySelectorAll('.feature-slide')]
-  .findIndex((slide) => slide.classList.contains('active'));
-
-const scrollToSlide = (block, slideIndex) => {
-  setActiveSlide(slideIndex, block);
 };
 
 const createNavigation = (block, slideCount, onClick) => {
@@ -96,6 +88,4 @@ export default async function decorate(block) {
   onAppReady(onResize);
 
   window.addEventListener('resize', onResize);
-
-  addSliding(block, { getActiveSlideIndex, slideCount, scrollToSlide });
 }

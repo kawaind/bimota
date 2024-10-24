@@ -1,5 +1,4 @@
-import { throttle } from '../../scripts/helpers.js';
-import addSliding from '../../scripts/slide-helper.js';
+import { autoScrollSlidesWhenInView, throttle } from '../../scripts/helpers.js';
 
 const setScaleForPicture = (block, picture, onSetScale) => {
   const setScale = () => {
@@ -68,6 +67,9 @@ export default async function decorate(block) {
   const [pictureWrapper, ...slides] = block.querySelectorAll(':scope > div');
   const slidesWrapper = document.createElement('div');
   const slidesContainer = document.createElement('div');
+  const animationTime = [...block.classList]
+    .find((el) => el.startsWith('time-'))
+    ?.split('time-')[1].replace('-', '.');
 
   slides.forEach((slide, index) => {
     slide.classList.add('highlight-slide');
@@ -95,16 +97,12 @@ export default async function decorate(block) {
   };
   setScaleForPicture(block, picture, onSetScaleForPicture);
 
-  const onInViewport = (inViewport) => {
-    if (inViewport) {
-      block.classList.add('active');
-    } else {
-      block.classList.remove('active');
-    }
-  };
   const slideCount = [...block.querySelectorAll('.highlight-slide')].length;
 
-  addSliding(block, {
-    getActiveSlideIndex, slideCount, scrollToSlide, onInViewport,
+  autoScrollSlidesWhenInView(block, {
+    getActiveIndex: getActiveSlideIndex,
+    slideCount,
+    scrollToSlide,
+    animationTime,
   });
 }
