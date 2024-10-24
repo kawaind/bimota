@@ -102,6 +102,8 @@
 .description-value .h6 em {
   font-style: normal;
   font-weight: 600;
+  font-size: 14px;
+  line-height: 21px;
 }
 
 .vehicle-selector .button-container {
@@ -239,10 +241,6 @@ ul.vehicle-selector__navigation {
   .vehicle-selector__slider-wrapper {
     width: 100vw;
     margin-left: calc((100vw - 100%)* -1 / 2);
-  }
-
-  .description-value .h6 {
-    font-weight: 600;
   }
 }
 
