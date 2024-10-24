@@ -149,6 +149,12 @@ export function decorateMain(main) {
   swappingPlacesBlock(main);
 }
 
+function setMainPosition(main) {
+  if (main.querySelector(':scope > .section:first-child > .hero-wrapper:first-child')) {
+    main.classList.add('no-top-margin');
+  }
+}
+
 function supportDocumentStyle() {
   const styleMetadata = document.querySelector('meta[name="style"');
 
@@ -171,6 +177,7 @@ async function loadEager(doc) {
   const main = doc.querySelector('main');
   if (main) {
     decorateMain(main);
+    setMainPosition(main);
     supportDocumentStyle();
     document.body.classList.add('appear');
     await loadSection(main.querySelector('.section'), waitForFirstImage);

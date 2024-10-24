@@ -520,8 +520,12 @@ div[class$="-wrapper"]:not(:first-child) {
   }
 }
 
-header:not(.can-be-transparent) + main {
+main {
   margin-top: var(--nav-height);
+}
+
+main.no-top-margin {
+  margin-top: 0;
 }
 
 /* sections */
