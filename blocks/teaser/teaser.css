@@ -87,7 +87,7 @@ div.teaser-wrapper + div.teaser-wrapper {
 }
 
 /* teaser image */
-.teaser.image li {
+.teaser.image-bg li {
   overflow: hidden;
   min-height: 464px;
   display: grid;
@@ -95,15 +95,15 @@ div.teaser-wrapper + div.teaser-wrapper {
   color: white;
 }
 
-.teaser.image .teaser-card-image {
+.teaser.image-bg .teaser-card-image {
   grid-area: 1 / 1;
 }
 
-.teaser.image .teaser-card-image img {
+.teaser.image-bg .teaser-card-image img {
   height: 100%;
 }
 
-.teaser.image .teaser-card-body {
+.teaser.image-bg .teaser-card-body {
   grid-area: 1 / 1;
   margin: 0;
   padding: 20px 16px;
@@ -115,28 +115,28 @@ div.teaser-wrapper + div.teaser-wrapper {
   justify-content: end;
 }
 
-.teaser.image .teaser-card-body .button-container {
+.teaser.image-bg .teaser-card-body .button-container {
   margin-top: unset;
 }
 
 @media (width >= 768px) {
-  .teaser.image li {
+  .teaser.image-bg li {
     min-height: 474px;
   }
 }
 
 @media (width >= 1025px) {
-  .teaser.image li {
+  .teaser.image-bg li {
     min-height: 451px;
   }
 
-  .teaser.image .teaser-card-body {
+  .teaser.image-bg .teaser-card-body {
     padding: 28px 20px;
   }
 }
 
 @media (width >= 1440px) {
-  .teaser.image li {
+  .teaser.image-bg li {
     min-height: 566px;
   }
 }
