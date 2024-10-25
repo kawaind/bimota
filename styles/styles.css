@@ -20,7 +20,7 @@
   --nav-height: 70px;
 
   /* section paddings */
-  --section-bottom-padding: 60px;
+  --section-y-padding: 30px;
   --section-x-padding: 20px;
 
   /* grid gap */
@@ -82,7 +82,7 @@
 
 :root .homepage,
 :root .pdp {
-  --section-bottom-padding: 80px;
+  --section-y-padding: 40px;
 }
 
 * {
@@ -530,11 +530,15 @@ main.no-top-margin {
 
 /* sections */
 main .section {
-  padding: 0 var(--section-x-padding) var(--section-bottom-padding);
+  padding: var(--section-y-padding) var(--section-x-padding);
 }
 
 main .section:first-child {
   padding-top: 0;
+}
+
+main .section:last-child {
+  padding-bottom: calc(2 * var(--section-y-padding));
 }
 
 main .section.nba-container:last-child,
@@ -551,13 +555,13 @@ main .section.padding-bottom-0 {
 
 @media (width >= 1025px) {
   :root {
-    --section-bottom-padding: 80px;
+    --section-y-padding: 40px;
     --section-x-padding: 40px;
   }
 
   :root .homepage,
   :root .pdp {
-    --section-bottom-padding: 120px;
+    --section-y-padding: 60px;
   }
 
   .section > div {
