@@ -169,6 +169,10 @@ export default function decorate(block) {
   imagesWrapper.appendChild(imagesContainer);
 
   const tabNavigation = buildTabNavigation(tabItems, (index) => {
+    if (imagesContainer.classList.contains('is-animating')) {
+      return;
+    }
+
     setCarouselPosition(imagesContainer, index);
   });
 
