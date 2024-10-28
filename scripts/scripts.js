@@ -155,18 +155,6 @@ function setMainPosition(main) {
   }
 }
 
-function supportDocumentStyle() {
-  const styleMetadata = document.querySelector('meta[name="style"');
-
-  if (!styleMetadata) {
-    return;
-  }
-
-  const styles = styleMetadata.getAttribute('content').split(',').map((el) => el.trim());
-
-  document.body.classList.add(...styles);
-}
-
 /**
  * Loads everything needed to get to LCP.
  * @param {Element} doc The container element
@@ -178,7 +166,6 @@ async function loadEager(doc) {
   if (main) {
     decorateMain(main);
     setMainPosition(main);
-    supportDocumentStyle();
     document.body.classList.add('appear');
     await loadSection(main.querySelector('.section'), waitForFirstImage);
   }
