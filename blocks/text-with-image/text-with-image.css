@@ -17,6 +17,7 @@
   display: flex;
   flex-direction: column;
   gap: 48px;
+  overflow-x: clip;
 }
 
 .text-with-image .column-with-images {
@@ -72,6 +73,7 @@
   transform: translateY(
     calc(var(--text-image-2nd-image-height) - var(--text-image-distance))
   );
+  padding-bottom: calc(var(--text-image-2nd-image-height) - var(--text-image-distance));
   transition: transform var(--animation-time) linear;
 }
 
@@ -170,6 +172,7 @@
 
   .text-with-image.stacked-images .column-with-text {
     transform: unset;
+    padding: 0;
   }
 
   .text-with-image.stacked-images .column-with-images {
