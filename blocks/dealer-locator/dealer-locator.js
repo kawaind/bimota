@@ -118,44 +118,57 @@ export default async function decorate(block) {
     },
   };
 
-  loadScript('/blocks/dealer-locator/vendor/jquery.min.js', { type: 'text/javascript', charset: 'UTF-8' })
-    .then(() => {
-      // these scripts depend on jquery:
-      loadScript('//webapp.woosmap.com/webapp.js', { type: 'text/javascript' }).then(() => {
-        function loadWebApp() {
-          const publicKey = 'woos-50c04d89-af71-3a3b-b0b9-0786ee130532';
-          // eslint-disable-next-line no-undef
-          const webapp = new window.WebApp('dealer-locator', publicKey);
-          const config = {
-            maps: {
-              provider: 'woosmap',
-              channel: '',
-              localities: {
-                language,
-                data: 'advanced',
+  const loadDealerLocator = () => {
+    loadScript('/blocks/dealer-locator/vendor/jquery.min.js', { type: 'text/javascript', charset: 'UTF-8' })
+      .then(() => {
+        // these scripts depend on jquery:
+        loadScript('//webapp.woosmap.com/webapp.js', { type: 'text/javascript' }).then(() => {
+          function loadWebApp() {
+            const publicKey = 'woos-50c04d89-af71-3a3b-b0b9-0786ee130532';
+            // eslint-disable-next-line no-undef
+            const webapp = new window.WebApp('dealer-locator', publicKey);
+            const config = {
+              maps: {
+                provider: 'woosmap',
+                channel: '',
+                localities: {
+                  language,
+                  data: 'advanced',
+                },
               },
-            },
-            theme: {
-              primaryColor: '#ed1d24',
-            },
-            datasource: {
-              maxResponses: 5,
-              maxDistance: 1000000,
-              useDistanceMatrix: true,
-              distanceMatrixProvider: 'woosmap',
-            },
-            internationalization: {
-              lang: language,
-            },
-            woosmapview: isOneLocationVariant ? selectedLocationConfig : defaultLocationConfig,
-          };
-          webapp.setConf(config);
-          if (isOneLocationVariant) {
-            webapp.setInitialStateToSelectedStore('990002');
+              theme: {
+                primaryColor: '#ed1d24',
+              },
+              datasource: {
+                maxResponses: 5,
+                maxDistance: 1000000,
+                useDistanceMatrix: true,
+                distanceMatrixProvider: 'woosmap',
+              },
+              internationalization: {
+                lang: language,
+              },
+              woosmapview: isOneLocationVariant ? selectedLocationConfig : defaultLocationConfig,
+            };
+            webapp.setConf(config);
+            if (isOneLocationVariant) {
+              webapp.setInitialStateToSelectedStore('990002');
+            }
+            webapp.render();
           }
-          webapp.render();
-        }
-        loadWebApp();
+          loadWebApp();
+        });
       });
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.intersectionRatio > 0) {
+        loadDealerLocator();
+        observer.disconnect();
+      }
     });
+  }, { threshold: [0.1], rootMargin: '500px' });
+
+  observer.observe(block);
 }
