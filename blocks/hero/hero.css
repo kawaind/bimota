@@ -146,6 +146,11 @@ main .hero-container .hero-wrapper {
   position: absolute;
 }
 
+.hero .hero-flag svg {
+  width: auto;
+  height: auto;
+}
+
 .hero .hero-countdown {
   text-align: center;
   line-height: 91px;
@@ -246,7 +251,13 @@ main .hero-container .hero-wrapper {
   }
 
   .hero .hero-flag {
-    translate: 40px -50%;
+    translate: 40px -30px;
+    width: 100px;
+    height: auto;
+  }
+
+  .hero .hero-flag svg {
+    height: unset;
   }
 
   .hero h1 {
@@ -269,7 +280,7 @@ main .hero-container .hero-wrapper {
   }
 
   .hero .hero-flag {
-    translate: 62px -50%;
+    translate: 62px -30px;
   }
 
   .hero h1 {

@@ -44,11 +44,11 @@ const addLogoFlag = (block) => {
   const flagEl = document.createElement('span');
   flagEl.classList.add('hero-flag');
   flagEl.innerHTML = `
-    <svg width="60" height="50" viewBox="0 0 60 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect width="8.57143" height="50" fill="#ED1C24"/>
-      <rect x="17.1431" width="8.57143" height="50" fill="#ED1C24"/>
-      <rect x="34.2856" width="8.57143" height="50" fill="black"/>
-      <rect x="51.4287" width="8.57143" height="50" fill="black"/>
+    <svg width="100" height="80" viewBox="0 0 100 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect y="0.351562" width="14.2857" height="80" fill="#ED1C24"/>
+      <rect x="28.5714" y="0.351562" width="14.2857" height="80" fill="#ED1C24"/>
+      <rect x="57.1429" y="0.351562" width="14.2857" height="80" fill="white"/>
+      <rect x="85.7143" y="0.351562" width="14.2857" height="80" fill="white"/>
     </svg>
   `;
   customDecoreateIcons(flagEl);
