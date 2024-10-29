@@ -43,7 +43,7 @@ header a:any-link {
 header a:active,
 header a:focus,
 header a:hover {
-  color: var(--action-hover);
+  color: var(--action-default);
 }
 
 header a.active {
@@ -429,18 +429,42 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
     background: currentcolor;
   }
 
-  header.transparent li:not(nav-drop):has(a.active) {
+  header a.active {
+    color: inherit;
+  }
+
+  header a:hover.active {
+    color: var(--action-default);
+  }
+
+  header.transparent li:not(.nav-drop)[aria-expanded="false"] a:hover:any-link {
+    color: var(--action-default);
+  }
+
+  header li:not(nav-drop):has(a.active) {
     position: relative;
   }
   
-  header.transparent li:not(nav-drop):has(a.active)::after {
+  header li:not(nav-drop):has(a.active)::after {
     content: "";
     display: block;
     width: 100%;
     height: 1px;
     position: absolute;
     bottom: 0;
+    background: var(--black);
+  }
+
+  header li:not(nav-drop):has(a:hover.active)::after {
+    background-color: var(--action-default);
+  }
+
+  header.transparent li:not(nav-drop):has(a.active)::after {
     background: var(--white);
+  }
+
+  header.transparent li:not(nav-drop):has(a:hover.active)::after {
+    background: var(--action-default);
   }
 
   /* expanded menu item content */
@@ -468,6 +492,7 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
     row-gap: 40px;
   }
 
+  /* stylelint-disable-next-line no-descending-specificity */
   header .nav-sections .nav-drop ul li a:any-link {
     padding: 0 16px;
     display: flex;
@@ -529,6 +554,7 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
     cursor: auto;
   }
 
+  /* stylelint-disable-next-line no-descending-specificity */
   header.transparent nav[aria-expanded="true"] .nav-link-section a:any-link,
   header.transparent
     nav[aria-expanded="true"]
