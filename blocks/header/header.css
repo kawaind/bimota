@@ -47,6 +47,10 @@ header a:hover {
   color: var(--action-hover);
 }
 
+header a.active {
+  color: var(--action-default);
+}
+
 /* brand */
 header .nav-brand {
   flex-grow: 1;
@@ -425,6 +429,20 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
     position: absolute;
     bottom: 0;
     background: currentcolor;
+  }
+
+  header.transparent li:not(nav-drop):has(a.active) {
+    position: relative;
+  }
+  
+  header.transparent li:not(nav-drop):has(a.active)::after {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 1px;
+    position: absolute;
+    bottom: 0;
+    background: var(--white);
   }
 
   /* expanded menu item content */
