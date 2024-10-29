@@ -793,3 +793,34 @@ body.modal-visible > *:not(.modal) {
     max-width: 1134px;
   }
 }
+
+/* text page styles - used for cookie and policies pages */
+
+body.text-page ul {
+  list-style-position: inside;
+}
+
+body.text-page a:any-link {
+  text-wrap: auto;
+  overflow-wrap: anywhere;
+}
+
+@media (width >= 768px) {
+  body.text-page main .section {
+    max-width: 525px;
+    padding: 0;
+    margin: auto;
+  }
+}
+
+@media (width >= 1025px) {
+  body.text-page main .section {
+    max-width: 783px;
+  }
+}
+
+@media (width >= 1440px) {
+  body.text-page main .section {
+    max-width: 814px;
+  }
+}
