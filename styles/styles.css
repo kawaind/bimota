@@ -805,6 +805,10 @@ body.text-page a:any-link {
   overflow-wrap: anywhere;
 }
 
+body.text-page main > .section:first-child > .default-content-wrapper:first-child > h1:first-child {
+  padding-top: 40px;
+}
+
 @media (width >= 768px) {
   body.text-page main .section {
     max-width: 525px;
@@ -816,6 +820,10 @@ body.text-page a:any-link {
 @media (width >= 1025px) {
   body.text-page main .section {
     max-width: 783px;
+  }
+
+  body.text-page main > .section:first-child > .default-content-wrapper:first-child > h1:first-child {
+    padding-top: 60px;
   }
 }
 
