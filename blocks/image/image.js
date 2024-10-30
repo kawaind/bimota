@@ -1,5 +1,4 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
-import { throttle } from '../../scripts/helpers.js';
 
 export default async function decorate(block) {
   const images = block.querySelectorAll(':scope > div > div picture');
@@ -13,7 +12,7 @@ export default async function decorate(block) {
     const pictureEl = createOptimizedPicture(img.src, '', false, [{ width: window.innerWidth }]);
 
     block.querySelector('picture').replaceWith(pictureEl);
-    window.addEventListener('scroll', throttle(() => {
+    window.addEventListener('scroll', () => {
       const { top } = block.getBoundingClientRect();
 
       if (top < 0) {
@@ -21,6 +20,6 @@ export default async function decorate(block) {
       } else {
         pictureEl.style.top = 0;
       }
-    }), 10);
+    });
   }
 }
