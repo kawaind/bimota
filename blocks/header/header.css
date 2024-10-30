@@ -320,6 +320,10 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
   color: var(--grey-90);
 }
 
+header.transparent nav[aria-expanded="true"] .nav-link-section a:any-link:where(.active) {
+  color: var(--action-default);
+}
+
 @media (width >= 768px) {
   header nav {
     padding: 20px 30px 16px 24px;
@@ -417,6 +421,10 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
 
   header .nav-sections .nav-drop[aria-expanded="true"] .nav-drop-text {
     color: var(--black);
+  }
+
+  header .nav-sections .nav-drop[aria-expanded="true"] .nav-drop-text:hover {
+    color: var(--action-default);
   }
 
   header .nav-sections .nav-drop[aria-expanded="true"] .nav-drop-text::after {
@@ -584,7 +592,7 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
     .nav-link-section
     .nav-drop
     a:hover {
-    color: var(--action-hover);
+    color: var(--action-default);
   }
 }
 
