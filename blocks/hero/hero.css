@@ -139,7 +139,7 @@ main .hero-container .hero-wrapper {
 }
 
 .hero .hero-flag {
-  translate: 20px -50%;
+  translate: 20px -100%;
   display: flex;
   width: 60px;
   height: 50px;
@@ -199,7 +199,7 @@ main .hero-container .hero-wrapper {
   }
 
   .hero .hero-flag {
-    translate: 30px -50%;
+    translate: 30px -100%;
   }
 
   .hero.countdown .hero-text-wrapper {
@@ -251,7 +251,7 @@ main .hero-container .hero-wrapper {
   }
 
   .hero .hero-flag {
-    translate: 40px -30px;
+    translate: 40px -100%;
     width: 100px;
     height: auto;
   }
@@ -280,7 +280,7 @@ main .hero-container .hero-wrapper {
   }
 
   .hero .hero-flag {
-    translate: 62px -30px;
+    translate: 62px -100%;
   }
 
   .hero h1 {
