@@ -26,7 +26,7 @@ export default async function decorate(block) {
     const quotes = document.createElement('div');
     quotes.classList.add('text-quotes-container');
     const nextEle = quotedText.parentElement.nextElementSibling;
-    if (!nextEle.classList.contains('button-container')) {
+    if (nextEle && !nextEle.classList.contains('button-container')) {
       quotes.append(nextEle);
       nextEle.classList.remove('text-content');
     }
