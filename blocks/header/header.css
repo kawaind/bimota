@@ -324,6 +324,11 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a:any-link:where(
   color: var(--action-default);
 }
 
+header.transparent nav[aria-expanded="true"] .nav-link-section a:any-link:hover,
+header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text:hover {
+  color: var(--action-default);
+}
+
 @media (width >= 768px) {
   header nav {
     padding: 20px 30px 16px 24px;
@@ -449,11 +454,11 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a:any-link:where(
     color: var(--action-default);
   }
 
-  header li:not(nav-drop):has(a.active) {
+  header li:not(.nav-drop):has(a.active) {
     position: relative;
   }
   
-  header li:not(nav-drop):has(a.active)::after {
+  header .default-content-wrapper>ul>:has(a.active)::after {
     content: "";
     display: block;
     width: 100%;
@@ -463,15 +468,19 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a:any-link:where(
     background: var(--black);
   }
 
-  header li:not(nav-drop):has(a:hover.active)::after {
-    background-color: var(--action-default);
-  }
-
-  header.transparent li:not(nav-drop):has(a.active)::after {
+  header.transparent .default-content-wrapper>ul>:has(a.active)::after {
     background: var(--white);
   }
 
-  header.transparent li:not(nav-drop):has(a:hover.active)::after {
+  header.transparent div:not(.nav-sublist) li:not(.nav-drop):has(a.active)::after {
+    background: var(--white);
+  }
+
+  header div:not(.nav-sublist) li:not(.nav-drop):has(a:hover.active)::after {
+    background-color: var(--action-default);
+  }
+
+  header.transparent div:not(.nav-sublist) li:not(.nav-drop):has(a:hover.active)::after {
     background: var(--action-default);
   }
 
