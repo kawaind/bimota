@@ -51,7 +51,7 @@
 }
 
 .highlight-slides-container {
-  transition: transform 750ms ease-in-out;
+  transition: transform 1500ms ease-in-out;
   transform: translateY(0);
   max-height: 100%;
 }
@@ -62,7 +62,7 @@
   align-items: flex-end;
   padding: 0 20px 56px;
   opacity: 0;
-  transition: opacity 1500ms ease-in-out;
+  transition: opacity 3000ms ease-in-out;
 }
 
 .highlight .highlight-slide.active {
