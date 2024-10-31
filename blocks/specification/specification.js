@@ -38,10 +38,16 @@ export default function decorate(block) {
   textContent.querySelectorAll('.specification-label').forEach((el) => {
     const stat = document.createElement('div');
     stat.classList.add('specification-stat');
-    const valueEl = el.nextElementSibling;
+    let valueEl = el.nextElementSibling;
 
-    stat.append(el);
-    stat.append(valueEl);
+    while (valueEl && valueEl.classList.contains('specification-value')) {
+      const siblingEl = valueEl.nextElementSibling;
+      stat.append(valueEl);
+      valueEl = siblingEl;
+    }
+
+    stat.prepend(el);
+
     specificationStatsWrapper.append(stat);
   });
 
