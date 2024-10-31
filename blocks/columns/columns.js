@@ -13,7 +13,6 @@ export default function decorate(block) {
     block.classList.remove(borderClassName);
   }
   const isDownloadVariant = block.classList.contains('download');
-
   const isGridVariant = block.classList.contains('grid');
   const isGalleryVariant = block.classList.contains('gallery');
   const ratioClass = [...block.classList].find((cl) => cl.startsWith('ratio-'));

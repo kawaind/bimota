@@ -1,0 +1,135 @@
+.feature.block {
+  position: relative;
+}
+
+.feature .feature-slides {
+  display: grid;
+}
+
+.feature .feature-slide {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  grid-area: 1 / 1 / 2 / 2;
+  transition: opacity 500ms ease-in-out;
+}
+
+.feature .feature-image {
+  margin-left: calc((100vw - 100%) / -2);
+  margin-right: calc((100vw - 100%) / -2);
+}
+
+.feature .feature-image picture {
+  display: flex;
+}
+
+.feature .feature-image img {
+  width: 100%;
+  height: auto;
+}
+
+.feature .feature-slides-nav {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 16px;
+  position: absolute;
+  right: 0;
+  top: calc(75vw + 40px);
+  margin-right: calc(var(--section-x-padding) * -1);
+  z-index: 1;
+}
+
+.feature .feature-slide-nav-item {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feature-slide-nav-dot {
+  width: 8px;
+  height: 8px;
+  display: block;
+  border: solid 1px var(--grey-90);
+  color: transparent;
+  overflow: hidden;
+  border-radius: 50%;
+}
+
+.feature .active .feature-slide-nav-dot {
+  width: 20px;
+  height: 20px;
+  background: var(--black);
+  border-radius: 50%;
+  border-width: 0;
+  letter-spacing: 0;
+}
+
+.feature .feature-text {
+  padding-right: 36px;
+}
+
+.feature .feature-text .h5 {
+  margin-bottom: 24px;
+}
+
+@media (width >= 768px) {
+  .feature .feature-slide {
+    flex-direction: row;
+    gap: 48px;
+  }
+
+  .feature .feature-image {
+    width: calc(50vw - 12px);
+    margin-right: unset;
+  }
+
+  .feature .feature-text {
+    max-width: 50%;
+    padding-right: 67px;
+  }
+
+  .feature .feature-slides-nav {
+    width: 42px;
+    top: 0;
+    margin-right: 0;
+    z-index: 1;
+  }
+
+  .feature .feature-slide-nav-item {
+    width: 42px;
+    height: 42px;
+  }
+
+  .feature .feature-slide-nav-item.active span {
+    width: 32px;
+    height: 32px;
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+@media (width >= 1025px) {
+  .feature .feature-slide {
+    align-items: center;
+    gap: 72px;
+  }
+
+  .feature .feature-text {
+    padding-right: 80px;
+  }
+
+  .feature .feature-slides-nav {
+    top: 50%;
+    translate: 0 -50%;
+  }
+}
+
+@media (width >= 1440px) {
+  .feature .feature-text {
+    padding-right: 118px;
+  }
+}

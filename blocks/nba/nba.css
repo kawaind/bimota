@@ -1,0 +1,56 @@
+.nba {
+  --row-gap: 40px;
+
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px;
+}
+
+.nba-text-wrapper {
+  --row-gap: 16px;
+
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.nba-button-wrapper {
+  --row-gap: 24px;
+
+  width: 100%;
+}
+
+.nba .nba-button-wrapper:not(:first-child) {
+  padding-top: 0;
+}
+
+.nba-button-wrapper .icon-arrow-right {
+  height: 24px;
+  width: 24px;
+}
+
+.nba ,
+.nba-button-wrapper,
+.nba-text-wrapper {
+  display: flex;
+  flex-flow: column;
+  gap: var(--row-gap)
+}
+
+.nba .h3,
+.nba .h6 {
+  margin-bottom: 0;
+  margin-top: 0;
+}
+
+@media (width >= 768px) {
+  .nba {
+    padding-top: 80px;
+    padding-bottom: 80px;
+  }
+
+  .nba .nba-button-wrapper {
+    width: auto;
+    flex-flow: row;
+  }
+}
