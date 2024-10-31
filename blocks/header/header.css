@@ -1,5 +1,4 @@
 /* header and nav layout */
-
 header {
   position: fixed;
   top: 0;
@@ -44,7 +43,11 @@ header a:any-link {
 header a:active,
 header a:focus,
 header a:hover {
-  color: var(--action-hover);
+  color: var(--action-default);
+}
+
+header a.active {
+  color: var(--action-default);
 }
 
 /* brand */
@@ -203,7 +206,6 @@ header .nav-tools .default-content-wrapper li.active::after {
   background: currentcolor;
 }
 
-
 /* stylelint-disable-next-line no-descending-specificity */
 header .nav-tools .default-content-wrapper li a:any-link {
   font-size: 0.875rem;
@@ -318,6 +320,15 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
   color: var(--grey-90);
 }
 
+header.transparent nav[aria-expanded="true"] .nav-link-section a:any-link:where(.active) {
+  color: var(--action-default);
+}
+
+header.transparent nav[aria-expanded="true"] .nav-link-section a:any-link:hover,
+header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text:hover {
+  color: var(--action-default);
+}
+
 @media (width >= 768px) {
   header nav {
     padding: 20px 30px 16px 24px;
@@ -417,6 +428,10 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
     color: var(--black);
   }
 
+  header .nav-sections .nav-drop[aria-expanded="true"] .nav-drop-text:hover {
+    color: var(--action-default);
+  }
+
   header .nav-sections .nav-drop[aria-expanded="true"] .nav-drop-text::after {
     content: "";
     display: block;
@@ -425,6 +440,48 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
     position: absolute;
     bottom: 0;
     background: currentcolor;
+  }
+
+  header a.active {
+    color: inherit;
+  }
+
+  header a:hover.active {
+    color: var(--action-default);
+  }
+
+  header.transparent li:not(.nav-drop)[aria-expanded="false"] a:hover:any-link {
+    color: var(--action-default);
+  }
+
+  header li:not(.nav-drop):has(a.active) {
+    position: relative;
+  }
+  
+  header .default-content-wrapper>ul>:has(a.active)::after {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 1px;
+    position: absolute;
+    bottom: 0;
+    background: var(--black);
+  }
+
+  header.transparent .default-content-wrapper>ul>:has(a.active)::after {
+    background: var(--white);
+  }
+
+  header.transparent div:not(.nav-sublist) li:not(.nav-drop):has(a.active)::after {
+    background: var(--white);
+  }
+
+  header div:not(.nav-sublist) li:not(.nav-drop):has(a:hover.active)::after {
+    background-color: var(--action-default);
+  }
+
+  header.transparent div:not(.nav-sublist) li:not(.nav-drop):has(a:hover.active)::after {
+    background: var(--action-default);
   }
 
   /* expanded menu item content */
@@ -452,6 +509,7 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
     row-gap: 40px;
   }
 
+  /* stylelint-disable-next-line no-descending-specificity */
   header .nav-sections .nav-drop ul li a:any-link {
     padding: 0 16px;
     display: flex;
@@ -468,6 +526,7 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
     display: flex;
   }
 
+  /* stylelint-disable-next-line no-descending-specificity */
   header .nav-sections .nav-sublist li {
     transition: opacity 400ms linear;
     opacity: 0;
@@ -512,6 +571,7 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
     cursor: auto;
   }
 
+  /* stylelint-disable-next-line no-descending-specificity */
   header.transparent nav[aria-expanded="true"] .nav-link-section a:any-link,
   header.transparent
     nav[aria-expanded="true"]
@@ -541,7 +601,7 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
     .nav-link-section
     .nav-drop
     a:hover {
-    color: var(--action-hover);
+    color: var(--action-default);
   }
 }
 
