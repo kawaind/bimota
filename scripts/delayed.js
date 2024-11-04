@@ -7,13 +7,18 @@ if (!window.location.pathname.includes('srcdoc')
   // on localhost/hlx.page/hlx.live the consent notice is displayed every time the page opens,
   // because the cookie is not persistent. To avoid this annoyance, disable unless on the
   // production page.
+  loadScript('https://cdn.cookielaw.org/consent/0192f83d-f23b-72a4-88ba-54e881a37a86/OtAutoBlock.js', {
+    type: 'text/javascript',
+    charset: 'UTF-8',
+  });
+
   loadScript('https://cdn.cookielaw.org/scripttemplates/otSDKStub.js', {
     type: 'text/javascript',
     charset: 'UTF-8',
     'data-domain-script': '0192f83d-f23b-72a4-88ba-54e881a37a86',
   });
 
-  loadScript('https://assets.adobedtm.com/53c8e773d591/d826b4085ef5/launch-1bb397cb091a-development.min.js', {
+  loadScript('https://assets.adobedtm.com/53c8e773d591/d826b4085ef5/launch-268ad0976d20.min.js', {
     type: 'text/javascript',
     charset: 'UTF-8',
   });
