@@ -114,7 +114,7 @@
 
 @media (width >= 1025px) {
   .highlight .highlight-slide {
-    padding: 172px 30px 0;
+    padding: 132px 30px 0;
     align-items: flex-start;
   }
 
@@ -129,7 +129,7 @@
 
 @media (width >= 1440px) {
   .highlight .highlight-slide {
-    padding: 255px 30px 0;
+    padding: 200px 30px 0;
   }
 
   .highlight .highlight-slide div {
