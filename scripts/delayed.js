@@ -10,7 +10,7 @@ if (!window.location.pathname.includes('srcdoc')
   loadScript('https://cdn.cookielaw.org/scripttemplates/otSDKStub.js', {
     type: 'text/javascript',
     charset: 'UTF-8',
-    'data-domain-script': '0190e9aa-e486-72b8-ada6-bda52c32aa2c',
+    'data-domain-script': '0192f83d-f23b-72a4-88ba-54e881a37a86',
   });
 
   loadScript('https://assets.adobedtm.com/53c8e773d591/d826b4085ef5/launch-1bb397cb091a-development.min.js', {
