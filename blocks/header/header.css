@@ -508,6 +508,11 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text:h
   }
 
   /* stylelint-disable-next-line no-descending-specificity */
+  header .nav-sections ul > li .nav-sublist ul {
+    gap: 44px 16px;
+  }
+
+  /* stylelint-disable-next-line no-descending-specificity */
   header .nav-sections .nav-drop ul li a:any-link {
     padding: 0 16px;
     display: flex;
