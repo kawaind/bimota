@@ -503,8 +503,6 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text:h
 
   header .nav-sections .nav-drop ul {
     padding: 0;
-    gap: unset;
-    justify-content: space-between;
     flex-wrap: wrap;
     row-gap: 40px;
   }
