@@ -18,14 +18,8 @@ if (!window.location.pathname.includes('srcdoc')
     'data-domain-script': '0192f83d-f23b-72a4-88ba-54e881a37a86',
   });
 
-  loadScript('https://assets.adobedtm.com/53c8e773d591/d826b4085ef5/launch-268ad0976d20.min.js', {
-    type: 'text/javascript',
-    charset: 'UTF-8',
-  });
-
   window.OptanonWrapper = () => {
     const currentOnetrustActiveGroups = window.OnetrustActiveGroups;
-
     function isSameGroups(groups1, groups2) {
       const s1 = JSON.stringify(groups1.split(',').sort());
       const s2 = JSON.stringify(groups2.split(',').sort());
@@ -41,3 +35,27 @@ if (!window.location.pathname.includes('srcdoc')
     });
   };
 }
+
+function injectScript(src, crossOrigin = '') {
+  window.scriptsLoaded = window.scriptsLoaded || [];
+
+  if (window.scriptsLoaded.indexOf(src)) {
+    const head = document.querySelector('head');
+    const script = document.createElement('script');
+
+    script.src = src;
+    script.setAttribute('async', 'true');
+    if (['anonymous', 'use-credentials'].includes(crossOrigin)) {
+      script.crossOrigin = crossOrigin;
+    }
+    head.append(script);
+    window.scriptsLoaded.push(src);
+  }
+}
+
+function loadLaunch() {
+  window.adobeDataLayer = window.adobeDataLayer || [];
+  injectScript('https://assets.adobedtm.com/53c8e773d591/d826b4085ef5/launch-268ad0976d20.min.js');
+}
+
+loadLaunch();
