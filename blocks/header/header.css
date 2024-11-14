@@ -458,7 +458,7 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text:h
     position: relative;
   }
   
-  header .default-content-wrapper>ul>:has(a.active)::after {
+  header .default-content-wrapper>ul>li[aria-expanded="false"]:has(a.active)::after {
     content: "";
     display: block;
     width: 100%;
@@ -468,7 +468,7 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text:h
     background: var(--black);
   }
 
-  header.transparent .default-content-wrapper>ul>:has(a.active)::after {
+  header.transparent .default-content-wrapper>ul>li[aria-expanded="false"]:has(a.active)::after {
     background: var(--white);
   }
 
