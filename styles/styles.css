@@ -533,7 +533,7 @@ main .section {
   padding: var(--section-y-padding) var(--section-x-padding);
 }
 
-main .section:first-child {
+main .section:first-child:not(.title-container) {
   padding-top: 0;
 }
 
