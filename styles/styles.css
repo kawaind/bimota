@@ -533,12 +533,13 @@ main .section {
   padding: var(--section-y-padding) var(--section-x-padding);
 }
 
-main .section:first-child:not(.title-container) {
-  padding-top: 0;
-}
 
 main .section:last-child {
   padding-bottom: calc(2 * var(--section-y-padding));
+}
+
+main .section:first-child:not(.title-container) {
+  padding-top: 0;
 }
 
 main .section.nba-container:last-child,
