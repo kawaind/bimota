@@ -30,10 +30,13 @@ main .hero-container .hero-wrapper {
   background-color: var(--black);
 }
 
+<<<<<<< Updated upstream
 .hero.hero-multiple-images > div > div picture:first-of-type {
   display: none;
 }
 
+=======
+>>>>>>> Stashed changes
 .hero img {
   object-fit: cover;
   width: 100%;
@@ -101,6 +104,17 @@ main .hero-container .hero-wrapper {
   height: 32px;
   border: solid 1px var(--white);
   border-radius: 50%;
+}
+
+.hero-multiple-videos .hero-pause-button:nth-of-type(2) {
+  top: calc(var(--nav-height) + 60px);
+}
+
+
+.hero.hero-multiple-images > div > div picture:first-of-type,
+.hero-multiple-videos .video-wrapper:first-of-type,
+.hero-multiple-videos .hero-pause-button:first-of-type {
+  display: none;
 }
 
 .hero .hero-scroll-icon {
@@ -197,6 +211,16 @@ main .hero-container .hero-wrapper {
     top: unset;
     bottom: 30px;
     right: 30px;
+  }
+
+  .hero.hero-multiple-images > div > div picture:nth-of-type(2),
+  .hero-multiple-videos .video-wrapper:nth-of-type(2),
+  .hero-multiple-videos .hero-pause-button:nth-of-type(2) {
+    display: none;
+  }
+
+  .hero-multiple-videos .hero-pause-button:first-of-type {
+    display: flex;
   }
 
   .hero .hero-flag {
