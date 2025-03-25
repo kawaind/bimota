@@ -15,6 +15,10 @@ main .hero-container .hero-wrapper {
   height: 100vh;
 }
 
+.da-preview .hero {
+  height: 600px;
+}
+
 /* stylelint-disable-next-line no-descending-specificity */
 .hero > div:first-child,
 .hero > div:first-child > div {
