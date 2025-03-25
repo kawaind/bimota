@@ -2,20 +2,14 @@ import { loadScript } from './aem.js';
 
 // OneTrust Cookies Consent Notice
 if (!window.location.pathname.includes('srcdoc')
-  && !['localhost', 'hlx.page', 'hlx.live', 'aem.page', 'aem.live'].some((url) => window.location.host.includes(url))) {
+  && !['localhost'].some((url) => window.location.host.includes(url))) {
   // when running on localhost in the block library host is empty but the path is srcdoc
   // on localhost/hlx.page/hlx.live the consent notice is displayed every time the page opens,
   // because the cookie is not persistent. To avoid this annoyance, disable unless on the
   // production page.
-  loadScript('https://cdn.cookielaw.org/consent/0192f83d-f23b-72a4-88ba-54e881a37a86/OtAutoBlock.js', {
+  loadScript('https://cloud.ccm19.de/app.js?apiKey=c7d2f47f3259dd5a137414a641f559ee48d81e684564ca8f&amp;domain=67e136a8868b63fcba0a4022', {
     type: 'text/javascript',
     charset: 'UTF-8',
-  });
-
-  loadScript('https://cdn.cookielaw.org/scripttemplates/otSDKStub.js', {
-    type: 'text/javascript',
-    charset: 'UTF-8',
-    'data-domain-script': '0192f83d-f23b-72a4-88ba-54e881a37a86',
   });
 
   window.OptanonWrapper = () => {
