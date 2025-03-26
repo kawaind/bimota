@@ -2,8 +2,8 @@
 Your project's description...
 
 ## Environments
-- Preview: https://main--edge-delivery-bimota--netcentric.hlx.page
-- Live: https://main--edge-delivery-bimota--netcentric.hlx.live
+- Preview: https://main--bimota--kawaind.aem.page
+- Live: https://main--bimota--kawaind.aem.live
 
 ## Installation
 
