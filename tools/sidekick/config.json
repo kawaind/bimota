@@ -2,25 +2,14 @@
   "project": "Biomota",
   "plugins": [
     {
-      "id": "library",
-      "title": "Library",
+      "id": "da-rollout",
+      "title": "Rollout",
       "environments": ["edit"],
-      "url": "/tools/sidekick/library.html",
-      "includePaths": ["**.docx**"]
-    },
-    {
-      "id": "asset-library",
-      "title": "Assets",
-      "environments": [
-          "edit"
-      ],
-      "url": "https://experience.adobe.com/solutions/CQ-assets-selectors/static-assets/resources/franklin/asset-selector.html",
-      "isPalette": true,
-      "includePaths": [
-          "**.docx**"
-      ],
-      "passConfig": true,
-      "paletteRect": "top: 50px; bottom: 10px; right: 10px; left: auto; width:400px; height: calc(100vh - 60px)"
-  }
+      "daLibrary": true,
+      "experience": "dialog",
+      "includePaths": ["DA"],
+      "icon": "https://{{URL}}.png",
+      "url": "https://da.live/nx/public/plugins/rollout.html"
+    }
   ]
 }
