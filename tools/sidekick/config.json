@@ -8,7 +8,7 @@
       "daLibrary": true,
       "experience": "dialog",
       "includePaths": ["DA"],
-      "icon": "https://content.da.live/kawaind/bimota/.da/smock_boxexport_18_n.svg",
+      "icon": "https://content.da.live/kawaind/.da/icons/smock_boxexport_18_n.svg",
       "url": "https://da.live/nx/public/plugins/rollout.html"
     }
   ]
