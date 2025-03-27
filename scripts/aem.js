@@ -668,6 +668,18 @@ async function loadSections(element) {
   }
 }
 
+/**
+ * The default root for all pages should be `/<country>/<language>`. 
+ * If we are above that level we return empty wich should resolve to the actual root above the country folders.
+ */
+function getRootPath() {
+  const pathTokens = location.pathname.split('/');
+  if(pathTokens.length >= 3) {
+    return pathTokens.slice(0, 3).join('/');
+  }
+  return '';
+}
+
 init();
 
 export {
@@ -695,4 +707,5 @@ export {
   toClassName,
   waitForFirstImage,
   wrapTextNodes,
+  getRootPath,
 };
