@@ -178,7 +178,7 @@ function handleTransparentAndScrolling(nav) {
 // loading country selector of modal as part of header
 async function loadCountrySelectorBlock() {
   const main = document.querySelector('main');
-  const fragment = await loadFragment('/drafts/lakshmi/country');
+  const fragment = await loadFragment('/index');
 
   while (fragment.firstElementChild) main.append(fragment.firstElementChild);
 }
@@ -269,6 +269,15 @@ export default async function decorate(block) {
     toolsWrapper.classList.add('default-content-wrapper');
     navTools.append(toolsWrapper);
     navTools.firstElementChild.remove();
+
+    const globeIcon = navTools.querySelector('.icon-globe');
+    if (globeIcon) {
+      const textWrapper = document.createElement('span');
+      textWrapper.textContent = globeIcon.nextSibling.textContent;
+      globeIcon.nextSibling.remove();
+      textWrapper.classList.add('nav-tools-text');
+      globeIcon.parentElement.append(textWrapper);
+    }
   }
 
   const navDealerLocator = nav.querySelector('.nav-dealer-locator');

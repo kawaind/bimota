@@ -353,6 +353,10 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text:h
 }
 
 @media (width >= 1025px) {
+  .nav-tools-text {
+    display: none;
+  }
+  
   header .nav-brand {
     flex-grow: unset;
   }

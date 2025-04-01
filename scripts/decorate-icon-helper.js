@@ -11,6 +11,7 @@ export default function customDecoreateIcons(main) {
       'icon-arrow-right',
       'icon-mail',
       'icon-chevron-right',
+      'icon-globe',
     ];
     const isInlineIcon = (el) => {
       const isInline = (className) => inlineIcons.includes(className);
