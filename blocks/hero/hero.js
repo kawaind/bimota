@@ -1,5 +1,6 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
-import { customDecoreateIcons, getTextLabel } from '../../scripts/scripts.js';
+import { customDecoreateIcons } from '../../scripts/decorate-icon-helper.js';
+import { getTextLabel } from '../../scripts/scripts.js';
 
 const addPauseButton = (block) => {
   const pauseButton = document.createElement('button');

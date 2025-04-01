@@ -66,4 +66,10 @@ export default function decorate(block) {
     dataContainer.append(categoryWrapper);
   });
   block.append(dataContainer);
+
+  // add modal class only when header/footer has option of country change
+  const hasGlobeIcon = document.querySelector('.icon-globe');
+  if (hasGlobeIcon) {
+    block.classList.add('modal-country-selector');
+  }
 }

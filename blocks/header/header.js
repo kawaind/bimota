@@ -1,5 +1,6 @@
 import { getMetadata, getRootPath } from '../../scripts/aem.js';
-import { addAnimateInOut, customDecoreateIcons } from '../../scripts/scripts.js';
+import { addAnimateInOut } from '../../scripts/modal-helper.js';
+import { customDecoreateIcons } from '../../scripts/decorate-icon-helper.js';
 import { loadFragment } from '../fragment/fragment.js';
 
 // media query match that indicates mobile/tablet width
@@ -140,26 +141,6 @@ function checkForActiveLink(navSections) {
   });
 }
 
-function getAvailableLanguages() {
-  return [...document.querySelectorAll('header .section.nav-tools a')]
-    .map((link) => new URL(link.href).pathname.split('/')[1])
-    .filter((val) => val);
-}
-
-function redirectPage(event) {
-  const currentUrl = window.location;
-  const currentFirstLevelFolderName = currentUrl.pathname.split('/')[1];
-  const newLang = new URL(event.target.href).pathname.split('/')[1];
-  const availableLangs = getAvailableLanguages();
-  const currentLang = availableLangs.includes(currentFirstLevelFolderName) ? currentFirstLevelFolderName : '';
-  const currentPathWithoutLang = currentLang ? currentUrl.pathname.replace(`/${currentLang}`, '') : currentUrl.pathname;
-  const newPathname = newLang ? `/${newLang}${currentPathWithoutLang}` : currentPathWithoutLang;
-  const redirectUrl = `${currentUrl.origin}${newPathname}`;
-
-  event.preventDefault();
-  window.location.replace(redirectUrl);
-}
-
 function handleTransparentAndScrolling(nav) {
   const useTransparentVariant = !!document.querySelector('main > .section:first-child > .hero-wrapper:first-child');
   const header = nav.closest('header');
@@ -194,6 +175,13 @@ function handleTransparentAndScrolling(nav) {
   changeToTransparentIfNeeded(window.scrollY);
 }
 
+// loading country selector of modal as part of header
+async function loadCountrySelectorBlock() {
+  const main = document.querySelector('main');
+  const fragment = await loadFragment('/drafts/lakshmi/country');
+
+  while (fragment.firstElementChild) main.append(fragment.firstElementChild);
+}
 /**
  * loads and decorates the header, mainly the nav
  * @param {Element} block The header block element
@@ -281,18 +269,6 @@ export default async function decorate(block) {
     toolsWrapper.classList.add('default-content-wrapper');
     navTools.append(toolsWrapper);
     navTools.firstElementChild.remove();
-    toolsWrapper.querySelectorAll('li').forEach((item) => {
-      item.addEventListener('click', redirectPage);
-
-      const availableLanguages = [...toolsWrapper.querySelectorAll('li a')].map((el) => new URL(el.href).pathname.split('/')[1]);
-      const firstPathnamePart = document.location.pathname.split('/')[1];
-      const currentLang = availableLanguages.includes(firstPathnamePart) ? firstPathnamePart : '';
-      const listItemLang = new URL(item.querySelector('a').href).pathname.split('/')[1];
-
-      if (currentLang === listItemLang) {
-        item.classList.add('active');
-      }
-    });
   }
 
   const navDealerLocator = nav.querySelector('.nav-dealer-locator');
@@ -343,4 +319,6 @@ export default async function decorate(block) {
   checkForActiveLink(navSections);
   handleTransparentAndScrolling(nav);
   customDecoreateIcons(nav);
+
+  loadCountrySelectorBlock();
 }

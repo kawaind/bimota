@@ -631,3 +631,8 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text:h
     padding-right: 0;
   }
 }
+
+.icon-globe {
+  height: 24px;
+  width: 24px;
+}
