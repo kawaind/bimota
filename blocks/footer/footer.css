@@ -191,6 +191,12 @@ footer {
   }
 }
 
+.country-selector-page footer {
+  position: fixed;
+  width: 100%;
+  bottom: 0;
+}
+
 @media (width >= 1024px) {
   .footer .columns > div {
     gap: 24px;

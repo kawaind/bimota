@@ -19,22 +19,24 @@ export default async function decorate(block) {
 
   // country selector changes
   const csIcon = footer.querySelector('[href="/#modal-country-selector"]');
-  const csWrapper = csIcon.parentElement;
-  const csContainer = csWrapper.parentElement;
-  csContainer.classList.add('footer-cs-wrapper');
-  csContainer.classList.remove('default-content-wrapper');
-  const textEle = document.createElement('span');
-  textEle.textContent = csWrapper.firstChild.textContent;
-  csWrapper.firstChild.remove();
-  const flagWrapper = document.createElement('div');
-  flagWrapper.classList.add('footer-cs-button-wrapper');
-  flagWrapper.innerHTML = csWrapper.innerHTML;
-  flagWrapper.firstElementChild.remove();
-  const buttonEle = flagWrapper.querySelector('a');
-  buttonEle.classList.add('footer-cs-button');
-  csContainer.append(textEle);
-  csContainer.append(flagWrapper);
-  csWrapper.remove();
+  if (csIcon) {
+    const csWrapper = csIcon.parentElement;
+    const csContainer = csWrapper.parentElement;
+    csContainer.classList.add('footer-cs-wrapper');
+    csContainer.classList.remove('default-content-wrapper');
+    const textEle = document.createElement('span');
+    textEle.textContent = csWrapper.firstChild.textContent;
+    csWrapper.firstChild.remove();
+    const flagWrapper = document.createElement('div');
+    flagWrapper.classList.add('footer-cs-button-wrapper');
+    flagWrapper.innerHTML = csWrapper.innerHTML;
+    flagWrapper.firstElementChild.remove();
+    const buttonEle = flagWrapper.querySelector('a');
+    buttonEle.classList.add('footer-cs-button');
+    csContainer.append(textEle);
+    csContainer.append(flagWrapper);
+    csWrapper.remove();
+  }
 
   const columns = [...footer.querySelectorAll('.columns > div > div')];
   columns.forEach((column) => {

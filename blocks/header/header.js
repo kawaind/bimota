@@ -280,11 +280,6 @@ export default async function decorate(block) {
     }
   }
 
-  const navDealerLocator = nav.querySelector('.nav-dealer-locator');
-  const dealerLocatorButton = navDealerLocator.querySelector('a');
-  navDealerLocator.innerHTML = '';
-  navDealerLocator.append(dealerLocatorButton);
-
   if (navSections && navTools) {
     const navLinksWrapper = document.createElement('div');
     navLinksWrapper.classList.add('nav-link-section');
@@ -303,31 +298,43 @@ export default async function decorate(block) {
     nav.append(backdrop);
   }
 
-  nav.append(navDealerLocator);
+  const navDealerLocator = nav.querySelector('.nav-dealer-locator');
+  if (navDealerLocator) {
+    const dealerLocatorButton = navDealerLocator.querySelector('a');
+    navDealerLocator.innerHTML = '';
+    navDealerLocator.append(dealerLocatorButton);
+    nav.append(navDealerLocator);
+  }
 
   // hamburger for mobile
-  const hamburger = document.createElement('div');
-  hamburger.classList.add('nav-hamburger');
-  hamburger.innerHTML = `<button type="button" aria-controls="nav" aria-label="Open navigation">
-      <span class="icon icon-hamburger"></span>
-    </button>`;
-  hamburger.addEventListener('click', () => toggleMenu(nav, navSections));
-  nav.append(hamburger);
-  nav.setAttribute('aria-expanded', 'false');
-  // prevent mobile nav behavior on window resize
-  toggleMenu(nav, navSections, isDesktop.matches);
-  isDesktop.addEventListener('change', () => {
+  if (navSections) {
+    const hamburger = document.createElement('div');
+    hamburger.classList.add('nav-hamburger');
+    hamburger.innerHTML = `<button type="button" aria-controls="nav" aria-label="Open navigation">
+        <span class="icon icon-hamburger"></span>
+      </button>`;
+    hamburger.addEventListener('click', () => toggleMenu(nav, navSections));
+    nav.append(hamburger);
+    nav.setAttribute('aria-expanded', 'false');
+    // prevent mobile nav behavior on window resize
     toggleMenu(nav, navSections, isDesktop.matches);
-  });
+    isDesktop.addEventListener('change', () => {
+      toggleMenu(nav, navSections, isDesktop.matches);
+    });
+  }
 
   const navWrapper = document.createElement('div');
   navWrapper.className = 'nav-wrapper';
   navWrapper.append(nav);
   block.append(navWrapper);
 
-  checkForActiveLink(navSections);
+  if (navSections) {
+    checkForActiveLink(navSections);
+  }
   handleTransparentAndScrolling(nav);
   customDecoreateIcons(nav);
 
-  loadCountrySelectorBlock();
+  if (navTools) {
+    loadCountrySelectorBlock();
+  }
 }
