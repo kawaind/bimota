@@ -68,6 +68,8 @@
 }
 
 .country-selector-language-list li a:hover,
+.country-selector-language-list li a:focus,
+.country-selector-language-list li a:active,
 .country-selector-language-list li a.active {
     color: var(--action-hover);
 }
