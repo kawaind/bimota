@@ -55,9 +55,6 @@ export default function decorate(block) {
           anchorTag.prepend(picture);
         }
 
-        anchorTag.addEventListener('click', (e) => {
-          sessionStorage.setItem('country-selected', e.target.title);
-        });
         if (anchorTag.getAttribute('href') === window.location.pathname) {
           anchorTag.classList.add('active');
         }
