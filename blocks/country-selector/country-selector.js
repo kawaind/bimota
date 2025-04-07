@@ -49,17 +49,27 @@ export default function decorate(block) {
     categoryRow.regionData.forEach((el) => {
       [...el.countryLanguageList.children].forEach((language) => {
         const picture = language.querySelector('picture');
-        const anchorTag = language.querySelector('a');
-        if (anchorTag && picture) {
+        let countryButton = language.querySelector('a');
+        if (!countryButton) {
+          const spanWrapper = document.createElement('div');
+          const coomingSoon = language.querySelector('em');
+
+          spanWrapper.append(coomingSoon);
+          countryButton = spanWrapper;
+        }
+        if (countryButton && picture) {
           picture.classList.add('country-selector-flag');
-          anchorTag.prepend(picture);
+          countryButton.prepend(picture);
         }
 
-        if (anchorTag.getAttribute('href') === window.location.pathname) {
-          anchorTag.classList.add('active');
+        if (countryButton) {
+          countryButton.classList.add('cs-button');
+          if (countryButton.getAttribute('href') === window.location.pathname) {
+            countryButton.classList.add('active');
+          }
+          language.append(countryButton);
         }
-        language.append(anchorTag);
-        language.querySelectorAll('p, div').forEach((item) => {
+        language.querySelectorAll('p').forEach((item) => {
           stripEmptyTags(language, item);
         });
       });
