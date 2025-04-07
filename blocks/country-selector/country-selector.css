@@ -61,6 +61,11 @@
     gap: 6px;
 }
 
+.country-selector-language-list li a:hover,
+.country-selector-language-list li a.active {
+    color: var(--action-hover);
+}
+
 .country-selector-flag {
     height: 20px;
     width: 20px;

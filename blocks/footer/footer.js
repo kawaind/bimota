@@ -1,7 +1,14 @@
 import { getMetadata, getRootPath } from '../../scripts/aem.js';
 import { loadFragment } from '../fragment/fragment.js';
 import { addTitleAttributeToIconLink } from '../../scripts/helpers.js';
+import { customDecoreateIcons } from '../../scripts/decorate-icon-helper.js';
 
+const addFlagIcon = (flagWrapper, country) => {
+  const flagIcon = document.createElement('span');
+  flagIcon.classList.add('icon', `icon-${country}`);
+
+  flagWrapper.append(flagIcon);
+};
 /**
  * loads and decorates the footer
  * @param {Element} block The footer block element
@@ -16,6 +23,28 @@ export default async function decorate(block) {
   block.textContent = '';
   const footer = document.createElement('div');
   while (fragment.firstElementChild) footer.append(fragment.firstElementChild);
+
+  // country selector changes
+  const selectedCountry = sessionStorage.getItem('country-selected');
+  const buttonSelector = footer.querySelector('[href="/#modal-country-selector"]');
+  const csWrapper = buttonSelector.parentElement;
+  const csContainer = csWrapper.parentElement;
+  csContainer.classList.add('footer-cs-wrapper');
+  csContainer.classList.remove('default-content-wrapper');
+
+  const title = document.createElement('span');
+  title.textContent = csWrapper.firstChild.textContent;
+
+  const flagWrapper = document.createElement('div');
+  flagWrapper.classList.add('footer-cs-button-wrapper');
+  addFlagIcon(flagWrapper, selectedCountry.split(' ')[0].toLowerCase());
+
+  const textEle = document.createElement('span');
+  textEle.textContent = selectedCountry;
+  flagWrapper.append(textEle, buttonSelector);
+  buttonSelector.classList.add('footer-cs-button');
+  csContainer.append(title, flagWrapper);
+  csWrapper.remove();
 
   const columns = [...footer.querySelectorAll('.columns > div > div')];
   columns.forEach((column) => {
@@ -89,5 +118,6 @@ export default async function decorate(block) {
     });
   });
 
+  customDecoreateIcons(footer);
   block.append(footer);
 }
