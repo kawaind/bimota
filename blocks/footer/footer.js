@@ -37,11 +37,14 @@ export default async function decorate(block) {
 
   const flagWrapper = document.createElement('div');
   flagWrapper.classList.add('footer-cs-button-wrapper');
-  addFlagIcon(flagWrapper, selectedCountry.split(' ')[0].toLowerCase());
+  if (selectedCountry) {
+    addFlagIcon(flagWrapper, selectedCountry.split(' ')[0].toLowerCase());
 
-  const textEle = document.createElement('span');
-  textEle.textContent = selectedCountry;
-  flagWrapper.append(textEle, buttonSelector);
+    const textEle = document.createElement('span');
+    textEle.textContent = selectedCountry;
+    flagWrapper.append(textEle, buttonSelector);
+  }
+
   buttonSelector.classList.add('footer-cs-button');
   csContainer.append(title, flagWrapper);
   csWrapper.remove();
