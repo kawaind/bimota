@@ -150,6 +150,12 @@ footer {
   display: flex;
 }
 
+.footer-cs-wrapper > span {
+  font-size: 14px;
+  line-height: 150%;
+  letter-spacing: 0.25px;
+}
+
 .footer .footer-cs-button-wrapper:not(:first-child) {
   padding: 0;
   display: flex;
