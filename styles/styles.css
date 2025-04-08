@@ -833,3 +833,8 @@ body.text-page main > .section:first-child > .default-content-wrapper:first-chil
     max-width: 814px;
   }
 }
+
+/*country selector styles */
+.country-selector-page main {
+  min-height: 82.5vh;
+}

@@ -176,6 +176,10 @@ footer {
   height: 24px;
 }
 
+.country-selector-page .section:last-child .default-content-wrapper {
+  padding-top: 0;
+}
+
 @media (width >= 768px) {
   footer {
     padding: 0 40px;
