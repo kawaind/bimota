@@ -219,10 +219,17 @@ export default async function decorate(block) {
       if (sublist) {
         const textWrapper = document.createElement('a');
         textWrapper.classList.add('nav-drop-text');
-        textWrapper.append(navSection.firstChild);
         textWrapper.innerHTML += '<span class="icon icon-chevron"></span>';
+        textWrapper.prepend(navSection.firstElementChild.innerHTML);
+        navSection.firstElementChild.remove();
         navSection.prepend(textWrapper);
         navSection.classList.add('nav-drop');
+
+        navSection.querySelectorAll('p').forEach((item) => {
+          const parentEle = item.parentElement;
+          parentEle.append(...item.children);
+          item.remove();
+        });
 
         // wrapping pictures with links if the link follows immediately after the picture
         navSection.querySelectorAll('ul picture + a').forEach((link) => {
@@ -250,8 +257,14 @@ export default async function decorate(block) {
         `).children[0];
 
         sublist.replaceWith(navSublist);
+      } else {
+        const link = navSection.querySelector('a');
+        if (link) {
+          const linkWrapper = link.parentElement;
+          navSection.append(link);
+          linkWrapper.remove();
+        }
       }
-
       navSection.addEventListener('click', (event) => {
         if (
           event.target.classList.contains('nav-drop-text')
