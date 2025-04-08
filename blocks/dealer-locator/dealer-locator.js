@@ -1,4 +1,4 @@
-import { loadScript } from '../../scripts/aem.js';
+import { loadScript, getMetadata } from '../../scripts/aem.js';
 
 export default async function decorate(block) {
   const dealerLocator = document.createElement('div');
@@ -54,6 +54,7 @@ export default async function decorate(block) {
   ];
 
   const colorsConfig = isRedVariant ? redConfig : [];
+  const woosmapKey = getMetadata('wooskey');
 
   const selectedLocationConfig = {
     initialZoom: 11,
@@ -124,9 +125,8 @@ export default async function decorate(block) {
         // these scripts depend on jquery:
         loadScript('//webapp.woosmap.com/webapp.js', { type: 'text/javascript' }).then(() => {
           function loadWebApp() {
-            const publicKey = 'woos-50c04d89-af71-3a3b-b0b9-0786ee130532';
             // eslint-disable-next-line no-undef
-            const webapp = new window.WebApp('dealer-locator', publicKey);
+            const webapp = new window.WebApp('dealer-locator', woosmapKey);
             const config = {
               maps: {
                 provider: 'woosmap',

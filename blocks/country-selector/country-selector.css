@@ -3,8 +3,8 @@
     position: relative;
 }
 
-.country-selector-heading-wrapper {
-    margin-bottom: 20px;
+.country-selector-heading-wrapper .h2 {
+    margin-bottom: 40px;
 }
 
 .country-selector-bike-image {
@@ -87,6 +87,10 @@
 }
 
 @media (width >= 768px) {
+    .country-selector-page .country-selector-heading-wrapper .h2 {
+        margin-bottom: 60px;
+    }
+
     .country-selector-bike-image {
         display: block;
         position: absolute;
@@ -109,5 +113,11 @@
 @media (width >= 1024px) {
     .country-selector-country-wrapper {
         grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (width >= 1440px) {
+    .country-selector-page .country-selector-heading-wrapper .h2 {
+        margin-bottom: 80px;
     }
 }
