@@ -196,6 +196,7 @@ header .nav-tools .default-content-wrapper {
 header .nav-tools .default-content-wrapper li {
   margin: 0;
   position: relative;
+  display: flex;
 }
 
 header .nav-tools .default-content-wrapper li.active::after {
