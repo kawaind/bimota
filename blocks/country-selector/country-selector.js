@@ -60,6 +60,8 @@ export default function decorate(block) {
         if (countryButton && picture) {
           picture.classList.add('country-selector-flag');
           countryButton.prepend(picture);
+        } else if (!picture) {
+          countryButton.classList.add('cs-button--no-flag');
         }
 
         if (countryButton) {

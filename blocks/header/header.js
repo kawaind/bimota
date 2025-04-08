@@ -277,6 +277,7 @@ export default async function decorate(block) {
       globeIcon.nextSibling.remove();
       textWrapper.classList.add('nav-tools-text');
       globeIcon.parentElement.append(textWrapper);
+      loadCountrySelectorBlock();
     }
   }
 
@@ -333,8 +334,4 @@ export default async function decorate(block) {
   }
   handleTransparentAndScrolling(nav);
   customDecoreateIcons(nav);
-
-  if (navTools) {
-    loadCountrySelectorBlock();
-  }
 }

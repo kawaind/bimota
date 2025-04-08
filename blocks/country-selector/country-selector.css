@@ -59,12 +59,19 @@
     letter-spacing: 0.25px;
     gap: 6px;
     display: flex;
-    align-items: center;
 }
 
 .country-selector-language-list li .cs-button em {
     font-style: normal;
     color: var(--grey-50);
+}
+
+.country-selector-language-list li a.cs-button--no-flag {
+    padding-left: 30px;
+}
+
+.country-selector-language-list li .cs-button--no-flag em {
+    padding-left: 26px;
 }
 
 .country-selector-language-list li a:hover,
