@@ -142,19 +142,20 @@ export default function decorate(block) {
   const headings = firstCell.querySelectorAll('h1, h2, h3, h4, h5, h6');
   const links = firstCell.querySelectorAll('a');
   const dateEl = block.querySelector(':scope > div:nth-child(2) > div');
+  const picturesArr = firstCell.querySelectorAll('picture');
 
-  firstCell.querySelectorAll('picture').forEach((picture, i) => {
+  picturesArr.forEach((picture, i) => {
     const img = picture.querySelector('img');
     const pictureEl = createOptimizedPicture(img.src, '', false, [{ width: window.innerWidth }]);
     firstCell.append(pictureEl);
 
     if (i > 0) {
       block.classList.add('hero-multiple-images');
-      picture.parentElement.remove();
-      return;
     }
 
-    picture.parentElement.remove();
+    if (i === (picturesArr.length - 1) && picture.parentElement.tagName === 'P') {
+      picture.parentElement.remove();
+    }
   });
 
   if (video) {
