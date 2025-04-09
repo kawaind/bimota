@@ -542,7 +542,7 @@ main .section:first-child:not(.title-container) {
   padding-top: 0;
 }
 
-main .section.nba-container:last-child,
+main .section.nba-container:nth-last-child(2),
 main .section.padding-bottom-0 {
   padding-bottom: 0;
 }
@@ -832,4 +832,9 @@ body.text-page main > .section:first-child > .default-content-wrapper:first-chil
   body.text-page main .section {
     max-width: 814px;
   }
+}
+
+/*country selector styles */
+.country-selector-page main {
+  min-height: 82.5vh;
 }

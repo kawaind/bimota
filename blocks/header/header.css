@@ -196,6 +196,7 @@ header .nav-tools .default-content-wrapper {
 header .nav-tools .default-content-wrapper li {
   margin: 0;
   position: relative;
+  display: flex;
 }
 
 header .nav-tools .default-content-wrapper li.active::after {
@@ -353,6 +354,10 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text:h
 }
 
 @media (width >= 1025px) {
+  .nav-tools-text {
+    display: none;
+  }
+  
   header .nav-brand {
     flex-grow: unset;
   }
@@ -630,4 +635,9 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text:h
     padding-left: 0;
     padding-right: 0;
   }
+}
+
+.icon-globe {
+  height: 24px;
+  width: 24px;
 }

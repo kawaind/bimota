@@ -1,0 +1,131 @@
+.country-selector {
+    padding-top: 40px;
+    position: relative;
+}
+
+.country-selector-heading-wrapper .h2 {
+    margin-bottom: 40px;
+}
+
+.country-selector-bike-image {
+    display: none;
+}
+
+.country-selector-bike-image img {
+    width: 100%;
+    height: 100%;
+}
+
+.country-selector-regions-container {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+.country-selector-region-wrapper .h5 {
+    margin-bottom: 24px;
+}
+
+.country-selector-country-wrapper {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 32px 16px;
+}
+
+.country-selector-regions-container .country-selector-country-wrapper:not(:first-child),
+.country-selector-regions-container .country-selector-region-wrapper:not(:first-child) {
+    padding-top: 0;
+}
+
+.country-selector-language-list {
+    margin-bottom: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-flow: column;
+    gap: 3px;
+}
+
+.country-selector-language-list li .cs-button {
+    padding: 6px;
+    width: 100%;
+    justify-content: flex-start;
+    background-color: var(--grey-5);
+    color: var(--grey-90);
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 150%;
+    letter-spacing: 0.25px;
+    gap: 6px;
+    display: flex;
+}
+
+.country-selector-language-list li .cs-button em {
+    font-style: normal;
+    color: var(--grey-50);
+}
+
+.country-selector-language-list li a.cs-button--no-flag {
+    padding-left: 30px;
+}
+
+.country-selector-language-list li .cs-button--no-flag em {
+    padding-left: 26px;
+}
+
+.country-selector-language-list li a:hover,
+.country-selector-language-list li a:focus,
+.country-selector-language-list li a:active,
+.country-selector-language-list li a.active {
+    color: var(--action-hover);
+}
+
+.country-selector-flag {
+    height: 20px;
+    width: 20px;
+}
+
+@media (width >= 768px) {
+    .country-selector-page .country-selector-heading-wrapper .h2 {
+        margin-bottom: 60px;
+    }
+
+    .country-selector-page .country-selector-region-wrapper .h5 {
+        margin-bottom: 40px;
+    }
+
+    .country-selector-bike-image {
+        display: block;
+        position: absolute;
+        top: 5px;
+        right: 0;
+        aspect-ratio: 16 / 9;
+        padding-top: 5px;
+    }
+
+    .country-selector-regions-container {
+        gap: 60px;
+    }
+
+    .country-selector-country-wrapper {
+        grid-template-columns: repeat(3, 1fr);
+        grid-gap: 32px 24px;
+    }
+}
+
+@media (width >= 1024px) {
+    .country-selector-country-wrapper {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .country-selector-region-wrapper .h5 {
+        margin-bottom: 32px;
+    }
+}
+
+@media (width >= 1440px) {
+    .country-selector-page .country-selector-heading-wrapper .h2 {
+        margin-bottom: 80px;
+    }
+}

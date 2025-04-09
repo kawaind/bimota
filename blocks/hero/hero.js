@@ -1,5 +1,6 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
-import { customDecoreateIcons, getTextLabel } from '../../scripts/scripts.js';
+import { customDecoreateIcons } from '../../scripts/decorate-icon-helper.js';
+import { getTextLabel } from '../../scripts/scripts.js';
 
 const addPauseButton = (block) => {
   const pauseButton = document.createElement('button');
@@ -137,24 +138,24 @@ const startCountdown = (block, eventDate) => {
 
 export default function decorate(block) {
   const firstCell = block.querySelector(':scope > div > div');
-  const [picture, xsPicture] = firstCell.querySelectorAll('picture');
   const video = firstCell.querySelector('video');
   const headings = firstCell.querySelectorAll('h1, h2, h3, h4, h5, h6');
   const links = firstCell.querySelectorAll('a');
   const dateEl = block.querySelector(':scope > div:nth-child(2) > div');
 
-  if (picture) {
+  firstCell.querySelectorAll('picture').forEach((picture, i) => {
     const img = picture.querySelector('img');
     const pictureEl = createOptimizedPicture(img.src, '', false, [{ width: window.innerWidth }]);
-    picture.parentElement.replaceWith(pictureEl);
-  }
+    firstCell.append(pictureEl);
 
-  if (xsPicture) {
-    const img = xsPicture.querySelector('img');
-    const pictureEl = createOptimizedPicture(img.src, '', false, [{ width: window.innerWidth }]);
-    xsPicture.parentElement.replaceWith(pictureEl);
-    block.classList.add('hero-multiple-images');
-  }
+    if (i > 0) {
+      block.classList.add('hero-multiple-images');
+      picture.parentElement.remove();
+      return;
+    }
+
+    picture.parentElement.remove();
+  });
 
   if (video) {
     video.parentElement.classList.add('video-wrapper');

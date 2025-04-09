@@ -1,5 +1,6 @@
 import { getMetadata, getRootPath } from '../../scripts/aem.js';
-import { addAnimateInOut, customDecoreateIcons } from '../../scripts/scripts.js';
+import { addAnimateInOut } from '../../scripts/modal-helper.js';
+import { customDecoreateIcons } from '../../scripts/decorate-icon-helper.js';
 import { loadFragment } from '../fragment/fragment.js';
 
 // media query match that indicates mobile/tablet width
@@ -140,26 +141,6 @@ function checkForActiveLink(navSections) {
   });
 }
 
-function getAvailableLanguages() {
-  return [...document.querySelectorAll('header .section.nav-tools a')]
-    .map((link) => new URL(link.href).pathname.split('/')[1])
-    .filter((val) => val);
-}
-
-function redirectPage(event) {
-  const currentUrl = window.location;
-  const currentFirstLevelFolderName = currentUrl.pathname.split('/')[1];
-  const newLang = new URL(event.target.href).pathname.split('/')[1];
-  const availableLangs = getAvailableLanguages();
-  const currentLang = availableLangs.includes(currentFirstLevelFolderName) ? currentFirstLevelFolderName : '';
-  const currentPathWithoutLang = currentLang ? currentUrl.pathname.replace(`/${currentLang}`, '') : currentUrl.pathname;
-  const newPathname = newLang ? `/${newLang}${currentPathWithoutLang}` : currentPathWithoutLang;
-  const redirectUrl = `${currentUrl.origin}${newPathname}`;
-
-  event.preventDefault();
-  window.location.replace(redirectUrl);
-}
-
 function handleTransparentAndScrolling(nav) {
   const useTransparentVariant = !!document.querySelector('main > .section:first-child > .hero-wrapper:first-child');
   const header = nav.closest('header');
@@ -194,6 +175,13 @@ function handleTransparentAndScrolling(nav) {
   changeToTransparentIfNeeded(window.scrollY);
 }
 
+// loading country selector of modal as part of header
+async function loadCountrySelectorBlock() {
+  const main = document.querySelector('main');
+  const fragment = await loadFragment('/index');
+
+  while (fragment.firstElementChild) main.append(fragment.firstElementChild);
+}
 /**
  * loads and decorates the header, mainly the nav
  * @param {Element} block The header block element
@@ -231,10 +219,17 @@ export default async function decorate(block) {
       if (sublist) {
         const textWrapper = document.createElement('a');
         textWrapper.classList.add('nav-drop-text');
-        textWrapper.append(navSection.firstChild);
         textWrapper.innerHTML += '<span class="icon icon-chevron"></span>';
+        textWrapper.prepend(navSection.firstElementChild.innerHTML);
+        navSection.firstElementChild.remove();
         navSection.prepend(textWrapper);
         navSection.classList.add('nav-drop');
+
+        navSection.querySelectorAll('p').forEach((item) => {
+          const parentEle = item.parentElement;
+          parentEle.append(...item.children);
+          item.remove();
+        });
 
         // wrapping pictures with links if the link follows immediately after the picture
         navSection.querySelectorAll('ul picture + a').forEach((link) => {
@@ -262,8 +257,14 @@ export default async function decorate(block) {
         `).children[0];
 
         sublist.replaceWith(navSublist);
+      } else {
+        const link = navSection.querySelector('a');
+        if (link) {
+          const linkWrapper = link.parentElement;
+          navSection.append(link);
+          linkWrapper.remove();
+        }
       }
-
       navSection.addEventListener('click', (event) => {
         if (
           event.target.classList.contains('nav-drop-text')
@@ -281,24 +282,17 @@ export default async function decorate(block) {
     toolsWrapper.classList.add('default-content-wrapper');
     navTools.append(toolsWrapper);
     navTools.firstElementChild.remove();
-    toolsWrapper.querySelectorAll('li').forEach((item) => {
-      item.addEventListener('click', redirectPage);
 
-      const availableLanguages = [...toolsWrapper.querySelectorAll('li a')].map((el) => new URL(el.href).pathname.split('/')[1]);
-      const firstPathnamePart = document.location.pathname.split('/')[1];
-      const currentLang = availableLanguages.includes(firstPathnamePart) ? firstPathnamePart : '';
-      const listItemLang = new URL(item.querySelector('a').href).pathname.split('/')[1];
-
-      if (currentLang === listItemLang) {
-        item.classList.add('active');
-      }
-    });
+    const globeIcon = navTools.querySelector('.icon-globe');
+    if (globeIcon) {
+      const textWrapper = document.createElement('span');
+      textWrapper.textContent = globeIcon.nextSibling.textContent;
+      globeIcon.nextSibling.remove();
+      textWrapper.classList.add('nav-tools-text');
+      globeIcon.parentElement.append(textWrapper);
+      loadCountrySelectorBlock();
+    }
   }
-
-  const navDealerLocator = nav.querySelector('.nav-dealer-locator');
-  const dealerLocatorButton = navDealerLocator.querySelector('a');
-  navDealerLocator.innerHTML = '';
-  navDealerLocator.append(dealerLocatorButton);
 
   if (navSections && navTools) {
     const navLinksWrapper = document.createElement('div');
@@ -318,29 +312,39 @@ export default async function decorate(block) {
     nav.append(backdrop);
   }
 
-  nav.append(navDealerLocator);
+  const navDealerLocator = nav.querySelector('.nav-dealer-locator');
+  if (navDealerLocator) {
+    const dealerLocatorButton = navDealerLocator.querySelector('a');
+    navDealerLocator.innerHTML = '';
+    navDealerLocator.append(dealerLocatorButton);
+    nav.append(navDealerLocator);
+  }
 
   // hamburger for mobile
-  const hamburger = document.createElement('div');
-  hamburger.classList.add('nav-hamburger');
-  hamburger.innerHTML = `<button type="button" aria-controls="nav" aria-label="Open navigation">
-      <span class="icon icon-hamburger"></span>
-    </button>`;
-  hamburger.addEventListener('click', () => toggleMenu(nav, navSections));
-  nav.append(hamburger);
-  nav.setAttribute('aria-expanded', 'false');
-  // prevent mobile nav behavior on window resize
-  toggleMenu(nav, navSections, isDesktop.matches);
-  isDesktop.addEventListener('change', () => {
+  if (navSections) {
+    const hamburger = document.createElement('div');
+    hamburger.classList.add('nav-hamburger');
+    hamburger.innerHTML = `<button type="button" aria-controls="nav" aria-label="Open navigation">
+        <span class="icon icon-hamburger"></span>
+      </button>`;
+    hamburger.addEventListener('click', () => toggleMenu(nav, navSections));
+    nav.append(hamburger);
+    nav.setAttribute('aria-expanded', 'false');
+    // prevent mobile nav behavior on window resize
     toggleMenu(nav, navSections, isDesktop.matches);
-  });
+    isDesktop.addEventListener('change', () => {
+      toggleMenu(nav, navSections, isDesktop.matches);
+    });
+  }
 
   const navWrapper = document.createElement('div');
   navWrapper.className = 'nav-wrapper';
   navWrapper.append(nav);
   block.append(navWrapper);
 
-  checkForActiveLink(navSections);
+  if (navSections) {
+    checkForActiveLink(navSections);
+  }
   handleTransparentAndScrolling(nav);
   customDecoreateIcons(nav);
 }
