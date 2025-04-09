@@ -163,8 +163,9 @@ footer {
   align-items: center;
 }
 
-.footer .footer-cs-button-wrapper .icon {
+.footer .footer-cs-button-wrapper img {
   height: 20px;
+  width: 20px;
 }
 
 .footer-cs-button:any-link {
