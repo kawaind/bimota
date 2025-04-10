@@ -105,7 +105,11 @@ export function addModalHandling() {
 
   window.addEventListener('show-modal', (event) => {
     const elId = event.detail;
-    const content = modalContentMap.get(elId);
+    let content = modalContentMap.get(elId);
+    if (!content) {
+      content = document.querySelector(`.${elId}`);
+      modalContentMap.set(elId, content);
+    }
     const modal = document.querySelector('.modal');
 
     modalContent.append(content);

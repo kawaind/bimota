@@ -54,7 +54,3 @@ function loadLaunch() {
 }
 
 loadLaunch();
-// adding after some delay so that header/footer is loaded to fetch modal for country selector
-setTimeout(() => {
-  addModalHandling();
-}, 1000);
