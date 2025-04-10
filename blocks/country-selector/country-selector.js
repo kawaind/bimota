@@ -1,4 +1,5 @@
 import { stripEmptyTags } from '../../scripts/helpers.js';
+import { addModalHandling } from '../../scripts/modal-helper.js';
 
 export default function decorate(block) {
   let blockHeadingWrapper;
@@ -86,5 +87,6 @@ export default function decorate(block) {
   const hasGlobeIcon = document.querySelector('.icon-globe');
   if (hasGlobeIcon) {
     block.classList.add('modal-country-selector');
+    addModalHandling();
   }
 }

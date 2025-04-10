@@ -290,6 +290,12 @@ export default async function decorate(block) {
       globeIcon.nextSibling.remove();
       textWrapper.classList.add('nav-tools-text');
       globeIcon.parentElement.append(textWrapper);
+
+      globeIcon.addEventListener('click', (event) => {
+        event.preventDefault();
+        const modalEvent = new CustomEvent('show-modal', { detail: 'modal-country-selector' });
+        window.dispatchEvent(modalEvent);
+      });
       loadCountrySelectorBlock();
     }
   }
