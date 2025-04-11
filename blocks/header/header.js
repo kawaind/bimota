@@ -1,4 +1,3 @@
-// change trigger
 import { getMetadata, getRootPath } from '../../scripts/aem.js';
 import { addAnimateInOut } from '../../scripts/modal-helper.js';
 import { customDecoreateIcons } from '../../scripts/decorate-icon-helper.js';
