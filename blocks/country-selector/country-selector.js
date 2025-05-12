@@ -1,6 +1,15 @@
 import { stripEmptyTags } from '../../scripts/helpers.js';
 import { addModalHandling } from '../../scripts/modal-helper.js';
 
+/**
+ * @param {HTMLAnchorElement} link
+ */
+function appendPagePathToLink(link) {
+  const pagePathWithoutLanguage = window.location.pathname.split('/').slice(3).join('/');
+  const linkLanguage = link.getAttribute('href');
+  link.setAttribute('href', [linkLanguage, pagePathWithoutLanguage].join(''));
+}
+
 export default function decorate(block) {
   let blockHeadingWrapper;
   const data = [];
@@ -51,6 +60,7 @@ export default function decorate(block) {
       [...el.countryLanguageList.children].forEach((language) => {
         const picture = language.querySelector('picture');
         let countryButton = language.querySelector('a');
+
         if (!countryButton) {
           const spanWrapper = document.createElement('div');
           const coomingSoon = language.querySelector('em');
@@ -58,6 +68,7 @@ export default function decorate(block) {
           spanWrapper.append(coomingSoon);
           countryButton = spanWrapper;
         }
+
         if (countryButton && picture) {
           picture.classList.add('country-selector-flag');
           countryButton.prepend(picture);
@@ -66,12 +77,14 @@ export default function decorate(block) {
         }
 
         if (countryButton) {
+          appendPagePathToLink(countryButton);
           countryButton.classList.add('cs-button');
           if (countryButton.getAttribute('href') === window.location.pathname) {
             countryButton.classList.add('active');
           }
           language.append(countryButton);
         }
+
         language.querySelectorAll('p').forEach((item) => {
           stripEmptyTags(language, item);
         });
