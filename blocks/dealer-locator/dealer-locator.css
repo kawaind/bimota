@@ -11,3 +11,7 @@
 .woosmap-slw-listview-desktop-partial {
   display: none;
 }
+
+.dealer-locator-map .mapboxgl-ctrl-bottom-right {
+  z-index: 1;
+}
