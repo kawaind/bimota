@@ -114,6 +114,7 @@ header .nav-sublist > div {
 }
 
 header .nav-link-section {
+  overflow-y: auto;
   position: fixed;
   top: 0;
   right: 0;
@@ -139,9 +140,8 @@ header .icon-close {
 }
 
 header .nav-flag {
-  position: absolute;
-  bottom: 0;
-  right: 20px;
+  align-self: end;
+  margin-block-start: auto;
   display: flex;
 }
 
