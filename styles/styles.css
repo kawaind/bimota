@@ -534,7 +534,7 @@ main .section {
 }
 
 
-main .section:last-child {
+main .section:nth-last-child(2) {
   padding-bottom: calc(2 * var(--section-y-padding));
 }
 
