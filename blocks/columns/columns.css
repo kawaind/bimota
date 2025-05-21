@@ -98,11 +98,35 @@
 }
 
 .columns.locations > div > div {
-  gap: 60px;
   margin: 0;
   position: relative;
   text-wrap: wrap;
   overflow-wrap: anywhere;
+
+    p:has(sup) {
+      margin: 0;
+
+      sup {
+        vertical-align: unset;
+        padding: 4px 20px;
+        background-color: var(--action-default);
+        color:var(--white);
+        border-bottom-left-radius: 8px;
+        border-top-right-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+      }
+
+      & ~ :is(h1, h2, h3, h4, h5, h6) {
+        margin-top: 0.75rem;
+      }
+    }
+}
+
+@media (width >= 960px) {
+  .columns.locations > div:has(sup) > div:not(:has(sup)) :is(h1, h2, h3, h4, h5, h6){
+    margin-block-start: 2.875rem;
+  }
 }
 
 .columns.locations > div > div::after {
