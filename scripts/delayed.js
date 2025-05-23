@@ -1,5 +1,4 @@
 import { loadScript } from './aem.js';
-import { addModalHandling } from './modal-helper.js';
 
 // OneTrust Cookies Consent Notice
 if (!window.location.pathname.includes('srcdoc')
@@ -50,7 +49,13 @@ function injectScript(src, crossOrigin = '') {
 
 function loadLaunch() {
   window.adobeDataLayer = window.adobeDataLayer || [];
-  injectScript('https://assets.adobedtm.com/53c8e773d591/d826b4085ef5/launch-268ad0976d20.min.js');
+
+  const isProd = window.location.host === 'www.bimota.com';
+
+  const src = isProd
+    ? 'https://assets.adobedtm.com/53c8e773d591/d826b4085ef5/launch-268ad0976d20.min.js'
+    : 'https://assets.adobedtm.com/53c8e773d591/d826b4085ef5/launch-09753792cdf0-staging.min.js';
+  injectScript(src);
 }
 
 loadLaunch();
