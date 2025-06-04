@@ -1,12 +1,18 @@
 import { loadScript, getMetadata } from '../../scripts/aem.js';
 
+const getLanguage = (defaultLang = 'it') => {
+  const langs = ['en', 'it', 'ja'];
+  const foundLang = langs.find((lang) => window.location.pathname.includes(`/${lang}/`));
+  return foundLang ?? defaultLang;
+};
+
 export default async function decorate(block) {
   const dealerLocator = document.createElement('div');
   dealerLocator.classList.add('dealer-locator-map');
   dealerLocator.setAttribute('id', 'dealer-locator');
   block.append(dealerLocator);
   const isOneLocationVariant = block.classList.contains('one-location');
-  const language = /\/en\//.test(window.location.pathname) ? 'en' : 'it';
+  const language = getLanguage();
   const isRedVariant = block.classList.contains('red');
   const redConfig = [
     {
