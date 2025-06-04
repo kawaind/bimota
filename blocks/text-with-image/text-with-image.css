@@ -35,13 +35,11 @@
 
 .text-with-image picture {
   display: flex;
-  justify-content: end;
 }
 
 .text-with-image picture img {
   aspect-ratio: 1/1;
   border-radius: 4px;
-  object-fit: cover;
 }
 
 .text-with-image .h3 {
@@ -72,9 +70,11 @@
 }
 
 .text-with-image.stacked-images .column-with-text {
-  transform: translateY(calc(-1 * var(--text-image-distance)));
+  transform: translateY(
+    calc(var(--text-image-2nd-image-height) - var(--text-image-distance))
+  );
+  padding-bottom: calc(var(--text-image-2nd-image-height) - var(--text-image-distance));
   transition: transform var(--animation-time) linear;
-  margin-block-end: calc(-1 * var(--text-image-max-overlap));
 }
 
 .text-with-image.stacked-images .column-with-images p:nth-child(1) img {
@@ -85,10 +85,11 @@
 }
 
 .text-with-image.stacked-images .column-with-images p:nth-child(2) img {
-  width: var(--text-image-2nd-image-height);
-  margin-inline-end: 21px;
+  width: 214px;
+  position: absolute;
+  right: 21px;
   bottom: 0;
-  transform: translateY(calc(-1 * var(--text-image-distance)));
+  transform: translateY(calc(100% - var(--text-image-distance)));
   transition: transform var(--animation-time) linear;
 }
 
@@ -185,8 +186,7 @@
   }
 
   .text-with-image.stacked-images .column-with-images p:nth-child(2) img {
-    margin-inline-end: 36px;
-    margin-block-end: calc(-1 * var(--text-image-max-overlap));
+    right: 36px;
   }
 
   /* wide stacked images variant */
