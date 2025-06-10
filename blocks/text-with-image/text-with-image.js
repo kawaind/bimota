@@ -27,9 +27,9 @@ const moveImageOnScroll = (block, settings = {}) => {
       distance = (shiftRatio + startOverlap) * 100;
     }
 
-    const distanaceToPx = (distance * secondImageHeight) / 100;
+    const distanaceToPx = Math.round((distance * secondImageHeight) / 100);
     block.style.setProperty('--text-image-distance', `${distanaceToPx}px`);
-    block.style.setProperty('--text-image-max-overlap', `${endOverlap * secondImageHeight}px`);
+    block.style.setProperty('--text-image-max-overlap', `${Math.round(endOverlap * secondImageHeight)}px`);
   };
 
   const onScrollListener = () => {
