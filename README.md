@@ -14,7 +14,7 @@ npm i
 ## Linting
 
 ```sh
-npm run lint
+npm run lint -- --fix
 ```
 
 ## Local development
