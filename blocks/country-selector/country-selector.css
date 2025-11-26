@@ -66,11 +66,11 @@
     color: var(--grey-50);
 }
 
-.country-selector-language-list li a.cs-button--no-flag {
+.country-selector-language-list li a.cs-button-no-flag {
     padding-left: 30px;
 }
 
-.country-selector-language-list li .cs-button--no-flag em {
+.country-selector-language-list li .cs-button-no-flag em {
     padding-left: 26px;
 }
 
