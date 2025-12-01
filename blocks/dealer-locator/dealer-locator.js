@@ -1,7 +1,7 @@
 import { loadScript, getMetadata } from '../../scripts/aem.js';
 
 const getLanguage = (defaultLang = 'it') => {
-  const langs = ['en', 'it', 'ja', 'es'];
+  const langs = ['en', 'it', 'ja', 'es', 'fr', 'de', 'nl'];
   const foundLang = langs.find((lang) => window.location.pathname.includes(`/${lang}/`));
   return foundLang ?? defaultLang;
 };
