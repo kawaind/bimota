@@ -105,7 +105,7 @@
   display: none;
 }
 
-@media (max-width: 1025px) {
+@media (max-width: 1052px) {
   .country-selector-bike-image {
     display: none;
   }
@@ -119,15 +119,6 @@
     .country-selector-page .country-selector-region-wrapper .h5 {
         margin-bottom: 40px;
     }
-
-    /*.country-selector-bike-image {
-        display: block;
-        position: absolute;
-        top: 5px;
-        right: 0;
-        aspect-ratio: 16 / 9;
-        padding-top: 5px;
-    }*/
 
     .country-selector-regions-container {
         gap: 60px;
