@@ -12,8 +12,6 @@ export default function decorate(block) {
       blockHeadingWrapper = blockHeading.parentElement;
       blockHeadingWrapper.classList.add('country-selector-heading-wrapper');
       const bikeImage = dataRow.querySelector('picture');
-      const bikeImage = dataRow.querySelector('picture');
-
       if (bikeImage) {
         bikeImage.classList.add('country-selector-bike-image');
         blockHeadingWrapper.append(bikeImage);
