@@ -101,7 +101,7 @@
     }
 
     .country-selector-bike-image {
-        display: block;
+        display: none;
         position: absolute;
         top: 5px;
         right: 0;
