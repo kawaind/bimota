@@ -12,8 +12,16 @@ export default function decorate(block) {
       blockHeadingWrapper = blockHeading.parentElement;
       blockHeadingWrapper.classList.add('country-selector-heading-wrapper');
       const bikeImage = dataRow.querySelector('picture');
-      bikeImage.classList.add('country-selector-bike-image');
-      blockHeadingWrapper.append(bikeImage);
+      const bikeImage = dataRow.querySelector('picture');
+
+      if (bikeImage) {
+        bikeImage.classList.add('country-selector-bike-image');
+        blockHeadingWrapper.append(bikeImage);
+      } else {
+        blockHeadingWrapper.classList.add('no-bike-image');
+      }
+      // bikeImage.classList.add('country-selector-bike-image');
+      // blockHeadingWrapper.append(bikeImage);
     } else {
       const region = dataRow.querySelector('h1, h2, h3, h4, h5, h6');
       const countryLanguageList = dataRow.querySelector('ul');
