@@ -13,6 +13,7 @@ import {
   fetchPlaceholders,
 } from './aem.js';
 import { customDecoreateIcons } from './decorate-icon-helper.js';
+import initCcm19PrivacyOverride from './privacy-ccm19-override.js';
 
 function buildVideoBlock(main) {
   const videoLinks = [...main.querySelectorAll('a[href$=".mp4"]')];
@@ -161,6 +162,8 @@ async function loadLazy(doc) {
 
   loadCSS(`${window.hlx.codeBasePath}/styles/lazy-styles.css`);
   loadFonts();
+
+  initCcm19PrivacyOverride();
 }
 
 /**

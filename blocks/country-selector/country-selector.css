@@ -7,9 +7,21 @@
     margin-bottom: 40px;
 }
 
+/*
 .country-selector-bike-image {
     display: none;
 }
+*/
+
+.country-selector-bike-image {
+    display: block;
+    position: absolute;
+    top: 5px;
+    right: 0;
+    aspect-ratio: 16 / 9;
+    padding-top: 5px;
+}
+
 
 .country-selector-bike-image img {
     width: 100%;
@@ -91,21 +103,14 @@
     height: 100%;
 }
 
-.country-selector-bike-image {
-    display: block;
-    position: absolute;
-    top: 5px;
-    right: 0;
-    aspect-ratio: 16 / 9;
-    padding-top: 5px;
-}
-
 .country-selector-heading-wrapper.no-bike-image
   .country-selector-bike-image {
   display: none;
 }
 
-@media (max-width: 1052px) {
+/* @media (max-width: 1052px) { */
+
+@media (width >= 1052px) {
   .country-selector-bike-image {
     display: none;
   }
