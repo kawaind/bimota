@@ -7,13 +7,25 @@
     margin-bottom: 40px;
 }
 
+/* DESKTOP IMAGE DISPLAY ##################### */
 .country-selector-bike-image {
-    display: none;
+    display: block;
+    position: absolute;
+    top: 5px;
+    right: 0;
+    aspect-ratio: 16 / 9;
+    padding-top: 5px;
 }
 
 .country-selector-bike-image img {
     width: 100%;
     height: 100%;
+}
+
+/* WHEN THE USER DID NOT ADD AN IMAGE - DISPLAY NONE  */
+.country-selector-heading-wrapper.no-bike-image
+  .country-selector-bike-image {
+  display: none;
 }
 
 .country-selector-regions-container {
@@ -91,27 +103,46 @@
     height: 100%;
 }
 
-.country-selector-bike-image {
-    display: block;
-    position: absolute;
-    top: 5px;
-    right: 0;
-    aspect-ratio: 16 / 9;
-    padding-top: 5px;
+/* EXTRA SMALL IMAGE DISPLAY ##################### */
+@media (width >= 340px) {
+    .country-selector-bike-image {
+        display: none;
+    }
+
+    .country-selector-page .country-selector-heading-wrapper .h2 {
+        margin-bottom: 60px;
+    }
+
+    .country-selector-page .country-selector-region-wrapper .h5 {
+        margin-bottom: 40px;
+    }
+
+    .country-selector-regions-container {
+        gap: 60px;
+    }
+
+    .country-selector-country-wrapper {
+        grid-template-columns: repeat(2, 1fr);
+        grid-gap: 32px 24px;
+    }
 }
 
-.country-selector-heading-wrapper.no-bike-image
-  .country-selector-bike-image {
-  display: none;
-}
-
-@media (max-width: 1052px) {
-  .country-selector-bike-image {
-    display: none;
-  }
-}
-
+/* SMALL IMAGE DISPLAY ##################### */
 @media (width >= 768px) {
+    .country-selector-bike-image {
+        display: block;
+        position: absolute;
+        top: 10px;
+        right: -80px;
+        aspect-ratio: 16 / 9;
+        padding-top: 5px;
+    }
+
+    .country-selector-bike-image img {
+        width: 80%;
+        height: 80%;
+    }
+
     .country-selector-page .country-selector-heading-wrapper .h2 {
         margin-bottom: 60px;
     }
@@ -130,9 +161,24 @@
     }
 }
 
-@media (width >= 1024px) {
+/* MEDIUM IMAGE DISPLAY ##################### */
+@media (width >= 819px) {
+    .country-selector-bike-image {
+        display: block;
+        position: absolute;
+        top: 10px;
+        right: -80px;
+        aspect-ratio: 16 / 9;
+        padding-top: 5px;
+    }
+
+    .country-selector-bike-image img {
+        width: 80%;
+        height: 80%;
+    }
+
     .country-selector-country-wrapper {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(3, 1fr);
     }
 
     .country-selector-region-wrapper .h5 {
@@ -140,7 +186,47 @@
     }
 }
 
+/* MEDIUM -> LARGE IMAGE DISPLAY ##################### */
+@media (width >= 1024px) {
+    .country-selector-bike-image {
+        display: block;
+        position: absolute;
+        top: 5px;
+        right: -80px;
+        aspect-ratio: 16 / 9;
+        padding-top: 5px;
+    }
+
+    .country-selector-bike-image img {
+        width: 85%;
+        height: 85%;
+    }
+
+    .country-selector-country-wrapper {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .country-selector-region-wrapper .h5 {
+        margin-bottom: 32px;
+    }
+}
+
+/* LARGE -> EXTRA LARGE IMAGE DISPLAY ##################### */
 @media (width >= 1440px) {
+    .country-selector-bike-image {
+        display: block;
+        position: absolute;
+        top: 0;
+        right: 0;
+        aspect-ratio: 16 / 9;
+        padding-top: 5px;
+    }
+
+    .country-selector-bike-image img {
+        width: 100%;
+        height: 100%;
+    }
+
     .country-selector-page .country-selector-heading-wrapper .h2 {
         margin-bottom: 80px;
     }
