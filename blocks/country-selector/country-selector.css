@@ -22,7 +22,7 @@
     height: 100%;
 }
 
-/* WHEN THE USER DID NOT ADD AN IMAGE - DISPLAY NONE  */
+/* WHEN THE USER DID NOT ADD AN IMAGE-DISPLAY NONE  */
 .country-selector-heading-wrapper.no-bike-image
   .country-selector-bike-image {
   display: none;
