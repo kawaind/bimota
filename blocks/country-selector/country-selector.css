@@ -216,7 +216,7 @@
     .country-selector-bike-image {
         display: block;
         position: absolute;
-        top: 0;
+        top: -20px;
         right: 0;
         aspect-ratio: 16 / 9;
         padding-top: 5px;
