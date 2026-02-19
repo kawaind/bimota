@@ -3,8 +3,7 @@ import { getLocale } from './helpers.js';
 
 // OneTrust Cookies Consent Notice
 if (!window.location.pathname.includes('srcdoc')
-  // && !['localhost'].some((url) => window.location.host.includes(url))) {
-  && true) {
+  && !['localhost'].some((url) => window.location.host.includes(url))) {
   // when running on localhost in the block library host is empty but the path is srcdoc
   // on localhost/hlx.page/hlx.live the consent notice is displayed every time the page opens,
   // because the cookie is not persistent. To avoid this annoyance, disable unless on the
