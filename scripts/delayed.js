@@ -1,4 +1,5 @@
 import { loadScript } from './aem.js';
+import { getLocale } from './helpers.js';
 
 // OneTrust Cookies Consent Notice
 if (!window.location.pathname.includes('srcdoc')
@@ -7,7 +8,9 @@ if (!window.location.pathname.includes('srcdoc')
   // on localhost/hlx.page/hlx.live the consent notice is displayed every time the page opens,
   // because the cookie is not persistent. To avoid this annoyance, disable unless on the
   // production page.
-  loadScript('https://cloud.ccm19.de/app.js?apiKey=c7d2f47f3259dd5a137414a641f559ee48d81e684564ca8f&amp;domain=67e136a8868b63fcba0a4022', {
+  const { locale } = getLocale();
+
+  loadScript(`https://cloud.ccm19.de/app.js?apiKey=c7d2f47f3259dd5a137414a641f559ee48d81e684564ca8f&amp;domain=67e136a8868b63fcba0a4022&amp;lang=${locale}`, {
     type: 'text/javascript',
     charset: 'UTF-8',
   });
