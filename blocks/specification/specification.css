@@ -90,6 +90,13 @@
   .specification .button-container .button {
     width: auto;
   }
+  .specification .button-container {
+    padding-left: 0;
+  }
+  .specification .button-container .button.secondary {
+    position:relative;
+    z-index: 99;
+  }
 }
 
 @media (width >= 1024px) {
