@@ -133,7 +133,7 @@ function toggleSubNav(navSection, navSections) {
 function checkForActiveLink(navSections) {
   navSections.querySelectorAll(':scope .default-content-wrapper a').forEach((link) => {
     const href = link.getAttribute('href');
-    if (href === window.location.pathname || href === window.location.href) {
+    if (window.location.pathname.includes(href)) {
       const navParent = link.closest('.nav-drop');
       navParent?.classList.add('active');
       link.classList.add('active');
