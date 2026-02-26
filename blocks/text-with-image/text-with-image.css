@@ -77,6 +77,13 @@
   margin-block-end: calc(-1 * var(--text-image-max-overlap));
 }
 
+@media (width < 768px) {
+  .text-with-image.stacked-images .column-with-text {
+    transform: none;
+    margin-block-end: auto;
+  }
+}
+
 .text-with-image.stacked-images .column-with-images p:nth-child(1) img {
   aspect-ratio: 4 / 3;
   margin: 0 calc(-1 * var(--section-x-padding));
