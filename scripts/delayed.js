@@ -44,8 +44,6 @@ function updateCookieLinks(country, language, cookiesLinks) {
   const languagePath = '/${country}/${language}';
   const newPaths = cookiesLinks.find(item => item.path === languagePath);
 
-  console.log(languagePath);
-
   if (cookiesLinks && newPaths) {
     if (widgetLinks.length > 1) {
       widgetLinks[0].href = newPaths.cookieUrl;
