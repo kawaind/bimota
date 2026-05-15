@@ -9,7 +9,7 @@ if (!window.location.pathname.includes('srcdoc')
   // because the cookie is not persistent. To avoid this annoyance, disable unless on the
   // production page.
   const { language, country, locale } = getLocale();
-  let cookiesLinks
+  let cookiesLinks;
 
   await fetch("/cookies-links.json")
     .then(response => response.json())
@@ -42,8 +42,8 @@ if (!window.location.pathname.includes('srcdoc')
 }
 
 function updateCookieLinks(country, language, cookiesLinks) {
-  const widgetLinks = document.querySelectorAll('.ccm-widget .ccm-modal--footer a');
-  const panelControlLinks = document.querySelectorAll('.ccm-control-panel .ccm-modal--footer a');
+  const widgetLinks = document.querySelectorAll('.ccm-widget .ccm-modal--footer a ', '.ccm-root a:link', '.ccm-root a:link');
+  const panelControlLinks = document.querySelectorAll('.ccm-control-panel .ccm-modal--footer a', '.ccm-root a:link', '.ccm-root a:link');
 
   const languagePath = `/${country}/${language}`;
   const newPaths = cookiesLinks.find(item => item.path === languagePath);
