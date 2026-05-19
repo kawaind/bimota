@@ -42,8 +42,8 @@ if (!window.location.pathname.includes('srcdoc')
 }
 
 function updateCookieLinks(country, language, cookiesLinks) {
-  const widgetLinks = document.querySelectorAll('.ccm-widget .ccm-modal--footer a ', '.ccm-root a:link', '.ccm-root a:link');
-  const panelControlLinks = document.querySelectorAll('.ccm-control-panel .ccm-modal--footer a', '.ccm-root a:link', '.ccm-root a:link');
+  const widgetLinks = document.querySelectorAll('.ccm-widget .ccm-modal--footer a', 'ccm19-footer-banner-link');
+  const panelControlLinks = document.querySelectorAll('.ccm-control-panel .ccm-modal--footer a');
 
   const languagePath = `/${country}/${language}`;
   const newPaths = cookiesLinks.find(item => item.path === languagePath);
