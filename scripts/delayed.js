@@ -42,25 +42,35 @@ if (!window.location.pathname.includes('srcdoc')
 }
 
 function updateCookieLinks(country, language, cookiesLinks) {
-  const widgetbannerLinks = document.querySelectorAll('.ccm-root a');
-  const widgetLinks = document.querySelectorAll('.ccm-widget .ccm-modal--footer a');
-  const panelControlLinks = document.querySelectorAll('.ccm-control-panel .ccm-modal--footer a');
-
   const languagePath = `/${country}/${language}`;
-  const newPaths = cookiesLinks.find(item => item.path === languagePath);
+  const newPaths = cookiesLinks?.find(item => item.path === languagePath);
 
-  if (cookiesLinks && newPaths) {
-    if (widgetLinks.length > 1) {
-      widgetLinks[0].href = newPaths.cookieUrl;
-      widgetLinks[1].href = newPaths.privacyUrl;
-    }
-    if (panelControlLinks.length > 1) {
-      panelControlLinks[0].href = newPaths.cookieUrl;
-      panelControlLinks[1].href = newPaths.privacyUrl;
-    }
-    if (widgetbannerLinks.length > 1) {
-      panelControlLinks[0].href = newPaths.cookieUrl;
-    }
+  if (!newPaths) return;
+
+  const bannerCookieLink = document.querySelector(
+    '.ccm-widget--introduction a.ccm19-footer-banner-link'
+  );
+
+  const widgetLinks = document.querySelectorAll(
+    '.ccm-widget .ccm-modal--footer a'
+  );
+
+  const panelControlLinks = document.querySelectorAll(
+    '.ccm-control-panel .ccm-modal--footer a'
+  );
+
+  if (bannerCookieLink) {
+    bannerCookieLink.href = newPaths.cookieUrl;
+  }
+
+  if (widgetLinks.length > 1) {
+    widgetLinks[0].href = newPaths.cookieUrl;
+    widgetLinks[1].href = newPaths.privacyUrl;
+  }
+
+  if (panelControlLinks.length > 1) {
+    panelControlLinks[0].href = newPaths.cookieUrl;
+    panelControlLinks[1].href = newPaths.privacyUrl;
   }
 }
 
