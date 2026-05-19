@@ -42,7 +42,8 @@ if (!window.location.pathname.includes('srcdoc')
 }
 
 function updateCookieLinks(country, language, cookiesLinks) {
-  const widgetLinks = document.querySelectorAll('.ccm-widget .ccm-modal--footer a', '.ccm19-footer-banner-link a');
+  const widgetbannerLinks = document.querySelectorAll('.ccm-root a');
+  const widgetLinks = document.querySelectorAll('.ccm-widget .ccm-modal--footer a');
   const panelControlLinks = document.querySelectorAll('.ccm-control-panel .ccm-modal--footer a');
 
   const languagePath = `/${country}/${language}`;
@@ -56,6 +57,9 @@ function updateCookieLinks(country, language, cookiesLinks) {
     if (panelControlLinks.length > 1) {
       panelControlLinks[0].href = newPaths.cookieUrl;
       panelControlLinks[1].href = newPaths.privacyUrl;
+    }
+    if (widgetbannerLinks.length > 1) {
+      panelControlLinks[0].href = newPaths.cookieUrl;
     }
   }
 }
