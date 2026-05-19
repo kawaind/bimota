@@ -42,7 +42,7 @@ if (!window.location.pathname.includes('srcdoc')
 }
 
 function updateCookieLinks(country, language, cookiesLinks) {
-  const widgetLinks = document.querySelectorAll('.ccm-widget .ccm-modal--footer a', 'ccm19-footer-banner-link');
+  const widgetLinks = document.querySelectorAll('.ccm-widget .ccm-modal--footer a', '.ccm19-footer-banner-link a');
   const panelControlLinks = document.querySelectorAll('.ccm-control-panel .ccm-modal--footer a');
 
   const languagePath = `/${country}/${language}`;
