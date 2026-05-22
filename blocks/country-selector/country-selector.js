@@ -1,6 +1,108 @@
 import { stripEmptyTags } from '../../scripts/helpers.js';
 import { addModalHandling } from '../../scripts/modal-helper.js';
 
+const ICON_TOKEN_REGEX = /:([\w-]+):/;
+
+function getIconConfig(iconName) {
+  if (iconName.endsWith('--png')) {
+    return {
+      name: iconName.replace(/--png$/, ''),
+      extension: 'png',
+    };
+  }
+
+  return {
+    name: iconName,
+    extension: 'svg',
+  };
+}
+
+function decorateCountrySelectorIcon(icon) {
+  if (!icon) return;
+
+  const iconClass = Array.from(icon.classList)
+    .find((className) => className.startsWith('icon-'));
+
+  if (!iconClass) return;
+
+  const rawIconName = iconClass.substring(5);
+  const { name, extension } = getIconConfig(rawIconName);
+
+  let img = icon.querySelector('img');
+
+  if (!img) {
+    img = document.createElement('img');
+    icon.append(img);
+  }
+
+  img.dataset.iconName = name;
+  img.src = `${window.hlx?.codeBasePath || ''}/icons/${name}.${extension}`;
+  img.alt = '';
+  img.loading = 'lazy';
+  img.decoding = 'async';
+}
+
+function createIconFromToken(iconName) {
+  const icon = document.createElement('span');
+  icon.classList.add('icon', `icon-${iconName}`);
+  decorateCountrySelectorIcon(icon);
+  return icon;
+}
+
+function extractRawIconToken(container, excludeElement) {
+  const textNodes = [];
+  const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
+
+  let currentNode = walker.nextNode();
+
+  while (currentNode) {
+    textNodes.push(currentNode);
+    currentNode = walker.nextNode();
+  }
+
+  const iconTextNode = textNodes.find((textNode) => {
+    const parent = textNode.parentElement;
+
+    if (!parent) return false;
+    if (excludeElement && excludeElement.contains(parent)) return false;
+
+    return ICON_TOKEN_REGEX.test(textNode.nodeValue);
+  });
+
+  if (!iconTextNode) return null;
+
+  const match = iconTextNode.nodeValue.match(ICON_TOKEN_REGEX);
+
+  if (!match) return null;
+
+  iconTextNode.nodeValue = iconTextNode.nodeValue.replace(match[0], '').trim();
+
+  return createIconFromToken(match[1]);
+}
+
+function getRowIcon(dataRow, countryLanguageList) {
+  const rowIcon = [...dataRow.querySelectorAll('span.icon')]
+    .find((icon) => !countryLanguageList?.contains(icon));
+
+  if (rowIcon) {
+    decorateCountrySelectorIcon(rowIcon);
+    return rowIcon;
+  }
+
+  return extractRawIconToken(dataRow, countryLanguageList);
+}
+
+function getLanguageIcon(language) {
+  const languageIcon = language.querySelector('span.icon');
+
+  if (languageIcon) {
+    decorateCountrySelectorIcon(languageIcon);
+    return languageIcon;
+  }
+
+  return extractRawIconToken(language);
+}
+
 export default function decorate(block) {
   let blockHeadingWrapper;
   const data = [];
@@ -8,18 +110,21 @@ export default function decorate(block) {
   block.querySelectorAll(':scope > div').forEach((dataRow, i) => {
     if (i === 0) {
       const blockHeading = dataRow.querySelector('h1, h2, h3, h4, h5, h6');
-      blockHeading.classList.add('h2');
-      blockHeadingWrapper = blockHeading.parentElement;
-      blockHeadingWrapper.classList.add('country-selector-heading-wrapper');
+
+      if (blockHeading) {
+        blockHeading.classList.add('h2');
+        blockHeadingWrapper = blockHeading.parentElement;
+        blockHeadingWrapper.classList.add('country-selector-heading-wrapper');
+      }
+
       const bikeImage = dataRow.querySelector('picture');
-      if (bikeImage) {
+
+      if (bikeImage && blockHeadingWrapper) {
         bikeImage.classList.add('country-selector-bike-image');
         blockHeadingWrapper.append(bikeImage);
-      } else {
+      } else if (blockHeadingWrapper) {
         blockHeadingWrapper.classList.add('no-bike-image');
       }
-      // bikeImage.classList.add('country-selector-bike-image');
-      // blockHeadingWrapper.append(bikeImage);
     } else {
       const region = dataRow.querySelector('h1, h2, h3, h4, h5, h6');
       const countryLanguageList = dataRow.querySelector('ul');
@@ -32,16 +137,24 @@ export default function decorate(block) {
         });
       }
 
-      countryLanguageList.classList.add('country-selector-language-list');
+      if (countryLanguageList && data.length) {
+        countryLanguageList.classList.add('country-selector-language-list');
 
-      data.at(-1).regionData.push({
-        countryLanguageList,
-      });
+        const rowIcon = getRowIcon(dataRow, countryLanguageList);
+
+        data.at(-1).regionData.push({
+          countryLanguageList,
+          rowIcon,
+        });
+      }
     }
   });
 
   block.innerHTML = '';
-  block.append(blockHeadingWrapper);
+
+  if (blockHeadingWrapper) {
+    block.append(blockHeadingWrapper);
+  }
 
   const dataContainer = document.createElement('div');
   dataContainer.classList.add('country-selector-regions-container');
@@ -53,44 +166,71 @@ export default function decorate(block) {
 
     const categoryDataWrapper = document.createElement('div');
     categoryDataWrapper.classList.add('country-selector-country-wrapper');
+
     categoryRow.regionData.forEach((el) => {
+      let rowIconUsed = false;
+
       [...el.countryLanguageList.children].forEach((language) => {
-        const picture = language.querySelector('picture');
+        // Country flags should now come from :icon-name--png:, not authored pictures.
+        // This removes old picture-based flag content from list items.
+        language.querySelectorAll('picture').forEach((picture) => picture.remove());
+
+        const languageIcon = getLanguageIcon(language);
+
         let countryButton = language.querySelector('a');
+
         if (!countryButton) {
           const spanWrapper = document.createElement('div');
-          const coomingSoon = language.querySelector('em');
+          const comingSoon = language.querySelector('em');
 
-          spanWrapper.append(coomingSoon);
+          if (comingSoon) {
+            spanWrapper.append(comingSoon);
+          }
+
           countryButton = spanWrapper;
-        }
-        if (countryButton && picture) {
-          picture.classList.add('country-selector-flag');
-          countryButton.prepend(picture);
-        } else if (!picture) {
-          countryButton.classList.add('cs-button-no-flag');
         }
 
         if (countryButton) {
+          const icon = languageIcon || (!rowIconUsed ? el.rowIcon : null);
+
+          if (icon) {
+            icon.classList.add('country-selector-flag');
+            decorateCountrySelectorIcon(icon);
+            countryButton.prepend(icon);
+
+            if (icon === el.rowIcon) {
+              rowIconUsed = true;
+            }
+          } else {
+            countryButton.classList.add('cs-button-no-flag');
+          }
+
           countryButton.classList.add('cs-button');
+
           if (countryButton.getAttribute('href') === window.location.pathname) {
             countryButton.classList.add('active');
           }
+
           language.append(countryButton);
         }
+
         language.querySelectorAll('p').forEach((item) => {
           stripEmptyTags(language, item);
         });
       });
+
       categoryDataWrapper.append(el.countryLanguageList);
     });
+
     categoryWrapper.append(categoryDataWrapper);
     dataContainer.append(categoryWrapper);
   });
+
   block.append(dataContainer);
 
   // add modal class only when header/footer has option of country change
   const hasGlobeIcon = document.querySelector('.icon-globe');
+
   if (hasGlobeIcon) {
     block.classList.add('modal-country-selector');
     addModalHandling();
