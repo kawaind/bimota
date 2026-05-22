@@ -398,15 +398,34 @@ function decorateButtons(element) {
  * @param {string} [alt] alt text to be added to icon
  */
 function decorateIcon(span, prefix = '', alt = '') {
-  const iconName = Array.from(span.classList)
-    .find((c) => c.startsWith('icon-'))
-    .substring(5);
-  const img = document.createElement('img');
+  if (!span) return;
+
+  const iconClass = Array.from(span.classList)
+    .find((c) => c.startsWith('icon-'));
+
+  if (!iconClass) return;
+
+  const rawIconName = iconClass.substring(5);
+
+  const isPngIcon = rawIconName.endsWith('--png');
+  const iconName = isPngIcon
+    ? rawIconName.replace(/--png$/, '')
+    : rawIconName;
+
+  const extension = isPngIcon ? 'png' : 'svg';
+
+  let img = span.querySelector('img');
+
+  if (!img) {
+    img = document.createElement('img');
+    span.append(img);
+  }
+
   img.dataset.iconName = iconName;
-  img.src = `${window.hlx.codeBasePath}${prefix}/icons/${iconName}.svg`;
+  img.src = `${window.hlx.codeBasePath}${prefix}/icons/${iconName}.${extension}`;
   img.alt = alt;
   img.loading = 'lazy';
-  span.append(img);
+  img.decoding = 'async';
 }
 
 /**
