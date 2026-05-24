@@ -1,9 +1,37 @@
 import { loadScript, getMetadata } from '../../scripts/aem.js';
 
-const getLanguage = (defaultLang = 'it') => {
-  const langs = ['en', 'it', 'ja', 'es', 'fr', 'de', 'nl', 'be', 'lu'];
-  const foundLang = langs.find((lang) => window.location.pathname.includes(`/${lang}/`));
-  return foundLang ?? defaultLang;
+const LOCALE_TO_LANGUAGE = {
+  'fr-be': 'fr',
+  'nl-be': 'nl',
+  'en-be': 'en',
+  'en-ca': 'en',
+  'fr-ca': 'fr',
+  'en-mx': 'en',
+  'es-mx': 'es',
+  'en-lu': 'en',
+  'fr-lu': 'fr',
+};
+
+const SUPPORTED_LANGUAGES = ['en', 'it', 'ja', 'es', 'fr', 'de', 'nl', 'lu'];
+
+const getPathSegments = (pathname = '') => pathname
+  .toLowerCase()
+  .split('/')
+  .filter(Boolean);
+
+const getLanguage = (defaultLang = 'it', pathname) => {
+  const currentPathname = pathname
+    ?? (typeof window !== 'undefined' ? window.location.pathname : '');
+
+  const segments = getPathSegments(currentPathname);
+
+  const foundLocale = segments.find((segment) => LOCALE_TO_LANGUAGE[segment]);
+  if (foundLocale) {
+    return LOCALE_TO_LANGUAGE[foundLocale];
+  }
+
+  const foundLanguage = segments.find((segment) => SUPPORTED_LANGUAGES.includes(segment));
+  return foundLanguage ?? defaultLang;
 };
 
 export default async function decorate(block) {
@@ -91,13 +119,55 @@ export default async function decorate(block) {
     },
   };
 
-  const defaultLocationConfig = {
-    initialCenter: {
-      lat: 52.4862,
-      lng: 1.8904,
+  const LOCATION_CENTERS = {
+    default: {
+      lat: 48.76491381275538,
+      lng: 9.448189738271257,
     },
+    northAmerica: {
+      lat: 40.77165313148952,
+      lng: -98.07848718537002,
+    },
+    australia: {
+      lat: -23.697594814272342,
+      lng: 133.8791213901413,
+    },
+    philippines: {
+      lat: 13.374468169723215,
+      lng: 122.00808081554484,
+    },
+  };
+
+  const CENTER_BY_PATH = {
+    'us/en-us': LOCATION_CENTERS.northAmerica,
+    'mx/es-mx': LOCATION_CENTERS.northAmerica,
+    'mx/en-mx': LOCATION_CENTERS.northAmerica,
+    'ca/en-ca': LOCATION_CENTERS.northAmerica,
+    'ca/fr-ca': LOCATION_CENTERS.northAmerica,
+
+    'au/en': LOCATION_CENTERS.australia,
+    'ph/en': LOCATION_CENTERS.philippines,
+  };
+
+  const getPathSegments = (pathname = '') => pathname
+    .toLowerCase()
+    .split('/')
+    .filter(Boolean);
+
+  const getInitialCenter = (pathname) => {
+    const currentPathname = pathname
+      ?? (typeof window !== 'undefined' ? window.location.pathname : '');
+
+    const [country, locale] = getPathSegments(currentPathname);
+    const pathKey = `${country}/${locale}`;
+
+    return CENTER_BY_PATH[pathKey] ?? LOCATION_CENTERS.default;
+  };
+
+  const defaultLocationConfig = {
+    initialCenter: getInitialCenter(),
     initialZoom: 5,
-    fitBounds: true,
+    fitBounds: false,
     tileStyle: {
       color: '#ed1d24',
       size: 12,
