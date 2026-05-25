@@ -144,29 +144,42 @@ export default async function decorate(block) {
     'mx/en-mx': LOCATION_CENTERS.northAmerica,
     'ca/en-ca': LOCATION_CENTERS.northAmerica,
     'ca/fr-ca': LOCATION_CENTERS.northAmerica,
-
     'au/en': LOCATION_CENTERS.australia,
     'ph/en': LOCATION_CENTERS.philippines,
   };
+
+  const ZOOM_BY_PATH = {
+    'ph/en': 6,
+  };
+
+  const DEFAULT_ZOOM = 5;
 
   const getPathSegments = (pathname = '') => pathname
     .toLowerCase()
     .split('/')
     .filter(Boolean);
 
-  const getInitialCenter = (pathname) => {
+  const getPathKey = (pathname) => {
     const currentPathname = pathname
       ?? (typeof window !== 'undefined' ? window.location.pathname : '');
 
     const [country, locale] = getPathSegments(currentPathname);
-    const pathKey = `${country}/${locale}`;
+    return `${country}/${locale}`;
+  };
 
+  const getInitialCenter = (pathname) => {
+    const pathKey = getPathKey(pathname);
     return CENTER_BY_PATH[pathKey] ?? LOCATION_CENTERS.default;
+  };
+
+  const getInitialZoom = (pathname) => {
+    const pathKey = getPathKey(pathname);
+    return ZOOM_BY_PATH[pathKey] ?? DEFAULT_ZOOM;
   };
 
   const defaultLocationConfig = {
     initialCenter: getInitialCenter(),
-    initialZoom: 5,
+    initialZoom: getInitialZoom(),
     fitBounds: false,
     tileStyle: {
       color: '#ed1d24',
