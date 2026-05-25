@@ -162,18 +162,13 @@ function translateCustomText(text, langCode) {
 function decorateGlobalTitle(block) {
   const config = getConfig(block);
   const customText = (config.custom_text || '').trim();
-  const { countryIso, langCode } = getUrlParams();
+  const { langCode } = getUrlParams();
 
   block.textContent = '';
 
   const heading = createElement('h1', { classes: 'dealers-global-title' });
-  const countryName = getLocalizedCountryName(countryIso, langCode).toUpperCase();
-  if (customText) {
-    const translated = translateCustomText(customText, langCode).toUpperCase();
-    heading.textContent = `${countryName} ${translated}`;
-  } else {
-    heading.textContent = countryName;
-  }
+  const translated = translateCustomText(customText || 'Other Dealers', langCode).toUpperCase();
+  heading.textContent = translated;
   block.append(heading);
 }
 
