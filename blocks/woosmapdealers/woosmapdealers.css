@@ -36,8 +36,8 @@
 }
 
 .woosmapdealers .dealer-country {
-  font-weight: 600;
-  font-size: 1rem;
+  font-weight: 900;
+  font-size: 2rem!important;
   letter-spacing: 1px;
   margin-bottom: 4px;
   color: var(--grey-70);
