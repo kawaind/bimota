@@ -142,12 +142,14 @@ function buildQuery(isCountryDealers, countryIso) {
 
 function decorateGlobalTitle(block) {
   const config = getConfig(block);
-  const text = (config.text || '').trim();
+  const customText = (config.custom_text || '').trim();
   const { countryIso, langCode } = getUrlParams();
-  const regionCode = text || countryIso;
+
   block.textContent = '';
+
   const heading = createElement('h1', { classes: 'dealers-global-title' });
-  heading.textContent = getLocalizedCountryName(regionCode, langCode);
+  const countryName = getLocalizedCountryName(countryIso, langCode).toUpperCase();
+  heading.textContent = customText ? `${countryName} ${customText}` : countryName;
   block.append(heading);
 }
 

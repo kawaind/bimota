@@ -73,6 +73,7 @@
   color: var(--black);
 }
 
+
 /* Desktop: country-dealers variant — 2 columns */
 @media (width >= 768px) {
   .woosmapdealers.country-dealers .dealers-grid {
