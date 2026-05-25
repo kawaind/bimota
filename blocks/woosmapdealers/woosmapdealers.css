@@ -53,13 +53,14 @@
 .woosmapdealers .dealer-email a {
   color: var(--action-default);
   text-decoration: underline;
-  font-weight: 500;
+  font-weight: 900;
+  font-style: bold;
   font-size: 0.875rem;
 }
 
 .woosmapdealers .dealer-url a:hover,
 .woosmapdealers .dealer-email a:hover {
-  color: var(--red);
+  color: var(--action-hover);
 }
 
 /* Desktop: local-country variant - 2 columns */
