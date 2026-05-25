@@ -1,0 +1,127 @@
+.woosmapdealers {
+  color: var(--white);
+}
+
+.woosmapdealers .dealers-container {
+  width: 100%;
+}
+
+.woosmapdealers .dealers-loading {
+  text-align: center;
+  padding: 40px 0;
+  font-size: 1.25rem;
+  color: var(--grey-40);
+}
+
+.woosmapdealers .dealers-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+
+.woosmapdealers .dealer-card {
+  padding: 24px 0;
+  border-bottom: 1px solid var(--grey-70);
+}
+
+.woosmapdealers .dealer-card:last-child {
+  border-bottom: none;
+}
+
+.woosmapdealers .dealer-card p {
+  margin: 0;
+  line-height: 1.6;
+  font-size: 0.875rem;
+  letter-spacing: 0.25px;
+}
+
+.woosmapdealers .dealer-country {
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+  color: var(--grey-30);
+}
+
+.woosmapdealers .dealer-name {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.woosmapdealers .dealer-url a,
+.woosmapdealers .dealer-email a {
+  color: var(--white);
+  text-decoration: underline;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.woosmapdealers .dealer-url a:hover,
+.woosmapdealers .dealer-email a:hover {
+  color: var(--action-default);
+}
+
+/* Desktop: local-country variant - 2 columns */
+@media (width >= 768px) {
+  .woosmapdealers.local-country .dealers-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+
+  .woosmapdealers.local-country .dealer-card {
+    padding: 24px 20px;
+    border-bottom: none;
+    border-right: 1px solid var(--grey-70);
+  }
+
+  .woosmapdealers.local-country .dealer-card:nth-child(2n) {
+    border-right: none;
+  }
+
+  .woosmapdealers.local-country .dealer-card:last-child {
+    border-right: none;
+  }
+}
+
+/* Desktop: global-list variant - 3 columns */
+@media (width >= 768px) {
+  .woosmapdealers.global-list .dealers-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0;
+  }
+
+  .woosmapdealers.global-list .dealer-card {
+    padding: 24px 20px;
+    border-bottom: none;
+    border-right: 1px solid var(--grey-70);
+  }
+
+  .woosmapdealers.global-list .dealer-card:nth-child(3n) {
+    border-right: none;
+  }
+
+  .woosmapdealers.global-list .dealer-card:last-child {
+    border-right: none;
+  }
+}
+
+/* Large desktop adjustments */
+@media (width >= 1025px) {
+  .woosmapdealers.local-country .dealer-card,
+  .woosmapdealers.global-list .dealer-card {
+    padding: 24px 32px;
+  }
+
+  .woosmapdealers.local-country .dealer-card:nth-child(2n + 1),
+  .woosmapdealers.global-list .dealer-card:nth-child(3n + 1) {
+    padding-left: 0;
+  }
+
+  .woosmapdealers.local-country .dealer-card:nth-child(2n),
+  .woosmapdealers.global-list .dealer-card:nth-child(3n) {
+    padding-right: 0;
+  }
+}
