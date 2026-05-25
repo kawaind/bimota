@@ -125,15 +125,32 @@ function getConfig(block) {
   return config;
 }
 
+function buildQuery(block, config) {
+  const isLocal = block.classList.contains('local-country');
+
+  if (isLocal) {
+    const countryInclude = (config.country_include || '').trim().toLowerCase();
+    if (!countryInclude) return 'NOT country:="jp"';
+    return `country:="${countryInclude}" NOT country:="jp"`;
+  }
+
+  const countryExclude = (config.country_exclude || '').trim().toLowerCase();
+  if (!countryExclude) return 'NOT country:="jp"';
+  return `NOT country:="${countryExclude}" NOT country:="jp"`;
+}
+
 export default async function decorate(block) {
   const isLocal = block.classList.contains('local-country');
   const config = getConfig(block);
   const apiKey = config.woosmapkey || '';
-  const query = config.query || '';
 
   if (!apiKey) return;
 
+  const query = buildQuery(block, config);
+  const langCode = (config.lang_code || '').trim();
   const { language } = getLocale();
+  const displayLanguage = langCode || language;
+
   block.textContent = '';
 
   const container = createElement('div', { classes: 'dealers-container' });
@@ -143,13 +160,13 @@ export default async function decorate(block) {
   block.append(container);
 
   const stores = await fetchDealers(apiKey, query);
-  const sorted = sortStores(stores, isLocal, language);
+  const sorted = sortStores(stores, isLocal, displayLanguage);
 
   loading.remove();
 
   const grid = createElement('div', { classes: 'dealers-grid' });
   sorted.forEach((store) => {
-    grid.append(buildDealerCard(store, language));
+    grid.append(buildDealerCard(store, displayLanguage));
   });
 
   container.append(grid);
