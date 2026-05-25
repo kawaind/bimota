@@ -1,22 +1,30 @@
-import { createElement, getLocale } from '../../scripts/helpers.js';
+import { createElement } from '../../scripts/helpers.js';
 
-function getLocalizedCountryName(countryCode, language) {
+function getUrlParams() {
+  const segments = window.location.pathname.split('/').filter(Boolean);
+  const countryIso = (segments[0] || '').toLowerCase();
+  const langSegment = segments[1] || '';
+  const langCode = langSegment.split('-')[0] || countryIso;
+  return { countryIso, langCode };
+}
+
+function getLocalizedCountryName(countryCode, langCode) {
   if (!countryCode) return '';
   try {
-    const displayNames = new Intl.DisplayNames([language], { type: 'region' });
+    const displayNames = new Intl.DisplayNames([langCode], { type: 'region' });
     return displayNames.of(countryCode.toUpperCase()) || countryCode.toUpperCase();
   } catch (e) {
     return countryCode.toUpperCase();
   }
 }
 
-function buildDealerCard(store, language) {
+function buildDealerCard(store, langCode) {
   const { properties } = store;
   const { name, address, contact } = properties;
   const card = createElement('div', { classes: 'dealer-card' });
 
   const countryCode = address?.country_code || '';
-  const countryName = getLocalizedCountryName(countryCode, language);
+  const countryName = getLocalizedCountryName(countryCode, langCode);
   if (countryName) {
     const countryEl = createElement('p', { classes: 'dealer-country' });
     countryEl.textContent = countryName.toUpperCase();
@@ -80,16 +88,16 @@ function buildDealerCard(store, language) {
   return card;
 }
 
-function sortStores(stores, isLocal, language) {
+function sortStores(stores, isCountryDealers, langCode) {
   return [...stores].sort((a, b) => {
-    if (!isLocal) {
+    if (!isCountryDealers) {
       const countryA = getLocalizedCountryName(
         a.properties?.address?.country_code,
-        language,
+        langCode,
       ).toUpperCase();
       const countryB = getLocalizedCountryName(
         b.properties?.address?.country_code,
-        language,
+        langCode,
       ).toUpperCase();
       if (countryA !== countryB) return countryA.localeCompare(countryB);
     }
@@ -125,31 +133,22 @@ function getConfig(block) {
   return config;
 }
 
-function buildQuery(block, config) {
-  const isLocal = block.classList.contains('local-country');
-
-  if (isLocal) {
-    const countryInclude = (config.country_include || '').trim().toLowerCase();
-    if (!countryInclude) return 'NOT country:="jp"';
-    return `country:="${countryInclude}" NOT country:="jp"`;
+function buildQuery(isCountryDealers, countryIso) {
+  if (isCountryDealers) {
+    return `country:="${countryIso}" NOT country:="jp"`;
   }
-
-  const countryExclude = (config.country_exclude || '').trim().toLowerCase();
-  if (!countryExclude) return 'NOT country:="jp"';
-  return `NOT country:="${countryExclude}" NOT country:="jp"`;
+  return `NOT country:="${countryIso}" NOT country:="jp"`;
 }
 
 export default async function decorate(block) {
-  const isLocal = block.classList.contains('local-country');
+  const isCountryDealers = block.classList.contains('country-dealers');
   const config = getConfig(block);
   const apiKey = config.woosmapkey || '';
 
   if (!apiKey) return;
 
-  const query = buildQuery(block, config);
-  const langCode = (config.lang_code || '').trim();
-  const { language } = getLocale();
-  const displayLanguage = langCode || language;
+  const { countryIso, langCode } = getUrlParams();
+  const query = buildQuery(isCountryDealers, countryIso);
 
   block.textContent = '';
 
@@ -160,13 +159,13 @@ export default async function decorate(block) {
   block.append(container);
 
   const stores = await fetchDealers(apiKey, query);
-  const sorted = sortStores(stores, isLocal, displayLanguage);
+  const sorted = sortStores(stores, isCountryDealers, langCode);
 
   loading.remove();
 
   const grid = createElement('div', { classes: 'dealers-grid' });
   sorted.forEach((store) => {
-    grid.append(buildDealerCard(store, displayLanguage));
+    grid.append(buildDealerCard(store, langCode));
   });
 
   container.append(grid);
