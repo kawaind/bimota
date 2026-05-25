@@ -9,7 +9,7 @@
 .woosmapdealers .dealers-loading {
   text-align: center;
   padding: 40px 0;
-  font-size: 1.25rem;
+  font-size: 2.25rem;
   color: var(--grey-90);
 }
 
@@ -21,7 +21,7 @@
 
 .woosmapdealers .dealer-card {
   padding: 24px 0;
-  border-bottom: 1px solid var(--grey-70);
+  border-bottom: 1px solid var(--grey-40);
 }
 
 .woosmapdealers .dealer-card:last-child {
@@ -31,16 +31,16 @@
 .woosmapdealers .dealer-card p {
   margin: 0;
   line-height: 1.6;
-  font-size: 0.875rem;
+  font-size: 1rem;
   letter-spacing: 0.25px;
 }
 
 .woosmapdealers .dealer-country {
   font-weight: 600;
-  font-size: 0.75rem;
+  font-size: 1rem;
   letter-spacing: 1px;
   margin-bottom: 4px;
-  color: var(--grey-30);
+  color: var(--grey-70);
 }
 
 .woosmapdealers .dealer-name {
@@ -72,8 +72,9 @@
 
   .woosmapdealers.local-country .dealer-card {
     padding: 24px 20px;
+    padding-top: 10px!important;
     border-bottom: none;
-    border-right: 1px solid var(--grey-70);
+    border-right: 1px solid var(--grey-10);
   }
 
   .woosmapdealers.local-country .dealer-card:nth-child(2n) {
@@ -95,8 +96,9 @@
 
   .woosmapdealers.global-list .dealer-card {
     padding: 24px 20px;
+    padding-top: 10px!important;
     border-bottom: none;
-    border-right: 1px solid var(--grey-70);
+    border-right: 1px solid var(--grey-10);
   }
 
   .woosmapdealers.global-list .dealer-card:nth-child(3n) {
