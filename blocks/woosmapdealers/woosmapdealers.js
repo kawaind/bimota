@@ -140,6 +140,25 @@ function buildQuery(isCountryDealers, countryIso) {
   return `NOT country:="${countryIso}" NOT country:="jp"`;
 }
 
+const TRANSLATIONS = {
+  'other dealers': {
+    en: 'Other Dealers',
+    fr: 'Autres Concessionnaires',
+    it: 'Altri Concessionari',
+    es: 'Otros Distribuidores',
+    de: 'Andere Händler',
+    pt: 'Outros Revendedores',
+    nl: 'Andere Dealers',
+    ja: 'その他のディーラー',
+  },
+};
+
+function translateCustomText(text, langCode) {
+  const key = text.toLowerCase();
+  const lang = langCode.toLowerCase();
+  return TRANSLATIONS[key]?.[lang] || text;
+}
+
 function decorateGlobalTitle(block) {
   const config = getConfig(block);
   const customText = (config.custom_text || '').trim();
@@ -149,7 +168,12 @@ function decorateGlobalTitle(block) {
 
   const heading = createElement('h1', { classes: 'dealers-global-title' });
   const countryName = getLocalizedCountryName(countryIso, langCode).toUpperCase();
-  heading.textContent = customText ? `${countryName} ${customText}` : countryName;
+  if (customText) {
+    const translated = translateCustomText(customText, langCode).toUpperCase();
+    heading.textContent = `${countryName} ${translated}`;
+  } else {
+    heading.textContent = countryName;
+  }
   block.append(heading);
 }
 
