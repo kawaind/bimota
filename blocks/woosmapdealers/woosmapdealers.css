@@ -63,6 +63,15 @@
   color: var(--action-hover);
 }
 
+/* global-title variant */
+.woosmapdealers.global-title .dealers-global-title {
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: var(--black);
+}
+
 /* Desktop: country-dealers variant — 2 columns */
 @media (width >= 768px) {
   .woosmapdealers.country-dealers .dealers-grid {

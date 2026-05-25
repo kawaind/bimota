@@ -140,7 +140,22 @@ function buildQuery(isCountryDealers, countryIso) {
   return `NOT country:="${countryIso}" NOT country:="jp"`;
 }
 
+function decorateGlobalTitle(block) {
+  const config = getConfig(block);
+  const text = config.text || '';
+  const { langCode } = getUrlParams();
+  block.textContent = '';
+  const heading = createElement('h1', { classes: 'dealers-global-title' });
+  heading.textContent = getLocalizedCountryName(text, langCode) || text;
+  block.append(heading);
+}
+
 export default async function decorate(block) {
+  if (block.classList.contains('global-title')) {
+    decorateGlobalTitle(block);
+    return;
+  }
+
   const isCountryDealers = block.classList.contains('country-dealers');
   const config = getConfig(block);
   const apiKey = config.woosmapkey || '';
