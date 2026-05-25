@@ -69,7 +69,7 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     column-gap: 0;
-  row-gap: 25px;
+  	row-gap: 25px;
   }
 
   .woosmapdealers.local-country .dealer-card {
@@ -94,7 +94,7 @@
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     column-gap: 0;
-  row-gap: 25px;
+  	row-gap: 25px;
   }
 
   .woosmapdealers.global-list .dealer-card {
