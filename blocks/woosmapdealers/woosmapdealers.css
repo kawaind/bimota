@@ -68,7 +68,8 @@
   .woosmapdealers.local-country .dealers-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0;
+    column-gap: 0;
+  row-gap: 25px;
   }
 
   .woosmapdealers.local-country .dealer-card {
@@ -92,7 +93,8 @@
   .woosmapdealers.global-list .dealers-grid {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: 0;
+    column-gap: 0;
+  row-gap: 25px;
   }
 
   .woosmapdealers.global-list .dealer-card {
@@ -116,6 +118,8 @@
   .woosmapdealers.local-country .dealer-card,
   .woosmapdealers.global-list .dealer-card {
     padding: 24px 32px;
+    border-bottom: none;
+    border-right: 1px solid var(--grey-10);
   }
 
   .woosmapdealers.local-country .dealer-card:nth-child(2n + 1),
