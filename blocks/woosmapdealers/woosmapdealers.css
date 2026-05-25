@@ -1,5 +1,5 @@
 .woosmapdealers {
-  color: var(--white);
+  color: var(--black);
 }
 
 .woosmapdealers .dealers-container {
@@ -10,7 +10,7 @@
   text-align: center;
   padding: 40px 0;
   font-size: 1.25rem;
-  color: var(--grey-40);
+  color: var(--grey-90);
 }
 
 .woosmapdealers .dealers-grid {
@@ -51,7 +51,7 @@
 
 .woosmapdealers .dealer-url a,
 .woosmapdealers .dealer-email a {
-  color: var(--white);
+  color: var(--red);
   text-decoration: underline;
   font-weight: 500;
   font-size: 0.875rem;
