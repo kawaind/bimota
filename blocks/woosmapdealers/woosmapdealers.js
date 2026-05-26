@@ -133,11 +133,44 @@ function getConfig(block) {
   return config;
 }
 
-function buildQuery(isCountryDealers, countryIso) {
+function parseList(value) {
+  if (!value) return [];
+  return value.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
+}
+
+function buildQuery(isCountryDealers, countryIso, excludeCountries, dealerIdstores) {
   if (isCountryDealers) {
-    return `country:="${countryIso}" NOT country:="jp"`;
+    if (!excludeCountries.length && !dealerIdstores.length) {
+      return `country:="${countryIso}" NOT country:="jp"`;
+    }
+    let query = `country:="${countryIso}"`;
+    if (excludeCountries.length && dealerIdstores.length) {
+      const countryParts = excludeCountries.map((iso) => `NOT country:="${iso}"`).join(' AND ');
+      const idParts = dealerIdstores.map((id) => `idstore:="${id}"`).join(' OR ');
+      query += ` AND (${countryParts} OR ${idParts})`;
+    } else if (excludeCountries.length) {
+      query += ` AND ${excludeCountries.map((iso) => `NOT country:="${iso}"`).join(' AND ')}`;
+    } else {
+      query += ` AND (${dealerIdstores.map((id) => `idstore:="${id}"`).join(' OR ')})`;
+    }
+    return query;
   }
-  return `NOT country:="${countryIso}" NOT country:="jp"`;
+
+  if (!excludeCountries.length && !dealerIdstores.length) {
+    return `NOT country:="${countryIso}" NOT country:="jp"`;
+  }
+
+  let query = `NOT country:="${countryIso}"`;
+  if (excludeCountries.length && dealerIdstores.length) {
+    const countryParts = excludeCountries.map((iso) => `NOT country:="${iso}"`).join(' AND ');
+    const idParts = dealerIdstores.map((id) => `idstore:="${id}"`).join(' OR ');
+    query += ` AND (${countryParts} OR ${idParts})`;
+  } else if (excludeCountries.length) {
+    query += ` AND ${excludeCountries.map((iso) => `NOT country:="${iso}"`).join(' AND ')}`;
+  } else {
+    query += ` AND (${dealerIdstores.map((id) => `idstore:="${id}"`).join(' OR ')})`;
+  }
+  return query;
 }
 
 const TRANSLATIONS = {
@@ -184,8 +217,10 @@ export default async function decorate(block) {
 
   if (!apiKey) return;
 
+  const excludeCountries = parseList(config.exclude_countries);
+  const dealerIdstores = parseList(config.dealer_idstore);
   const { countryIso, langCode } = getUrlParams();
-  const query = buildQuery(isCountryDealers, countryIso);
+  const query = buildQuery(isCountryDealers, countryIso, excludeCountries, dealerIdstores);
 
   block.textContent = '';
 
