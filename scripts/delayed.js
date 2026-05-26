@@ -1,6 +1,39 @@
 import { loadScript } from './aem.js';
 import { getLocale } from './helpers.js';
 
+function updateCookieLinks(country, langSeg, cookiesLinks) {
+  const languagePath = `/${country}/${langSeg}`;
+  const newPaths = cookiesLinks?.find((item) => item.path === languagePath);
+
+  if (!newPaths) return;
+
+  const bannerCookieLink = document.querySelector(
+    '.ccm-widget--introduction a.ccm19-footer-banner-link',
+  );
+
+  const widgetLinks = document.querySelectorAll(
+    '.ccm-widget .ccm-modal--footer a',
+  );
+
+  const panelControlLinks = document.querySelectorAll(
+    '.ccm-control-panel .ccm-modal--footer a',
+  );
+
+  if (bannerCookieLink) {
+    bannerCookieLink.href = newPaths.cookieUrl;
+  }
+
+  if (widgetLinks.length > 1) {
+    widgetLinks[0].href = newPaths.cookieUrl;
+    widgetLinks[1].href = newPaths.privacyUrl;
+  }
+
+  if (panelControlLinks.length > 1) {
+    panelControlLinks[0].href = newPaths.cookieUrl;
+    panelControlLinks[1].href = newPaths.privacyUrl;
+  }
+}
+
 // OneTrust Cookies Consent Notice
 if (!window.location.pathname.includes('srcdoc')
   && !['localhost'].some((url) => window.location.host.includes(url))) {
@@ -8,16 +41,16 @@ if (!window.location.pathname.includes('srcdoc')
   // on localhost/hlx.page/hlx.live the consent notice is displayed every time the page opens,
   // because the cookie is not persistent. To avoid this annoyance, disable unless on the
   // production page.
-  const { language, country, locale } = getLocale();
+  const { langSegment, country, locale } = getLocale();
   let cookiesLinks;
 
-  await fetch("/cookies-links.json")
-    .then(response => response.json())
-    .then(response => {
+  await fetch('/cookies-links.json')
+    .then((response) => response.json())
+    .then((response) => {
       cookiesLinks = response.data;
-    })
-  window.addEventListener('ccm19WidgetLoaded', updateCookieLinks.bind(null, country, language, cookiesLinks))
-    
+    });
+  window.addEventListener('ccm19WidgetLoaded', updateCookieLinks.bind(null, country, langSegment, cookiesLinks));
+
   await loadScript(`https://cloud.ccm19.de/app.js?apiKey=c7d2f47f3259dd5a137414a641f559ee48d81e684564ca8f&amp;domain=67e136a8868b63fcba0a4022&amp;lang=${locale}`, {
     type: 'text/javascript',
     charset: 'UTF-8',
@@ -39,39 +72,6 @@ if (!window.location.pathname.includes('srcdoc')
       }
     });
   };
-}
-
-function updateCookieLinks(country, language, cookiesLinks) {
-  const languagePath = `/${country}/${language}`;
-  const newPaths = cookiesLinks?.find(item => item.path === languagePath);
-
-  if (!newPaths) return;
-
-  const bannerCookieLink = document.querySelector(
-    '.ccm-widget--introduction a.ccm19-footer-banner-link'
-  );
-
-  const widgetLinks = document.querySelectorAll(
-    '.ccm-widget .ccm-modal--footer a'
-  );
-
-  const panelControlLinks = document.querySelectorAll(
-    '.ccm-control-panel .ccm-modal--footer a'
-  );
-
-  if (bannerCookieLink) {
-    bannerCookieLink.href = newPaths.cookieUrl;
-  }
-
-  if (widgetLinks.length > 1) {
-    widgetLinks[0].href = newPaths.cookieUrl;
-    widgetLinks[1].href = newPaths.privacyUrl;
-  }
-
-  if (panelControlLinks.length > 1) {
-    panelControlLinks[0].href = newPaths.cookieUrl;
-    panelControlLinks[1].href = newPaths.privacyUrl;
-  }
 }
 
 function injectScript(src, crossOrigin = '') {
