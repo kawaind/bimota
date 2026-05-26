@@ -19,7 +19,7 @@ const getPathSegments = (pathname = '') => pathname
   .split('/')
   .filter(Boolean);
 
-const getLanguage = (defaultLang = 'it', pathname) => {
+const getLanguage = (pathname, defaultLang = 'it') => {
   const currentPathname = pathname
     ?? (typeof window !== 'undefined' ? window.location.pathname : '');
 
@@ -154,11 +154,6 @@ export default async function decorate(block) {
 
   const DEFAULT_ZOOM = 5;
 
-  const getPathSegments = (pathname = '') => pathname
-    .toLowerCase()
-    .split('/')
-    .filter(Boolean);
-
   const getPathKey = (pathname) => {
     const currentPathname = pathname
       ?? (typeof window !== 'undefined' ? window.location.pathname : '');
@@ -219,6 +214,7 @@ export default async function decorate(block) {
             const config = {
               maps: {
                 provider: 'woosmap',
+                language,
                 channel: '',
                 localities: {
                   language,
