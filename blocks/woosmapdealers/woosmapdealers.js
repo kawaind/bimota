@@ -141,7 +141,7 @@ function parseList(value) {
 function buildQuery(isCountryDealers, countryIso, excludeCountries, dealerIdstores) {
   if (isCountryDealers) {
     if (!excludeCountries.length && !dealerIdstores.length) {
-      return `country:="${countryIso}" NOT country:="jp"`;
+      return `country:="${countryIso}"`;
     }
     let query = `country:="${countryIso}"`;
     if (excludeCountries.length && dealerIdstores.length) {
@@ -157,7 +157,7 @@ function buildQuery(isCountryDealers, countryIso, excludeCountries, dealerIdstor
   }
 
   if (!excludeCountries.length && !dealerIdstores.length) {
-    return `NOT country:="${countryIso}" NOT country:="jp"`;
+    return `NOT country:="${countryIso}"`;
   }
 
   let query = `NOT country:="${countryIso}"`;
