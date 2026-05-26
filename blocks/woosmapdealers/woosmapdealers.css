@@ -36,11 +36,13 @@
 }
 
 .woosmapdealers .dealer-country {
-  font-weight: 900;
-  font-size: 2rem!important;
-  letter-spacing: 1px;
+  font-weight: 500;
+  font-style: normal;
+  font-size: 40px !important;
+  line-height: 52px;
+  letter-spacing: 0;
   margin-bottom: 4px;
-  color: var(--grey-70);
+  color: #1D1D1B;
 }
 
 .woosmapdealers .dealer-name {
