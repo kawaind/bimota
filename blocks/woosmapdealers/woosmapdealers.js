@@ -37,7 +37,8 @@ function buildDealerCard(store, langCode) {
     card.append(nameEl);
   }
 
-  const street = address?.lines?.join(', ') || '';
+  const lines = address?.lines;
+  const street = Array.isArray(lines) ? lines.join(', ') : (lines || '');
   if (street) {
     const streetEl = createElement('p', { classes: 'dealer-street' });
     streetEl.textContent = street;
