@@ -18,17 +18,19 @@ function getLocalizedCountryName(countryCode, langCode) {
   }
 }
 
-function buildDealerCard(store, langCode) {
+function buildDealerCard(store, langCode, showCountry) {
   const { properties } = store;
   const { name, address, contact } = properties;
   const card = createElement('div', { classes: 'dealer-card' });
 
-  const countryCode = address?.country_code || '';
-  const countryName = getLocalizedCountryName(countryCode, langCode);
-  if (countryName) {
-    const countryEl = createElement('p', { classes: 'dealer-country' });
-    countryEl.textContent = countryName.toUpperCase();
-    card.append(countryEl);
+  if (showCountry) {
+    const countryCode = address?.country_code || '';
+    const countryName = getLocalizedCountryName(countryCode, langCode);
+    if (countryName) {
+      const countryEl = createElement('p', { classes: 'dealer-country' });
+      countryEl.textContent = countryName.toUpperCase();
+      card.append(countryEl);
+    }
   }
 
   if (name) {
@@ -87,6 +89,17 @@ function buildDealerCard(store, langCode) {
   }
 
   return card;
+}
+
+function groupStoresByCountry(stores, langCode) {
+  const groups = new Map();
+  stores.forEach((store) => {
+    const code = store.properties?.address?.country_code || '';
+    const name = getLocalizedCountryName(code, langCode).toUpperCase();
+    if (!groups.has(name)) groups.set(name, []);
+    groups.get(name).push(store);
+  });
+  return groups;
 }
 
 function sortStores(stores, isCountryDealers, langCode) {
@@ -236,10 +249,40 @@ export default async function decorate(block) {
 
   loading.remove();
 
-  const grid = createElement('div', { classes: 'dealers-grid' });
-  sorted.forEach((store) => {
-    grid.append(buildDealerCard(store, langCode));
-  });
+  if (isCountryDealers) {
+    const details = document.createElement('details');
+    details.classList.add('dealers-accordion');
+    details.open = true;
 
-  container.append(grid);
+    const summary = document.createElement('summary');
+    summary.classList.add('dealers-accordion-header');
+    const countryName = getLocalizedCountryName(countryIso, langCode).toUpperCase();
+    summary.textContent = countryName;
+    details.append(summary);
+
+    const grid = createElement('div', { classes: 'dealers-grid' });
+    sorted.forEach((store) => {
+      grid.append(buildDealerCard(store, langCode, false));
+    });
+    details.append(grid);
+    container.append(details);
+  } else {
+    const groups = groupStoresByCountry(sorted, langCode);
+    groups.forEach((groupStores, countryName) => {
+      const details = document.createElement('details');
+      details.classList.add('dealers-accordion');
+
+      const summary = document.createElement('summary');
+      summary.classList.add('dealers-accordion-header');
+      summary.textContent = countryName;
+      details.append(summary);
+
+      const grid = createElement('div', { classes: 'dealers-grid' });
+      groupStores.forEach((store) => {
+        grid.append(buildDealerCard(store, langCode, false));
+      });
+      details.append(grid);
+      container.append(details);
+    });
+  }
 }

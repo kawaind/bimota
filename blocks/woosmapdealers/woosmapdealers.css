@@ -35,6 +35,52 @@
   letter-spacing: 0.25px;
 }
 
+/* Accordion */
+.woosmapdealers .dealers-accordion {
+  border-bottom: 1px solid var(--grey-20);
+}
+
+.woosmapdealers .dealers-accordion-header {
+  font-weight: 500;
+  font-style: normal;
+  font-size: 40px;
+  line-height: 52px;
+  letter-spacing: 0;
+  color: #1D1D1B;
+  padding: 24px 0;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+}
+
+.woosmapdealers .dealers-accordion-header::-webkit-details-marker {
+  display: none;
+}
+
+.woosmapdealers .dealers-accordion-header::after {
+  content: '';
+  width: 16px;
+  height: 16px;
+  border-right: 2px solid #1D1D1B;
+  border-bottom: 2px solid #1D1D1B;
+  transform: rotate(45deg);
+  transition: transform var(--duration-medium) var(--easing-standard);
+  flex-shrink: 0;
+  margin-left: 16px;
+}
+
+.woosmapdealers .dealers-accordion[open] > .dealers-accordion-header::after {
+  transform: rotate(-135deg);
+}
+
+.woosmapdealers .dealers-accordion .dealers-grid {
+  overflow: hidden;
+  padding-bottom: 24px;
+}
+
 .woosmapdealers .dealer-country {
   font-weight: 500;
   font-style: normal;
@@ -86,7 +132,7 @@
 
   .woosmapdealers.country-dealers .dealer-card {
     padding: 24px 20px;
-    padding-top: 10px!important;
+    padding-top: 10px !important;
     border-bottom: none;
     border-right: 1px solid var(--grey-10);
   }
@@ -100,7 +146,7 @@
   }
 }
 
-/* Desktop: global-dealers variant — 3 columns */
+/* Desktop: global-dealers variant — 3 columns per country accordion */
 @media (width >= 768px) {
   .woosmapdealers.global-dealers .dealers-grid {
     display: grid;
@@ -110,7 +156,7 @@
 
   .woosmapdealers.global-dealers .dealer-card {
     padding: 24px 20px;
-    padding-top: 10px!important;
+    padding-top: 10px !important;
     border-bottom: none;
     border-right: 1px solid var(--grey-10);
   }
