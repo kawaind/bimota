@@ -95,7 +95,7 @@
   }
   .specification .button-container .button.secondary {
     position:relative;
-    z-index: 99;
+    z-index: 1;
   }
 }
 
