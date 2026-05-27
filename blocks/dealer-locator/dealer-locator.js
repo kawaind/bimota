@@ -24,14 +24,17 @@ const getLanguage = (pathname, defaultLang = 'it') => {
     ?? (typeof window !== 'undefined' ? window.location.pathname : '');
 
   const segments = getPathSegments(currentPathname);
+  const locale = segments[1];
 
-  const foundLocale = segments.find((segment) => LOCALE_TO_LANGUAGE[segment]);
-  if (foundLocale) {
-    return LOCALE_TO_LANGUAGE[foundLocale];
+  if (locale && LOCALE_TO_LANGUAGE[locale]) {
+    return LOCALE_TO_LANGUAGE[locale];
   }
 
-  const foundLanguage = segments.find((segment) => SUPPORTED_LANGUAGES.includes(segment));
-  return foundLanguage ?? defaultLang;
+  if (locale && SUPPORTED_LANGUAGES.includes(locale)) {
+    return locale;
+  }
+
+  return defaultLang;
 };
 
 export default async function decorate(block) {
