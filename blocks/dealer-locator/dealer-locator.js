@@ -3,7 +3,7 @@ import { loadScript, getMetadata } from '../../scripts/aem.js';
 const LOCALE_TO_LANGUAGE = {
   'fr-be': 'fr',
   'nl-be': 'nl',
-  'en-be': 'nl',
+  'en-be': 'en',
   'nl-nl': 'nl',
   'en-nl': 'en',
   'en-ca': 'en',
