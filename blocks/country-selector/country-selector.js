@@ -2,6 +2,39 @@ import { stripEmptyTags } from '../../scripts/helpers.js';
 import { addModalHandling } from '../../scripts/modal-helper.js';
 
 const ICON_TOKEN_REGEX = /:([\w-]+):/;
+const LOCALE_PREFIX_REGEX = /^\/([^/]+)\/([^/]+)(\/.*)?$/;
+
+/**
+ * Extracts the page slug from the current URL path (everything after /{country}/{lang}/).
+ * Returns empty string if on the index page.
+ */
+function getCurrentPageSlug() {
+  const match = window.location.pathname.match(LOCALE_PREFIX_REGEX);
+  if (!match) return '';
+  const rest = match[3] || '';
+  const slug = rest.replace(/^\//, '').replace(/\/$/, '');
+  return slug;
+}
+
+/**
+ * Builds the target URL preserving the current page under the new locale prefix.
+ * Falls back to the locale index if the page doesn't exist.
+ */
+async function resolveCountryUrl(targetBase) {
+  const slug = getCurrentPageSlug();
+  if (!slug || slug === 'index') {
+    return targetBase.replace(/\/?$/, '/');
+  }
+
+  const targetPage = `${targetBase.replace(/\/?$/, '')}/${slug}`;
+
+  try {
+    const resp = await fetch(targetPage, { method: 'HEAD' });
+    if (resp.ok) return targetPage;
+  } catch { /* fall through to index */ }
+
+  return targetBase.replace(/\/?$/, '/');
+}
 
 function getIconConfig(iconName) {
   if (iconName.endsWith('--png')) {
@@ -209,6 +242,15 @@ export default function decorate(block) {
 
           if (countryButton.getAttribute('href') === window.location.pathname) {
             countryButton.classList.add('active');
+          }
+
+          if (countryButton.tagName === 'A' && countryButton.getAttribute('href')) {
+            countryButton.addEventListener('click', async (e) => {
+              e.preventDefault();
+              const targetBase = countryButton.getAttribute('href');
+              const resolvedUrl = await resolveCountryUrl(targetBase);
+              window.location.href = resolvedUrl;
+            });
           }
 
           language.append(countryButton);
