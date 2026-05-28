@@ -3,9 +3,9 @@ import { loadScript, getMetadata } from '../../scripts/aem.js';
 const LOCALE_TO_LANGUAGE = {
   'fr-be': 'fr',
   'nl-be': 'nl',
+  'en-be': 'nl',
   'nl-nl': 'nl',
-  'nl-en': 'en',
-  'en-be': 'en',
+  'en-nl': 'en',
   'en-ca': 'en',
   'fr-ca': 'fr',
   'en-mx': 'en',
