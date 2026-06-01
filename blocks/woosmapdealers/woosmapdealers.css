@@ -76,26 +76,30 @@
 }
 
 
-/* Desktop: country-dealers variant — 2 columns */
+/* Desktop: country-dealers & priority-dealers variants — 2 columns */
 @media (width >= 768px) {
-  .woosmapdealers.country-dealers .dealers-grid {
+  .woosmapdealers.country-dealers .dealers-grid,
+  .woosmapdealers.priority-dealers .dealers-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 35px 0;
   }
 
-  .woosmapdealers.country-dealers .dealer-card {
+  .woosmapdealers.country-dealers .dealer-card,
+  .woosmapdealers.priority-dealers .dealer-card {
     padding: 24px 20px;
     padding-top: 10px!important;
     border-bottom: none;
     border-right: 1px solid var(--grey-10);
   }
 
-  .woosmapdealers.country-dealers .dealer-card:nth-child(2n) {
+  .woosmapdealers.country-dealers .dealer-card:nth-child(2n),
+  .woosmapdealers.priority-dealers .dealer-card:nth-child(2n) {
     border-right: none;
   }
 
-  .woosmapdealers.country-dealers .dealer-card:last-child {
+  .woosmapdealers.country-dealers .dealer-card:last-child,
+  .woosmapdealers.priority-dealers .dealer-card:last-child {
     border-right: none;
   }
 }
@@ -127,6 +131,7 @@
 /* Large desktop adjustments */
 @media (width >= 1025px) {
   .woosmapdealers.country-dealers .dealer-card,
+  .woosmapdealers.priority-dealers .dealer-card,
   .woosmapdealers.global-dealers .dealer-card {
     padding: 24px 32px;
     border-bottom: none;
@@ -134,11 +139,13 @@
   }
 
   .woosmapdealers.country-dealers .dealer-card:nth-child(2n + 1),
+  .woosmapdealers.priority-dealers .dealer-card:nth-child(2n + 1),
   .woosmapdealers.global-dealers .dealer-card:nth-child(3n + 1) {
     padding-left: 0;
   }
 
   .woosmapdealers.country-dealers .dealer-card:nth-child(2n),
+  .woosmapdealers.priority-dealers .dealer-card:nth-child(2n),
   .woosmapdealers.global-dealers .dealer-card:nth-child(3n) {
     padding-right: 0;
   }

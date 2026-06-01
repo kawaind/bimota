@@ -139,6 +139,10 @@ function parseList(value) {
   return value.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
 }
 
+function buildPriorityQuery(priorityCountries) {
+  return priorityCountries.map((iso) => `country:="${iso}"`).join(' OR ');
+}
+
 function buildQuery(isCountryDealers, countryIso, excludeCountries, dealerIdstores) {
   if (isCountryDealers) {
     if (!excludeCountries.length && !dealerIdstores.length) {
@@ -213,6 +217,7 @@ export default async function decorate(block) {
   }
 
   const isCountryDealers = block.classList.contains('country-dealers');
+  const isPriorityDealers = block.classList.contains('priority-dealers');
   const config = getConfig(block);
   const apiKey = config.woosmapkey || '';
 
@@ -220,8 +225,15 @@ export default async function decorate(block) {
 
   const excludeCountries = parseList(config.exclude_countries);
   const dealerIdstores = parseList(config.dealer_idstore);
+  const priorityCountries = parseList(config.priority_countries);
   const { countryIso, langCode } = getUrlParams();
-  const query = buildQuery(isCountryDealers, countryIso, excludeCountries, dealerIdstores);
+
+  let query;
+  if (isPriorityDealers && priorityCountries.length) {
+    query = buildPriorityQuery(priorityCountries);
+  } else {
+    query = buildQuery(isCountryDealers, countryIso, excludeCountries, dealerIdstores);
+  }
 
   block.textContent = '';
 
