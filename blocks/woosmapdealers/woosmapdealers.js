@@ -139,10 +139,6 @@ function parseList(value) {
   return value.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
 }
 
-function buildPriorityQuery(priorityCountries) {
-  return priorityCountries.map((iso) => `country:="${iso}"`).join(' OR ');
-}
-
 function buildQuery(isCountryDealers, countryIso, excludeCountries, dealerIdstores) {
   if (isCountryDealers) {
     if (!excludeCountries.length && !dealerIdstores.length) {
@@ -217,23 +213,18 @@ export default async function decorate(block) {
   }
 
   const isCountryDealers = block.classList.contains('country-dealers');
-  const isPriorityDealers = block.classList.contains('priority-dealers');
   const config = getConfig(block);
   const apiKey = config.woosmapkey || '';
 
   if (!apiKey) return;
 
-  const excludeCountries = parseList(config.exclude_countries);
-  const dealerIdstores = parseList(config.dealer_idstore);
   const priorityCountries = parseList(config.priority_countries);
+  const authorExcludes = parseList(config.exclude_countries);
+  const excludeCountries = [...new Set([...authorExcludes, ...priorityCountries])];
+  const dealerIdstores = parseList(config.dealer_idstore);
   const { countryIso, langCode } = getUrlParams();
 
-  let query;
-  if (isPriorityDealers && priorityCountries.length) {
-    query = buildPriorityQuery(priorityCountries);
-  } else {
-    query = buildQuery(isCountryDealers, countryIso, excludeCountries, dealerIdstores);
-  }
+  const query = buildQuery(isCountryDealers, countryIso, excludeCountries, dealerIdstores);
 
   block.textContent = '';
 
