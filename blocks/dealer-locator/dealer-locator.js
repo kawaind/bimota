@@ -7,6 +7,7 @@ const LOCALE_TO_LANGUAGE = {
   'nl-nl': 'nl',
   'en-nl': 'en',
   'en-ca': 'en',
+  'en-us': 'en',
   'fr-ca': 'fr',
   'en-mx': 'en',
   'es-mx': 'es',
