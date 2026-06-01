@@ -234,11 +234,28 @@ export default async function decorate(block) {
   container.append(loading);
   block.append(container);
 
-  const stores = await fetchDealers(apiKey, query);
-  const sorted = sortStores(stores, isCountryDealers, langCode);
+  const hasPriority = priorityCountries.length > 0;
+  const priorityQuery = hasPriority
+    ? priorityCountries.map((iso) => `country:="${iso}"`).join(' OR ')
+    : '';
+
+  const [priorityStores, globalStores] = await Promise.all([
+    hasPriority ? fetchDealers(apiKey, priorityQuery) : Promise.resolve([]),
+    fetchDealers(apiKey, query),
+  ]);
 
   loading.remove();
 
+  if (hasPriority && priorityStores.length) {
+    const sortedPriority = sortStores(priorityStores, false, langCode);
+    const priorityGrid = createElement('div', { classes: ['dealers-grid', 'dealers-grid-priority'] });
+    sortedPriority.forEach((store) => {
+      priorityGrid.append(buildDealerCard(store, langCode));
+    });
+    container.append(priorityGrid);
+  }
+
+  const sorted = sortStores(globalStores, isCountryDealers, langCode);
   const grid = createElement('div', { classes: 'dealers-grid' });
   sorted.forEach((store) => {
     grid.append(buildDealerCard(store, langCode));

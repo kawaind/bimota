@@ -100,6 +100,13 @@
   }
 }
 
+/* Priority dealers section separator */
+.woosmapdealers.global-dealers .dealers-grid-priority {
+  padding-bottom: 35px;
+  margin-bottom: 35px;
+  border-bottom: 1px solid var(--grey-40);
+}
+
 /* Desktop: global-dealers variant — 3 columns */
 @media (width >= 768px) {
   .woosmapdealers.global-dealers .dealers-grid {
