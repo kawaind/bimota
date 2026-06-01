@@ -88,15 +88,7 @@
     padding: 24px 20px;
     padding-top: 10px!important;
     border-bottom: none;
-    border-right: 1px solid var(--grey-10);
-  }
-
-  .woosmapdealers.country-dealers .dealer-card:nth-child(2n) {
-    border-right: none;
-  }
-
-  .woosmapdealers.country-dealers .dealer-card:last-child {
-    border-right: none;
+    border-left: 1px solid var(--grey-10);
   }
 }
 
@@ -125,31 +117,10 @@
 
 /* Large desktop adjustments */
 @media (width >= 1025px) {
-  .woosmapdealers.country-dealers .dealer-card {
-    padding: 24px 32px;
-    border-bottom: none;
-    border-right: 1px solid var(--grey-10);
-  }
-
+  .woosmapdealers.country-dealers .dealer-card,
   .woosmapdealers.global-dealers .dealer-card {
     padding: 24px 32px;
     border-bottom: none;
     border-left: 1px solid var(--grey-10);
-  }
-
-  .woosmapdealers.country-dealers .dealer-card:nth-child(2n + 1) {
-    padding-left: 0;
-  }
-
-  .woosmapdealers.global-dealers .dealer-card:nth-child(3n + 1) {
-    padding-left: 0;
-  }
-
-  .woosmapdealers.country-dealers .dealer-card:nth-child(2n) {
-    padding-right: 0;
-  }
-
-  .woosmapdealers.global-dealers .dealer-card:nth-child(3n) {
-    padding-right: 0;
   }
 }
