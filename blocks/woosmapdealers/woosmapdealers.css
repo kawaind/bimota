@@ -179,11 +179,6 @@
   color: var(--black);
 }
 
-/* Priority section spacing */
-.woosmapdealers .dealers-priority-section {
-  margin-bottom: 48px;
-}
-
 /* Desktop: country-dealers variant — 2 columns */
 @media (width >= 768px) {
   .woosmapdealers.country-dealers .dealers-grid {

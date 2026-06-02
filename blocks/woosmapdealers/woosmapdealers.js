@@ -332,9 +332,7 @@ export default async function decorate(block) {
 
   if (!apiKey) return;
 
-  const priorityCountries = parseList(config.priority_countries);
-  const authorExcludes = parseList(config.exclude_countries);
-  const excludeCountries = [...new Set([...authorExcludes, ...priorityCountries])];
+  const excludeCountries = parseList(config.exclude_countries);
   const dealerIdstores = parseList(config.dealer_idstore);
   const { countryIso, langCode } = getUrlParams();
 
@@ -348,27 +346,12 @@ export default async function decorate(block) {
   container.append(loading);
   block.append(container);
 
-  const hasPriority = priorityCountries.length > 0 && isGlobalDealers;
-  const priorityQuery = hasPriority
-    ? priorityCountries.map((iso) => `country:="${iso}"`).join(' OR ')
-    : '';
-
-  const [priorityStores, globalStores] = await Promise.all([
-    hasPriority ? fetchDealers(apiKey, priorityQuery) : Promise.resolve([]),
-    fetchDealers(apiKey, query),
-  ]);
+  const stores = await fetchDealers(apiKey, query);
 
   loading.remove();
 
   if (isGlobalDealers) {
-    if (hasPriority && priorityStores.length) {
-      const priorityRegionMap = groupStoresByRegionAndCountry(priorityStores, langCode);
-      const prioritySection = createElement('div', { classes: 'dealers-priority-section' });
-      buildRegionTabs(priorityRegionMap, langCode, prioritySection, countryIso);
-      container.append(prioritySection);
-    }
-
-    const regionMap = groupStoresByRegionAndCountry(globalStores, langCode);
+    const regionMap = groupStoresByRegionAndCountry(stores, langCode);
     buildRegionTabs(regionMap, langCode, container, countryIso);
   } else if (isCountryDealers) {
     const countryName = getLocalizedCountryName(countryIso, langCode);
@@ -378,7 +361,7 @@ export default async function decorate(block) {
       container.append(heading);
     }
 
-    const sorted = sortStores(globalStores, true, langCode);
+    const sorted = sortStores(stores, true, langCode);
     const grid = createElement('div', { classes: 'dealers-grid' });
     sorted.forEach((store) => {
       grid.append(buildDealerCard(store));
