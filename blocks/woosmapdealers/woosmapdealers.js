@@ -111,7 +111,7 @@ function sortStores(stores, isCountryDealers, langCode) {
 async function fetchDealers(apiKey, query) {
   const url = new URL('https://api.woosmap.com/stores/search');
   url.searchParams.set('key', apiKey);
-  url.searchParams.set('query', query);
+  if (query) url.searchParams.set('query', query);
   url.searchParams.set('limit', '300');
 
   const resp = await fetch(url.toString());
@@ -206,9 +206,111 @@ function decorateGlobalTitle(block) {
   block.append(heading);
 }
 
+async function decoratePriorityDealers(block) {
+  const config = getConfig(block);
+  const apiKey = config.woosmapkey || '';
+
+  if (!apiKey) return;
+
+  const priorityCountries = parseList(config['priority-dealers']);
+  const excludeCountries = parseList(config['exclude-dealers']);
+  const dealerIdstores = parseList(config.dealer_idstore);
+  const { langCode } = getUrlParams();
+
+  block.textContent = '';
+
+  const container = createElement('div', { classes: 'dealers-container' });
+  const loading = createElement('div', { classes: 'dealers-loading' });
+  loading.textContent = '...';
+  container.append(loading);
+  block.append(container);
+
+  const hasPriority = priorityCountries.length > 0;
+  const hasIdstores = dealerIdstores.length > 0;
+  const hasExcludes = excludeCountries.length > 0;
+  const nothingConfigured = !hasPriority && !hasIdstores && !hasExcludes;
+
+  if (nothingConfigured) {
+    const allStores = await fetchDealers(apiKey, '');
+    loading.remove();
+    const sorted = sortStores(allStores, false, langCode);
+    const grid = createElement('div', { classes: 'dealers-grid' });
+    sorted.forEach((store) => grid.append(buildDealerCard(store, langCode)));
+    container.append(grid);
+    return;
+  }
+
+  const priorityQuery = hasPriority
+    ? priorityCountries.map((iso) => `country:="${iso}"`).join(' OR ')
+    : '';
+
+  const idstoreQuery = hasIdstores
+    ? dealerIdstores.map((id) => `idstore:="${id}"`).join(' OR ')
+    : '';
+
+  const allExcluded = [...new Set([...priorityCountries, ...excludeCountries])];
+  const remainingQuery = allExcluded.length
+    ? allExcluded.map((iso) => `NOT country:="${iso}"`).join(' AND ')
+    : '';
+
+  const [priorityStores, idStores, remainingStores] = await Promise.all([
+    hasPriority ? fetchDealers(apiKey, priorityQuery) : Promise.resolve([]),
+    hasIdstores ? fetchDealers(apiKey, idstoreQuery) : Promise.resolve([]),
+    remainingQuery ? fetchDealers(apiKey, remainingQuery) : fetchDealers(apiKey, ''),
+  ]);
+
+  loading.remove();
+
+  const idstoreIds = new Set(dealerIdstores);
+
+  if (hasPriority && priorityStores.length) {
+    const sortedPriority = sortStores(priorityStores, false, langCode);
+    const priorityGrid = createElement('div', { classes: ['dealers-grid', 'dealers-grid-priority'] });
+    sortedPriority.forEach((store) => priorityGrid.append(buildDealerCard(store, langCode)));
+    container.append(priorityGrid);
+  }
+
+  if (hasIdstores && idStores.length) {
+    const filteredIdStores = idStores.filter(
+      (store) => !priorityCountries.includes(
+        (store.properties?.address?.country_code || '').toLowerCase(),
+      ),
+    );
+    if (filteredIdStores.length) {
+      const sortedId = sortStores(filteredIdStores, false, langCode);
+      const idGrid = createElement('div', { classes: ['dealers-grid', 'dealers-grid-idstore'] });
+      sortedId.forEach((store) => idGrid.append(buildDealerCard(store, langCode)));
+      container.append(idGrid);
+    }
+  }
+
+  const seenIds = new Set();
+  priorityStores.forEach((s) => {
+    if (s.properties?.store_id) seenIds.add(s.properties.store_id);
+  });
+  idStores.forEach((s) => {
+    if (s.properties?.store_id) seenIds.add(s.properties.store_id);
+  });
+
+  const dedupedRemaining = remainingStores.filter(
+    (store) => !seenIds.has(store.properties?.store_id)
+      && !idstoreIds.has(store.properties?.store_id),
+  );
+
+  const sorted = sortStores(dedupedRemaining, false, langCode);
+  const grid = createElement('div', { classes: 'dealers-grid' });
+  sorted.forEach((store) => grid.append(buildDealerCard(store, langCode)));
+  container.append(grid);
+}
+
 export default async function decorate(block) {
   if (block.classList.contains('global-title')) {
     decorateGlobalTitle(block);
+    return;
+  }
+
+  if (block.classList.contains('priority-dealers')) {
+    await decoratePriorityDealers(block);
     return;
   }
 
@@ -218,8 +320,8 @@ export default async function decorate(block) {
 
   if (!apiKey) return;
 
-  const priorityCountries = parseList(config.priority_countries);
-  const authorExcludes = parseList(config.exclude_countries);
+  const priorityCountries = parseList(config.priority_countries || config['priority-dealers']);
+  const authorExcludes = parseList(config.exclude_countries || config['exclude-dealers']);
   const excludeCountries = [...new Set([...authorExcludes, ...priorityCountries])];
   const dealerIdstores = parseList(config.dealer_idstore);
   const { countryIso, langCode } = getUrlParams();
