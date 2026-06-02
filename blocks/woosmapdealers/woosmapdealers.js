@@ -174,53 +174,37 @@ function parseList(value) {
 }
 
 function buildBaseQuery(excludeCountries, dealerIdstores) {
-  if (!excludeCountries.length && !dealerIdstores.length) {
+  if (!excludeCountries.length) {
     return '';
   }
-  if (excludeCountries.length && dealerIdstores.length) {
+  if (dealerIdstores.length) {
     const countryParts = excludeCountries.map((iso) => `NOT country:="${iso}"`).join(' AND ');
     const idParts = dealerIdstores.map((id) => `idstore:="${id}"`).join(' OR ');
     return `(${countryParts}) OR (${idParts})`;
   }
-  if (excludeCountries.length) {
-    return excludeCountries.map((iso) => `NOT country:="${iso}"`).join(' AND ');
-  }
-  return dealerIdstores.map((id) => `idstore:="${id}"`).join(' OR ');
+  return excludeCountries.map((iso) => `NOT country:="${iso}"`).join(' AND ');
 }
 
 function buildQuery(isCountryDealers, countryIso, excludeCountries, dealerIdstores) {
   if (isCountryDealers) {
-    if (!excludeCountries.length && !dealerIdstores.length) {
-      return `country:="${countryIso}"`;
-    }
-    let query = `country:="${countryIso}"`;
-    if (excludeCountries.length && dealerIdstores.length) {
-      const countryParts = excludeCountries.map((iso) => `NOT country:="${iso}"`).join(' AND ');
-      const idParts = dealerIdstores.map((id) => `idstore:="${id}"`).join(' OR ');
-      query += ` AND (${countryParts} OR ${idParts})`;
-    } else if (excludeCountries.length) {
-      query += ` AND ${excludeCountries.map((iso) => `NOT country:="${iso}"`).join(' AND ')}`;
-    } else {
-      query += ` AND (${dealerIdstores.map((id) => `idstore:="${id}"`).join(' OR ')})`;
-    }
-    return query;
+    return `country:="${countryIso}"`;
   }
 
   if (!excludeCountries.length && !dealerIdstores.length) {
     return `NOT country:="${countryIso}"`;
   }
 
-  let query = `NOT country:="${countryIso}"`;
   if (excludeCountries.length && dealerIdstores.length) {
-    const countryParts = excludeCountries.map((iso) => `NOT country:="${iso}"`).join(' AND ');
+    const countryParts = [...excludeCountries, countryIso].map((iso) => `NOT country:="${iso}"`).join(' AND ');
     const idParts = dealerIdstores.map((id) => `idstore:="${id}"`).join(' OR ');
-    query += ` AND (${countryParts} OR ${idParts})`;
-  } else if (excludeCountries.length) {
-    query += ` AND ${excludeCountries.map((iso) => `NOT country:="${iso}"`).join(' AND ')}`;
-  } else {
-    query += ` AND (${dealerIdstores.map((id) => `idstore:="${id}"`).join(' OR ')})`;
+    return `(${countryParts}) OR (${idParts})`;
   }
-  return query;
+
+  if (excludeCountries.length) {
+    return [...excludeCountries, countryIso].map((iso) => `NOT country:="${iso}"`).join(' AND ');
+  }
+
+  return `NOT country:="${countryIso}"`;
 }
 
 const TRANSLATIONS = {
@@ -334,13 +318,6 @@ function buildRegionTabs(regionMap, langCode, container, userCountryIso) {
   container.append(tabContent);
 }
 
-async function fetchDealersByIds(apiKey, ids) {
-  const results = await Promise.all(
-    ids.map((id) => fetchDealers(apiKey, `idstore:="${id}"`)),
-  );
-  return results.flat();
-}
-
 export default async function decorate(block) {
   if (block.classList.contains('global-title')) {
     decorateGlobalTitle(block);
@@ -370,12 +347,8 @@ export default async function decorate(block) {
   let stores;
 
   if (isBaseVariant) {
-    if (dealerIdstores.length && !excludeCountries.length) {
-      stores = await fetchDealersByIds(apiKey, dealerIdstores);
-    } else {
-      const query = buildBaseQuery(excludeCountries, dealerIdstores);
-      stores = await fetchDealers(apiKey, query);
-    }
+    const query = buildBaseQuery(excludeCountries, dealerIdstores);
+    stores = await fetchDealers(apiKey, query);
   } else {
     const query = buildQuery(isCountryDealers, countryIso, excludeCountries, dealerIdstores);
     stores = await fetchDealers(apiKey, query);
