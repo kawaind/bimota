@@ -258,8 +258,12 @@ function capitalizeRegion(region) {
   return region.charAt(0).toUpperCase() + region.slice(1);
 }
 
-function buildRegionTabs(regionMap, langCode, container) {
-  const regionNames = Object.keys(regionMap).sort();
+function buildRegionTabs(regionMap, langCode, container, userCountryIso) {
+  const userRegion = userCountryIso ? getRegionForCountry(userCountryIso) : null;
+  const sorted = Object.keys(regionMap).sort();
+  const regionNames = userRegion && sorted.includes(userRegion)
+    ? [userRegion, ...sorted.filter((r) => r !== userRegion)]
+    : sorted;
 
   const tabNav = createElement('div', { classes: 'dealers-tabs' });
   const tabContent = createElement('div', { classes: 'dealers-tab-content' });
@@ -286,7 +290,7 @@ function buildRegionTabs(regionMap, langCode, container) {
     const countries = Object.keys(regionMap[region]).sort();
     countries.forEach((countryName) => {
       const dealers = regionMap[region][countryName];
-      const sorted = [...dealers].sort((a, b) => {
+      const sortedDealers = [...dealers].sort((a, b) => {
         const nameA = (a.properties?.name || '').toUpperCase();
         const nameB = (b.properties?.name || '').toUpperCase();
         return nameA.localeCompare(nameB);
@@ -301,7 +305,7 @@ function buildRegionTabs(regionMap, langCode, container) {
       details.append(summary);
 
       const grid = createElement('div', { classes: 'dealers-grid' });
-      sorted.forEach((store) => {
+      sortedDealers.forEach((store) => {
         grid.append(buildDealerCard(store));
       });
       details.append(grid);
@@ -360,12 +364,12 @@ export default async function decorate(block) {
     if (hasPriority && priorityStores.length) {
       const priorityRegionMap = groupStoresByRegionAndCountry(priorityStores, langCode);
       const prioritySection = createElement('div', { classes: 'dealers-priority-section' });
-      buildRegionTabs(priorityRegionMap, langCode, prioritySection);
+      buildRegionTabs(priorityRegionMap, langCode, prioritySection, countryIso);
       container.append(prioritySection);
     }
 
     const regionMap = groupStoresByRegionAndCountry(globalStores, langCode);
-    buildRegionTabs(regionMap, langCode, container);
+    buildRegionTabs(regionMap, langCode, container, countryIso);
   } else if (isCountryDealers) {
     const countryName = getLocalizedCountryName(countryIso, langCode);
     if (countryName) {
