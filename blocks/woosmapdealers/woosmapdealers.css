@@ -110,11 +110,11 @@
   margin-bottom: 35px;
 }
 
-/* Desktop: global-dealers variant — 3 columns */
+/* Desktop: global-dealers variant — 3 equal columns */
 @media (width >= 768px) {
   .woosmapdealers.global-dealers .dealers-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 35px 0;
   }
 
@@ -123,6 +123,12 @@
     padding-top: 10px!important;
     border-bottom: none;
     border-left: 1px solid var(--grey-10);
+    min-width: 0;
+  }
+
+  .woosmapdealers.global-dealers .dealer-card p {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 
   .woosmapdealers.priority-dealers .dealers-grid {
