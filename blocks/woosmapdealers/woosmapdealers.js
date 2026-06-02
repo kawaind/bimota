@@ -145,7 +145,7 @@ function sortStores(stores, isCountryDealers, langCode) {
 async function fetchDealers(apiKey, query) {
   const url = new URL('https://api.woosmap.com/stores/search');
   url.searchParams.set('key', apiKey);
-  url.searchParams.set('query', query);
+  if (query) url.searchParams.set('query', query);
   url.searchParams.set('limit', '300');
 
   const resp = await fetch(url.toString());
@@ -171,6 +171,21 @@ function getConfig(block) {
 function parseList(value) {
   if (!value) return [];
   return value.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
+}
+
+function buildBaseQuery(excludeCountries, dealerIdstores) {
+  if (!excludeCountries.length && !dealerIdstores.length) {
+    return '';
+  }
+  if (excludeCountries.length && dealerIdstores.length) {
+    const countryParts = excludeCountries.map((iso) => `NOT country:="${iso}"`).join(' AND ');
+    const idParts = dealerIdstores.map((id) => `idstore:="${id}"`).join(' OR ');
+    return `(${countryParts}) OR (${idParts})`;
+  }
+  if (excludeCountries.length) {
+    return excludeCountries.map((iso) => `NOT country:="${iso}"`).join(' AND ');
+  }
+  return dealerIdstores.map((id) => `idstore:="${id}"`).join(' OR ');
 }
 
 function buildQuery(isCountryDealers, countryIso, excludeCountries, dealerIdstores) {
@@ -319,6 +334,13 @@ function buildRegionTabs(regionMap, langCode, container, userCountryIso) {
   container.append(tabContent);
 }
 
+async function fetchDealersByIds(apiKey, ids) {
+  const results = await Promise.all(
+    ids.map((id) => fetchDealers(apiKey, `idstore:="${id}"`)),
+  );
+  return results.flat();
+}
+
 export default async function decorate(block) {
   if (block.classList.contains('global-title')) {
     decorateGlobalTitle(block);
@@ -327,6 +349,7 @@ export default async function decorate(block) {
 
   const isCountryDealers = block.classList.contains('country-dealers');
   const isGlobalDealers = block.classList.contains('global-dealers');
+  const isBaseVariant = !isCountryDealers && !isGlobalDealers;
   const config = getConfig(block);
   const apiKey = config.woosmapkey || '';
 
@@ -336,8 +359,6 @@ export default async function decorate(block) {
   const dealerIdstores = parseList(config.dealer_idstore);
   const { countryIso, langCode } = getUrlParams();
 
-  const query = buildQuery(isCountryDealers, countryIso, excludeCountries, dealerIdstores);
-
   block.textContent = '';
 
   const container = createElement('div', { classes: 'dealers-container' });
@@ -346,11 +367,26 @@ export default async function decorate(block) {
   container.append(loading);
   block.append(container);
 
-  const stores = await fetchDealers(apiKey, query);
+  let stores;
+
+  if (isBaseVariant) {
+    if (dealerIdstores.length && !excludeCountries.length) {
+      stores = await fetchDealersByIds(apiKey, dealerIdstores);
+    } else {
+      const query = buildBaseQuery(excludeCountries, dealerIdstores);
+      stores = await fetchDealers(apiKey, query);
+    }
+  } else {
+    const query = buildQuery(isCountryDealers, countryIso, excludeCountries, dealerIdstores);
+    stores = await fetchDealers(apiKey, query);
+  }
 
   loading.remove();
 
-  if (isGlobalDealers) {
+  if (isBaseVariant) {
+    const regionMap = groupStoresByRegionAndCountry(stores, langCode);
+    buildRegionTabs(regionMap, langCode, container, countryIso);
+  } else if (isGlobalDealers) {
     const regionMap = groupStoresByRegionAndCountry(stores, langCode);
     buildRegionTabs(regionMap, langCode, container, countryIso);
   } else if (isCountryDealers) {
