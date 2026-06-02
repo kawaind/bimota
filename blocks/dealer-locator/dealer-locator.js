@@ -160,8 +160,8 @@ export default async function decorate(block) {
   };
 
   const ZOOM_BY_PATH = {
-    'ph/en': 6,
-    'jp/ja': 6,
+    'ph/en': 5,
+    'jp/ja': 5,
   };
 
   const DEFAULT_ZOOM = 5;
