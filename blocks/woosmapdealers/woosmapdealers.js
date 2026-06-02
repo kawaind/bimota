@@ -220,6 +220,24 @@ const TRANSLATIONS = {
   },
 };
 
+const REGION_TRANSLATIONS = {
+  africa: {
+    en: 'Africa', fr: 'Afrique', it: 'Africa', es: 'África', de: 'Afrika', pt: 'África', nl: 'Afrika', ja: 'アフリカ',
+  },
+  americas: {
+    en: 'Americas', fr: 'Amériques', it: 'Americhe', es: 'Américas', de: 'Amerika', pt: 'Américas', nl: 'Amerika', ja: 'アメリカ',
+  },
+  asia: {
+    en: 'Asia', fr: 'Asie', it: 'Asia', es: 'Asia', de: 'Asien', pt: 'Ásia', nl: 'Azië', ja: 'アジア',
+  },
+  europe: {
+    en: 'Europe', fr: 'Europe', it: 'Europa', es: 'Europa', de: 'Europa', pt: 'Europa', nl: 'Europa', ja: 'ヨーロッパ',
+  },
+  oceania: {
+    en: 'Oceania', fr: 'Océanie', it: 'Oceania', es: 'Oceanía', de: 'Ozeanien', pt: 'Oceania', nl: 'Oceanië', ja: 'オセアニア',
+  },
+};
+
 function translateCustomText(text, langCode) {
   const key = text.toLowerCase();
   const lang = langCode.toLowerCase();
@@ -253,8 +271,11 @@ function groupStoresByRegionAndCountry(stores, langCode) {
   return regionMap;
 }
 
-function capitalizeRegion(region) {
-  return region.charAt(0).toUpperCase() + region.slice(1);
+function getLocalizedRegionName(region, langCode) {
+  const lang = langCode.toLowerCase();
+  return REGION_TRANSLATIONS[region]?.[lang]
+    || REGION_TRANSLATIONS[region]?.en
+    || region.charAt(0).toUpperCase() + region.slice(1);
 }
 
 function buildRegionTabs(regionMap, langCode, container, userCountryIso) {
@@ -269,7 +290,7 @@ function buildRegionTabs(regionMap, langCode, container, userCountryIso) {
 
   regionNames.forEach((region, index) => {
     const tabBtn = createElement('button', { classes: 'dealers-tab-btn' });
-    tabBtn.textContent = capitalizeRegion(region);
+    tabBtn.textContent = getLocalizedRegionName(region, langCode);
     tabBtn.setAttribute('data-region', region);
     if (index === 0) tabBtn.classList.add('active');
     tabBtn.addEventListener('click', () => {
