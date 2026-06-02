@@ -82,10 +82,10 @@
 .woosmapdealers .dealers-accordion-header {
   font-weight: 500;
   font-style: normal;
-  font-size: 40px;
+  font-size: 20px;
   line-height: 130%;
   letter-spacing: 0;
-  color: #1d1d1b;
+  color: #1a1a1a;
   padding: 24px 0;
   cursor: pointer;
   list-style: none;
@@ -126,7 +126,7 @@
   font-size: 40px;
   line-height: 130%;
   letter-spacing: 0;
-  color: #1d1d1b;
+  color: #1a1a1a;
   margin: 0 0 24px;
 }
 
@@ -138,23 +138,30 @@
 
 .woosmapdealers .dealer-card p {
   margin: 0;
-  line-height: 1.6;
-  font-size: 0.875rem;
-  letter-spacing: 0.25px;
+  font-weight: 500;
+  font-style: normal;
+  font-size: 16px;
+  line-height: 150%;
+  letter-spacing: 0;
+  color: #1a1a1a;
 }
 
 .woosmapdealers .dealer-name {
-  font-weight: 600;
-  font-size: 0.875rem;
-  margin-bottom: 2px;
+  font-weight: 500;
+  font-style: normal;
+  font-size: 28px;
+  line-height: 130%;
+  letter-spacing: 0;
+  color: #1a1a1a;
+  margin-bottom: 4px;
 }
 
 .woosmapdealers .dealer-url a,
 .woosmapdealers .dealer-email a {
   color: var(--action-default);
   text-decoration: underline;
-  font-weight: 700;
-  font-size: 0.875rem;
+  font-weight: 500;
+  font-size: 16px;
 }
 
 .woosmapdealers .dealer-url a:hover,
