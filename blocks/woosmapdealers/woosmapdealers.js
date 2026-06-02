@@ -367,6 +367,13 @@ export default async function decorate(block) {
     const regionMap = groupStoresByRegionAndCountry(globalStores, langCode);
     buildRegionTabs(regionMap, langCode, container);
   } else if (isCountryDealers) {
+    const countryName = getLocalizedCountryName(countryIso, langCode);
+    if (countryName) {
+      const heading = createElement('h2', { classes: 'dealers-country-heading' });
+      heading.textContent = countryName;
+      container.append(heading);
+    }
+
     const sorted = sortStores(globalStores, true, langCode);
     const grid = createElement('div', { classes: 'dealers-grid' });
     sorted.forEach((store) => {

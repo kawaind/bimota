@@ -32,24 +32,26 @@
   border: none;
   border-bottom: 3px solid transparent;
   padding: 16px 24px;
-  font-size: 1rem;
+  font-family: var(--font-family-boxed, 'Boxed', sans-serif);
+  font-size: 28px;
   font-weight: 500;
-  color: var(--grey-90);
+  font-style: normal;
+  line-height: 130%;
+  letter-spacing: 0;
+  color: #666;
   cursor: pointer;
   white-space: nowrap;
   transition: color 0.2s, border-color 0.2s;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
 }
 
 .woosmapdealers .dealers-tab-btn:hover {
-  color: var(--black);
+  color: #ed1c24;
 }
 
 .woosmapdealers .dealers-tab-btn.active {
-  color: var(--black);
-  border-bottom-color: var(--black);
-  font-weight: 700;
+  color: #ed1c24;
+  border-bottom-color: #ed1c24;
+  font-weight: 500;
 }
 
 /* Tab panels */
@@ -79,8 +81,9 @@
 
 .woosmapdealers .dealers-accordion-header {
   font-weight: 500;
-  font-size: 1.5rem;
-  line-height: 1.4;
+  font-style: normal;
+  font-size: 40px;
+  line-height: 130%;
   letter-spacing: 0;
   color: #1d1d1b;
   padding: 24px 0;
@@ -100,8 +103,8 @@
   content: '';
   width: 12px;
   height: 12px;
-  border-right: 2px solid #1d1d1b;
-  border-bottom: 2px solid #1d1d1b;
+  border-right: 2px solid #ed1c24;
+  border-bottom: 2px solid #ed1c24;
   transform: rotate(45deg);
   transition: transform 0.3s ease;
   flex-shrink: 0;
@@ -115,6 +118,16 @@
 .woosmapdealers .dealers-accordion .dealers-grid {
   overflow: hidden;
   padding-bottom: 24px;
+}
+
+.woosmapdealers .dealers-country-heading {
+  font-weight: 500;
+  font-style: normal;
+  font-size: 40px;
+  line-height: 130%;
+  letter-spacing: 0;
+  color: #1d1d1b;
+  margin: 0 0 24px;
 }
 
 .woosmapdealers .dealer-card {
