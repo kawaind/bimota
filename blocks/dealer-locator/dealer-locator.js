@@ -142,6 +142,10 @@ export default async function decorate(block) {
       lat: 13.374468169723215,
       lng: 122.00808081554484,
     },
+    japan: {
+      lat: 36.204824,
+      lng: 138.252924,
+    },
   };
 
   const CENTER_BY_PATH = {
@@ -152,10 +156,12 @@ export default async function decorate(block) {
     'ca/fr-ca': LOCATION_CENTERS.northAmerica,
     'au/en': LOCATION_CENTERS.australia,
     'ph/en': LOCATION_CENTERS.philippines,
+    'jp/ja': LOCATION_CENTERS.japan,
   };
 
   const ZOOM_BY_PATH = {
     'ph/en': 6,
+    'jp/ja': 6,
   };
 
   const DEFAULT_ZOOM = 5;
@@ -178,10 +184,17 @@ export default async function decorate(block) {
     return ZOOM_BY_PATH[pathKey] ?? DEFAULT_ZOOM;
   };
 
+  const FIT_BOUNDS_PATHS = ['jp/ja', 'ph/en'];
+
+  const shouldFitBounds = (pathname) => {
+    const pathKey = getPathKey(pathname);
+    return FIT_BOUNDS_PATHS.includes(pathKey);
+  };
+
   const defaultLocationConfig = {
     initialCenter: getInitialCenter(),
     initialZoom: getInitialZoom(),
-    fitBounds: false,
+    fitBounds: shouldFitBounds(),
     tileStyle: {
       color: '#ed1d24',
       size: 12,
