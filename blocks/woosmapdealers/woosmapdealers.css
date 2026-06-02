@@ -16,6 +16,7 @@
 /* Tabs */
 .woosmapdealers .dealers-tabs {
   display: flex;
+  justify-content: flex-start;
   gap: 0;
   border-bottom: 1px solid var(--grey-20);
   overflow-x: auto;
@@ -31,7 +32,7 @@
   background: none;
   border: none;
   border-bottom: 3px solid transparent;
-  padding: 16px 24px;
+  padding: 16px 24px 16px 0;
   font-family: var(--font-family-boxed, 'Boxed', sans-serif);
   font-size: 28px;
   font-weight: 500;
