@@ -58,6 +58,12 @@
   font-weight: 900;
   font-style: bold;
   font-size: 0.875rem;
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
 }
 
 .woosmapdealers .dealer-url a:hover,
