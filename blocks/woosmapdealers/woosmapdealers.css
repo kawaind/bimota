@@ -17,7 +17,7 @@
 .woosmapdealers .dealers-tabs {
   display: flex;
   justify-content: flex-start;
-  gap: 40px;
+  gap: 80px;
   border-bottom: 1px solid var(--grey-20);
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
