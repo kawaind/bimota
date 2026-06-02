@@ -1,5 +1,47 @@
 import { createElement } from '../../scripts/helpers.js';
 
+const REGIONS = {
+  africa: [
+    'ao', 'bf', 'bi', 'bj', 'bw', 'cd', 'cf', 'cg', 'ci', 'cm', 'cv', 'dj',
+    'dz', 'eg', 'eh', 'er', 'et', 'ga', 'gh', 'gm', 'gn', 'gq', 'gw', 'ke',
+    'km', 'lr', 'ls', 'ly', 'ma', 'mg', 'ml', 'mr', 'mu', 'mw', 'mz', 'na',
+    'ne', 'ng', 'rw', 'sc', 'sd', 'sl', 'sn', 'so', 'ss', 'st', 'sz', 'td',
+    'tg', 'tn', 'tz', 'ug', 'za', 'zm', 'zw',
+  ],
+  americas: [
+    'ag', 'ai', 'ar', 'aw', 'bb', 'bl', 'bm', 'bo', 'bq', 'br', 'bs', 'bz',
+    'ca', 'cl', 'co', 'cr', 'cu', 'cw', 'dm', 'do', 'ec', 'fk', 'gd', 'gf',
+    'gp', 'gt', 'gy', 'hn', 'ht', 'jm', 'kn', 'ky', 'lc', 'mf', 'mq', 'ms',
+    'mx', 'ni', 'pa', 'pe', 'pm', 'pr', 'py', 'sr', 'sv', 'sx', 'tc', 'tt',
+    'us', 'uy', 've', 'vg', 'vi',
+  ],
+  asia: [
+    'ae', 'af', 'am', 'az', 'bd', 'bh', 'bn', 'bt', 'cn', 'cy', 'ge', 'hk',
+    'id', 'il', 'in', 'iq', 'ir', 'jo', 'jp', 'kg', 'kh', 'kp', 'kr', 'kw',
+    'kz', 'la', 'lb', 'lk', 'mm', 'mn', 'mo', 'mv', 'my', 'np', 'om', 'ph',
+    'pk', 'ps', 'qa', 'sa', 'sg', 'sy', 'th', 'tj', 'tl', 'tm', 'tr', 'tw',
+    'uz', 'vn', 'ye',
+  ],
+  europe: [
+    'ad', 'al', 'at', 'ax', 'ba', 'be', 'bg', 'by', 'ch', 'cz', 'de', 'dk',
+    'ee', 'es', 'fi', 'fo', 'fr', 'gb', 'gg', 'gi', 'gr', 'hr', 'hu', 'ie',
+    'im', 'is', 'it', 'je', 'li', 'lt', 'lu', 'lv', 'mc', 'md', 'me', 'mk',
+    'mt', 'nl', 'no', 'pl', 'pt', 'ro', 'rs', 'ru', 'se', 'si', 'sk', 'sm',
+    'ua', 'va', 'xk',
+  ],
+  oceania: [
+    'as', 'au', 'ck', 'fj', 'fm', 'gu', 'ki', 'mh', 'mp', 'nc', 'nf', 'nr',
+    'nu', 'nz', 'pf', 'pg', 'pn', 'pw', 'sb', 'tk', 'to', 'tv', 'vu', 'wf',
+    'ws',
+  ],
+};
+
+function getRegionForCountry(countryCode) {
+  const code = countryCode.toLowerCase();
+  const region = Object.keys(REGIONS).find((r) => REGIONS[r].includes(code));
+  return region || null;
+}
+
 function getUrlParams() {
   const segments = window.location.pathname.split('/').filter(Boolean);
   const countryIso = (segments[0] || '').toLowerCase();
@@ -18,20 +60,10 @@ function getLocalizedCountryName(countryCode, langCode) {
   }
 }
 
-function buildDealerCard(store, langCode, showCountry) {
+function buildDealerCard(store) {
   const { properties } = store;
   const { name, address, contact } = properties;
   const card = createElement('div', { classes: 'dealer-card' });
-
-  if (showCountry) {
-    const countryCode = address?.country_code || '';
-    const countryName = getLocalizedCountryName(countryCode, langCode);
-    if (countryName) {
-      const countryEl = createElement('p', { classes: 'dealer-country' });
-      countryEl.textContent = countryName.toUpperCase();
-      card.append(countryEl);
-    }
-  }
 
   if (name) {
     const nameEl = createElement('p', { classes: 'dealer-name' });
@@ -89,17 +121,6 @@ function buildDealerCard(store, langCode, showCountry) {
   }
 
   return card;
-}
-
-function groupStoresByCountry(stores, langCode) {
-  const groups = new Map();
-  stores.forEach((store) => {
-    const code = store.properties?.address?.country_code || '';
-    const name = getLocalizedCountryName(code, langCode).toUpperCase();
-    if (!groups.has(name)) groups.set(name, []);
-    groups.get(name).push(store);
-  });
-  return groups;
 }
 
 function sortStores(stores, isCountryDealers, langCode) {
@@ -219,6 +240,81 @@ function decorateGlobalTitle(block) {
   block.append(heading);
 }
 
+function groupStoresByRegionAndCountry(stores, langCode) {
+  const regionMap = {};
+  stores.forEach((store) => {
+    const code = (store.properties?.address?.country_code || '').toLowerCase();
+    const region = getRegionForCountry(code);
+    if (!region) return;
+    if (!regionMap[region]) regionMap[region] = {};
+    const countryName = getLocalizedCountryName(code, langCode);
+    if (!regionMap[region][countryName]) regionMap[region][countryName] = [];
+    regionMap[region][countryName].push(store);
+  });
+  return regionMap;
+}
+
+function capitalizeRegion(region) {
+  return region.charAt(0).toUpperCase() + region.slice(1);
+}
+
+function buildRegionTabs(regionMap, langCode, container) {
+  const regionNames = Object.keys(regionMap).sort();
+
+  const tabNav = createElement('div', { classes: 'dealers-tabs' });
+  const tabContent = createElement('div', { classes: 'dealers-tab-content' });
+
+  regionNames.forEach((region, index) => {
+    const tabBtn = createElement('button', { classes: 'dealers-tab-btn' });
+    tabBtn.textContent = capitalizeRegion(region);
+    tabBtn.setAttribute('data-region', region);
+    if (index === 0) tabBtn.classList.add('active');
+    tabBtn.addEventListener('click', () => {
+      tabNav.querySelectorAll('.dealers-tab-btn').forEach((b) => b.classList.remove('active'));
+      tabBtn.classList.add('active');
+      tabContent.querySelectorAll('.dealers-tab-panel').forEach((p) => p.classList.remove('active'));
+      tabContent.querySelector(`[data-region="${region}"]`).classList.add('active');
+    });
+    tabNav.append(tabBtn);
+  });
+
+  regionNames.forEach((region, index) => {
+    const panel = createElement('div', { classes: 'dealers-tab-panel' });
+    panel.setAttribute('data-region', region);
+    if (index === 0) panel.classList.add('active');
+
+    const countries = Object.keys(regionMap[region]).sort();
+    countries.forEach((countryName) => {
+      const dealers = regionMap[region][countryName];
+      const sorted = [...dealers].sort((a, b) => {
+        const nameA = (a.properties?.name || '').toUpperCase();
+        const nameB = (b.properties?.name || '').toUpperCase();
+        return nameA.localeCompare(nameB);
+      });
+
+      const details = document.createElement('details');
+      details.classList.add('dealers-accordion');
+
+      const summary = document.createElement('summary');
+      summary.classList.add('dealers-accordion-header');
+      summary.textContent = countryName;
+      details.append(summary);
+
+      const grid = createElement('div', { classes: 'dealers-grid' });
+      sorted.forEach((store) => {
+        grid.append(buildDealerCard(store));
+      });
+      details.append(grid);
+      panel.append(details);
+    });
+
+    tabContent.append(panel);
+  });
+
+  container.append(tabNav);
+  container.append(tabContent);
+}
+
 export default async function decorate(block) {
   if (block.classList.contains('global-title')) {
     decorateGlobalTitle(block);
@@ -226,14 +322,18 @@ export default async function decorate(block) {
   }
 
   const isCountryDealers = block.classList.contains('country-dealers');
+  const isGlobalDealers = block.classList.contains('global-dealers');
   const config = getConfig(block);
   const apiKey = config.woosmapkey || '';
 
   if (!apiKey) return;
 
-  const excludeCountries = parseList(config.exclude_countries);
+  const priorityCountries = parseList(config.priority_countries);
+  const authorExcludes = parseList(config.exclude_countries);
+  const excludeCountries = [...new Set([...authorExcludes, ...priorityCountries])];
   const dealerIdstores = parseList(config.dealer_idstore);
   const { countryIso, langCode } = getUrlParams();
+
   const query = buildQuery(isCountryDealers, countryIso, excludeCountries, dealerIdstores);
 
   block.textContent = '';
@@ -244,45 +344,34 @@ export default async function decorate(block) {
   container.append(loading);
   block.append(container);
 
-  const stores = await fetchDealers(apiKey, query);
-  const sorted = sortStores(stores, isCountryDealers, langCode);
+  const hasPriority = priorityCountries.length > 0 && isGlobalDealers;
+  const priorityQuery = hasPriority
+    ? priorityCountries.map((iso) => `country:="${iso}"`).join(' OR ')
+    : '';
+
+  const [priorityStores, globalStores] = await Promise.all([
+    hasPriority ? fetchDealers(apiKey, priorityQuery) : Promise.resolve([]),
+    fetchDealers(apiKey, query),
+  ]);
 
   loading.remove();
 
-  if (isCountryDealers) {
-    const details = document.createElement('details');
-    details.classList.add('dealers-accordion');
-    details.open = true;
+  if (isGlobalDealers) {
+    if (hasPriority && priorityStores.length) {
+      const priorityRegionMap = groupStoresByRegionAndCountry(priorityStores, langCode);
+      const prioritySection = createElement('div', { classes: 'dealers-priority-section' });
+      buildRegionTabs(priorityRegionMap, langCode, prioritySection);
+      container.append(prioritySection);
+    }
 
-    const summary = document.createElement('summary');
-    summary.classList.add('dealers-accordion-header');
-    const countryName = getLocalizedCountryName(countryIso, langCode).toUpperCase();
-    summary.textContent = countryName;
-    details.append(summary);
-
+    const regionMap = groupStoresByRegionAndCountry(globalStores, langCode);
+    buildRegionTabs(regionMap, langCode, container);
+  } else if (isCountryDealers) {
+    const sorted = sortStores(globalStores, true, langCode);
     const grid = createElement('div', { classes: 'dealers-grid' });
     sorted.forEach((store) => {
-      grid.append(buildDealerCard(store, langCode, false));
+      grid.append(buildDealerCard(store));
     });
-    details.append(grid);
-    container.append(details);
-  } else {
-    const groups = groupStoresByCountry(sorted, langCode);
-    groups.forEach((groupStores, countryName) => {
-      const details = document.createElement('details');
-      details.classList.add('dealers-accordion');
-
-      const summary = document.createElement('summary');
-      summary.classList.add('dealers-accordion-header');
-      summary.textContent = countryName;
-      details.append(summary);
-
-      const grid = createElement('div', { classes: 'dealers-grid' });
-      groupStores.forEach((store) => {
-        grid.append(buildDealerCard(store, langCode, false));
-      });
-      details.append(grid);
-      container.append(details);
-    });
+    container.append(grid);
   }
 }
