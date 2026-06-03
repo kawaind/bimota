@@ -16,14 +16,9 @@
 
     sampleRUM('404', { source: document.referrer });
 
-    const rootPath = getRootPath();
-    const pathTokens = window.location.pathname.split('/');
-    if (pathTokens.length >= 3) {
-      document.documentElement.lang = pathTokens[2].split('-')[0];
-    }
-
     async function load404Fragment() {
       const main = document.querySelector('main');
+      const rootPath = getRootPath();
       let fragment = null;
 
       if (rootPath) {

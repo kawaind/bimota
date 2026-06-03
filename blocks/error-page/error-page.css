@@ -3,11 +3,11 @@
 }
 
 .error-page h1 {
-  font-size: clamp(80px, 12vw, 140px);
+  font-size: clamp(120px, 18vw, 220px);
   font-weight: 900;
   line-height: 1;
   margin: 0;
-  letter-spacing: -2px;
+  letter-spacing: -4px;
 }
 
 .error-page h2 {
