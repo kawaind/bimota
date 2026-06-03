@@ -1,0 +1,32 @@
+.error-page {
+  padding: 80px 0;
+}
+
+.error-page h1 {
+  font-size: clamp(120px, 18vw, 220px);
+  font-weight: 900;
+  line-height: 1;
+  margin: 0;
+  letter-spacing: -4px;
+}
+
+.error-page h2 {
+  font-size: clamp(20px, 2.5vw, 28px);
+  font-weight: 600;
+  margin: 24px 0 16px;
+}
+
+.error-page p {
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 0 0 24px;
+  max-width: 480px;
+}
+
+.error-page .button-container {
+  margin: 0;
+}
+
+.error-page a.button {
+  display: inline-block;
+}
