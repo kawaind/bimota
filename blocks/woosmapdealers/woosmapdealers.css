@@ -188,11 +188,11 @@
   color: var(--black);
 }
 
-/* Desktop: country-dealers variant — 2 columns */
+/* Desktop: country-dealers variant — 3 columns */
 @media (width >= 768px) {
   .woosmapdealers.country-dealers .dealers-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 24px 0;
   }
 
