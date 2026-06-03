@@ -11,31 +11,8 @@
   <meta property="og:title" content="Page not found">
   <script src="/scripts/scripts.js" type="module"></script>
   <script type="module">
-    import { sampleRUM, getRootPath } from '/scripts/aem.js';
-    import { loadFragment } from '/blocks/fragment/fragment.js';
-
+    import { sampleRUM } from '/scripts/aem.js';
     sampleRUM('404', { source: document.referrer });
-
-    async function load404Fragment() {
-      const main = document.querySelector('main');
-      const rootPath = getRootPath();
-      let fragment = null;
-
-      if (rootPath) {
-        fragment = await loadFragment(`${rootPath}/404`);
-      }
-
-      if (!fragment) {
-        fragment = await loadFragment('/fragments/404');
-      }
-
-      if (fragment) {
-        main.innerHTML = '';
-        main.append(...fragment.childNodes);
-      }
-    }
-
-    load404Fragment();
   </script>
   <link rel="stylesheet" href="/styles/styles.css">
   <style>
