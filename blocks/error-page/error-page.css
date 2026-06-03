@@ -1,34 +1,26 @@
 .error-page {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 80px 20px;
-  min-height: 50vh;
+  padding: 80px 0;
 }
 
 .error-page h1 {
-  font-size: clamp(120px, 20vw, 200px);
+  font-size: clamp(80px, 12vw, 140px);
   font-weight: 900;
   line-height: 1;
   margin: 0;
-  letter-spacing: -4px;
+  letter-spacing: -2px;
 }
 
 .error-page h2 {
-  font-size: clamp(24px, 3vw, 32px);
+  font-size: clamp(20px, 2.5vw, 28px);
   font-weight: 600;
   margin: 24px 0 16px;
 }
 
 .error-page p {
-  font-size: 18px;
+  font-size: 16px;
   line-height: 1.6;
-  margin: 0 0 32px;
+  margin: 0 0 24px;
   max-width: 480px;
-  color: var(--text-color, #333);
-  opacity: 0.8;
 }
 
 .error-page .button-container {
