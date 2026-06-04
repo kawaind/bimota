@@ -1,5 +1,6 @@
+/* Base variation - stacked layout (single column) */
 .error-page {
-  padding: 80px 0;
+  padding: 80px 24px;
 }
 
 .error-page h1 {
@@ -29,4 +30,92 @@
 
 .error-page a.button {
   display: inline-block;
+}
+
+/* Two-column grid for split variations */
+.error-page.text-left > div,
+.error-page.image-left > div,
+.error-page.image-right > div {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* text-left: large 404 number on left, description + CTA on right */
+.error-page.text-left > div > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error-page.text-left > div > div:last-child {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* image-left: image on left, 404 content on right */
+.error-page.image-left > div > div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error-page.image-left > div > div:first-child picture,
+.error-page.image-left > div > div:first-child img {
+  width: 100%;
+  height: auto;
+  max-height: 480px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.error-page.image-left > div > div:last-child {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* image-right: 404 content on left, image on right */
+.error-page.image-right > div > div:first-child {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.error-page.image-right > div > div:last-child {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error-page.image-right > div > div:last-child picture,
+.error-page.image-right > div > div:last-child img {
+  width: 100%;
+  height: auto;
+  max-height: 480px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+/* Responsive: stack on mobile */
+@media (width <= 768px) {
+  .error-page.text-left > div,
+  .error-page.image-left > div,
+  .error-page.image-right > div {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    text-align: center;
+  }
+
+  .error-page.image-right > div > div:last-child {
+    order: -1;
+  }
+
+  .error-page p {
+    max-width: 100%;
+  }
 }
