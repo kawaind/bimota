@@ -41,8 +41,15 @@ if (!window.location.pathname.includes('srcdoc')
   // on localhost/hlx.page/hlx.live the consent notice is displayed every time the page opens,
   // because the cookie is not persistent. To avoid this annoyance, disable unless on the
   // production page.
-  const { langSegment, country, locale } = getLocale();
+  const {
+    langSegment, country, language, locale,
+  } = getLocale();
   let cookiesLinks;
+
+  let cookieBannerLocale = locale;
+  if (language === 'en') {
+    cookieBannerLocale = country === 'us' && langSegment === 'en-us' ? 'en_US' : 'en_GB';
+  }
 
   await fetch('/cookies-links.json')
     .then((response) => response.json())
@@ -51,7 +58,7 @@ if (!window.location.pathname.includes('srcdoc')
     });
   window.addEventListener('ccm19WidgetLoaded', updateCookieLinks.bind(null, country, langSegment, cookiesLinks));
 
-  await loadScript(`https://cloud.ccm19.de/app.js?apiKey=c7d2f47f3259dd5a137414a641f559ee48d81e684564ca8f&amp;domain=67e136a8868b63fcba0a4022&amp;lang=${locale}`, {
+  await loadScript(`https://cloud.ccm19.de/app.js?apiKey=c7d2f47f3259dd5a137414a641f559ee48d81e684564ca8f&amp;domain=67e136a8868b63fcba0a4022&amp;lang=${cookieBannerLocale}`, {
     type: 'text/javascript',
     charset: 'UTF-8',
   });
