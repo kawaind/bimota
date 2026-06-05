@@ -195,6 +195,10 @@
     border-bottom: 1px solid var(--grey-20);
     padding-left: 0;
   }
+
+  .woosmapdealers.global-dealers .dealers-accordion .dealers-grid .dealer-card:last-child {
+    border-bottom: none;
+  }
 }
 
 /* Tablet: country-dealers & global-dealers — 2 columns */
