@@ -60,7 +60,7 @@ if (!window.location.pathname.includes('srcdoc')
 
   if (isUsSite) {
     const style = document.createElement('style');
-    style.textContent = '[class*="ccm"][class*="open-btn"], .ccm-cookie-consent-open-btn, .ccm-widget-open-btn, #ccm-widget .ccm-widget-open-btn { display: none !important; }';
+    style.textContent = '.ccm-settings-summoner { display: none !important; }';
     document.head.appendChild(style);
   }
 
