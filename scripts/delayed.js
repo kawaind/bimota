@@ -56,7 +56,28 @@ if (!window.location.pathname.includes('srcdoc')
     .then((response) => {
       cookiesLinks = response.data;
     });
-  window.addEventListener('ccm19WidgetLoaded', updateCookieLinks.bind(null, country, langSegment, cookiesLinks));
+  const isUsSite = country === 'us' && langSegment === 'en-us';
+
+  window.addEventListener('ccm19WidgetLoaded', () => {
+    updateCookieLinks(country, langSegment, cookiesLinks);
+
+    if (isUsSite) {
+      const widgetOpenBtn = document.querySelector('.ccm-widget-open-btn');
+      if (widgetOpenBtn) {
+        widgetOpenBtn.style.display = 'none';
+      }
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('a[href="#cookie-settings"]');
+    if (link) {
+      e.preventDefault();
+      if (window.CCM && window.CCM.openWidget) {
+        window.CCM.openWidget();
+      }
+    }
+  });
 
   await loadScript(`https://cloud.ccm19.de/app.js?apiKey=c7d2f47f3259dd5a137414a641f559ee48d81e684564ca8f&amp;domain=67e136a8868b63fcba0a4022&amp;lang=${cookieBannerLocale}`, {
     type: 'text/javascript',
