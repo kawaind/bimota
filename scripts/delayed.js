@@ -58,23 +58,22 @@ if (!window.location.pathname.includes('srcdoc')
     });
   const isUsSite = country === 'us' && langSegment === 'en-us';
 
+  if (isUsSite) {
+    const style = document.createElement('style');
+    style.textContent = '[class*="ccm"][class*="open-btn"], .ccm-cookie-consent-open-btn, .ccm-widget-open-btn, #ccm-widget .ccm-widget-open-btn { display: none !important; }';
+    document.head.appendChild(style);
+  }
+
   window.addEventListener('ccm19WidgetLoaded', () => {
     updateCookieLinks(country, langSegment, cookiesLinks);
-
-    if (isUsSite) {
-      const widgetOpenBtn = document.querySelector('.ccm-widget-open-btn');
-      if (widgetOpenBtn) {
-        widgetOpenBtn.style.display = 'none';
-      }
-    }
   });
 
   document.addEventListener('click', (e) => {
     const link = e.target.closest('a[href="#cookie-settings"]');
     if (link) {
       e.preventDefault();
-      if (window.CCM && window.CCM.openWidget) {
-        window.CCM.openWidget();
+      if (window.CCM && window.CCM.openControlPanel) {
+        window.CCM.openControlPanel();
       }
     }
   });
