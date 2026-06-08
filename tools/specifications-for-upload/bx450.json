@@ -1,0 +1,1067 @@
+{
+  "en": {
+    "total": 42,
+    "data": [
+      {
+        "Category": "Dimensions:",
+        "Label": "Overall length:",
+        "Value": "2185 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Overall width:",
+        "Value": "820 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Road Clearance:",
+        "Value": "335 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Wheelbase:",
+        "Value": "1,485 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Curb Mass:",
+        "Value": "110.2 Kg (With Oil and Liquid Coolant, no fuel)"
+      },
+      {
+        "Category": "",
+        "Label": "Fuel Tank Capacity:",
+        "Value": "10.7 Lt"
+      },
+      {
+        "Category": "Engine:",
+        "Label": "Engine type / Valve system:",
+        "Value": "4-stroke, DOHC, single cylinder, liquid-cooled"
+      },
+      {
+        "Category": "",
+        "Label": "Bore x Stroke:",
+        "Value": "96.0 x 62.1 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Displacement:",
+        "Value": "449 cm³"
+      },
+      {
+        "Category": "",
+        "Label": "Compression ratio:",
+        "Value": "12.5:1"
+      },
+      {
+        "Category": "",
+        "Label": "Fuel system:",
+        "Value": "FI (Fuel Injection)"
+      },
+      {
+        "Category": "",
+        "Label": "Ignition System:",
+        "Value": "Digital DC-CDI"
+      },
+      {
+        "Category": "",
+        "Label": "Lubrication System:",
+        "Value": "Forced Lubrication (semi-dry sump)"
+      },
+      {
+        "Category": "",
+        "Label": "Spark Plug:",
+        "Value": "NGK CPR8EB-9"
+      },
+      {
+        "Category": "Transmission:",
+        "Label": "Transmission:",
+        "Value": "5-Speed, constant mesh, return shift"
+      },
+      {
+        "Category": "",
+        "Label": "Clutch type:",
+        "Value": "Wet, Multi disc"
+      },
+      {
+        "Category": "",
+        "Label": "Driving System:",
+        "Value": "Chain Drive"
+      },
+      {
+        "Category": "",
+        "Label": "Final reduction ratio:",
+        "Value": "3.642 (51/14)"
+      },
+      {
+        "Category": "",
+        "Label": "ENGINE OIL:",
+        "Value": ""
+      },
+      {
+        "Category": "",
+        "Label": "Type:",
+        "Value": "API SG, SH, SJ, SL or SM with JASO MA, MA1, or MA2"
+      },
+      {
+        "Category": "",
+        "Label": "Viscosity:",
+        "Value": "SAE 10W-40"
+      },
+      {
+        "Category": "",
+        "Label": "Capacity:",
+        "Value": "1.0 lt."
+      },
+      {
+        "Category": "Frame:",
+        "Label": "Type:",
+        "Value": "Tubular, semi-double cradle"
+      },
+      {
+        "Category": "",
+        "Label": "Steering Angle:",
+        "Value": "42° to either side"
+      },
+      {
+        "Category": "",
+        "Label": "Caster:",
+        "Value": "27.6°"
+      },
+      {
+        "Category": "",
+        "Label": "Trail:",
+        "Value": "120 mm"
+      },
+      {
+        "Category": "Tire Size / Type:",
+        "Label": "Front:",
+        "Value": "90/100-21 57M Metzeler Six days MST Super soft"
+      },
+      {
+        "Category": "",
+        "Label": "Rear:",
+        "Value": "140/80-18 70M Metzeler Six Days M+S Medium"
+      },
+      {
+        "Category": "",
+        "Label": "Rim Size:",
+        "Value": ""
+      },
+      {
+        "Category": "",
+        "Label": "Front:",
+        "Value": "21 x 1.60 (“)"
+      },
+      {
+        "Category": "",
+        "Label": "Rear:",
+        "Value": "18 x 2.15 (“)"
+      },
+      {
+        "Category": "Suspension:",
+        "Label": "Front:",
+        "Value": "Telescopic fork (uspside-down) D49 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Rear:",
+        "Value": "New Uni-trak swingarm"
+      },
+      {
+        "Category": "",
+        "Label": "Front Suspension Travel:",
+        "Value": "305 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Rear Suspension Travel:",
+        "Value": "307 mm"
+      },
+      {
+        "Category": "Front Fork Oil:",
+        "Label": "Type:",
+        "Value": "Kawasaki Fork Oil A15-00"
+      },
+      {
+        "Category": "",
+        "Label": "Ammount:",
+        "Value": ""
+      },
+      {
+        "Category": "",
+        "Label": "Cylinder Unit:",
+        "Value": "253 mL"
+      },
+      {
+        "Category": "",
+        "Label": "Outer Tube:",
+        "Value": "331 mL"
+      },
+      {
+        "Category": "Brakes:",
+        "Label": "Front:",
+        "Value": "Single disc"
+      },
+      {
+        "Category": "",
+        "Label": "Rear:",
+        "Value": "Single disc"
+      },
+      {
+        "Category": "Electrical equipment:",
+        "Label": "Battery:",
+        "Value": "12.8 V 2.0 Ah (10 HR), Lithium-ion battery"
+      }
+    ]
+  },
+  "it": {
+    "total": 39,
+    "data": [
+      {
+        "Category": "Dimensioni",
+        "Label": "Lunghezza",
+        "Value": "2185 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Larghezza",
+        "Value": "820 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Interasse",
+        "Value": "1485 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Luce a terra",
+        "Value": "335 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Peso",
+        "Value": "110.2 Kg (con olio e liquidi senza benzina)"
+      },
+      {
+        "Category": "",
+        "Label": "Capacità serbatoio",
+        "Value": "10.7 Lt"
+      },
+      {
+        "Category": "Motore",
+        "Label": "Motore",
+        "Value": "4-tempi, DOHC, monocilindrico, raffreddato a liquido"
+      },
+      {
+        "Category": "",
+        "Label": "Cilindrata",
+        "Value": "449 cm3"
+      },
+      {
+        "Category": "",
+        "Label": "Alesaggio x Corsa",
+        "Value": "96.0 x 62.1 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Rapp. di compressione",
+        "Value": "12.5:1"
+      },
+      {
+        "Category": "",
+        "Label": "Alimentazione",
+        "Value": "FI (Fuel Injection)"
+      },
+      {
+        "Category": "",
+        "Label": "Avviamento",
+        "Value": "Elettrico"
+      },
+      {
+        "Category": "",
+        "Label": "Accensione",
+        "Value": "Digitale DC-CDI"
+      },
+      {
+        "Category": "",
+        "Label": "Lubrificazione",
+        "Value": "Lubrificazione forzata"
+      },
+      {
+        "Category": "Trasmissione",
+        "Label": "Tipo",
+        "Value": "5-Marce"
+      },
+      {
+        "Category": "",
+        "Label": "Frizione",
+        "Value": "Multidisco in bagno d’olio"
+      },
+      {
+        "Category": "",
+        "Label": "Tipo di trasmissione",
+        "Value": "Catena"
+      },
+      {
+        "Category": "",
+        "Label": "Rapporto finale",
+        "Value": "3.642 (50/14)"
+      },
+      {
+        "Category": "Olio motore",
+        "Label": "Tipo",
+        "Value": "API SG, SH, SJ, SL or SM con JASO MA, MA1, or MA2"
+      },
+      {
+        "Category": "",
+        "Label": "Viscosità",
+        "Value": "SAE 10W-40"
+      },
+      {
+        "Category": "",
+        "Label": "Capacità",
+        "Value": "1.0 L"
+      },
+      {
+        "Category": "Telaio",
+        "Label": "Tipo",
+        "Value": "Tubolare, doppia semiculla"
+      },
+      {
+        "Category": "",
+        "Label": "Incidenza",
+        "Value": "27.6°"
+      },
+      {
+        "Category": "",
+        "Label": "Angolo di sterzata",
+        "Value": "42° entrambi i lati"
+      },
+      {
+        "Category": "",
+        "Label": "Avancorsa",
+        "Value": "120 mm"
+      },
+      {
+        "Category": "Pneumatici",
+        "Label": "Pneumatico anteriore",
+        "Value": "90/100-21 57M Anlas Capra Extreme"
+      },
+      {
+        "Category": "",
+        "Label": "Pneumatico posteriore",
+        "Value": "140/80-18 70M Anlas Capra Extreme"
+      },
+      {
+        "Category": "",
+        "Label": "Dimensione cerchi anteriore",
+        "Value": "21 x 1.60 (“)"
+      },
+      {
+        "Category": "",
+        "Label": "Dimensione cerchi posteriore:",
+        "Value": "18 x 2.15 (“)"
+      },
+      {
+        "Category": "",
+        "Label": "Sospensioni anteriore",
+        "Value": "Forcella Telescopica (upside-down) D'49 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Sospensioni posteriore",
+        "Value": "New Uni-trak"
+      },
+      {
+        "Category": "",
+        "Label": "Corsa sospensione ant.",
+        "Value": "305 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Corsa sospensione post.",
+        "Value": "307 mm"
+      },
+      {
+        "Category": "Olio Forcella",
+        "Label": "Tipo:",
+        "Value": "Kawasaki Fork Oil A15-00"
+      },
+      {
+        "Category": "Quantità",
+        "Label": "Sostituzione",
+        "Value": "253 mL"
+      },
+      {
+        "Category": "",
+        "Label": "Smontaggio:",
+        "Value": "331 mL"
+      },
+      {
+        "Category": "Freni",
+        "Label": "Anteriore",
+        "Value": "Disco singolo"
+      },
+      {
+        "Category": "",
+        "Label": "Posteriore",
+        "Value": "Disco singolo"
+      },
+      {
+        "Category": "Impianto elettrico",
+        "Label": "Batteria",
+        "Value": "12.8 V 2.0 Ah (10 HR), batteria agli ioni di Litio"
+      }
+    ]
+  },
+  "fr": {
+    "total": 21,
+    "data": [
+      {
+        "Category": "Dimensions :",
+        "Label": "Garde au sol",
+        "Value": "335 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Hauteur du siège",
+        "Value": "955 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Poids",
+        "Value": "108,9 kg (sans carburant)"
+      },
+      {
+        "Category": "",
+        "Label": "Capacité du réservoir de carburant",
+        "Value": "6,2 L"
+      },
+      {
+        "Category": "Moteur :",
+        "Label": "Type de moteur",
+        "Value": "4 temps, monocylindre, refroidissement liquide"
+      },
+      {
+        "Category": "",
+        "Label": "Cylindrée",
+        "Value": "449 cm3"
+      },
+      {
+        "Category": "",
+        "Label": "Taux de compression",
+        "Value": "12,5:1"
+      },
+      {
+        "Category": "",
+        "Label": "Système d'alimentation en carburant",
+        "Value": "FI (Injection de carburant) Ø44 x 1"
+      },
+      {
+        "Category": "Transmission :",
+        "Label": "Système de conduite",
+        "Value": "Chaîne"
+      },
+      {
+        "Category": "",
+        "Label": "Rapport de réduction primaire",
+        "Value": "2,727 (60/22)"
+      },
+      {
+        "Category": "",
+        "Label": "Transmission",
+        "Value": "5 vitesses, retour"
+      },
+      {
+        "Category": "",
+        "Label": "Type d'embrayage (primaire)",
+        "Value": "Multidisque humide, manuel"
+      },
+      {
+        "Category": "Cadre :",
+        "Label": "Taper",
+        "Value": "Périmètre, aluminium"
+      },
+      {
+        "Category": "",
+        "Label": "Suspension avant",
+        "Value": "Fourche télescopique inversée Ø49 mm avec amortissement de compression et de détente réglable"
+      },
+      {
+        "Category": "",
+        "Label": "Suspension arrière",
+        "Value": "Nouvelle suspension Uni Trak avec amortissement en compression réglable à double plage (haute/basse vitesse), amortissement en détente réglable et précharge réglable"
+      },
+      {
+        "Category": "Déplacement des roues :",
+        "Label": "Devant:",
+        "Value": "305 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Arrière:",
+        "Value": "307 mm"
+      },
+      {
+        "Category": "Freins :",
+        "Label": "Type de face",
+        "Value": "Disque pétale semi-flottant unique de Ø270 mm\n(Diamètre effectif : Ø245 mm)"
+      },
+      {
+        "Category": "",
+        "Label": "Pied à coulisse",
+        "Value": "Brembo, à double piston"
+      },
+      {
+        "Category": "",
+        "Label": "Type arrière",
+        "Value": "Disque à pétale unique de Ø240 mm\n(Diamètre effectif : Ø215 mm)"
+      },
+      {
+        "Category": "",
+        "Label": "Calibre",
+        "Value": "Monopiston"
+      }
+    ]
+  },
+  "de": {
+    "total": 42,
+    "data": [
+      {
+        "Category": "Abmessungen:",
+        "Label": "Gesamtlänge:",
+        "Value": "2185 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Gesamtbreite:",
+        "Value": "820 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Bodenfreiheit:",
+        "Value": "335 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Radstand:",
+        "Value": "1485 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Leergewicht:",
+        "Value": "110,2 kg (mit Öl und Kühlflüssigkeit, ohne Kraftstoff)"
+      },
+      {
+        "Category": "",
+        "Label": "Kraftstofftankkapazität:",
+        "Value": "10,7 l"
+      },
+      {
+        "Category": "Motor:",
+        "Label": "Motortyp / Ventilsystem:",
+        "Value": "4-Takt, DOHC, Einzylinder, flüssigkeitsgekühlt"
+      },
+      {
+        "Category": "",
+        "Label": "Bohrung x Hub:",
+        "Value": "96,0 x 62,1 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Hubraum:",
+        "Value": "449 cm³"
+      },
+      {
+        "Category": "",
+        "Label": "Verdichtungsverhältnis:",
+        "Value": "12,5:1"
+      },
+      {
+        "Category": "",
+        "Label": "Kraftstoffsystem:",
+        "Value": "Kraftstoffeinspritzung"
+      },
+      {
+        "Category": "",
+        "Label": "Zündsystem:",
+        "Value": "Digitale DC-CDI-Zündung"
+      },
+      {
+        "Category": "",
+        "Label": "Schmiersystem:",
+        "Value": "Druckumlaufschmierung (Halbtrockensumpf)"
+      },
+      {
+        "Category": "",
+        "Label": "Zündkerze:",
+        "Value": "NGK CPR8EB-9"
+      },
+      {
+        "Category": "Übertragung:",
+        "Label": "Getriebe:",
+        "Value": "5-Gang-Schaltgetriebe, Klauenschaltung"
+      },
+      {
+        "Category": "",
+        "Label": "Kupplung:",
+        "Value": "Mehrscheiben-Ölbadkupplung"
+      },
+      {
+        "Category": "",
+        "Label": "Antriebssystem:",
+        "Value": "Kettenantrieb"
+      },
+      {
+        "Category": "",
+        "Label": "Endübersetzung:",
+        "Value": "3.642 (51/14)"
+      },
+      {
+        "Category": "",
+        "Label": "MOTORÖL:",
+        "Value": ""
+      },
+      {
+        "Category": "",
+        "Label": "Typ:",
+        "Value": "API SG, SH, SJ, SL oder SM mit JASO MA, MA1 oder MA2"
+      },
+      {
+        "Category": "",
+        "Label": "Viskosität:",
+        "Value": "SAE 10W-40"
+      },
+      {
+        "Category": "",
+        "Label": "Kapazität:",
+        "Value": "1,0 l."
+      },
+      {
+        "Category": "Rahmen:",
+        "Label": "Typ:",
+        "Value": "Rohrrahmen in semi-doppelter Schleifenbauweise"
+      },
+      {
+        "Category": "",
+        "Label": "Lenkkopfwinkel:",
+        "Value": "42° zu beiden Seiten"
+      },
+      {
+        "Category": "",
+        "Label": "Caster:",
+        "Value": "27,6°"
+      },
+      {
+        "Category": "",
+        "Label": "Nachlauf:",
+        "Value": "120 mm"
+      },
+      {
+        "Category": "Reifengröße / Reifentyp:",
+        "Label": "Vorne:",
+        "Value": "90/100-21 57M Metzeler Six days MST Super soft"
+      },
+      {
+        "Category": "",
+        "Label": "Hinten:",
+        "Value": "140/80-18 70M Metzeler Six Days M+S Medium"
+      },
+      {
+        "Category": "",
+        "Label": "Felgengröße:",
+        "Value": ""
+      },
+      {
+        "Category": "",
+        "Label": "Front:",
+        "Value": "21 x 1,60 (“)"
+      },
+      {
+        "Category": "",
+        "Label": "Hinteren:",
+        "Value": "18 x 2,15 (“)"
+      },
+      {
+        "Category": "Suspension:",
+        "Label": "Vorderradaufhängung:",
+        "Value": "Upside-Down Gabel D49 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Hinterradaufhängung:",
+        "Value": "Neue Uni-trak Schwinge"
+      },
+      {
+        "Category": "",
+        "Label": "Federweg der Vorderradaufhängung:",
+        "Value": "305 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Federweg der Hinterradaufhängung:",
+        "Value": "307 mm"
+      },
+      {
+        "Category": "Gabelöl:",
+        "Label": "Typ:",
+        "Value": "Kawasaki Gabelöl A15-00"
+      },
+      {
+        "Category": "",
+        "Label": "Betrag:",
+        "Value": ""
+      },
+      {
+        "Category": "",
+        "Label": "Zylindereinheit:",
+        "Value": "253 ml"
+      },
+      {
+        "Category": "",
+        "Label": "Außenrohr:",
+        "Value": "331 ml"
+      },
+      {
+        "Category": "Bremsen:",
+        "Label": "Vorne:",
+        "Value": "Einzelscheibenbremse"
+      },
+      {
+        "Category": "",
+        "Label": "Hinten:",
+        "Value": "Einzelscheibenbremse"
+      },
+      {
+        "Category": "Elektrische Geräte:",
+        "Label": "Batterie:",
+        "Value": "12,8 V 2,0 Ah (10 Std.), Lithium-Ionen-Akku"
+      }
+    ]
+  },
+  "es": {
+    "total": 42,
+    "data": [
+      {
+        "Category": "Dimensiones:",
+        "Label": "Longitud total:",
+        "Value": "2185 milímetros"
+      },
+      {
+        "Category": "",
+        "Label": "Ancho total:",
+        "Value": "820 milímetros"
+      },
+      {
+        "Category": "",
+        "Label": "Despeje de la carretera:",
+        "Value": "335 milímetros"
+      },
+      {
+        "Category": "",
+        "Label": "Distancia entre ejes:",
+        "Value": "1485 milímetros"
+      },
+      {
+        "Category": "",
+        "Label": "Masa en vacío:",
+        "Value": "110,2 kg (con aceite y refrigerante líquido, sin combustible)"
+      },
+      {
+        "Category": "",
+        "Label": "Capacidad del tanque de combustible:",
+        "Value": "10,7 litros"
+      },
+      {
+        "Category": "Motor:",
+        "Label": "Tipo de motor / Sistema de válvulas:",
+        "Value": "4 tiempos, DOHC, monocilíndrico, refrigerado por líquido"
+      },
+      {
+        "Category": "",
+        "Label": "Diámetro x carrera:",
+        "Value": "96,0 x 62,1 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Desplazamiento:",
+        "Value": "449 cm³"
+      },
+      {
+        "Category": "",
+        "Label": "Relación de compresión:",
+        "Value": "12.5:1"
+      },
+      {
+        "Category": "",
+        "Label": "Sistema de combustible:",
+        "Value": "FI (inyección de combustible)"
+      },
+      {
+        "Category": "",
+        "Label": "Sistema de encendido:",
+        "Value": "CDI digital de CC"
+      },
+      {
+        "Category": "",
+        "Label": "Sistema de lubricación:",
+        "Value": "Lubricación forzada (carter semiseco)"
+      },
+      {
+        "Category": "",
+        "Label": "Bujía:",
+        "Value": "NGK CPR8EB-9"
+      },
+      {
+        "Category": "Transmisión:",
+        "Label": "Transmisión:",
+        "Value": "5 velocidades, engranaje constante, cambio de retorno"
+      },
+      {
+        "Category": "",
+        "Label": "Tipo de embrague:",
+        "Value": "Húmedo, Multidisco"
+      },
+      {
+        "Category": "",
+        "Label": "Sistema de conducción:",
+        "Value": "Transmisión por cadena"
+      },
+      {
+        "Category": "",
+        "Label": "Relación de reducción final:",
+        "Value": "3.642 (51/14)"
+      },
+      {
+        "Category": "",
+        "Label": "ACEITE DE MOTOR:",
+        "Value": ""
+      },
+      {
+        "Category": "",
+        "Label": "Tipo:",
+        "Value": "API SG, SH, SJ, SL o SM con JASO MA, MA1 o MA2"
+      },
+      {
+        "Category": "",
+        "Label": "Viscosidad:",
+        "Value": "SAE 10W-40"
+      },
+      {
+        "Category": "",
+        "Label": "Capacidad:",
+        "Value": "1,0 litro."
+      },
+      {
+        "Category": "Marco:",
+        "Label": "Tipo:",
+        "Value": "Cuna tubular semidoble"
+      },
+      {
+        "Category": "",
+        "Label": "Ángulo de dirección:",
+        "Value": "42° a cada lado"
+      },
+      {
+        "Category": "",
+        "Label": "Castor:",
+        "Value": "27.6°"
+      },
+      {
+        "Category": "",
+        "Label": "Camino:",
+        "Value": "120 milímetros"
+      },
+      {
+        "Category": "Tamaño/tipo de neumático:",
+        "Label": "Frente:",
+        "Value": "90/100-21 57M Metzeler Seis días MST Super suave"
+      },
+      {
+        "Category": "",
+        "Label": "Trasero:",
+        "Value": "140/80-18 70M Metzeler Six Days M+S Mediano"
+      },
+      {
+        "Category": "",
+        "Label": "Tamaño de la llanta:",
+        "Value": ""
+      },
+      {
+        "Category": "",
+        "Label": "Frente:",
+        "Value": "21 x 1,60 (“)"
+      },
+      {
+        "Category": "",
+        "Label": "Trasero:",
+        "Value": "18 x 2,15 (“)"
+      },
+      {
+        "Category": "Suspensión:",
+        "Label": "Frente:",
+        "Value": "Horquilla telescópica (lado de la cabeza) D49 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Trasero:",
+        "Value": "Nuevo basculante Uni-trak"
+      },
+      {
+        "Category": "",
+        "Label": "Recorrido de la suspensión delantera:",
+        "Value": "305 milímetros"
+      },
+      {
+        "Category": "",
+        "Label": "Recorrido de la suspensión trasera:",
+        "Value": "307 milímetros"
+      },
+      {
+        "Category": "Aceite de horquilla delantera:",
+        "Label": "Tipo:",
+        "Value": "Aceite para horquillas Kawasaki A15-00"
+      },
+      {
+        "Category": "",
+        "Label": "Cantidad:",
+        "Value": ""
+      },
+      {
+        "Category": "",
+        "Label": "Unidad de cilindro:",
+        "Value": "253 ml"
+      },
+      {
+        "Category": "",
+        "Label": "Tubo exterior:",
+        "Value": "331 ml"
+      },
+      {
+        "Category": "Frenos:",
+        "Label": "Frente:",
+        "Value": "Disco único"
+      },
+      {
+        "Category": "",
+        "Label": "Trasero:",
+        "Value": "Disco único"
+      },
+      {
+        "Category": "Equipo eléctrico:",
+        "Label": "Batería:",
+        "Value": "Batería de iones de litio de 12,8 V, 2,0 Ah (10 h)"
+      }
+    ]
+  },
+  "nl": {
+    "total": 21,
+    "data": [
+      {
+        "Category": "Afmetingen",
+        "Label": "Grondspeling",
+        "Value": "335 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Zadelhoogte",
+        "Value": "955 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Gewicht",
+        "Value": "108.9 kg (zonder brandstof)"
+      },
+      {
+        "Category": "",
+        "Label": "Brandstoftankinhoud",
+        "Value": "6.2 l"
+      },
+      {
+        "Category": "Motorblok",
+        "Label": "Motortype",
+        "Value": "4-takt, eencilinder, vloeistofgekoeld"
+      },
+      {
+        "Category": "",
+        "Label": "Cilinderinhoud",
+        "Value": "449 cc"
+      },
+      {
+        "Category": "",
+        "Label": "Compressieverhouding",
+        "Value": "12.5:1"
+      },
+      {
+        "Category": "",
+        "Label": "Brandstofsysteem",
+        "Value": "FI (Fuel Injection) Ø44 x 1"
+      },
+      {
+        "Category": "Aandrijflijn",
+        "Label": "Aandrijfsysteem",
+        "Value": "Ketting"
+      },
+      {
+        "Category": "",
+        "Label": "Primaire Overbrengingsverhouding",
+        "Value": "2.727 (60/22)"
+      },
+      {
+        "Category": "",
+        "Label": "Transmissie",
+        "Value": "5 versnellingen"
+      },
+      {
+        "Category": "",
+        "Label": "Type koppeling (primair)",
+        "Value": "Natte meerplaats koppeling, handbediend"
+      },
+      {
+        "Category": "Frame",
+        "Label": "Type",
+        "Value": "Perimeterframe van aluminium"
+      },
+      {
+        "Category": "",
+        "Label": "Voorvering",
+        "Value": "Ø49 mm upside-down voorvork met instelbare compressie- en rebounddemping"
+      },
+      {
+        "Category": "",
+        "Label": "Achtervering",
+        "Value": "New Uni Trak met instelbare dual-range compressiedemping (high/low-speed), instelbare rebounddemping en verstelbare veervoorspanning"
+      },
+      {
+        "Category": "Veerweg",
+        "Label": "Voor",
+        "Value": "305 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Achter",
+        "Value": "307 mm"
+      },
+      {
+        "Category": "Remmen",
+        "Label": "Voor",
+        "Value": "Enkele semi-zwevende Ø270 mm wave-remschijf\n(effectieve diameter: Ø245 mm)"
+      },
+      {
+        "Category": "",
+        "Label": "Remklauw",
+        "Value": "Brembo, dubbele zuiger"
+      },
+      {
+        "Category": "",
+        "Label": "Achter",
+        "Value": "Enkele Ø240 mm wave-remschijf\n(effectieve diameter: Ø215 mm)"
+      },
+      {
+        "Category": "",
+        "Label": "Remklauw",
+        "Value": "Enkele zuiger"
+      }
+    ]
+  }
+}

@@ -1,0 +1,1527 @@
+{
+  "en": {
+    "total": 43,
+    "data": [
+      {
+        "Category": "Technical Information",
+        "Label": "Engine",
+        "Value": "4-stroke, 4-cylinder, DOHC, 4-valve, liquid-cooled, supercharged"
+      },
+      {
+        "Category": "",
+        "Label": "Displacement",
+        "Value": "998 cm³ / 60.9 cu-in"
+      },
+      {
+        "Category": "",
+        "Label": "Bore x Stroke",
+        "Value": "76.0 x 55.0 mm / 2.99 x 2.17 in"
+      },
+      {
+        "Category": "",
+        "Label": "Compression ratio",
+        "Value": "11.2:1"
+      },
+      {
+        "Category": "",
+        "Label": "Power",
+        "Value": "147.1 kW / 200 hp @ 11,000 r/min"
+      },
+      {
+        "Category": "",
+        "Label": "Torque",
+        "Value": "137.0 N･m / 101 lbf-ft @ 8,500 r/min"
+      },
+      {
+        "Category": "",
+        "Label": "Fuel system",
+        "Value": "DFI® (Digital Fuel Injection) 4 x Ø 40 mm throttle bodies and dual injection\nEuro5+"
+      },
+      {
+        "Category": "",
+        "Label": "Intake system",
+        "Value": "Kawasaki Supercharger"
+      },
+      {
+        "Category": "",
+        "Label": "CO2 emission",
+        "Value": "134 g/km"
+      },
+      {
+        "Category": "",
+        "Label": "Fuel consumption",
+        "Value": "6.0 l/100km"
+      },
+      {
+        "Category": "",
+        "Label": "Ignition",
+        "Value": "Digital"
+      },
+      {
+        "Category": "",
+        "Label": "Ignition timing",
+        "Value": "10°BTDC @ 1,100 r/min - 41° BTDC @ 6,000 r/min"
+      },
+      {
+        "Category": "",
+        "Label": "Spark plug type",
+        "Value": "NGK SILMAR9E9\nGap: 0.8 - 0.9 mm / 0.031 - 0.035 in"
+      },
+      {
+        "Category": "",
+        "Label": "Starting system",
+        "Value": "Electric starter"
+      },
+      {
+        "Category": "",
+        "Label": "Firing order",
+        "Value": "1-2-4-3"
+      },
+      {
+        "Category": "",
+        "Label": "Lubrication system",
+        "Value": "Forced lubrication, wet sump"
+      },
+      {
+        "Category": "",
+        "Label": "Engine oil type",
+        "Value": "API SG, SH, SJ, SL or SM, with JASO MA, MA1 or MA2\nViscosity: SAE 10W-40\nCapacity: 4.7 L (5.0 US qt)"
+      },
+      {
+        "Category": "",
+        "Label": "Coolant capacity",
+        "Value": "3.1 L (3.3 US qt)"
+      },
+      {
+        "Category": "",
+        "Label": "Transmission",
+        "Value": "6-speed, return shift"
+      },
+      {
+        "Category": "",
+        "Label": "Clutch",
+        "Value": "Wet, multi-disc, manual"
+      },
+      {
+        "Category": "",
+        "Label": "Final drive",
+        "Value": "Sealed chain drive"
+      },
+      {
+        "Category": "",
+        "Label": "Primary reduction ratio",
+        "Value": "1.480 (74/50)"
+      },
+      {
+        "Category": "",
+        "Label": "Final reduction ratio",
+        "Value": "2.556 (46/18)"
+      },
+      {
+        "Category": "",
+        "Label": "Overall drive ratio",
+        "Value": "5.098 (Top gear)"
+      },
+      {
+        "Category": "",
+        "Label": "Gear ratio",
+        "Value": "1st: 3.077 (40/13)\n2nd: 2.471 (42/17)\n3rd: 2.045 (45/22)\n4th: 1.727 (38/22)\n5th: 1.524 (32/21)\n6th: 1.348 (31/23)"
+      },
+      {
+        "Category": "",
+        "Label": "Front suspension",
+        "Value": "Cast aluminum alloy swingarm, Öhlins TTX36 nitrogen gas-charged shock with piggyback reservoir, compression and rebound damping adjustability, hand-adjustable spring preload and top-out spring\nWheel travel 105 mm (4.13 in)"
+      },
+      {
+        "Category": "",
+        "Label": "Rear suspension",
+        "Value": "Cast aluminum alloy swingarm, Öhlins TTX36 nitrogen gas charged shock with piggyback reservoir, compression and rebound damping adjustability, hand-adjustable spring preload and top-out spring\nWheel travel 135 mm (5.31 in)"
+      },
+      {
+        "Category": "",
+        "Label": "Front brakes",
+        "Value": "Dual radial-mount, opposed 4-piston Brembo Stylema® calipers, dual semi-floating 330 mm discs, KIBS ABS"
+      },
+      {
+        "Category": "",
+        "Label": "Rear brake",
+        "Value": "Opposed 2-piston Brembo caliper, single 260 mm disc, KIBS ABS"
+      },
+      {
+        "Category": "",
+        "Label": "Frame type",
+        "Value": "Aluminum alloy billet plates, front and rear swingarm mounting plates"
+      },
+      {
+        "Category": "",
+        "Label": "Rake/Trail",
+        "Value": "21.3° / 117 mm (4.60 in)"
+      },
+      {
+        "Category": "",
+        "Label": "Overall length",
+        "Value": "2,125 mm (83.66 in)"
+      },
+      {
+        "Category": "",
+        "Label": "Overall width",
+        "Value": "1,000 mm (39.97 in)"
+      },
+      {
+        "Category": "",
+        "Label": "Overall height",
+        "Value": "1,392 mm (54.80 in)"
+      },
+      {
+        "Category": "",
+        "Label": "Ground clearance",
+        "Value": "174 mm (6.85 in)"
+      },
+      {
+        "Category": "",
+        "Label": "Seat height",
+        "Value": "820 mm (32.28 in)"
+      },
+      {
+        "Category": "",
+        "Label": "Wet weight",
+        "Value": "214 kg* / 471.79 lb\n*Dry weight with all liquids except fuel, no accessories"
+      },
+      {
+        "Category": "",
+        "Label": "Curb mass",
+        "Value": "233 kg* / 513.67 lb\n*Curb mass includes all necessary materials and fluids to operate correctly, full tank of fuel (more than 90 percent capacity) and tool kit (if supplied)"
+      },
+      {
+        "Category": "",
+        "Label": "Fuel capacity",
+        "Value": "19 L / 5.01 gal"
+      },
+      {
+        "Category": "",
+        "Label": "Wheelbase",
+        "Value": "1,455 mm (56.89 in)"
+      },
+      {
+        "Category": "",
+        "Label": "Tire size",
+        "Value": "Front: 120/70ZR17 M/C (58W)\nRear: 190/55ZR17 M/C (75W)"
+      },
+      {
+        "Category": "",
+        "Label": "Rim size",
+        "Value": "Front: J17M/C x MT 3.50\nRear: J17M/C x MT 5.50"
+      },
+      {
+        "Category": "Technology",
+        "Label": "",
+        "Value": "IMU-Enhanced Chassis Orientation Awareness, Kawasaki Cornering Management Function (KCMF), Kawasaki Traction Control KTRC (3-MODE), Power Modes, Brembo Stylema Calipers, Kawasaki Intelligent anti-lock Brake System (KIBS), Kawasaki Launch Control Mode (KLCM), Kawasaki Quick Shifter (KQS) (upshift & downshift), All Led Lightning, Full-Colour LCD TFT screen, Electronic Cruise Control, Assist & Slipper Clutch"
+      }
+    ]
+  },
+  "it": {
+    "total": 43,
+    "data": [
+      {
+        "Category": "Informazioni tecniche",
+        "Label": "Motore",
+        "Value": "4 tempi, 4 cilindri, DOHC, 4 valvole, raffreddato a liquido, sovralimentato"
+      },
+      {
+        "Category": "",
+        "Label": "Spostamento",
+        "Value": "998 cm³ / 60,9 cu-in"
+      },
+      {
+        "Category": "",
+        "Label": "Alesaggio x Corsa",
+        "Value": "76,0 x 55,0 mm / 2,99 x 2,17 pollici"
+      },
+      {
+        "Category": "",
+        "Label": "rapporto di compressione",
+        "Value": "11.2:1"
+      },
+      {
+        "Category": "",
+        "Label": "Energia",
+        "Value": "147,1 kW / 200 CV a 11.000 giri/min"
+      },
+      {
+        "Category": "",
+        "Label": "Coppia",
+        "Value": "137,0 N･m / 101 lbf-ft a 8.500 giri/min"
+      },
+      {
+        "Category": "",
+        "Label": "Sistema di alimentazione",
+        "Value": "DFI® (Iniezione Digitale di Carburante) 4 corpi farfallati da Ø 40 mm e doppia iniezione\nEuro5+"
+      },
+      {
+        "Category": "",
+        "Label": "Sistema di aspirazione",
+        "Value": "Compressore volumetrico Kawasaki"
+      },
+      {
+        "Category": "",
+        "Label": "emissioni di CO2",
+        "Value": "134 g/km"
+      },
+      {
+        "Category": "",
+        "Label": "consumo di carburante",
+        "Value": "6,0 l/100 km"
+      },
+      {
+        "Category": "",
+        "Label": "Accensione",
+        "Value": "Digitale"
+      },
+      {
+        "Category": "",
+        "Label": "Fasatura dell'accensione",
+        "Value": "10°BTDC a 1.100 giri/min - 41°BTDC a 6.000 giri/min"
+      },
+      {
+        "Category": "",
+        "Label": "Tipo di candela",
+        "Value": "NGK SILMAR9E9\nSpazio: 0,8 - 0,9 mm / 0,031 - 0,035 pollici"
+      },
+      {
+        "Category": "",
+        "Label": "Sistema di avviamento",
+        "Value": "Avviamento elettrico"
+      },
+      {
+        "Category": "",
+        "Label": "Ordine di esecuzione",
+        "Value": "1-2-4-3"
+      },
+      {
+        "Category": "",
+        "Label": "Sistema di lubrificazione",
+        "Value": "Lubrificazione forzata, carter umido"
+      },
+      {
+        "Category": "",
+        "Label": "Tipo di olio motore",
+        "Value": "API SG, SH, SJ, SL o SM, con JASO MA, MA1 o MA2\nViscosità: SAE 10W-40\nCapacità: 4,7 litri (5,0 quarti USA)"
+      },
+      {
+        "Category": "",
+        "Label": "Capacità del liquido di raffreddamento",
+        "Value": "3,1 L (3,3 quarti USA)"
+      },
+      {
+        "Category": "",
+        "Label": "Trasmissione",
+        "Value": "6 marce, cambio a ritorno"
+      },
+      {
+        "Category": "",
+        "Label": "Frizione",
+        "Value": "A umido, multidisco, manuale"
+      },
+      {
+        "Category": "",
+        "Label": "Trasmissione finale",
+        "Value": "Trasmissione a catena sigillata"
+      },
+      {
+        "Category": "",
+        "Label": "Rapporto di riduzione primario",
+        "Value": "1.480 (74/50)"
+      },
+      {
+        "Category": "",
+        "Label": "Rapporto di riduzione finale",
+        "Value": "2.556 (46/18)"
+      },
+      {
+        "Category": "",
+        "Label": "Rapporto complessivo di guida",
+        "Value": "5.098 (Marcia più alta)"
+      },
+      {
+        "Category": "",
+        "Label": "rapporto di trasmissione",
+        "Value": "1°: 3.077 (40/13)\n2°: 2.471 (42/17)\n3°: 2.045 (45/22)\n4°: 1.727 (38/22)\n5°: 1.524 (32/21)\n6°: 1.348 (31/23)"
+      },
+      {
+        "Category": "",
+        "Label": "Sospensione anteriore",
+        "Value": "Forcellone in lega di alluminio pressofuso, ammortizzatore Öhlins TTX36 a gas azoto con serbatoio separato, regolazione della compressione e dell'estensione, precarico molla e molla di fine corsa regolabili manualmente.\nEscursione della ruota 105 mm (4,13 pollici)"
+      },
+      {
+        "Category": "",
+        "Label": "Sospensione posteriore",
+        "Value": "Forcellone in lega di alluminio pressofuso, ammortizzatore Öhlins TTX36 a gas azoto con serbatoio separato, regolazione della compressione e dell'estensione, precarico molla e molla di fine corsa regolabili manualmente.\nEscursione della ruota 135 mm (5,31 pollici)"
+      },
+      {
+        "Category": "",
+        "Label": "Freni anteriori",
+        "Value": "Pinze Brembo Stylema® a doppio attacco radiale e a 4 pistoncini contrapposti, doppi dischi semiflottanti da 330 mm, ABS KIBS"
+      },
+      {
+        "Category": "",
+        "Label": "Freno posteriore",
+        "Value": "Pinza Brembo a 2 pistoncini contrapposti, disco singolo da 260 mm, ABS KIBS"
+      },
+      {
+        "Category": "",
+        "Label": "Tipo di cornice",
+        "Value": "Piastre in lega di alluminio ricavate dal pieno, piastre di montaggio del forcellone anteriore e posteriore"
+      },
+      {
+        "Category": "",
+        "Label": "Rastrello/Sentiero",
+        "Value": "21,3° / 117 mm (4,60 pollici)"
+      },
+      {
+        "Category": "",
+        "Label": "lunghezza totale",
+        "Value": "2.125 mm (83,66 pollici)"
+      },
+      {
+        "Category": "",
+        "Label": "larghezza complessiva",
+        "Value": "1.000 mm (39,97 pollici)"
+      },
+      {
+        "Category": "",
+        "Label": "Altezza totale",
+        "Value": "1.392 mm (54,80 pollici)"
+      },
+      {
+        "Category": "",
+        "Label": "Pressione al suolo",
+        "Value": "174 mm (6,85 pollici)"
+      },
+      {
+        "Category": "",
+        "Label": "Altezza seduta",
+        "Value": "820 mm (32,28 pollici)"
+      },
+      {
+        "Category": "",
+        "Label": "Peso umido",
+        "Value": "214 kg* / 471,79 libbre\n*Peso a secco con tutti i liquidi tranne il carburante, senza accessori"
+      },
+      {
+        "Category": "",
+        "Label": "Massa del marciapiede",
+        "Value": "233 kg* / 513,67 libbre\n*La massa a vuoto comprende tutti i materiali e i fluidi necessari per il corretto funzionamento, il serbatoio del carburante pieno (oltre il 90% della capacità) e il kit di attrezzi (se in dotazione)."
+      },
+      {
+        "Category": "",
+        "Label": "Capacità carburante",
+        "Value": "19 L / 5,01 galloni"
+      },
+      {
+        "Category": "",
+        "Label": "Passo",
+        "Value": "1.455 mm (56,89 pollici)"
+      },
+      {
+        "Category": "",
+        "Label": "Dimensioni degli pneumatici",
+        "Value": "Anteriore: 120/70ZR17 M/C (58W)\nPosteriore: 190/55ZR17 M/C (75W)"
+      },
+      {
+        "Category": "",
+        "Label": "Dimensioni del cerchio",
+        "Value": "Anteriore: J17M/C x MT 3.50\nPosteriore: J17M/C x MT 5.50"
+      },
+      {
+        "Category": "Tecnologia",
+        "Label": "",
+        "Value": "Sistema di rilevamento dell'orientamento del telaio potenziato da IMU, funzione di gestione della curva Kawasaki (KCMF), controllo della trazione Kawasaki KTRC (3 modalità), modalità di potenza, pinze freno Brembo Stylema, sistema antibloccaggio intelligente dei freni Kawasaki (KIBS), modalità di controllo del lancio Kawasaki (KLCM), cambio rapido Kawasaki (KQS) (cambio in salita e in scalata), illuminazione completamente a LED, schermo LCD TFT a colori, cruise control elettronico, frizione antisaltellamento."
+      }
+    ]
+  },
+  "fr": {
+    "total": 43,
+    "data": [
+      {
+        "Category": "Informations techniques",
+        "Label": "Moteur",
+        "Value": "4 temps, 4 cylindres, double arbre à cames en tête (DACT), 4 soupapes, refroidissement liquide, suralimenté"
+      },
+      {
+        "Category": "",
+        "Label": "Déplacement",
+        "Value": "998 cm³ / 60,9 pouces cubes"
+      },
+      {
+        "Category": "",
+        "Label": "Alésage x Course",
+        "Value": "76,0 x 55,0 mm / 2,99 x 2,17 pouces"
+      },
+      {
+        "Category": "",
+        "Label": "Taux de compression",
+        "Value": "11.2:1"
+      },
+      {
+        "Category": "",
+        "Label": "Pouvoir",
+        "Value": "147,1 kW / 200 ch à 11 000 tr/min"
+      },
+      {
+        "Category": "",
+        "Label": "Couple",
+        "Value": "137,0 N·m / 101 lbf-ft à 8 500 tr/min"
+      },
+      {
+        "Category": "",
+        "Label": "Système d'alimentation en carburant",
+        "Value": "Injection électronique DFI® (Digital Fuel Injection) : 4 corps de papillon de Ø 40 mm et double injection.\nEuro5+"
+      },
+      {
+        "Category": "",
+        "Label": "Système d'admission",
+        "Value": "Compresseur Kawasaki"
+      },
+      {
+        "Category": "",
+        "Label": "émissions de CO2",
+        "Value": "134 g/km"
+      },
+      {
+        "Category": "",
+        "Label": "consommation de carburant",
+        "Value": "6,0 l/100 km"
+      },
+      {
+        "Category": "",
+        "Label": "Allumage",
+        "Value": "Numérique"
+      },
+      {
+        "Category": "",
+        "Label": "Calage de l'allumage",
+        "Value": "10°BTDC à 1 100 tr/min - 41°BTDC à 6 000 tr/min"
+      },
+      {
+        "Category": "",
+        "Label": "Type de bougie d'allumage",
+        "Value": "NGK SILMAR9E9\nÉcart : 0,8 - 0,9 mm / 0,031 - 0,035 po"
+      },
+      {
+        "Category": "",
+        "Label": "Système de démarrage",
+        "Value": "démarreur électrique"
+      },
+      {
+        "Category": "",
+        "Label": "Ordre de tir",
+        "Value": "1-2-4-3"
+      },
+      {
+        "Category": "",
+        "Label": "Système de lubrification",
+        "Value": "Lubrification forcée, carter humide"
+      },
+      {
+        "Category": "",
+        "Label": "type d'huile moteur",
+        "Value": "API SG, SH, SJ, SL ou SM, avec JASO MA, MA1 ou MA2\nViscosité : SAE 10W-40\nCapacité : 4,7 L (5,0 pintes US)"
+      },
+      {
+        "Category": "",
+        "Label": "Capacité du liquide de refroidissement",
+        "Value": "3,1 L (3,3 pintes US)"
+      },
+      {
+        "Category": "",
+        "Label": "Transmission",
+        "Value": "Boîte 6 vitesses, retour automatique"
+      },
+      {
+        "Category": "",
+        "Label": "Embrayage",
+        "Value": "Humide, multi-disques, manuel"
+      },
+      {
+        "Category": "",
+        "Label": "Transmission finale",
+        "Value": "Transmission par chaîne étanche"
+      },
+      {
+        "Category": "",
+        "Label": "Rapport de réduction primaire",
+        "Value": "1.480 (74/50)"
+      },
+      {
+        "Category": "",
+        "Label": "Taux de réduction final",
+        "Value": "2,556 (46/18)"
+      },
+      {
+        "Category": "",
+        "Label": "Rapport de transmission global",
+        "Value": "5.098 (Rapport le plus élevé)"
+      },
+      {
+        "Category": "",
+        "Label": "Rapport de transmission",
+        "Value": "1er : 3,077 (40/13)\n2e : 2,471 (42/17)\n3e : 2,045 (45/22)\n4e : 1,727 (38/22)\n5e : 1,524 (32/21)\n6e : 1,348 (31/23)"
+      },
+      {
+        "Category": "",
+        "Label": "Suspension avant",
+        "Value": "Bras oscillant en alliage d'aluminium moulé, amortisseur Öhlins TTX36 à gaz (azote) avec réservoir séparé, réglage de la compression et de la détente, réglage manuel de la précharge du ressort et du ressort de butée\nDébattement de la roue 105 mm (4,13 po)"
+      },
+      {
+        "Category": "",
+        "Label": "Suspension arrière",
+        "Value": "Bras oscillant en alliage d'aluminium moulé, amortisseur Öhlins TTX36 à gaz (azote) avec réservoir séparé, réglage de la compression et de la détente, réglage manuel de la précharge du ressort et du ressort de butée\nDébattement de la roue 135 mm (5,31 po)"
+      },
+      {
+        "Category": "",
+        "Label": "Freins avant",
+        "Value": "Étriers Brembo Stylema® à quatre pistons opposés, à fixation radiale double, double disque semi-flottant de 330 mm, ABS KIBS"
+      },
+      {
+        "Category": "",
+        "Label": "Frein arrière",
+        "Value": "Étrier Brembo à deux pistons opposés, disque unique de 260 mm, ABS KIBS"
+      },
+      {
+        "Category": "",
+        "Label": "Type de cadre",
+        "Value": "plaques de fixation en alliage d'aluminium usinées, plaques de fixation du bras oscillant avant et arrière"
+      },
+      {
+        "Category": "",
+        "Label": "Râteau/Sentier",
+        "Value": "21,3° / 117 mm (4,60 po)"
+      },
+      {
+        "Category": "",
+        "Label": "Longueur totale",
+        "Value": "2 125 mm (83,66 po)"
+      },
+      {
+        "Category": "",
+        "Label": "Largeur totale",
+        "Value": "1 000 mm (39,97 pouces)"
+      },
+      {
+        "Category": "",
+        "Label": "Hauteur totale",
+        "Value": "1 392 mm (54,80 po)"
+      },
+      {
+        "Category": "",
+        "Label": "garde au sol",
+        "Value": "174 mm (6,85 po)"
+      },
+      {
+        "Category": "",
+        "Label": "Hauteur du siège",
+        "Value": "820 mm (32,28 pouces)"
+      },
+      {
+        "Category": "",
+        "Label": "Poids humide",
+        "Value": "214 kg* / 471,79 lb\n*Poids à sec avec tous les liquides sauf le carburant, sans accessoires"
+      },
+      {
+        "Category": "",
+        "Label": "Masse de freinage",
+        "Value": "233 kg* / 513,67 lb\n*Le poids à vide comprend tous les matériaux et fluides nécessaires à son bon fonctionnement, un réservoir de carburant plein (plus de 90 % de sa capacité) et la trousse à outils (si fournie)."
+      },
+      {
+        "Category": "",
+        "Label": "Capacité du réservoir",
+        "Value": "19 L / 5,01 gal"
+      },
+      {
+        "Category": "",
+        "Label": "Empattement",
+        "Value": "1 455 mm (56,89 pouces)"
+      },
+      {
+        "Category": "",
+        "Label": "Taille des pneus",
+        "Value": "Avant : 120/70ZR17 M/C (58W)\nArrière : 190/55ZR17 M/C (75W)"
+      },
+      {
+        "Category": "",
+        "Label": "Taille de la jante",
+        "Value": "Avant : J17M/C x MT 3.50\nArrière : J17M/C x MT 5.50"
+      },
+      {
+        "Category": "Technologie",
+        "Label": "",
+        "Value": "Système de gestion de l'orientation du châssis amélioré par centrale inertielle (IMU), fonction de gestion des virages Kawasaki (KCMF), contrôle de traction Kawasaki KTRC (3 modes), modes de puissance, étriers Brembo Stylema, système de freinage antiblocage intelligent Kawasaki (KIBS), mode de contrôle de lancement Kawasaki (KLCM), shifter rapide Kawasaki (KQS) (montée et descente des rapports), éclairage entièrement à LED, écran LCD TFT couleur, régulateur de vitesse électronique, embrayage assisté et antidribble"
+      }
+    ]
+  },
+  "de": {
+    "total": 43,
+    "data": [
+      {
+        "Category": "Technische Informationen",
+        "Label": "Motor",
+        "Value": "4-Takt, 4-Zylinder, DOHC, 4 Ventile, flüssigkeitsgekühlt, Kompressoraufladung"
+      },
+      {
+        "Category": "",
+        "Label": "Hubraum",
+        "Value": "998 cm³ / 60,9 cu-in"
+      },
+      {
+        "Category": "",
+        "Label": "Bohrung x Hub",
+        "Value": "76,0 x 55,0 mm / 2,99 x 2,17 Zoll"
+      },
+      {
+        "Category": "",
+        "Label": "Kompressionsverhältnis",
+        "Value": "11,2:1"
+      },
+      {
+        "Category": "",
+        "Label": "Leistung",
+        "Value": "147,1 kW / 200 PS bei 11.000 U/min"
+      },
+      {
+        "Category": "",
+        "Label": "Drehmoment",
+        "Value": "137,0 Nm / 101 lb-ft bei 8.500 U/min"
+      },
+      {
+        "Category": "",
+        "Label": "Kraftstoffsystem",
+        "Value": "DFI® (Digitale Kraftstoffeinspritzung) 4 x Ø 40 mm Drosselklappen und Doppeleinspritzung\nEuro5+"
+      },
+      {
+        "Category": "",
+        "Label": "Ansaugsystem",
+        "Value": "Kawasaki Kompressor"
+      },
+      {
+        "Category": "",
+        "Label": "CO2-Emissionen",
+        "Value": "134 g/km"
+      },
+      {
+        "Category": "",
+        "Label": "Kraftstoffverbrauch",
+        "Value": "6,0 l/100 km"
+      },
+      {
+        "Category": "",
+        "Label": "Zündung",
+        "Value": "Digital"
+      },
+      {
+        "Category": "",
+        "Label": "Zündzeitpunkt",
+        "Value": "10° vOT bei 1.100 U/min – 41° vOT bei 6.000 U/min"
+      },
+      {
+        "Category": "",
+        "Label": "Zündkerzentyp",
+        "Value": "NGK SILMAR9E9\nElektrodenabstand: 0,8 - 0,9 mm / 0,031 - 0,035 Zoll"
+      },
+      {
+        "Category": "",
+        "Label": "Startsystem",
+        "Value": "Elektrostarter"
+      },
+      {
+        "Category": "",
+        "Label": "Zündfolge",
+        "Value": "1-2-4-3"
+      },
+      {
+        "Category": "",
+        "Label": "Schmiersystem",
+        "Value": "Druckumlaufschmierung, Nasssumpf"
+      },
+      {
+        "Category": "",
+        "Label": "Motoröltyp",
+        "Value": "API SG, SH, SJ, SL oder SM, mit JASO MA, MA1 oder MA2\nViskosität: SAE 10W-40\nFassungsvermögen: 4,7 l (5,0 US qt)"
+      },
+      {
+        "Category": "",
+        "Label": "Kühlmittelkapazität",
+        "Value": "3,1 l (3,3 US qt)"
+      },
+      {
+        "Category": "",
+        "Label": "Getriebe",
+        "Value": "6-Gang-Getriebe"
+      },
+      {
+        "Category": "",
+        "Label": "Kupplung",
+        "Value": "Mehrscheiben-Ölbadkupplung, manuell"
+      },
+      {
+        "Category": "",
+        "Label": "Endantrieb",
+        "Value": "abgedichteter Kettenantrieb"
+      },
+      {
+        "Category": "",
+        "Label": "Primäres Reduktionsverhältnis",
+        "Value": "1.480 (74/50)"
+      },
+      {
+        "Category": "",
+        "Label": "Endübersetzung",
+        "Value": "2.556 (46/18)"
+      },
+      {
+        "Category": "",
+        "Label": "Gesamtübersetzungsverhältnis",
+        "Value": "5,098 (höchster Gang)"
+      },
+      {
+        "Category": "",
+        "Label": "Übersetzungsverhältnis",
+        "Value": "1. Gang: 3.077 (40/13)\n2. Gang: 2.471 (42/17)\n3. Gang: 2.045 (45/22)\n4. Gang: 1.727 (38/22)\n5. Gang: 1.524 (32/21)\n6. Gang: 1.348 (31/23)"
+      },
+      {
+        "Category": "",
+        "Label": "Vorderradaufhängung",
+        "Value": "Schwinge aus Aluminiumgusslegierung, Öhlins TTX36 Stickstoff-Gasdruckdämpfer mit Ausgleichsbehälter, einstellbarer Druck- und Zugstufendämpfung, manuell einstellbarer Federvorspannung und Ausfederung\nFederweg 114 mm (4,72 Zoll)"
+      },
+      {
+        "Category": "",
+        "Label": "Hinterradaufhängung",
+        "Value": "Schwinge aus Aluminiumgusslegierung, Öhlins TTX36 Stickstoff-Gasdruckstoßdämpfer mit Ausgleichsbehälter, einstellbarer Druck- und Zugstufendämpfung, manuell einstellbarer Federvorspannung und Ausfederung\nFederweg 145 mm (5,31 Zoll)"
+      },
+      {
+        "Category": "",
+        "Label": "Vorderradbremsen",
+        "Value": "Doppelte radial montierte, gegenüberliegende 4-Kolben-Brembo Stylema®-Bremssättel, zwei halbschwimmend gelagerte 330-mm-Bremsscheiben, KIBS-ABS"
+      },
+      {
+        "Category": "",
+        "Label": "Hinterradbremse",
+        "Value": "Zweikolben-Brembo-Bremssattel, einzelne 260-mm-Bremsscheibe, KIBS-ABS"
+      },
+      {
+        "Category": "",
+        "Label": "Rahmentyp",
+        "Value": "Montageplatten aus Aluminiumlegierung, vordere und hintere Schwingenhalterungen"
+      },
+      {
+        "Category": "",
+        "Label": "Lenkkopfwinkel / Nachlauf",
+        "Value": "21,3° / 117 mm (4,60 Zoll)"
+      },
+      {
+        "Category": "",
+        "Label": "Gesamtlänge",
+        "Value": "2.125 mm (83,66 Zoll)"
+      },
+      {
+        "Category": "",
+        "Label": "Gesamtbreite",
+        "Value": "1.000 mm (39,97 Zoll)"
+      },
+      {
+        "Category": "",
+        "Label": "Gesamthöhe",
+        "Value": "1.392 mm (54,80 Zoll)"
+      },
+      {
+        "Category": "",
+        "Label": "Bodenfreiheit",
+        "Value": "174 mm (6,85 Zoll)"
+      },
+      {
+        "Category": "",
+        "Label": "Sitzhöhe",
+        "Value": "820 mm (32,28 Zoll)"
+      },
+      {
+        "Category": "",
+        "Label": "Gewicht fahrfertig",
+        "Value": "214 kg* / 471,79 lb\n*Trockengewicht inklusive aller Flüssigkeiten außer Kraftstoff, ohne Zubehör"
+      },
+      {
+        "Category": "",
+        "Label": "Leergewicht",
+        "Value": "233 kg* / 513,67 lb\n*Das Leergewicht umfasst alle für den ordnungsgemäßen Betrieb notwendigen Materialien und Flüssigkeiten, einen vollen Kraftstofftank (mehr als 90 Prozent Füllstand) und einen Werkzeugsatz (falls vorhanden)."
+      },
+      {
+        "Category": "",
+        "Label": "Kraftstoffkapazität",
+        "Value": "19 l / 5,01 gal"
+      },
+      {
+        "Category": "",
+        "Label": "Radstand",
+        "Value": "1455 mm (56,89 Zoll)"
+      },
+      {
+        "Category": "",
+        "Label": "Reifengröße",
+        "Value": "Vorderreifen: 120/70ZR17 Hauptreifen (58W)\nHinten: 190/55ZR17 M/C (75W)"
+      },
+      {
+        "Category": "",
+        "Label": "Felgengröße",
+        "Value": "Vorderachse: J17M/C x MT 3.50\nHinten: J17M/C x MT 5.50"
+      },
+      {
+        "Category": "Technologie",
+        "Label": "",
+        "Value": "IMU-gestützte Fahrwerkslageerkennung, Kawasaki Kurvenmanagement-Funktion (KCMF), Kawasaki Traktionskontrolle KTRC (3 Modi), Leistungsmodi, Brembo Stylema Bremssättel, Kawasaki Intelligentes Antiblockiersystem (KIBS), Kawasaki Launch Control Modus (KLCM), Kawasaki Quick Shifter (KQS) (Hoch- und Runterschalten), Voll-LED-Beleuchtung, vollfarbiges LCD-TFT-Display, elektronische Geschwindigkeitsregelung, Anti-Hopping-Kupplung"
+      }
+    ]
+  },
+  "ja": {
+    "total": 40,
+    "data": [
+      {
+        "Category": "主要諸元",
+        "Label": "エンジン種類/弁方式",
+        "Value": "水冷4ストローク並列4気筒スーパーチャージドエンジン / DOHC4バルブ"
+      },
+      {
+        "Category": "",
+        "Label": "総排気量",
+        "Value": "998 cm³"
+      },
+      {
+        "Category": "",
+        "Label": "内径 x 行程",
+        "Value": "76.0 x 55.0 mm"
+      },
+      {
+        "Category": "",
+        "Label": "圧縮比",
+        "Value": "11.2 : 1"
+      },
+      {
+        "Category": "",
+        "Label": "最高出力",
+        "Value": "147.1 kW (200PS) / 11,000 rpm"
+      },
+      {
+        "Category": "",
+        "Label": "最大トルク",
+        "Value": "137.0 N･m (14.0kgf･m) / 8,500 rpm"
+      },
+      {
+        "Category": "",
+        "Label": "燃料供給方式",
+        "Value": "フューエルインジェクション (Ø40 mm x 4 , デュアルインジェクション) Euro5+"
+      },
+      {
+        "Category": "",
+        "Label": "吸気システム",
+        "Value": "カワサキスーパーチャージャー"
+      },
+      {
+        "Category": "",
+        "Label": "点火方式",
+        "Value": "バッテリ＆コイル (フルトランジスタ点火)"
+      },
+      {
+        "Category": "",
+        "Label": "始動方式",
+        "Value": "エレクトリックスターター"
+      },
+      {
+        "Category": "",
+        "Label": "潤滑方式",
+        "Value": "強制潤滑方式 / ウェットサンプ (オイルクーラー付)"
+      },
+      {
+        "Category": "",
+        "Label": "トランスミッション形式",
+        "Value": "常時嚙合式6段リターン"
+      },
+      {
+        "Category": "",
+        "Label": "クラッチ形式",
+        "Value": "湿式多板 (マニュアルトランスミッション)"
+      },
+      {
+        "Category": "",
+        "Label": "動力伝達方式",
+        "Value": "チェーン"
+      },
+      {
+        "Category": "",
+        "Label": "一次減速比",
+        "Value": "1.480 (74/50)"
+      },
+      {
+        "Category": "",
+        "Label": "二次減速比",
+        "Value": "2.556 (46/18)"
+      },
+      {
+        "Category": "",
+        "Label": "ギヤ・レシオ",
+        "Value": "1速 : 3.077(40/13)\n2速 : 2.471(42/17)\n3速 : 2.045(45/22)\n4速 : 1.727(38/22)\n5速 : 1.524(32/21)\n6速 : 1.348(31/23)"
+      },
+      {
+        "Category": "",
+        "Label": "フロントサスペンション",
+        "Value": "鋳造アルミニウム合金製スイングアーム、オーリンズ製 TTX36 窒素ガス封入ショック (ピギーバックリザーバー付き)、圧側および伸側減衰調整機能、手動調整式スプリングプリロード、トップアウトスプリング\nホイールトラベル : 105 mm"
+      },
+      {
+        "Category": "",
+        "Label": "リヤサスペンション",
+        "Value": "鋳造アルミニウム合金製スイングアーム、オーリンズ製 TTX36 窒素ガス封入ショック (ピギーバックリザーバー付き)、圧側および伸側減衰調整機能、手動調整式スプリングプリロード、トップアウトスプリング\nホイールトラベル : 135 mm"
+      },
+      {
+        "Category": "",
+        "Label": "フロントブレーキ",
+        "Value": "ブレンボ製モノブロックキャリパー「Stylema」、ラジアルマウント対向4ピストン、デュアルセミフローティングディスク 330 mm (外径)"
+      },
+      {
+        "Category": "",
+        "Label": "リヤブレーキ",
+        "Value": "ブレンボ製対向2ピストン、シングルディスク260 mm (外径)"
+      },
+      {
+        "Category": "",
+        "Label": "フレーム形式",
+        "Value": "アルミニウム合金ビレット製プレート (前後スイングアーム取付用プレート)"
+      },
+      {
+        "Category": "",
+        "Label": "キャスター / トレール",
+        "Value": "21.3° / 117 mm"
+      },
+      {
+        "Category": "",
+        "Label": "全長",
+        "Value": "2,125 mm"
+      },
+      {
+        "Category": "",
+        "Label": "全幅",
+        "Value": "910 mm"
+      },
+      {
+        "Category": "",
+        "Label": "全高",
+        "Value": "1,390 mm(1,438 mm)\n※()内は廃ポジション"
+      },
+      {
+        "Category": "",
+        "Label": "最低地上高",
+        "Value": "174 mm"
+      },
+      {
+        "Category": "",
+        "Label": "シート高",
+        "Value": "820 mm"
+      },
+      {
+        "Category": "",
+        "Label": "車両重量**",
+        "Value": "244 kg*"
+      },
+      {
+        "Category": "",
+        "Label": "燃料タンク容量",
+        "Value": "19 L"
+      },
+      {
+        "Category": "",
+        "Label": "ホイールベース",
+        "Value": "1,455 mm"
+      },
+      {
+        "Category": "",
+        "Label": "タイヤサイズ",
+        "Value": "フロント : 120/70ZR17 M/C 58W\nリヤ : 190/55ZR17 M/C 75W"
+      },
+      {
+        "Category": "",
+        "Label": "リムサイズ",
+        "Value": "フロント : J17 M/C x MT 3.50\nリヤ : J17 M/C x MT 5.50"
+      },
+      {
+        "Category": "テクノロジー",
+        "Label": "",
+        "Value": "･IMU(慣性計測ユニット)\n･KCMF(カワサキコーナリングマネジメントファンクション)\n･KTRC(カワサキトラクションコントロール) (3モード)\n･パワーモード(3モード)\n･ブレンボ製 Stylema フロントブレーキキャリパー\n･KIBS(カワサキインテリジェントアンチロックブレーキシステム)\n･KLCM(カワサキローンチコントロールモード)\n･KQS(カワサキクイックシフター)(アップシフト & ダウンシフト対応)\n･オールLEDライト\n･TFTフルカラー液晶インストゥルメント\n･エレクトロニッククルーズコントロール\n･アシスト&スリッパ―クラッチ\n･DC電源ソケット"
+      },
+      {
+        "Category": "",
+        "Label": "乗車定員",
+        "Value": "2名"
+      },
+      {
+        "Category": "",
+        "Label": "生産国",
+        "Value": "イタリア共和国"
+      },
+      {
+        "Category": "",
+        "Label": "カラー",
+        "Value": "ロッソリミニ / ビアンコペルラ"
+      },
+      {
+        "Category": "",
+        "Label": "メーカー希望小売価格",
+        "Value": "6,380,000円\n(本体価格 5,800,000円、消費税580,000円)"
+      },
+      {
+        "Category": "",
+        "Label": "発売予定日",
+        "Value": "2026年7月1日"
+      },
+      {
+        "Category": "",
+        "Label": "注意事項・免責事項",
+        "Value": "**車両重量(整備質量)は走行(航走)に必要な整備を行った状態での重量です。重量には油脂類やバッテリー液などが含まれます。 \n※メーカー希望小売価格は消費税を含む参考価格です。価格には保険料、税金(消費税を除く)、登録等に伴う諸費用は含まれません。 \n※当モデルは二輪車リサイクル対象車両です。価格には二輪車リサイクル費用が含まれます。 \n※当モデルはABS 装着車です。 \n※当モデルの販売はbimota正規取扱店のみとさせていただきます。 \n※メーカー保証は2年です。 \n※掲載の画像や動画は実際のモデルと仕様が異なる場合があります。 \n※走行(航走)画像は管理された環境においてプロライダーによる走行を撮影したものです。走行(航走)に際しては適切な装備を着用の上、常に安全を心がけてください。 \n※改良のため諸元、価格は予告なく変更することがあります。"
+      }
+    ]
+  },
+  "es": {
+    "total": 43,
+    "data": [
+      {
+        "Category": "Información técnica",
+        "Label": "Motor",
+        "Value": "Motor de 4 tiempos, 4 cilindros, DOHC, 4 válvulas, refrigerado por líquido, sobrealimentado."
+      },
+      {
+        "Category": "",
+        "Label": "Desplazamiento",
+        "Value": "998 cm³ / 60,9 pulgadas cúbicas"
+      },
+      {
+        "Category": "",
+        "Label": "Diámetro x carrera",
+        "Value": "76,0 x 55,0 mm / 2,99 x 2,17 pulgadas"
+      },
+      {
+        "Category": "",
+        "Label": "Relación de compresión",
+        "Value": "11.2:1"
+      },
+      {
+        "Category": "",
+        "Label": "Fuerza",
+        "Value": "147,1 kW / 200 hp a 11.000 r/min"
+      },
+      {
+        "Category": "",
+        "Label": "Esfuerzo de torsión",
+        "Value": "137,0 N·m / 101 lbf-ft a 8500 r/min"
+      },
+      {
+        "Category": "",
+        "Label": "Sistema de combustible",
+        "Value": "DFI® (Inyección Digital de Combustible) 4 cuerpos de mariposa de Ø 40 mm e inyección dual\nEuro5+"
+      },
+      {
+        "Category": "",
+        "Label": "Sistema de admisión",
+        "Value": "Supercargador Kawasaki"
+      },
+      {
+        "Category": "",
+        "Label": "emisiones de CO2",
+        "Value": "134 g/km"
+      },
+      {
+        "Category": "",
+        "Label": "Consumo de combustible",
+        "Value": "6,0 l/100 km"
+      },
+      {
+        "Category": "",
+        "Label": "Encendido",
+        "Value": "Digital"
+      },
+      {
+        "Category": "",
+        "Label": "Sincronización del encendido",
+        "Value": "10°APMS a 1100 r/min - 41° APMS a 6000 r/min"
+      },
+      {
+        "Category": "",
+        "Label": "Tipo de bujía",
+        "Value": "NGK SILMAR9E9\nSeparación: 0,8 - 0,9 mm / 0,031 - 0,035 pulgadas"
+      },
+      {
+        "Category": "",
+        "Label": "Sistema de arranque",
+        "Value": "Arranque eléctrico"
+      },
+      {
+        "Category": "",
+        "Label": "Orden de disparo",
+        "Value": "1-2-4-3"
+      },
+      {
+        "Category": "",
+        "Label": "Sistema de lubricación",
+        "Value": "Lubricación forzada, cárter húmedo"
+      },
+      {
+        "Category": "",
+        "Label": "Tipo de aceite de motor",
+        "Value": "API SG, SH, SJ, SL o SM, con JASO MA, MA1 o MA2\nViscosidad: SAE 10W-40\nCapacidad: 4,7 L (5,0 cuartos de galón estadounidenses)"
+      },
+      {
+        "Category": "",
+        "Label": "Capacidad de refrigerante",
+        "Value": "3,1 L (3,3 cuartos de galón estadounidenses)"
+      },
+      {
+        "Category": "",
+        "Label": "Transmisión",
+        "Value": "6 velocidades, cambio de retorno"
+      },
+      {
+        "Category": "",
+        "Label": "Embrague",
+        "Value": "Húmedo, multidisco, manual"
+      },
+      {
+        "Category": "",
+        "Label": "Transmisión final",
+        "Value": "Transmisión por cadena sellada"
+      },
+      {
+        "Category": "",
+        "Label": "Relación de reducción primaria",
+        "Value": "1.480 (74/50)"
+      },
+      {
+        "Category": "",
+        "Label": "Relación de reducción final",
+        "Value": "2.556 (46/18)"
+      },
+      {
+        "Category": "",
+        "Label": "relación de transmisión general",
+        "Value": "5.098 (Marcha más alta)"
+      },
+      {
+        "Category": "",
+        "Label": "relación de transmisión",
+        "Value": "1.º: 3.077 (40/13)\n2º: 2.471 (42/17)\n3.º: 2.045 (45/22)\n4.º: 1.727 (38/22)\n5.º: 1.524 (32/21)\n6.º: 1.348 (31/23)"
+      },
+      {
+        "Category": "",
+        "Label": "Suspensión delantera",
+        "Value": "Basculante de aleación de aluminio fundido, amortiguador Öhlins TTX36 cargado con gas nitrógeno y depósito auxiliar, ajuste de la amortiguación de compresión y rebote, precarga del muelle ajustable manualmente y muelle de tope.\nRecorrido de la rueda: 105 mm (4,13 pulgadas)"
+      },
+      {
+        "Category": "",
+        "Label": "Suspensión trasera",
+        "Value": "Basculante de aleación de aluminio fundido, amortiguador Öhlins TTX36 cargado con gas nitrógeno y depósito auxiliar, ajuste de la amortiguación de compresión y rebote, precarga del muelle ajustable manualmente y muelle de tope.\nRecorrido de la rueda: 135 mm (5,31 pulgadas)"
+      },
+      {
+        "Category": "",
+        "Label": "frenos delanteros",
+        "Value": "Pinzas Brembo Stylema® de 4 pistones opuestos con montaje radial doble, discos semiflotantes dobles de 330 mm, ABS KIBS"
+      },
+      {
+        "Category": "",
+        "Label": "Freno trasero",
+        "Value": "Pinza Brembo de 2 pistones opuestos, disco único de 260 mm, ABS KIBS"
+      },
+      {
+        "Category": "",
+        "Label": "Tipo de marco",
+        "Value": "Placas de montaje del basculante delantero y trasero, fabricadas en aleación de aluminio mecanizado."
+      },
+      {
+        "Category": "",
+        "Label": "Rastrillo/Sendero",
+        "Value": "21,3° / 117 mm (4,60 pulgadas)"
+      },
+      {
+        "Category": "",
+        "Label": "Longitud total",
+        "Value": "2125 mm (83,66 pulgadas)"
+      },
+      {
+        "Category": "",
+        "Label": "Ancho total",
+        "Value": "1000 mm (39,97 pulgadas)"
+      },
+      {
+        "Category": "",
+        "Label": "Altura total",
+        "Value": "1392 mm (54,80 pulgadas)"
+      },
+      {
+        "Category": "",
+        "Label": "Distancia al suelo",
+        "Value": "174 mm (6,85 pulgadas)"
+      },
+      {
+        "Category": "",
+        "Label": "Altura del asiento",
+        "Value": "820 mm (32,28 pulgadas)"
+      },
+      {
+        "Category": "",
+        "Label": "Peso húmedo",
+        "Value": "214 kg* / 471,79 lb\n*Peso en seco con todos los líquidos excepto combustible, sin accesorios."
+      },
+      {
+        "Category": "",
+        "Label": "Masa de bordillo",
+        "Value": "233 kg* / 513,67 lb\n*La masa en vacío incluye todos los materiales y fluidos necesarios para su correcto funcionamiento, el depósito de combustible lleno (a más del 90 por ciento de su capacidad) y el kit de herramientas (si se suministra)."
+      },
+      {
+        "Category": "",
+        "Label": "Capacidad de combustible",
+        "Value": "19 L / 5,01 gal"
+      },
+      {
+        "Category": "",
+        "Label": "Distancia entre ejes",
+        "Value": "1455 mm (56,89 pulgadas)"
+      },
+      {
+        "Category": "",
+        "Label": "Tamaño del neumático",
+        "Value": "Delantero: 120/70ZR17 M/C (58W)\nTrasera: 190/55ZR17 M/C (75W)"
+      },
+      {
+        "Category": "",
+        "Label": "Tamaño de la llanta",
+        "Value": "Delantero: J17M/C x MT 3.50\nTrasera: J17M/C x MT 5.50"
+      },
+      {
+        "Category": "Tecnología",
+        "Label": "",
+        "Value": "Sistema de orientación del chasis mejorado por IMU, función de gestión de curvas Kawasaki (KCMF), control de tracción Kawasaki KTRC (3 modos), modos de potencia, pinzas Brembo Stylema, sistema de frenos antibloqueo inteligente Kawasaki (KIBS), modo de control de lanzamiento Kawasaki (KLCM), cambio rápido Kawasaki (KQS) (ascendente y descendente), iluminación LED completa, pantalla LCD TFT a todo color, control de crucero electrónico, embrague asistido y antirrebote."
+      }
+    ]
+  },
+  "nl": {
+    "total": 43,
+    "data": [
+      {
+        "Category": "Technische Specificaties",
+        "Label": "Motor",
+        "Value": "4-takt, 4-cilinder, DOHC, 4-kleppen, vloeistofgekoeld, supercharged"
+      },
+      {
+        "Category": "",
+        "Label": "Cilinderinhoud",
+        "Value": "998 cc"
+      },
+      {
+        "Category": "",
+        "Label": "Boring x Slag",
+        "Value": "76.0 x 55.0 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Compressieverhouding",
+        "Value": "11.2:1"
+      },
+      {
+        "Category": "",
+        "Label": "Vermogen",
+        "Value": "200 pk (147.1 kW) @ 11,000 tpm"
+      },
+      {
+        "Category": "",
+        "Label": "Koppel",
+        "Value": "137.0 Nm @ 8,500 tpm"
+      },
+      {
+        "Category": "",
+        "Label": "Brandstofsysteem",
+        "Value": "DFI® (Digital Fuel Injection), 4 x Ø 40 mm gasklephuizen en dubbele injectie\nEuro5+"
+      },
+      {
+        "Category": "",
+        "Label": "Inlaatsysteem",
+        "Value": "Kawasaki Supercharger"
+      },
+      {
+        "Category": "",
+        "Label": "CO2 uitstoot",
+        "Value": "134 g/km"
+      },
+      {
+        "Category": "",
+        "Label": "Fuel consumption",
+        "Value": "6.0 l/100km"
+      },
+      {
+        "Category": "",
+        "Label": "Ontsteking",
+        "Value": "Digital"
+      },
+      {
+        "Category": "",
+        "Label": "Ontstekingstiming",
+        "Value": "10°BTDC @ 1,100 r/min - 41° BTDC @ 6,000 r/min"
+      },
+      {
+        "Category": "",
+        "Label": "Bougie",
+        "Value": "NGK SILMAR9E9\nElektrodeafstand: 0,8 - 0,9 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Startsysteem",
+        "Value": "Elektrische starter"
+      },
+      {
+        "Category": "",
+        "Label": "Ontstekingsvolgorde",
+        "Value": "1-2-4-3"
+      },
+      {
+        "Category": "",
+        "Label": "Smeersysteem",
+        "Value": "Druksmering met nat cartersysteem"
+      },
+      {
+        "Category": "",
+        "Label": "Motorolietype",
+        "Value": "API SG, SH, SJ, SL of SM, met JASO MA, MA1 of MA2\nViscositeit: SAE 10W-40\nInhoud: 4,7 l"
+      },
+      {
+        "Category": "",
+        "Label": "Koelvloeistofcapaciteit",
+        "Value": "3.1 l"
+      },
+      {
+        "Category": "",
+        "Label": "Transmissie",
+        "Value": "6 versnellingen"
+      },
+      {
+        "Category": "",
+        "Label": "Koppeling",
+        "Value": "Natte meerplaats koppeling, handbediend"
+      },
+      {
+        "Category": "",
+        "Label": "Eindoverbrenging",
+        "Value": "Ketting"
+      },
+      {
+        "Category": "",
+        "Label": "Primaire Overbrengingsverhouding",
+        "Value": "1.480 (74/50)"
+      },
+      {
+        "Category": "",
+        "Label": "Secundaire Overbrengingsverhouding",
+        "Value": "2.556 (46/18)"
+      },
+      {
+        "Category": "",
+        "Label": "Totale Overbrengingsverhouding",
+        "Value": "5.098 (Hoogste versnelling)"
+      },
+      {
+        "Category": "",
+        "Label": "Overbrengingsverhouding per Versnelling",
+        "Value": "1st: 3.077 (40/13)\n2nd: 2.471 (42/17)\n3rd: 2.045 (45/22)\n4th: 1.727 (38/22)\n5th: 1.524 (32/21)\n6th: 1.348 (31/23)"
+      },
+      {
+        "Category": "",
+        "Label": "Voorvering",
+        "Value": "Gegoten aluminium swingarm met Öhlins TTX36 stikstofgevulde schokdemper met piggyback reservoir, instelbare compressie- en rebounddemping, handmatig verstelbare veervoorspanning en top-out veer. Veerweg: 105 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Achtervering",
+        "Value": "Gegoten aluminium swingarm met Öhlins TTX36 stikstofgevulde schokdemper met piggyback reservoir, instelbare compressie- en rebounddemping, handmatig verstelbare veervoorspanning en top-out veer. Veerweg: 135 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Voorremmen",
+        "Value": "Dubbele radiaal gemonteerde Brembo Stylema® remklauwen met tegenoverliggende 4-zuiger configuratie, dubbele semi-zwevende 330 mm remschijven en KIBS ABS"
+      },
+      {
+        "Category": "",
+        "Label": "Achterrem",
+        "Value": "Brembo remklauw met tegenoverliggende 2-zuiger configuratie, enkele 260 mm remschijf en KIBS ABS"
+      },
+      {
+        "Category": "",
+        "Label": "Frame",
+        "Value": "Uit massief aluminium vervaardigde platen met bevestigingspunten voor de voor- en achterbrug"
+      },
+      {
+        "Category": "",
+        "Label": "Balhoofdhoek / Naloop",
+        "Value": "21.3° / 117 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Lengte",
+        "Value": "2,125 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Breedte",
+        "Value": "1,000 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Hoogte",
+        "Value": "1,392 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Grondspeling",
+        "Value": "174 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Zadelhoogte",
+        "Value": "820 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Gewicht",
+        "Value": "214 kg*\n*Drooggewicht zonder brandstof, inclusief alle vloeistoffen, exclusief accessoires"
+      },
+      {
+        "Category": "",
+        "Label": "Rijklaargewicht",
+        "Value": "233 kg*\n*Rijklaargewicht inclusief alle noodzakelijke vloeistoffen en materialen voor correct gebruik, een volledig gevulde brandstoftank (meer dan 90% van de capaciteit) en gereedschapsset (indien meegeleverd)."
+      },
+      {
+        "Category": "",
+        "Label": "Brandstoftankinhoud",
+        "Value": "19 l"
+      },
+      {
+        "Category": "",
+        "Label": "Wielbasis",
+        "Value": "1,455 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Bandenmaat",
+        "Value": "Voor: 120/70ZR17 M/C (58W)\nAchter: 190/55ZR17 M/C (75W)"
+      },
+      {
+        "Category": "",
+        "Label": "Velgmaat",
+        "Value": "Voor: J17M/C x MT 3.50\nAchter: J17M/C x MT 5.50"
+      },
+      {
+        "Category": "Technologische Features",
+        "Label": "",
+        "Value": "IMU-ondersteunde Chassiscontrole, Kawasaki Cornering Management Function (KCMF), Kawasaki Traction Control KTRC (3 modi), Power Modes, Brembo Stylema Remklauwen, Kawasaki Intelligent anti-lock Brake System (KIBS), Kawasaki Launch Control Mode (KLCM), Kawasaki Quick Shifter (KQS) (op- en terugschakelen), volledige LED-verlichting, full-colour LCD TFT-scherm, Electronic Cruise Control en Assist & Slipper Clutch."
+      }
+    ]
+  }
+}

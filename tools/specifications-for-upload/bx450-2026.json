@@ -1,0 +1,442 @@
+{
+  "en": {
+    "total": 21,
+    "data": [
+      {
+        "Category": "Dimensions:",
+        "Label": "Road Clearance:",
+        "Value": "335 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Seat height:",
+        "Value": "955 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Curb Mass:",
+        "Value": "108.9 kg (without fuel)"
+      },
+      {
+        "Category": "",
+        "Label": "Fuel Tank Capacity:",
+        "Value": "6.2 L"
+      },
+      {
+        "Category": "Engine:",
+        "Label": "Engine type:",
+        "Value": "4-stroke, single cylinder, liquid-cooled"
+      },
+      {
+        "Category": "",
+        "Label": "Displacement:",
+        "Value": "449 cm3"
+      },
+      {
+        "Category": "",
+        "Label": "Compression ratio:",
+        "Value": "12.5:1"
+      },
+      {
+        "Category": "",
+        "Label": "Fuel system:",
+        "Value": "FI (Fuel Injection) Ø44 x 1"
+      },
+      {
+        "Category": "DriveTrain:",
+        "Label": "Driving System:",
+        "Value": "Chain"
+      },
+      {
+        "Category": "",
+        "Label": "Primary reduction ratio",
+        "Value": "2.727 (60/22)"
+      },
+      {
+        "Category": "",
+        "Label": "Transmission",
+        "Value": "5-speed, return"
+      },
+      {
+        "Category": "",
+        "Label": "Clutch type (Primary)",
+        "Value": "Wet multi-disc, manual"
+      },
+      {
+        "Category": "Frame:",
+        "Label": "Type:",
+        "Value": "Perimeter, aluminium"
+      },
+      {
+        "Category": "",
+        "Label": "Suspension Front:",
+        "Value": "Ø49 mm inverted telescopic fork with adjustable compression and rebound damping"
+      },
+      {
+        "Category": "",
+        "Label": "Suspension Rear:",
+        "Value": "New Uni Trak with adjustable dual-range (high/low-speed) compression damping, adjustable rebound damping and adjustable preload"
+      },
+      {
+        "Category": "Wheel Travel",
+        "Label": "Front:",
+        "Value": "305 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Rear:",
+        "Value": "307 mm"
+      },
+      {
+        "Category": "Brakes:",
+        "Label": "Front Type:",
+        "Value": "Single semi-floating Ø270 mm petal disc\n(Effective diameter: Ø245 mm)"
+      },
+      {
+        "Category": "",
+        "Label": "Caliper",
+        "Value": "Brembo, dual-piston"
+      },
+      {
+        "Category": "",
+        "Label": "Rear Type:",
+        "Value": "Single Ø240 mm petal disc\n(Effective diameter: Ø215 mm)"
+      },
+      {
+        "Category": "",
+        "Label": "Caliper:",
+        "Value": "Single-piston"
+      }
+    ]
+  },
+  "it": {
+    "total": 21,
+    "data": [
+      {
+        "Category": "Dimensioni:",
+        "Label": "Altezza libera da ostacoli:",
+        "Value": "335 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Altezza della seduta:",
+        "Value": "955 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Massa a vuoto:",
+        "Value": "108,9 kg (senza carburante)"
+      },
+      {
+        "Category": "",
+        "Label": "Capacità del serbatoio del carburante:",
+        "Value": "6,2 L"
+      },
+      {
+        "Category": "Motore:",
+        "Label": "Tipo di motore:",
+        "Value": "4 tempi, monocilindrico, raffreddato a liquido"
+      },
+      {
+        "Category": "",
+        "Label": "Spostamento:",
+        "Value": "449 cm³"
+      },
+      {
+        "Category": "",
+        "Label": "Rapporto di compressione:",
+        "Value": "12,5:1"
+      },
+      {
+        "Category": "",
+        "Label": "Sistema di alimentazione:",
+        "Value": "FI (Iniezione di carburante) Ø44 x 1"
+      },
+      {
+        "Category": "Trasmissione:",
+        "Label": "Sistema di guida:",
+        "Value": "Catena"
+      },
+      {
+        "Category": "",
+        "Label": "Rapporto di riduzione primario",
+        "Value": "2,727 (60/22)"
+      },
+      {
+        "Category": "",
+        "Label": "Trasmissione",
+        "Value": "5 velocità, ritorno"
+      },
+      {
+        "Category": "",
+        "Label": "Tipo di frizione (primaria)",
+        "Value": "Multidisco a umido, manuale"
+      },
+      {
+        "Category": "Telaio:",
+        "Label": "Tipo:",
+        "Value": "Perimetro in alluminio"
+      },
+      {
+        "Category": "",
+        "Label": "Sospensione anteriore:",
+        "Value": "Forcella telescopica rovesciata da Ø49 mm con smorzamento in compressione ed estensione regolabile."
+      },
+      {
+        "Category": "",
+        "Label": "Sospensione posteriore:",
+        "Value": "Nuovo Uni Trak con smorzamento in compressione regolabile a doppia gamma (alta/bassa velocità), smorzamento in estensione regolabile e precarico regolabile."
+      },
+      {
+        "Category": "Escursione della ruota",
+        "Label": "Fronte:",
+        "Value": "305 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Posteriore:",
+        "Value": "307 mm"
+      },
+      {
+        "Category": "Freni:",
+        "Label": "Tipo frontale:",
+        "Value": "Disco a petalo singolo semi-flottante Ø270 mm\n(Diametro effettivo: Ø245 mm)"
+      },
+      {
+        "Category": "",
+        "Label": "Calibro",
+        "Value": "Brembo, a doppio pistone"
+      },
+      {
+        "Category": "",
+        "Label": "Tipo posteriore:",
+        "Value": "Disco a petalo singolo Ø240 mm\n(Diametro effettivo: Ø215 mm)"
+      },
+      {
+        "Category": "",
+        "Label": "Calibro:",
+        "Value": "Monopistone"
+      }
+    ]
+  },
+  "de": {
+    "total": 21,
+    "data": [
+      {
+        "Category": "Abmessungen:",
+        "Label": "Bodenfreiheit:",
+        "Value": "335 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Sitzhöhe:",
+        "Value": "955 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Leergewicht:",
+        "Value": "108,9 kg (mit Öl und Kühlflüssigkeit, ohne Kraftstoff)"
+      },
+      {
+        "Category": "",
+        "Label": "Kraftstofftankkapazität:",
+        "Value": "6,2 l"
+      },
+      {
+        "Category": "Motor:",
+        "Label": "Motortyp:",
+        "Value": "4-Takt, Einzylinder, flüssigkeitsgekühlt"
+      },
+      {
+        "Category": "",
+        "Label": "Hubraum:",
+        "Value": "449 cm³"
+      },
+      {
+        "Category": "",
+        "Label": "Verdichtungsverhältnis:",
+        "Value": "12,5:1"
+      },
+      {
+        "Category": "",
+        "Label": "Kraftstoffsystem:",
+        "Value": "Kraftstoffeinspritzung (Ø44 mm Drosselklappe)"
+      },
+      {
+        "Category": "Antriebsstrang:",
+        "Label": "Endantrieb:",
+        "Value": "Kette"
+      },
+      {
+        "Category": "",
+        "Label": "Primärübersetzung:",
+        "Value": "2.727 (60/22)"
+      },
+      {
+        "Category": "",
+        "Label": "Getriebe:",
+        "Value": "5-Gang"
+      },
+      {
+        "Category": "",
+        "Label": "Kupplung:",
+        "Value": "Mehrscheiben-Ölbadkupplung, manuell"
+      },
+      {
+        "Category": "Rahmen:",
+        "Label": "Typ:",
+        "Value": "Aluminium-Perimeterrahmen"
+      },
+      {
+        "Category": "",
+        "Label": "Vorderradaufhängung:",
+        "Value": "Ø49 mm Upside-Down-Gabel mit einstellbarer Druck- und Zugstufendämpfung"
+      },
+      {
+        "Category": "",
+        "Label": "Hinterradaufhängung:",
+        "Value": "Das neue Uni-Trak-System verfügt über eine einstellbare Dual-Range-Druckstufendämpfung (High/Low-Speed), eine einstellbare Zugstufendämpfung und eine einstellbare Federvorspannung."
+      },
+      {
+        "Category": "Federweg:",
+        "Label": "Vorne:",
+        "Value": "305 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Hinten:",
+        "Value": "307 mm"
+      },
+      {
+        "Category": "Bremsen:",
+        "Label": "Bremsscheibe vorne:",
+        "Value": "Einzelscheibenbremse, halbschwimmende Ø270 mm Wave-Bremsscheibe\n(Effektiver Durchmesser: Ø245 mm)"
+      },
+      {
+        "Category": "",
+        "Label": "Bremssattel",
+        "Value": "Brembo Zweikolben-Bremssattel"
+      },
+      {
+        "Category": "",
+        "Label": "Bremsscheibe hinten:",
+        "Value": "Einzelne Blütenblattscheibe Ø240 mm\n(Effektiver Durchmesser: Ø215 mm)"
+      },
+      {
+        "Category": "",
+        "Label": "Bremssattel:",
+        "Value": "Einkolben-Bremssattel"
+      }
+    ]
+  },
+  "es": {
+    "total": 21,
+    "data": [
+      {
+        "Category": "Dimensiones:",
+        "Label": "Despeje de la carretera:",
+        "Value": "335 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Altura del asiento:",
+        "Value": "955 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Masa en bordillo:",
+        "Value": "108,9 kg (sin combustible)"
+      },
+      {
+        "Category": "",
+        "Label": "Capacidad del tanque de combustible:",
+        "Value": "6,2 L"
+      },
+      {
+        "Category": "Motor:",
+        "Label": "Tipo de motor:",
+        "Value": "Motor de 4 tiempos, monocilíndrico, refrigerado por líquido."
+      },
+      {
+        "Category": "",
+        "Label": "Desplazamiento:",
+        "Value": "449 cm3"
+      },
+      {
+        "Category": "",
+        "Label": "Relación de compresión:",
+        "Value": "12,5:1"
+      },
+      {
+        "Category": "",
+        "Label": "Sistema de combustible:",
+        "Value": "FI (Inyección de combustible) Ø44 x 1"
+      },
+      {
+        "Category": "Tren de transmisión:",
+        "Label": "Sistema de conducción:",
+        "Value": "Cadena"
+      },
+      {
+        "Category": "",
+        "Label": "Relación de reducción primaria",
+        "Value": "2.727 (60/22)"
+      },
+      {
+        "Category": "",
+        "Label": "Transmisión",
+        "Value": "5 velocidades, retorno"
+      },
+      {
+        "Category": "",
+        "Label": "Tipo de embrague (primario)",
+        "Value": "Multidisco húmedo, manual"
+      },
+      {
+        "Category": "Marco:",
+        "Label": "Tipo:",
+        "Value": "Perímetro, aluminio"
+      },
+      {
+        "Category": "",
+        "Label": "Suspensión delantera:",
+        "Value": "Horquilla telescópica invertida de Ø49 mm con amortiguación de compresión y rebote ajustable."
+      },
+      {
+        "Category": "",
+        "Label": "Suspensión trasera:",
+        "Value": "Nuevo Uni Trak con amortiguación de compresión ajustable de doble rango (alta/baja velocidad), amortiguación de rebote ajustable y precarga ajustable."
+      },
+      {
+        "Category": "Recorrido de la rueda",
+        "Label": "Frente:",
+        "Value": "305 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Trasero:",
+        "Value": "307 mm"
+      },
+      {
+        "Category": "Frenos:",
+        "Label": "Tipo de frente:",
+        "Value": "Disco de pétalo semiflotante individual de Ø270 mm\n(Diámetro efectivo: Ø245 mm)"
+      },
+      {
+        "Category": "",
+        "Label": "Calibrar",
+        "Value": "Brembo, doble pistón"
+      },
+      {
+        "Category": "",
+        "Label": "Tipo trasero:",
+        "Value": "Disco de pétalo único de Ø240 mm\n(Diámetro efectivo: Ø215 mm)"
+      },
+      {
+        "Category": "",
+        "Label": "Calibrar:",
+        "Value": "Pistón único"
+      }
+    ]
+  }
+}

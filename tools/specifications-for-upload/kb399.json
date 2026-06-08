@@ -1,0 +1,272 @@
+{
+  "en": {
+    "total": 8,
+    "data": [
+      {
+        "Category": "Technical Information",
+        "Label": "Engine",
+        "Value": "Liquid-cooled, 4-stroke, in-line four"
+      },
+      {
+        "Category": "",
+        "Label": "Displacement",
+        "Value": "399 cm³"
+      },
+      {
+        "Category": "",
+        "Label": "Bore x Stroke",
+        "Value": "57.0 x 39.1 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Compression ratio",
+        "Value": "12.3:1"
+      },
+      {
+        "Category": "",
+        "Label": "Fuel system",
+        "Value": "Fuel injection: 34 mm x 4"
+      },
+      {
+        "Category": "",
+        "Label": "Ignition",
+        "Value": "Digital"
+      },
+      {
+        "Category": "",
+        "Label": "Starting system",
+        "Value": "Electric"
+      },
+      {
+        "Category": "",
+        "Label": "Lubrication system",
+        "Value": "Forced lubrication, wet sump"
+      }
+    ]
+  },
+  "it": {
+    "total": 8,
+    "data": [
+      {
+        "Category": "Informazioni tecniche",
+        "Label": "Motore",
+        "Value": "Motore a quattro cilindri in linea, a 4 tempi, raffreddato a liquido."
+      },
+      {
+        "Category": "",
+        "Label": "Spostamento",
+        "Value": "399 cm³"
+      },
+      {
+        "Category": "",
+        "Label": "Alesaggio x Corsa",
+        "Value": "57,0 x 39,1 mm"
+      },
+      {
+        "Category": "",
+        "Label": "rapporto di compressione",
+        "Value": "12.3:1"
+      },
+      {
+        "Category": "",
+        "Label": "Sistema di alimentazione",
+        "Value": "Iniezione carburante: 34 mm x 4"
+      },
+      {
+        "Category": "",
+        "Label": "Accensione",
+        "Value": "Digitale"
+      },
+      {
+        "Category": "",
+        "Label": "Sistema di avviamento",
+        "Value": "Elettrico"
+      },
+      {
+        "Category": "",
+        "Label": "Sistema di lubrificazione",
+        "Value": "Lubrificazione forzata, carter umido"
+      }
+    ]
+  },
+  "fr": {
+    "total": 8,
+    "data": [
+      {
+        "Category": "Informations techniques",
+        "Label": "Moteur",
+        "Value": "Moteur quatre cylindres en ligne, quatre temps, refroidi par liquide"
+      },
+      {
+        "Category": "",
+        "Label": "Cylindrée",
+        "Value": "399 cm³"
+      },
+      {
+        "Category": "",
+        "Label": "Alésage x Course",
+        "Value": "57,0 x 39,1 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Taux de compression",
+        "Value": "12.3:1"
+      },
+      {
+        "Category": "",
+        "Label": "Système d'alimentation en carburant",
+        "Value": "Injection de carburant : 34 mm x 4"
+      },
+      {
+        "Category": "",
+        "Label": "Allumage",
+        "Value": "Numérique"
+      },
+      {
+        "Category": "",
+        "Label": "Système de démarrage",
+        "Value": "Électrique"
+      },
+      {
+        "Category": "",
+        "Label": "Système de lubrification",
+        "Value": "Lubrification forcée, carter humide"
+      }
+    ]
+  },
+  "de": {
+    "total": 8,
+    "data": [
+      {
+        "Category": "Technische Informationen",
+        "Label": "Motor",
+        "Value": "Flüssigkeitsgekühlter Viertakt-Reihenvierzylinder"
+      },
+      {
+        "Category": "",
+        "Label": "Hubraum",
+        "Value": "399 cm³"
+      },
+      {
+        "Category": "",
+        "Label": "Bohrung x Hub",
+        "Value": "57,0 x 39,1 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Verdichtungsverhältnis",
+        "Value": "12.3:1"
+      },
+      {
+        "Category": "",
+        "Label": "Kraftstoffsystem",
+        "Value": "Kraftstoffeinspritzung: 34 mm x 4"
+      },
+      {
+        "Category": "",
+        "Label": "Zündung",
+        "Value": "Digital"
+      },
+      {
+        "Category": "",
+        "Label": "Startsystem",
+        "Value": "Elektrostarter"
+      },
+      {
+        "Category": "",
+        "Label": "Schmiersystem",
+        "Value": "Druckumlaufschmierung, Nasssumpf"
+      }
+    ]
+  },
+  "es": {
+    "total": 8,
+    "data": [
+      {
+        "Category": "Información técnica",
+        "Label": "Motor",
+        "Value": "Motor de cuatro cilindros en línea, de cuatro tiempos y refrigerado por líquido"
+      },
+      {
+        "Category": "",
+        "Label": "Desplazamiento",
+        "Value": "399 cm³"
+      },
+      {
+        "Category": "",
+        "Label": "Diámetro x carrera",
+        "Value": "57,0 x 39,1 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Relación de compresión",
+        "Value": "12.3:1"
+      },
+      {
+        "Category": "",
+        "Label": "Sistema de combustible",
+        "Value": "Inyección de combustible: 34 mm x 4"
+      },
+      {
+        "Category": "",
+        "Label": "Encendido",
+        "Value": "Digital"
+      },
+      {
+        "Category": "",
+        "Label": "Sistema de arranque",
+        "Value": "Eléctrico"
+      },
+      {
+        "Category": "",
+        "Label": "Sistema de lubricación",
+        "Value": "Lubricación forzada, cárter húmedo"
+      }
+    ]
+  },
+  "nl": {
+    "total": 8,
+    "data": [
+      {
+        "Category": "Technische specificaties",
+        "Label": "Motorblok",
+        "Value": "Vloeistofgekoelde, 4-takt, vier-in-lijn"
+      },
+      {
+        "Category": "",
+        "Label": "Cilinderinhoud",
+        "Value": "399 cc"
+      },
+      {
+        "Category": "",
+        "Label": "Boring x Slag",
+        "Value": "57.0 x 39.1 mm"
+      },
+      {
+        "Category": "",
+        "Label": "Compressieverhouding",
+        "Value": "12.3:1"
+      },
+      {
+        "Category": "",
+        "Label": "Brandstofsysteem",
+        "Value": "Injectie: 34 mm x 4"
+      },
+      {
+        "Category": "",
+        "Label": "Ontsteking",
+        "Value": "Digitaal"
+      },
+      {
+        "Category": "",
+        "Label": "Startsysteem",
+        "Value": "Elektrisch"
+      },
+      {
+        "Category": "",
+        "Label": "Smering",
+        "Value": "Druksmering met nat cartersysteem"
+      }
+    ]
+  }
+}
