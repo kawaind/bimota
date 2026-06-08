@@ -1,5 +1,47 @@
 import { createElement } from '../../scripts/helpers.js';
 
+const REGIONS = {
+  africa: [
+    'ao', 'bf', 'bi', 'bj', 'bw', 'cd', 'cf', 'cg', 'ci', 'cm', 'cv', 'dj',
+    'dz', 'eg', 'eh', 'er', 'et', 'ga', 'gh', 'gm', 'gn', 'gq', 'gw', 'ke',
+    'km', 'lr', 'ls', 'ly', 'ma', 'mg', 'ml', 'mr', 'mu', 'mw', 'mz', 'na',
+    'ne', 'ng', 'rw', 'sc', 'sd', 'sl', 'sn', 'so', 'ss', 'st', 'sz', 'td',
+    'tg', 'tn', 'tz', 'ug', 'za', 'zm', 'zw',
+  ],
+  americas: [
+    'ag', 'ai', 'ar', 'aw', 'bb', 'bl', 'bm', 'bo', 'bq', 'br', 'bs', 'bz',
+    'ca', 'cl', 'co', 'cr', 'cu', 'cw', 'dm', 'do', 'ec', 'fk', 'gd', 'gf',
+    'gp', 'gt', 'gy', 'hn', 'ht', 'jm', 'kn', 'ky', 'lc', 'mf', 'mq', 'ms',
+    'mx', 'ni', 'pa', 'pe', 'pm', 'pr', 'py', 'sr', 'sv', 'sx', 'tc', 'tt',
+    'us', 'uy', 've', 'vg', 'vi',
+  ],
+  asia: [
+    'ae', 'af', 'am', 'az', 'bd', 'bh', 'bn', 'bt', 'cn', 'cy', 'ge', 'hk',
+    'id', 'il', 'in', 'iq', 'ir', 'jo', 'jp', 'kg', 'kh', 'kp', 'kr', 'kw',
+    'kz', 'la', 'lb', 'lk', 'mm', 'mn', 'mo', 'mv', 'my', 'np', 'om', 'ph',
+    'pk', 'ps', 'qa', 'sa', 'sg', 'sy', 'th', 'tj', 'tl', 'tm', 'tr', 'tw',
+    'uz', 'vn', 'ye',
+  ],
+  europe: [
+    'ad', 'al', 'at', 'ax', 'ba', 'be', 'bg', 'by', 'ch', 'cz', 'de', 'dk',
+    'ee', 'es', 'fi', 'fo', 'fr', 'gb', 'gg', 'gi', 'gr', 'hr', 'hu', 'ie',
+    'im', 'is', 'it', 'je', 'li', 'lt', 'lu', 'lv', 'mc', 'md', 'me', 'mk',
+    'mt', 'nl', 'no', 'pl', 'pt', 'ro', 'rs', 'ru', 'se', 'si', 'sk', 'sm',
+    'ua', 'va', 'xk',
+  ],
+  oceania: [
+    'as', 'au', 'ck', 'fj', 'fm', 'gu', 'ki', 'mh', 'mp', 'nc', 'nf', 'nr',
+    'nu', 'nz', 'pf', 'pg', 'pn', 'pw', 'sb', 'tk', 'to', 'tv', 'vu', 'wf',
+    'ws',
+  ],
+};
+
+function getRegionForCountry(countryCode) {
+  const code = countryCode.toLowerCase();
+  const region = Object.keys(REGIONS).find((r) => REGIONS[r].includes(code));
+  return region || null;
+}
+
 function getUrlParams() {
   const segments = window.location.pathname.split('/').filter(Boolean);
   const countryIso = (segments[0] || '').toLowerCase();
@@ -18,18 +60,10 @@ function getLocalizedCountryName(countryCode, langCode) {
   }
 }
 
-function buildDealerCard(store, langCode) {
+function buildDealerCard(store) {
   const { properties } = store;
   const { name, address, contact } = properties;
   const card = createElement('div', { classes: 'dealer-card' });
-
-  const countryCode = address?.country_code || '';
-  const countryName = getLocalizedCountryName(countryCode, langCode);
-  if (countryName) {
-    const countryEl = createElement('p', { classes: 'dealer-country' });
-    countryEl.textContent = countryName.toUpperCase();
-    card.append(countryEl);
-  }
 
   if (name) {
     const nameEl = createElement('p', { classes: 'dealer-name' });
@@ -139,39 +173,38 @@ function parseList(value) {
   return value.split(',').map((s) => s.trim().toLowerCase()).filter(Boolean);
 }
 
+function buildBaseQuery(excludeCountries, dealerIdstores) {
+  if (!excludeCountries.length) {
+    return '';
+  }
+  if (dealerIdstores.length) {
+    const countryParts = excludeCountries.map((iso) => `NOT country:="${iso}"`).join(' AND ');
+    const idParts = dealerIdstores.map((id) => `idstore:="${id}"`).join(' OR ');
+    return `(${countryParts}) OR (${idParts})`;
+  }
+  return excludeCountries.map((iso) => `NOT country:="${iso}"`).join(' AND ');
+}
+
 function buildQuery(isCountryDealers, countryIso, excludeCountries, dealerIdstores) {
   if (isCountryDealers) {
-    if (!excludeCountries.length && !dealerIdstores.length) {
-      return `country:="${countryIso}"`;
-    }
-    let query = `country:="${countryIso}"`;
-    if (excludeCountries.length && dealerIdstores.length) {
-      const countryParts = excludeCountries.map((iso) => `NOT country:="${iso}"`).join(' AND ');
-      const idParts = dealerIdstores.map((id) => `idstore:="${id}"`).join(' OR ');
-      query += ` AND (${countryParts} OR ${idParts})`;
-    } else if (excludeCountries.length) {
-      query += ` AND ${excludeCountries.map((iso) => `NOT country:="${iso}"`).join(' AND ')}`;
-    } else {
-      query += ` AND (${dealerIdstores.map((id) => `idstore:="${id}"`).join(' OR ')})`;
-    }
-    return query;
+    return `country:="${countryIso}"`;
   }
 
   if (!excludeCountries.length && !dealerIdstores.length) {
     return `NOT country:="${countryIso}"`;
   }
 
-  let query = `NOT country:="${countryIso}"`;
   if (excludeCountries.length && dealerIdstores.length) {
-    const countryParts = excludeCountries.map((iso) => `NOT country:="${iso}"`).join(' AND ');
+    const countryParts = [...excludeCountries, countryIso].map((iso) => `NOT country:="${iso}"`).join(' AND ');
     const idParts = dealerIdstores.map((id) => `idstore:="${id}"`).join(' OR ');
-    query += ` AND (${countryParts} OR ${idParts})`;
-  } else if (excludeCountries.length) {
-    query += ` AND ${excludeCountries.map((iso) => `NOT country:="${iso}"`).join(' AND ')}`;
-  } else {
-    query += ` AND (${dealerIdstores.map((id) => `idstore:="${id}"`).join(' OR ')})`;
+    return `(${countryParts}) OR (${idParts})`;
   }
-  return query;
+
+  if (excludeCountries.length) {
+    return [...excludeCountries, countryIso].map((iso) => `NOT country:="${iso}"`).join(' AND ');
+  }
+
+  return `NOT country:="${countryIso}"`;
 }
 
 const TRANSLATIONS = {
@@ -184,6 +217,24 @@ const TRANSLATIONS = {
     pt: 'Outros Revendedores',
     nl: 'Andere Dealers',
     ja: 'その他のディーラー',
+  },
+};
+
+const REGION_TRANSLATIONS = {
+  africa: {
+    en: 'Africa', fr: 'Afrique', it: 'Africa', es: 'África', de: 'Afrika', pt: 'África', nl: 'Afrika', ja: 'アフリカ',
+  },
+  americas: {
+    en: 'Americas', fr: 'Amériques', it: 'Americhe', es: 'Américas', de: 'Amerika', pt: 'Américas', nl: 'Amerika', ja: 'アメリカ',
+  },
+  asia: {
+    en: 'Asia', fr: 'Asie', it: 'Asia', es: 'Asia', de: 'Asien', pt: 'Ásia', nl: 'Azië', ja: 'アジア',
+  },
+  europe: {
+    en: 'Europe', fr: 'Europe', it: 'Europa', es: 'Europa', de: 'Europa', pt: 'Europa', nl: 'Europa', ja: 'ヨーロッパ',
+  },
+  oceania: {
+    en: 'Oceania', fr: 'Océanie', it: 'Oceania', es: 'Oceanía', de: 'Ozeanien', pt: 'Oceania', nl: 'Oceanië', ja: 'オセアニア',
   },
 };
 
@@ -206,101 +257,86 @@ function decorateGlobalTitle(block) {
   block.append(heading);
 }
 
-async function decoratePriorityDealers(block) {
-  const config = getConfig(block);
-  const apiKey = config.woosmapkey || '';
-
-  if (!apiKey) return;
-
-  const priorityCountries = parseList(config['priority-dealers']);
-  const excludeCountries = parseList(config['exclude-dealers']);
-  const dealerIdstores = parseList(config.dealer_idstore);
-  const { langCode } = getUrlParams();
-
-  block.textContent = '';
-
-  const container = createElement('div', { classes: 'dealers-container' });
-  const loading = createElement('div', { classes: 'dealers-loading' });
-  loading.textContent = '...';
-  container.append(loading);
-  block.append(container);
-
-  const hasPriority = priorityCountries.length > 0;
-  const hasIdstores = dealerIdstores.length > 0;
-  const hasExcludes = excludeCountries.length > 0;
-  const nothingConfigured = !hasPriority && !hasIdstores && !hasExcludes;
-
-  if (nothingConfigured) {
-    const allStores = await fetchDealers(apiKey, '');
-    loading.remove();
-    const sorted = sortStores(allStores, false, langCode);
-    const grid = createElement('div', { classes: 'dealers-grid' });
-    sorted.forEach((store) => grid.append(buildDealerCard(store, langCode)));
-    container.append(grid);
-    return;
-  }
-
-  const priorityQuery = hasPriority
-    ? priorityCountries.map((iso) => `country:="${iso}"`).join(' OR ')
-    : '';
-
-  const idstoreQuery = hasIdstores
-    ? dealerIdstores.map((id) => `idstore:="${id}"`).join(' OR ')
-    : '';
-
-  const allExcluded = [...new Set([...priorityCountries, ...excludeCountries])];
-  const remainingQuery = allExcluded.length
-    ? allExcluded.map((iso) => `NOT country:="${iso}"`).join(' AND ')
-    : '';
-
-  const [priorityStores, idStores, remainingStores] = await Promise.all([
-    hasPriority ? fetchDealers(apiKey, priorityQuery) : Promise.resolve([]),
-    hasIdstores ? fetchDealers(apiKey, idstoreQuery) : Promise.resolve([]),
-    remainingQuery ? fetchDealers(apiKey, remainingQuery) : fetchDealers(apiKey, ''),
-  ]);
-
-  loading.remove();
-
-  const idstoreIds = new Set(dealerIdstores);
-
-  if (hasPriority && priorityStores.length) {
-    const sortedPriority = sortStores(priorityStores, false, langCode);
-    const priorityGrid = createElement('div', { classes: ['dealers-grid', 'dealers-grid-priority'] });
-    sortedPriority.forEach((store) => priorityGrid.append(buildDealerCard(store, langCode)));
-    container.append(priorityGrid);
-  }
-
-  if (hasIdstores && idStores.length) {
-    const filteredIdStores = idStores.filter(
-      (store) => !priorityCountries.includes(
-        (store.properties?.address?.country_code || '').toLowerCase(),
-      ),
-    );
-    if (filteredIdStores.length) {
-      const sortedId = sortStores(filteredIdStores, false, langCode);
-      const idGrid = createElement('div', { classes: ['dealers-grid', 'dealers-grid-idstore'] });
-      sortedId.forEach((store) => idGrid.append(buildDealerCard(store, langCode)));
-      container.append(idGrid);
-    }
-  }
-
-  const seenIds = new Set();
-  priorityStores.forEach((s) => {
-    if (s.properties?.store_id) seenIds.add(s.properties.store_id);
+function groupStoresByRegionAndCountry(stores, langCode) {
+  const regionMap = {};
+  stores.forEach((store) => {
+    const code = (store.properties?.address?.country_code || '').toLowerCase();
+    const region = getRegionForCountry(code);
+    if (!region) return;
+    if (!regionMap[region]) regionMap[region] = {};
+    const countryName = getLocalizedCountryName(code, langCode);
+    if (!regionMap[region][countryName]) regionMap[region][countryName] = [];
+    regionMap[region][countryName].push(store);
   });
-  idStores.forEach((s) => {
-    if (s.properties?.store_id) seenIds.add(s.properties.store_id);
+  return regionMap;
+}
+
+function getLocalizedRegionName(region, langCode) {
+  const lang = langCode.toLowerCase();
+  return REGION_TRANSLATIONS[region]?.[lang]
+    || REGION_TRANSLATIONS[region]?.en
+    || region.charAt(0).toUpperCase() + region.slice(1);
+}
+
+function buildRegionTabs(regionMap, langCode, container, userCountryIso) {
+  const userRegion = userCountryIso ? getRegionForCountry(userCountryIso) : null;
+  const sorted = Object.keys(regionMap).sort();
+  const regionNames = userRegion && sorted.includes(userRegion)
+    ? [userRegion, ...sorted.filter((r) => r !== userRegion)]
+    : sorted;
+
+  const tabNav = createElement('div', { classes: 'dealers-tabs' });
+  const tabContent = createElement('div', { classes: 'dealers-tab-content' });
+
+  regionNames.forEach((region, index) => {
+    const tabBtn = createElement('button', { classes: 'dealers-tab-btn' });
+    tabBtn.textContent = getLocalizedRegionName(region, langCode);
+    tabBtn.setAttribute('data-region', region);
+    if (index === 0) tabBtn.classList.add('active');
+    tabBtn.addEventListener('click', () => {
+      tabNav.querySelectorAll('.dealers-tab-btn').forEach((b) => b.classList.remove('active'));
+      tabBtn.classList.add('active');
+      tabContent.querySelectorAll('.dealers-tab-panel').forEach((p) => p.classList.remove('active'));
+      tabContent.querySelector(`[data-region="${region}"]`).classList.add('active');
+    });
+    tabNav.append(tabBtn);
   });
 
-  const dedupedRemaining = remainingStores.filter(
-    (store) => !seenIds.has(store.properties?.store_id)
-      && !idstoreIds.has(store.properties?.store_id),
-  );
+  regionNames.forEach((region, index) => {
+    const panel = createElement('div', { classes: 'dealers-tab-panel' });
+    panel.setAttribute('data-region', region);
+    if (index === 0) panel.classList.add('active');
 
-  const sorted = sortStores(dedupedRemaining, false, langCode);
-  const grid = createElement('div', { classes: 'dealers-grid' });
-  sorted.forEach((store) => grid.append(buildDealerCard(store, langCode)));
-  container.append(grid);
+    const countries = Object.keys(regionMap[region]).sort();
+    countries.forEach((countryName) => {
+      const dealers = regionMap[region][countryName];
+      const sortedDealers = [...dealers].sort((a, b) => {
+        const nameA = (a.properties?.name || '').toUpperCase();
+        const nameB = (b.properties?.name || '').toUpperCase();
+        return nameA.localeCompare(nameB);
+      });
+
+      const details = document.createElement('details');
+      details.classList.add('dealers-accordion');
+
+      const summary = document.createElement('summary');
+      summary.classList.add('dealers-accordion-header');
+      summary.textContent = countryName;
+      details.append(summary);
+
+      const grid = createElement('div', { classes: 'dealers-grid' });
+      sortedDealers.forEach((store) => {
+        grid.append(buildDealerCard(store));
+      });
+      details.append(grid);
+      panel.append(details);
+    });
+
+    tabContent.append(panel);
+  });
+
+  container.append(tabNav);
+  container.append(tabContent);
 }
 
 export default async function decorate(block) {
@@ -315,6 +351,8 @@ export default async function decorate(block) {
   }
 
   const isCountryDealers = block.classList.contains('country-dealers');
+  const isGlobalDealers = block.classList.contains('global-dealers');
+  const isBaseVariant = !isCountryDealers && !isGlobalDealers;
   const config = getConfig(block);
   const apiKey = config.woosmapkey || '';
 
@@ -326,8 +364,6 @@ export default async function decorate(block) {
   const dealerIdstores = parseList(config.dealer_idstore);
   const { countryIso, langCode } = getUrlParams();
 
-  const query = buildQuery(isCountryDealers, countryIso, excludeCountries, dealerIdstores);
-
   block.textContent = '';
 
   const container = createElement('div', { classes: 'dealers-container' });
@@ -336,32 +372,37 @@ export default async function decorate(block) {
   container.append(loading);
   block.append(container);
 
-  const hasPriority = priorityCountries.length > 0;
-  const priorityQuery = hasPriority
-    ? priorityCountries.map((iso) => `country:="${iso}"`).join(' OR ')
-    : '';
+  let stores;
 
-  const [priorityStores, globalStores] = await Promise.all([
-    hasPriority ? fetchDealers(apiKey, priorityQuery) : Promise.resolve([]),
-    fetchDealers(apiKey, query),
-  ]);
+  if (isBaseVariant) {
+    const query = buildBaseQuery(excludeCountries, dealerIdstores);
+    stores = await fetchDealers(apiKey, query);
+  } else {
+    const query = buildQuery(isCountryDealers, countryIso, excludeCountries, dealerIdstores);
+    stores = await fetchDealers(apiKey, query);
+  }
 
   loading.remove();
 
-  if (hasPriority && priorityStores.length) {
-    const sortedPriority = sortStores(priorityStores, false, langCode);
-    const priorityGrid = createElement('div', { classes: ['dealers-grid', 'dealers-grid-priority'] });
-    sortedPriority.forEach((store) => {
-      priorityGrid.append(buildDealerCard(store, langCode));
+  if (isBaseVariant) {
+    const regionMap = groupStoresByRegionAndCountry(stores, langCode);
+    buildRegionTabs(regionMap, langCode, container, countryIso);
+  } else if (isGlobalDealers) {
+    const regionMap = groupStoresByRegionAndCountry(stores, langCode);
+    buildRegionTabs(regionMap, langCode, container, countryIso);
+  } else if (isCountryDealers) {
+    const countryName = getLocalizedCountryName(countryIso, langCode);
+    if (countryName) {
+      const heading = createElement('h2', { classes: 'dealers-country-heading' });
+      heading.textContent = countryName;
+      container.append(heading);
+    }
+
+    const sorted = sortStores(stores, true, langCode);
+    const grid = createElement('div', { classes: 'dealers-grid' });
+    sorted.forEach((store) => {
+      grid.append(buildDealerCard(store));
     });
-    container.append(priorityGrid);
+    container.append(grid);
   }
-
-  const sorted = sortStores(globalStores, isCountryDealers, langCode);
-  const grid = createElement('div', { classes: 'dealers-grid' });
-  sorted.forEach((store) => {
-    grid.append(buildDealerCard(store, langCode));
-  });
-
-  container.append(grid);
 }
