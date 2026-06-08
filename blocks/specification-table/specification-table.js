@@ -71,6 +71,40 @@ function bikeIdToFileName(bikeId) {
 }
 
 /**
+ * Maps bike IDs to their display names.
+ */
+function bikeIdToDisplayName(bikeId) {
+  const nameMap = {
+    kb4: 'KB4',
+    kb4rc: 'KB4RC',
+    kb998: 'KB998 Rimini',
+    kb399: 'KB399',
+    bx450: 'BX450',
+    bx4502026: 'BX450 2026',
+    tesih2: 'TESI H2',
+    tera: 'Tesi H2 TERA',
+  };
+  return nameMap[bikeId] || bikeId.toUpperCase();
+}
+
+/**
+ * Returns the translated "Technical Information" heading for the current language.
+ */
+function getTechInfoLabel(lang) {
+  const labels = {
+    en: 'Technical Information',
+    it: 'Informazioni Tecniche',
+    fr: 'Informations techniques',
+    'fr-ca': 'Informations techniques',
+    de: 'Technische Informationen',
+    ja: '主要諸元',
+    es: 'Información técnica',
+    nl: 'Technische Specificatie',
+  };
+  return labels[lang] || labels.en;
+}
+
+/**
  * Fetches specification data from the JSON sheet.
  */
 async function fetchSpecData(bikeId) {
@@ -83,11 +117,12 @@ async function fetchSpecData(bikeId) {
 /**
  * Renders spec data into the block DOM matching the original structure.
  */
-function renderSpecData(block, specData, heading) {
+function renderSpecData(block, specData, bikeName, sheetLang) {
   block.innerHTML = '';
 
   const tableHeader = document.createElement('div');
-  tableHeader.innerHTML = `<div>${heading}</div>`;
+  const techLabel = getTechInfoLabel(sheetLang);
+  tableHeader.innerHTML = `<div><h3 class="h3 st-heading">${bikeName}</h3><hr><p>${techLabel}</p></div>`;
   block.append(tableHeader);
 
   const dataContainer = document.createElement('div');
@@ -207,9 +242,6 @@ export default async function decorate(block) {
     return;
   }
 
-  const headingEl = block.querySelector('h1, h2, h3, h4, h5, h6');
-  const heading = headingEl ? headingEl.outerHTML : '';
-
   try {
     const allData = await fetchSpecData(bikeId);
     if (!allData) {
@@ -226,7 +258,8 @@ export default async function decorate(block) {
       return;
     }
 
-    renderSpecData(block, langData.data, heading);
+    const bikeName = bikeIdToDisplayName(bikeId);
+    renderSpecData(block, langData.data, bikeName, sheetLang);
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error('specification-table: failed to load spec data', e);
