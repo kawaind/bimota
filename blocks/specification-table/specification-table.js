@@ -1,22 +1,29 @@
 /**
- * Resolves the language code from the current page URL path.
+ * Extracts country and language from the current page URL path.
  * URL pattern: /{country}/{language}/page
  */
-function getLanguage() {
+function getLocaleInfo() {
   const pathTokens = window.location.pathname.split('/');
-  if (pathTokens.length >= 3) {
-    return pathTokens[2];
-  }
-  return 'en';
+  return {
+    country: pathTokens.length >= 2 ? pathTokens[1] : '',
+    language: pathTokens.length >= 3 ? pathTokens[2] : 'en',
+  };
 }
 
 /**
- * Resolves the best matching sheet language from the available sheets.
- * Tries in order: exact match (e.g. "fr-ca"), base language (e.g. "fr"), then "en".
- * This means any new country/language added to the site is automatically resolved
- * without needing code changes.
+ * Resolves the best matching sheet from the available sheets.
+ * Tries in order:
+ *   1. Country code (e.g. "za") — for country-specific overrides
+ *   2. Exact language match (e.g. "fr-ca")
+ *   3. Base language (e.g. "fr" from "fr-ca")
+ *   4. Fallback to "en"
+ *
+ * This means authors can add a new country tab to the spreadsheet
+ * and it will be picked up automatically without code changes.
  */
-function resolveSheetLanguage(lang, availableSheets) {
+function resolveSheetLanguage(country, lang, availableSheets) {
+  if (country && availableSheets[country]) return country;
+
   if (availableSheets[lang]) return lang;
 
   const baseLang = lang.split('-')[0];
@@ -236,8 +243,8 @@ export default async function decorate(block) {
       return;
     }
 
-    const lang = getLanguage();
-    const sheetLang = resolveSheetLanguage(lang, allData);
+    const { country, language } = getLocaleInfo();
+    const sheetLang = resolveSheetLanguage(country, language, allData);
     const langData = allData[sheetLang] || allData.en;
 
     if (!langData || !langData.data || langData.data.length === 0) {
