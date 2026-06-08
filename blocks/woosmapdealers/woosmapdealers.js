@@ -42,11 +42,16 @@ function getRegionForCountry(countryCode) {
   return region || null;
 }
 
+const URL_TO_ISO = {
+  uk: 'gb',
+};
+
 function getUrlParams() {
   const segments = window.location.pathname.split('/').filter(Boolean);
-  const countryIso = (segments[0] || '').toLowerCase();
+  const urlCountry = (segments[0] || '').toLowerCase();
+  const countryIso = URL_TO_ISO[urlCountry] || urlCountry;
   const langSegment = segments[1] || '';
-  const langCode = langSegment.split('-')[0] || countryIso;
+  const langCode = langSegment.split('-')[0] || urlCountry;
   return { countryIso, langCode };
 }
 
@@ -337,6 +342,39 @@ function buildRegionTabs(regionMap, langCode, container, userCountryIso) {
 
   container.append(tabNav);
   container.append(tabContent);
+}
+
+async function decoratePriorityDealers(block) {
+  const config = getConfig(block);
+  const apiKey = config.woosmapkey || '';
+  if (!apiKey) return;
+
+  const priorityCountries = parseList(config.priority_countries || config['priority-dealers']);
+  const dealerIdstores = parseList(config.dealer_idstore);
+  const { langCode } = getUrlParams();
+
+  block.textContent = '';
+  const container = createElement('div', { classes: 'dealers-container' });
+  block.append(container);
+
+  let query = '';
+  if (priorityCountries.length && dealerIdstores.length) {
+    const countryParts = priorityCountries.map((iso) => `country:="${iso}"`).join(' OR ');
+    const idParts = dealerIdstores.map((id) => `idstore:="${id}"`).join(' OR ');
+    query = `(${countryParts}) OR (${idParts})`;
+  } else if (priorityCountries.length) {
+    query = priorityCountries.map((iso) => `country:="${iso}"`).join(' OR ');
+  } else if (dealerIdstores.length) {
+    query = dealerIdstores.map((id) => `idstore:="${id}"`).join(' OR ');
+  }
+
+  const stores = await fetchDealers(apiKey, query);
+  const sorted = sortStores(stores, false, langCode);
+  const grid = createElement('div', { classes: 'dealers-grid' });
+  sorted.forEach((store) => {
+    grid.append(buildDealerCard(store));
+  });
+  container.append(grid);
 }
 
 export default async function decorate(block) {
