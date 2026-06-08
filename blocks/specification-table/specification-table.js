@@ -229,6 +229,8 @@ function renderStatic(block) {
 }
 
 export default async function decorate(block) {
+  if (!block) return;
+
   const bikeId = getBikeId(block);
 
   if (!bikeId) {
