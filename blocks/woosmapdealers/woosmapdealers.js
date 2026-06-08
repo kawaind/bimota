@@ -223,6 +223,16 @@ const TRANSLATIONS = {
     nl: 'Andere Dealers',
     ja: 'その他のディーラー',
   },
+  dealers: {
+    en: 'Dealers',
+    fr: 'Concessionnaires',
+    it: 'Concessionari',
+    es: 'Distribuidores',
+    de: 'Händler',
+    pt: 'Revendedores',
+    nl: 'Dealers',
+    ja: 'ディーラー',
+  },
 };
 
 const REGION_TRANSLATIONS = {
@@ -242,6 +252,14 @@ const REGION_TRANSLATIONS = {
     en: 'Oceania', fr: 'Océanie', it: 'Oceania', es: 'Oceanía', de: 'Ozeanien', pt: 'Oceania', nl: 'Oceanië', ja: 'オセアニア',
   },
 };
+
+function updatePageTitle(langCode) {
+  const lang = langCode.toLowerCase();
+  const translated = TRANSLATIONS.dealers?.[lang];
+  if (translated) {
+    document.title = translated;
+  }
+}
 
 function translateCustomText(text, langCode) {
   const key = text.toLowerCase();
@@ -401,6 +419,8 @@ export default async function decorate(block) {
   const excludeCountries = [...new Set([...authorExcludes, ...priorityCountries])];
   const dealerIdstores = parseList(config.dealer_idstore);
   const { countryIso, langCode } = getUrlParams();
+
+  updatePageTitle(langCode);
 
   block.textContent = '';
 

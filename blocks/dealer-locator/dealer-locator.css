@@ -2,6 +2,7 @@
   height: 400px;
   position: relative;
   overflow: hidden;
+  z-index: 1;
 }
 
 .dealer-locator.height-big .dealer-locator-map {
