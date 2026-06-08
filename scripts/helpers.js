@@ -240,11 +240,14 @@ export const autoScrollSlidesWhenInView = (block, {
 };
 
 export const getLocale = () => {
-  const [,country, language] = window.location.pathname.split('/')
+  const [, country, langSegment] = window.location.pathname.split('/');
+  const language = langSegment.includes('-') ? langSegment.split('-')[0] : langSegment;
   let locale = `${language}_${country.toUpperCase()}`;
-  
+
   if (locale === 'ja_JP') {
     locale = 'ja';
   }
-  return { country, language, locale }
-}
+  return {
+    country, language, langSegment, locale,
+  };
+};

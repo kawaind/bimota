@@ -11,6 +11,7 @@ import {
   loadCSS,
   sampleRUM,
   fetchPlaceholders,
+  getRootPath,
 } from './aem.js';
 import { customDecoreateIcons } from './decorate-icon-helper.js';
 
@@ -122,7 +123,9 @@ function setMainPosition(main) {
  * @param {Element} doc The container element
  */
 async function loadEager(doc) {
-  document.documentElement.lang = 'en';
+  const pathTokens = window.location.pathname.split('/');
+  const lang = pathTokens.length >= 3 ? pathTokens[2].split('-')[0] : 'en';
+  document.documentElement.lang = lang;
   decorateTemplateAndTheme();
   const main = doc.querySelector('main');
   if (main) {
@@ -173,7 +176,33 @@ function loadDelayed() {
   // load anything that can be postponed to the latest here
 }
 
+async function fetch404Content(path) {
+  const resp = await fetch(`${path}.plain.html`);
+  if (!resp.ok) return null;
+  return resp.text();
+}
+
+async function load404Fragment() {
+  if (!window.isErrorPage) return;
+  const main = document.querySelector('main');
+  const rootPath = getRootPath();
+  let html = null;
+
+  if (rootPath) {
+    html = await fetch404Content(`${rootPath}/404`);
+  }
+
+  if (!html) {
+    html = await fetch404Content('/fragments/404');
+  }
+
+  if (html) {
+    main.innerHTML = html;
+  }
+}
+
 async function loadPage() {
+  await load404Fragment();
   await loadEager(document);
   await loadLazy(document);
   loadDelayed();

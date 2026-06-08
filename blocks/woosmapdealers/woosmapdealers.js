@@ -345,6 +345,11 @@ export default async function decorate(block) {
     return;
   }
 
+  if (block.classList.contains('priority-dealers')) {
+    await decoratePriorityDealers(block);
+    return;
+  }
+
   const isCountryDealers = block.classList.contains('country-dealers');
   const isGlobalDealers = block.classList.contains('global-dealers');
   const isBaseVariant = !isCountryDealers && !isGlobalDealers;
@@ -353,7 +358,9 @@ export default async function decorate(block) {
 
   if (!apiKey) return;
 
-  const excludeCountries = parseList(config.exclude_countries);
+  const priorityCountries = parseList(config.priority_countries || config['priority-dealers']);
+  const authorExcludes = parseList(config.exclude_countries || config['exclude-dealers']);
+  const excludeCountries = [...new Set([...authorExcludes, ...priorityCountries])];
   const dealerIdstores = parseList(config.dealer_idstore);
   const { countryIso, langCode } = getUrlParams();
 
