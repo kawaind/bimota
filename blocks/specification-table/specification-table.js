@@ -148,17 +148,26 @@ function renderSpecData(block, specData, heading) {
  */
 function renderStatic(block) {
   const tableHeader = block.querySelector(':scope > div > div');
-  tableHeader.querySelector('h1, h2, h3, h4, h5, h6').classList.add('h3', 'st-heading');
+  if (!tableHeader) return;
+
+  const headingEl = tableHeader.querySelector('h1, h2, h3, h4, h5, h6');
+  if (headingEl) headingEl.classList.add('h3', 'st-heading');
+
+  const dataRows = block.querySelectorAll(':scope > div:not(:first-child)');
+  if (dataRows.length === 0) return;
 
   const data = [];
 
-  block.querySelectorAll(':scope > div:not(:first-child)').forEach((dataRow) => {
+  dataRows.forEach((dataRow) => {
     const [category, label, value] = dataRow.querySelectorAll(':scope > div');
+    if (!label || !value) return;
 
-    if (category.textContent.trim()) {
+    if (category && category.textContent.trim()) {
       category.classList.add('h6', 'st-category');
       data.push({ category, categoryData: [] });
     }
+
+    if (data.length === 0) return;
 
     label.classList.add('st-label');
     value.classList.add('st-value');
@@ -212,13 +221,15 @@ export default async function decorate(block) {
     const sheetLang = resolveSheetLanguage(lang);
     const langData = allData[sheetLang] || allData.en;
 
-    if (!langData || !langData.data) {
+    if (!langData || !langData.data || langData.data.length === 0) {
       renderStatic(block);
       return;
     }
 
     renderSpecData(block, langData.data, heading);
-  } catch {
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error('specification-table: failed to load spec data', e);
     renderStatic(block);
   }
 }
