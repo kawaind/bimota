@@ -126,6 +126,11 @@ async function loadEager(doc) {
   const pathTokens = window.location.pathname.split('/');
   const lang = pathTokens.length >= 3 ? pathTokens[2].split('-')[0] : 'en';
   document.documentElement.lang = lang;
+
+  if (pathTokens[1] === 'us' && pathTokens[2] === 'en-us') {
+    document.body.classList.add('locale-us');
+  }
+
   decorateTemplateAndTheme();
   const main = doc.querySelector('main');
   if (main) {

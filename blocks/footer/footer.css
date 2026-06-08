@@ -117,12 +117,18 @@ footer {
 
 .footer .section .default-content-wrapper ul {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
+  flex-direction: row;
+  gap: 40px;
   justify-content: center;
   padding: 0;
   margin-bottom: 0;
   list-style: none;
+}
+
+.locale-us .footer .section .default-content-wrapper ul {
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-start;
 }
 
 .footer .section:not(.columns-container) .default-content-wrapper {
@@ -260,8 +266,9 @@ footer {
     justify-content: center;
   }
 
-  .footer .section .default-content-wrapper ul {
+  .locale-us .footer .section .default-content-wrapper ul {
     flex-direction: row;
     gap: 40px;
+    align-items: center;
   }
 }
