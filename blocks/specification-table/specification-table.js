@@ -1,7 +1,6 @@
 /**
  * Resolves the language code from the current page URL path.
  * URL pattern: /{country}/{language}/page
- * Maps compound locales (en-be, fr-ca, nl-be) to their language key used in spec sheets.
  */
 function getLanguage() {
   const pathTokens = window.location.pathname.split('/');
@@ -12,33 +11,18 @@ function getLanguage() {
 }
 
 /**
- * Maps the page language to the spec sheet language key.
- * Spec sheets use base language codes (en, fr, de, it, ja, es, nl)
- * with exceptions for regional variants (fr-ca).
+ * Resolves the best matching sheet language from the available sheets.
+ * Tries in order: exact match (e.g. "fr-ca"), base language (e.g. "fr"), then "en".
+ * This means any new country/language added to the site is automatically resolved
+ * without needing code changes.
  */
-function resolveSheetLanguage(lang) {
-  const langMap = {
-    en: 'en',
-    'en-be': 'en',
-    'en-lu': 'en',
-    'en-nl': 'en',
-    'en-ca': 'en',
-    'en-us': 'en',
-    'en-mx': 'en',
-    it: 'it',
-    fr: 'fr',
-    'fr-be': 'fr',
-    'fr-lu': 'fr',
-    'fr-ca': 'fr-ca',
-    de: 'de',
-    ja: 'ja',
-    es: 'es',
-    'es-mx': 'es',
-    nl: 'nl',
-    'nl-be': 'nl',
-    'nl-nl': 'nl',
-  };
-  return langMap[lang] || 'en';
+function resolveSheetLanguage(lang, availableSheets) {
+  if (availableSheets[lang]) return lang;
+
+  const baseLang = lang.split('-')[0];
+  if (availableSheets[baseLang]) return baseLang;
+
+  return 'en';
 }
 
 /**
@@ -89,19 +73,22 @@ function bikeIdToDisplayName(bikeId) {
 
 /**
  * Returns the translated "Technical Information" heading for the current language.
+ * Resolves by exact match first, then base language, then English fallback.
  */
 function getTechInfoLabel(lang) {
   const labels = {
     en: 'Technical Information',
     it: 'Informazioni Tecniche',
     fr: 'Informations techniques',
-    'fr-ca': 'Informations techniques',
     de: 'Technische Informationen',
     ja: '主要諸元',
     es: 'Información técnica',
     nl: 'Technische Specificatie',
+    pt: 'Informações Técnicas',
   };
-  return labels[lang] || labels.en;
+  if (labels[lang]) return labels[lang];
+  const baseLang = lang.split('-')[0];
+  return labels[baseLang] || labels.en;
 }
 
 /**
@@ -250,7 +237,7 @@ export default async function decorate(block) {
     }
 
     const lang = getLanguage();
-    const sheetLang = resolveSheetLanguage(lang);
+    const sheetLang = resolveSheetLanguage(lang, allData);
     const langData = allData[sheetLang] || allData.en;
 
     if (!langData || !langData.data || langData.data.length === 0) {
