@@ -1,6 +1,17 @@
 {
+  ":type": "multi-sheet",
+  ":names": [
+    "en",
+    "it",
+    "fr",
+    "de",
+    "es",
+    "nl"
+  ],
   "en": {
     "total": 42,
+    "offset": 0,
+    "limit": 42,
     "data": [
       {
         "Category": "Dimensions:",
@@ -216,6 +227,8 @@
   },
   "it": {
     "total": 39,
+    "offset": 0,
+    "limit": 39,
     "data": [
       {
         "Category": "Dimensioni",
@@ -416,6 +429,8 @@
   },
   "fr": {
     "total": 21,
+    "offset": 0,
+    "limit": 21,
     "data": [
       {
         "Category": "Dimensions :",
@@ -526,6 +541,8 @@
   },
   "de": {
     "total": 42,
+    "offset": 0,
+    "limit": 42,
     "data": [
       {
         "Category": "Abmessungen:",
@@ -741,6 +758,8 @@
   },
   "es": {
     "total": 42,
+    "offset": 0,
+    "limit": 42,
     "data": [
       {
         "Category": "Dimensiones:",
@@ -956,6 +975,8 @@
   },
   "nl": {
     "total": 21,
+    "offset": 0,
+    "limit": 21,
     "data": [
       {
         "Category": "Afmetingen",

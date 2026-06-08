@@ -1,6 +1,17 @@
 {
+  ":type": "multi-sheet",
+  ":names": [
+    "en",
+    "it",
+    "fr",
+    "de",
+    "es",
+    "nl"
+  ],
   "en": {
     "total": 43,
+    "offset": 0,
+    "limit": 43,
     "data": [
       {
         "Category": "Technical Information",
@@ -221,6 +232,8 @@
   },
   "it": {
     "total": 43,
+    "offset": 0,
+    "limit": 43,
     "data": [
       {
         "Category": "Informazioni Tecniche",
@@ -441,6 +454,8 @@
   },
   "fr": {
     "total": 43,
+    "offset": 0,
+    "limit": 43,
     "data": [
       {
         "Category": "Informations techniques",
@@ -661,6 +676,8 @@
   },
   "de": {
     "total": 43,
+    "offset": 0,
+    "limit": 43,
     "data": [
       {
         "Category": "Technische Informationen",
@@ -881,6 +898,8 @@
   },
   "es": {
     "total": 37,
+    "offset": 0,
+    "limit": 37,
     "data": [
       {
         "Category": "Información técnica",
@@ -1071,6 +1090,8 @@
   },
   "nl": {
     "total": 43,
+    "offset": 0,
+    "limit": 43,
     "data": [
       {
         "Category": "Technische Specificaties",
