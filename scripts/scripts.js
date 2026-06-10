@@ -12,6 +12,7 @@ import {
   sampleRUM,
   fetchPlaceholders,
   getRootPath,
+  toClassName,
 } from './aem.js';
 import { customDecoreateIcons } from './decorate-icon-helper.js';
 
@@ -74,6 +75,59 @@ export function customDecorateBlocks(main) {
     if (block.classList.contains('full-width')) {
       block.parentElement.classList.add('wrapper-full-width');
     }
+  });
+}
+
+function decorateAnchors(main) {
+  // Auto-generate IDs on all headings for anchor linking
+  const idCounts = {};
+  main.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach((heading) => {
+    if (!heading.id) {
+      let id = toClassName(heading.textContent);
+      if (idCounts[id]) {
+        idCounts[id] += 1;
+        id = `${id}-${idCounts[id]}`;
+      } else {
+        idCounts[id] = 1;
+      }
+      heading.id = id;
+    }
+  });
+
+  // Convert explicit anchor markers: a link where href is just "#name"
+  // and the visible text matches the hash (e.g. text="#contact" or "contact")
+  main.querySelectorAll('a[href^="#"]').forEach((link) => {
+    const hash = link.getAttribute('href').substring(1);
+    const text = link.textContent.trim().replace(/^#/, '');
+    if (hash && text === hash) {
+      const parent = link.parentElement;
+      const isOnlyChild = parent && parent.childNodes.length === 1
+        && (parent.tagName === 'P' || parent.tagName === 'DIV');
+
+      // Create an invisible anchor point
+      const anchor = document.createElement('span');
+      anchor.id = hash;
+      anchor.className = 'anchor-point';
+
+      if (isOnlyChild) {
+        parent.replaceWith(anchor);
+      } else {
+        link.replaceWith(anchor);
+      }
+    }
+  });
+
+  // Smooth scroll for same-page anchor links
+  main.querySelectorAll('a[href^="#"]').forEach((link) => {
+    link.addEventListener('click', (e) => {
+      const targetId = link.getAttribute('href').substring(1);
+      const target = document.getElementById(targetId);
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth' });
+        window.history.pushState(null, '', `#${targetId}`);
+      }
+    });
   });
 }
 
@@ -154,6 +208,8 @@ async function loadEager(doc) {
 async function loadLazy(doc) {
   const main = doc.querySelector('main');
   await loadSections(main);
+
+  decorateAnchors(main);
 
   const { hash } = window.location;
   const element = hash ? doc.getElementById(hash.substring(1)) : false;
