@@ -48,7 +48,13 @@ if (!window.location.pathname.includes('srcdoc')
 
   let cookieBannerLocale = locale;
   if (language === 'en') {
-    cookieBannerLocale = country === 'us' && langSegment === 'en-us' ? 'en_US' : 'en_GB';
+    if (country === 'us' && langSegment === 'en-us') {
+      cookieBannerLocale = 'en_US';
+    } else if (country === 'au') {
+      cookieBannerLocale = 'en_AU';
+    } else {
+      cookieBannerLocale = 'en_GB';
+    }
   }
 
   await fetch('/cookies-links.json')
@@ -56,7 +62,27 @@ if (!window.location.pathname.includes('srcdoc')
     .then((response) => {
       cookiesLinks = response.data;
     });
-  window.addEventListener('ccm19WidgetLoaded', updateCookieLinks.bind(null, country, langSegment, cookiesLinks));
+  const isUsSite = country === 'us' && langSegment === 'en-us';
+
+  if (isUsSite) {
+    const style = document.createElement('style');
+    style.textContent = '.ccm-settings-summoner { display: none !important; }';
+    document.head.appendChild(style);
+  }
+
+  window.addEventListener('ccm19WidgetLoaded', () => {
+    updateCookieLinks(country, langSegment, cookiesLinks);
+  });
+
+  document.addEventListener('click', (e) => {
+    const link = e.target.closest('a[href="#cookie-settings"]');
+    if (link) {
+      e.preventDefault();
+      if (window.CCM && window.CCM.openControlPanel) {
+        window.CCM.openControlPanel();
+      }
+    }
+  });
 
   await loadScript(`https://cloud.ccm19.de/app.js?apiKey=c7d2f47f3259dd5a137414a641f559ee48d81e684564ca8f&amp;domain=67e136a8868b63fcba0a4022&amp;lang=${cookieBannerLocale}`, {
     type: 'text/javascript',

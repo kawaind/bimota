@@ -117,10 +117,18 @@ footer {
 
 .footer .section .default-content-wrapper ul {
   display: flex;
+  flex-direction: row;
   gap: 40px;
   justify-content: center;
   padding: 0;
   margin-bottom: 0;
+  list-style: none;
+}
+
+.locale-us .footer .section .default-content-wrapper ul {
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-start;
 }
 
 .footer .section:not(.columns-container) .default-content-wrapper {
@@ -219,7 +227,18 @@ footer {
 }
 
 .cs-button-padding {
-  padding-top: 0px!important;
+  padding-top: 0!important;
+}
+
+/* When the copyright line is authored as its own section below the links,
+   collapse the doubled section padding so it sits directly under them
+   instead of being pushed away by a full section gap. */
+.locale-us .footer .section:has(.default-content-wrapper):has(+ .section .default-content-wrapper) .default-content-wrapper {
+  padding-bottom: 0;
+}
+
+.locale-us .footer .section:has(.default-content-wrapper) + .section:has(.default-content-wrapper) .default-content-wrapper {
+  padding-top: 24px;
 }
 
 @media (width >= 768px) {
@@ -256,5 +275,11 @@ footer {
 
   .footer .section:not(.columns-container) .default-content-wrapper {
     justify-content: center;
+  }
+
+  .locale-us .footer .section .default-content-wrapper ul {
+    flex-direction: row;
+    gap: 40px;
+    align-items: center;
   }
 }
