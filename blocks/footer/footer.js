@@ -3,6 +3,22 @@ import { loadFragment } from '../fragment/fragment.js';
 import { addTitleAttributeToIconLink } from '../../scripts/helpers.js';
 
 const ICON_TOKEN_REGEX = /:([A-Za-z0-9][A-Za-z0-9-]*):/g;
+const YEAR_TOKEN_REGEX = /\{year\}/gi;
+
+function replaceYearTokens(container) {
+  const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
+  const currentYear = String(new Date().getFullYear());
+
+  let currentNode = walker.nextNode();
+
+  while (currentNode) {
+    if (YEAR_TOKEN_REGEX.test(currentNode.nodeValue)) {
+      currentNode.nodeValue = currentNode.nodeValue.replace(YEAR_TOKEN_REGEX, currentYear);
+    }
+
+    currentNode = walker.nextNode();
+  }
+}
 
 function getIconClassName(icon) {
   return [...icon.classList].find((className) => className.startsWith('icon-'));
@@ -205,6 +221,9 @@ export default async function decorate(block) {
   const footer = document.createElement('div');
   while (fragment.firstElementChild) footer.append(fragment.firstElementChild);
 
+  // replace {year} tokens with the current year so the copyright stays current
+  replaceYearTokens(footer);
+
   // country selector changes
   const csIcon = footer.querySelector('[href="/#modal-country-selector"], [href="#modal-country-selector"]');
 
@@ -282,7 +301,7 @@ export default async function decorate(block) {
       textEl.append(...listItem.childNodes);
 
       // if the first child is an icon, move it back to the listItem
-      const firstChild = textEl.firstChild;
+      const { firstChild } = textEl;
 
       if (
         firstChild
