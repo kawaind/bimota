@@ -3,7 +3,7 @@ import { loadFragment } from '../fragment/fragment.js';
 import { addTitleAttributeToIconLink } from '../../scripts/helpers.js';
 
 const ICON_TOKEN_REGEX = /:([A-Za-z0-9][A-Za-z0-9-]*):/g;
-const YEAR_TOKEN_REGEX = /\{year\}/gi;
+const YEAR_TOKEN_REGEX = /\{\s*year\s*\}/gi;
 
 function replaceYearTokens(container) {
   const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
@@ -12,7 +12,7 @@ function replaceYearTokens(container) {
   let currentNode = walker.nextNode();
 
   while (currentNode) {
-    if (YEAR_TOKEN_REGEX.test(currentNode.nodeValue)) {
+    if (currentNode.nodeValue.includes('{')) {
       currentNode.nodeValue = currentNode.nodeValue.replace(YEAR_TOKEN_REGEX, currentYear);
     }
 
