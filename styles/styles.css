@@ -844,12 +844,7 @@ body.text-page main > .section:first-child > .default-content-wrapper:first-chil
   top: calc(-1 * var(--nav-height) - 10px);
 }
 
-main h1[id],
-main h2[id],
-main h3[id],
-main h4[id],
-main h5[id],
-main h6[id] {
+main .anchor-target {
   scroll-margin-top: calc(var(--nav-height) + 10px);
 }
 
