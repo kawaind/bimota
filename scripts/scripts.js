@@ -78,33 +78,65 @@ export function customDecorateBlocks(main) {
   });
 }
 
+// Hash prefixes reserved by other features (modals, block swapping) that must
+// not be treated as in-page anchor links.
+const RESERVED_HASH_PREFIXES = ['modal-', 'id-'];
+
+function isReservedHash(hash) {
+  return RESERVED_HASH_PREFIXES.some((prefix) => hash.startsWith(prefix));
+}
+
 function decorateAnchors(main) {
-  // Auto-generate IDs on all headings for anchor linking
+  // Matches a trailing custom-slug marker like "{#tech-notes}" in heading text.
+  const customSlugRegex = /\{#([a-z0-9-]+)\}/i;
   const idCounts = {};
-  main.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach((heading) => {
-    if (!heading.id) {
-      let id = toClassName(heading.textContent);
-      if (idCounts[id]) {
-        idCounts[id] += 1;
-        id = `${id}-${idCounts[id]}`;
-      } else {
-        idCounts[id] = 1;
+
+  const registerId = (base) => {
+    let id = base;
+    if (idCounts[base]) {
+      idCounts[base] += 1;
+      id = `${base}-${idCounts[base]}`;
+    } else {
+      idCounts[base] = 1;
+    }
+    return id;
+  };
+
+  // 1) Custom slug override: an author appends "{#custom-slug}" to any heading
+  //    or bold paragraph. The marker is stripped from the visible text and the
+  //    slug becomes the element id (e.g. "5. Long Header {#tech-notes}").
+  main.querySelectorAll('h1, h2, h3, h4, h5, h6, p').forEach((el) => {
+    const match = el.textContent.match(customSlugRegex);
+    if (match) {
+      const slug = match[1].toLowerCase();
+      el.innerHTML = el.innerHTML.replace(/\s*\{#[a-z0-9-]+\}/i, '');
+      if (!isReservedHash(slug) && !el.id) {
+        el.id = registerId(slug);
+        el.classList.add('anchor-target');
       }
-      heading.id = id;
     }
   });
 
-  // Convert explicit anchor markers: a link where href is just "#name"
-  // and the visible text matches the hash (e.g. text="#contact" or "contact")
+  // 2) Auto-generate IDs on any heading (h1-h6) that has no id yet, so authors
+  //    can link to "#heading-as-a-slug" without extra markup.
+  main.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach((heading) => {
+    if (!heading.id) {
+      heading.id = registerId(toClassName(heading.textContent));
+      heading.classList.add('anchor-target');
+    }
+  });
+
+  // 3) Explicit anchor markers: a standalone link whose href and visible text
+  //    match (e.g. text "#contact" pointing to "#contact") becomes an invisible
+  //    anchor point. Reserved hashes (modals, block swapping) are left alone.
   main.querySelectorAll('a[href^="#"]').forEach((link) => {
     const hash = link.getAttribute('href').substring(1);
     const text = link.textContent.trim().replace(/^#/, '');
-    if (hash && text === hash) {
+    if (hash && !isReservedHash(hash) && text === hash) {
       const parent = link.parentElement;
       const isOnlyChild = parent && parent.childNodes.length === 1
         && (parent.tagName === 'P' || parent.tagName === 'DIV');
 
-      // Create an invisible anchor point
       const anchor = document.createElement('span');
       anchor.id = hash;
       anchor.className = 'anchor-point';
@@ -117,10 +149,12 @@ function decorateAnchors(main) {
     }
   });
 
-  // Smooth scroll for same-page anchor links
+  // 4) Smooth scroll for in-page anchor links, skipping reserved hashes so
+  //    modal triggers and block-swapping links keep their own behavior.
   main.querySelectorAll('a[href^="#"]').forEach((link) => {
+    const targetId = link.getAttribute('href').substring(1);
+    if (!targetId || isReservedHash(targetId)) return;
     link.addEventListener('click', (e) => {
-      const targetId = link.getAttribute('href').substring(1);
       const target = document.getElementById(targetId);
       if (target) {
         e.preventDefault();
