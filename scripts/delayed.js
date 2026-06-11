@@ -48,7 +48,13 @@ if (!window.location.pathname.includes('srcdoc')
 
   let cookieBannerLocale = locale;
   if (language === 'en') {
-    cookieBannerLocale = country === 'us' && langSegment === 'en-us' ? 'en_US' : 'en_GB';
+    if (country === 'us' && langSegment === 'en-us') {
+      cookieBannerLocale = 'en_US';
+    } else if (country === 'au') {
+      cookieBannerLocale = 'en_AU';
+    } else {
+      cookieBannerLocale = 'en_GB';
+    }
   }
 
   await fetch('/cookies-links.json')

@@ -230,6 +230,17 @@ footer {
   padding-top: 0!important;
 }
 
+/* When the copyright line is authored as its own section below the links,
+   collapse the doubled section padding so it sits directly under them
+   instead of being pushed away by a full section gap. */
+.locale-us .footer .section:has(.default-content-wrapper):has(+ .section .default-content-wrapper) .default-content-wrapper {
+  padding-bottom: 0;
+}
+
+.locale-us .footer .section:has(.default-content-wrapper) + .section:has(.default-content-wrapper) .default-content-wrapper {
+  padding-top: 24px;
+}
+
 @media (width >= 768px) {
   footer {
     padding: 0 40px;
