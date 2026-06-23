@@ -4,6 +4,12 @@ import { addModalHandling } from '../../scripts/modal-helper.js';
 const ICON_TOKEN_REGEX = /:([\w-]+):/;
 const LOCALE_PREFIX_REGEX = /^\/([^/]+)\/([^/]+)(\/.*)?$/;
 
+// Source sheet for the data-driven `countries` variant.
+const COUNTRIES_SHEET_PATH = '/countries.json';
+// Fallbacks used when the sheet omits the heading/image (config) values.
+const DEFAULT_HEADING = 'Choose your country';
+const DEFAULT_IMAGE = 'https://content.da.live/kawaind/bimota/.index/media_1a3a472218eb2412dbd144a2819aca90ddf781479.png';
+
 /**
  * Extracts the page slug from the current URL path (everything after /{country}/{lang}/).
  * Returns empty string if on the index page.
@@ -136,7 +142,12 @@ function getLanguageIcon(language) {
   return extractRawIconToken(language);
 }
 
-export default function decorate(block) {
+/**
+ * Renders the country selector from the authored (or reconstructed) block markup.
+ * Expects the first row to hold the heading + image, and subsequent rows to hold
+ * region headings and country/language lists.
+ */
+function renderCountrySelector(block) {
   let blockHeadingWrapper;
   const data = [];
 
@@ -277,4 +288,149 @@ export default function decorate(block) {
     block.classList.add('modal-country-selector');
     addModalHandling();
   }
+}
+
+/**
+ * Reads a named sheet's data rows from a DA sheet response, supporting both
+ * single-sheet ({ data: [...] }) and multi-sheet ({ <name>: { data: [...] } }) formats.
+ */
+function getSheetRows(json, name) {
+  if (json?.[name] && Array.isArray(json[name].data)) return json[name].data;
+  if (Array.isArray(json?.data)) return json.data;
+  return [];
+}
+
+/**
+ * Builds a { key: value } map from a config sheet whose rows hold key/value pairs.
+ */
+function getConfigMap(json) {
+  const rows = json?.config && Array.isArray(json.config.data) ? json.config.data : [];
+  const map = {};
+  rows.forEach((row) => {
+    const key = (row.key || row.Key || '').trim();
+    const value = (row.value ?? row.Value ?? '').toString().trim();
+    if (key) map[key] = value;
+  });
+  return map;
+}
+
+/**
+ * Reconstructs the block markup expected by renderCountrySelector() from sheet data,
+ * so the data-driven `countries` variant renders identically to the authored block.
+ */
+function buildBlockFromSheet(block, config, countries) {
+  block.innerHTML = '';
+
+  // Row 0: heading + image (kept from defaults/config, no authoring required).
+  const headingRow = document.createElement('div');
+  const headingCell = document.createElement('div');
+  const heading = document.createElement('h2');
+  heading.textContent = config.heading || DEFAULT_HEADING;
+  headingCell.append(heading);
+  headingRow.append(headingCell);
+
+  const imageCell = document.createElement('div');
+  const imageUrl = config.image || DEFAULT_IMAGE;
+  if (imageUrl) {
+    const picture = document.createElement('picture');
+    const img = document.createElement('img');
+    img.src = imageUrl;
+    img.loading = 'lazy';
+    img.alt = '';
+    picture.append(img);
+    imageCell.append(picture);
+  }
+  headingRow.append(imageCell);
+  block.append(headingRow);
+
+  // Subsequent rows: a region heading row, then one row per country group
+  // (each group is a flag + list of language links), matching the authored DOM.
+  let currentRegion = null;
+  let currentCountry = null;
+  let currentList = null;
+
+  countries.forEach((row) => {
+    const region = (row.region || '').trim();
+    const country = (row.country || row.icon || '').trim();
+    const label = (row.label || '').trim();
+    const path = (row.path || '').trim();
+    const icon = (row.icon || '').trim();
+
+    if (!label) return;
+
+    if (region && region !== currentRegion) {
+      currentRegion = region;
+      currentCountry = null;
+
+      const regionRow = document.createElement('div');
+      const regionCell = document.createElement('div');
+      const regionHeading = document.createElement('h4');
+      regionHeading.textContent = region;
+      regionCell.append(regionHeading);
+      regionRow.append(regionCell);
+      regionRow.append(document.createElement('div'));
+      block.append(regionRow);
+    }
+
+    if (country !== currentCountry) {
+      currentCountry = country;
+
+      const countryRow = document.createElement('div');
+      countryRow.append(document.createElement('div'));
+
+      const dataCell = document.createElement('div');
+      if (icon) {
+        const iconParagraph = document.createElement('p');
+        iconParagraph.textContent = `:${icon}:`;
+        dataCell.append(iconParagraph);
+      }
+
+      currentList = document.createElement('ul');
+      dataCell.append(currentList);
+      countryRow.append(dataCell);
+      block.append(countryRow);
+    }
+
+    const listItem = document.createElement('li');
+    if (path) {
+      const link = document.createElement('a');
+      link.href = path;
+      link.textContent = label;
+      listItem.append(link);
+    } else {
+      // No path => "coming soon" style entry (rendered via <em>).
+      const comingSoon = document.createElement('em');
+      comingSoon.textContent = label;
+      listItem.append(comingSoon);
+    }
+    currentList.append(listItem);
+  });
+}
+
+async function decorateCountriesVariant(block) {
+  let json;
+  try {
+    const resp = await fetch(COUNTRIES_SHEET_PATH);
+    if (!resp.ok) return;
+    json = await resp.json();
+  } catch {
+    return;
+  }
+
+  const config = getConfigMap(json);
+  const countries = getSheetRows(json, 'countries');
+
+  if (!countries.length) return;
+
+  buildBlockFromSheet(block, config, countries);
+  renderCountrySelector(block);
+}
+
+export default function decorate(block) {
+  if (block.classList.contains('countries')) {
+    decorateCountriesVariant(block);
+    return;
+  }
+
+  renderCountrySelector(block);
 }
