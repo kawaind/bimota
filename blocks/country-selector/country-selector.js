@@ -304,6 +304,98 @@ function getSheetRows(json, name) {
 }
 
 /**
+ * Returns the language code for the current page, derived from the URL locale
+ * (e.g. /be/nl-be/ -> "nl", /it/it/ -> "it", /uk/en/ -> "en"). Defaults to "en".
+ */
+function getCurrentLanguage() {
+  const segments = window.location.pathname.split('/').filter(Boolean);
+  const langSegment = (segments[1] || '').toLowerCase();
+  const lang = langSegment.split('-')[0];
+  return lang || 'en';
+}
+
+/**
+ * Returns the target language of a link path (e.g. /de/de/ -> "de",
+ * /be/nl-be/ -> "nl"). Mirrors getCurrentLanguage but for an arbitrary path.
+ */
+function getPathLanguage(path) {
+  const segments = (path || '').split('/').filter(Boolean);
+  const langSegment = (segments[1] || '').toLowerCase();
+  return langSegment.split('-')[0] || '';
+}
+
+/**
+ * Builds a per-language lookup from a sheet whose rows have an id column plus
+ * one column per language code. Produces { id: { en: '...', it: '...' } }.
+ */
+function getLangColumnMap(rows, idColumn) {
+  const map = {};
+  rows.forEach((row) => {
+    const id = (row[idColumn] ?? row[idColumn.charAt(0).toUpperCase() + idColumn.slice(1)] ?? '')
+      .toString().trim();
+    if (!id) return;
+    const byLang = {};
+    Object.keys(row).forEach((column) => {
+      const lang = column.trim().toLowerCase();
+      if (lang === idColumn) return;
+      const value = (row[column] ?? '').toString().trim();
+      if (value) byLang[lang] = value;
+    });
+    map[id] = byLang;
+  });
+  return map;
+}
+
+/**
+ * Builds a translation lookup from the `translations` sheet. Each row has a
+ * `key` plus one column per language code (en, it, fr, ...). Produces:
+ *   { key: { en: '...', it: '...' } }
+ */
+function getTranslationsMap(json) {
+  return getLangColumnMap(getSheetRows(json, 'translations'), 'key');
+}
+
+/**
+ * Builds a country-name lookup from the `country-names` sheet. Each row has a
+ * `country` slug plus one column per language code. Produces:
+ *   { italy: { it: 'Italia', en: 'Italy' } }
+ */
+function getCountryNamesMap(json) {
+  return getLangColumnMap(getSheetRows(json, 'country-names'), 'country');
+}
+
+/**
+ * Localizes a country link label into the link's own target language.
+ * Translates only the country-name portion, preserving any authored language
+ * suffix (e.g. "(it)"). Falls back to the original label when no name is found.
+ */
+function localizeCountryLabel(label, country, path, countryNames) {
+  const targetLang = getPathLanguage(path);
+  const names = countryNames[country];
+  if (!names || !targetLang) return label;
+
+  const translated = names[targetLang] || names.en;
+  if (!translated) return label;
+
+  const suffixMatch = label.match(/\(([^)]*)\)\s*$/);
+  const suffix = suffixMatch ? ` (${suffixMatch[1]})` : '';
+  return `${translated}${suffix}`;
+}
+
+/**
+ * Resolves a translation for `key` in the current language, falling back to
+ * English and finally to the provided default text (usually the key itself).
+ */
+function translate(translations, key, lang, fallback) {
+  const entry = translations[key];
+  if (entry) {
+    if (entry[lang]) return entry[lang];
+    if (entry.en) return entry.en;
+  }
+  return fallback ?? key;
+}
+
+/**
  * Builds a { key: value } map from a config sheet whose rows hold key/value pairs.
  */
 function getConfigMap(json) {
@@ -321,14 +413,15 @@ function getConfigMap(json) {
  * Reconstructs the block markup expected by renderCountrySelector() from sheet data,
  * so the data-driven `countries` variant renders identically to the authored block.
  */
-function buildBlockFromSheet(block, config, countries) {
+function buildBlockFromSheet(block, config, countries, translations, lang, countryNames) {
   block.innerHTML = '';
 
   // Row 0: heading + image (kept from defaults/config, no authoring required).
   const headingRow = document.createElement('div');
   const headingCell = document.createElement('div');
   const heading = document.createElement('h2');
-  heading.textContent = config.heading || DEFAULT_HEADING;
+  const headingText = config.heading || DEFAULT_HEADING;
+  heading.textContent = translate(translations, headingText, lang, headingText);
   headingCell.append(heading);
   headingRow.append(headingCell);
 
@@ -368,7 +461,7 @@ function buildBlockFromSheet(block, config, countries) {
       const regionRow = document.createElement('div');
       const regionCell = document.createElement('div');
       const regionHeading = document.createElement('h4');
-      regionHeading.textContent = region;
+      regionHeading.textContent = translate(translations, region, lang, region);
       regionCell.append(regionHeading);
       regionRow.append(regionCell);
       regionRow.append(document.createElement('div'));
@@ -394,16 +487,18 @@ function buildBlockFromSheet(block, config, countries) {
       block.append(countryRow);
     }
 
+    const localizedLabel = localizeCountryLabel(label, country, path, countryNames);
+
     const listItem = document.createElement('li');
     if (path) {
       const link = document.createElement('a');
       link.href = path;
-      link.textContent = label;
+      link.textContent = localizedLabel;
       listItem.append(link);
     } else {
       // No path => "coming soon" style entry (rendered via <em>).
       const comingSoon = document.createElement('em');
-      comingSoon.textContent = label;
+      comingSoon.textContent = localizedLabel;
       listItem.append(comingSoon);
     }
     currentList.append(listItem);
@@ -487,13 +582,16 @@ async function decorateCountriesVariant(block) {
 
   const config = getConfigMap(json);
   const countries = getSheetRows(json, 'countries');
+  const translations = getTranslationsMap(json);
+  const countryNames = getCountryNamesMap(json);
+  const lang = getCurrentLanguage();
 
   if (!countries.length) return;
 
   const userRegion = getUserRegion(countries);
   const orderedCountries = orderCountriesByRegion(countries, userRegion);
 
-  buildBlockFromSheet(block, config, orderedCountries);
+  buildBlockFromSheet(block, config, orderedCountries, translations, lang, countryNames);
   renderCountrySelector(block);
 }
 
