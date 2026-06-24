@@ -9,6 +9,9 @@ const COUNTRIES_SHEET_PATH = '/countries.json';
 // Fallbacks used when the sheet omits the heading/image (config) values.
 const DEFAULT_HEADING = 'Choose your country';
 const DEFAULT_IMAGE = 'https://content.da.live/kawaind/bimota/.index/media_1a3a472218eb2412dbd144a2819aca90ddf781479.png';
+// Canonical fallback order used when the user's region is unknown, and the
+// order the remaining regions follow after the user's own region.
+const DEFAULT_REGION_ORDER = ['Europe', 'Asia', 'Oceania', 'North America'];
 
 /**
  * Extracts the page slug from the current URL path (everything after /{country}/{lang}/).
@@ -407,6 +410,71 @@ function buildBlockFromSheet(block, config, countries) {
   });
 }
 
+/**
+ * Returns the country segment of the current URL (e.g. "uk" from /uk/en/...).
+ */
+function getCurrentCountrySegment() {
+  const [country] = window.location.pathname.split('/').filter(Boolean);
+  return (country || '').toLowerCase();
+}
+
+/**
+ * Determines the user's region by matching the URL's country segment against
+ * the country path prefixes in the sheet (e.g. URL /au/en/ matches a row whose
+ * path starts with /au/, which lives in the "Oceania" region).
+ * Returns null when no match is found (e.g. the global index page).
+ */
+function getUserRegion(countries) {
+  const segment = getCurrentCountrySegment();
+  if (!segment) return null;
+
+  const match = countries.find((row) => {
+    const path = (row.path || '').trim().toLowerCase();
+    return path.startsWith(`/${segment}/`);
+  });
+
+  return match ? (match.region || '').trim() || null : null;
+}
+
+/**
+ * Reorders sheet rows so the user's region appears first, followed by the
+ * remaining regions in the canonical DEFAULT_REGION_ORDER. Rows within each
+ * region keep their original order. Unknown regions are appended last.
+ */
+function orderCountriesByRegion(countries, userRegion) {
+  const byRegion = new Map();
+  countries.forEach((row) => {
+    const region = (row.region || '').trim();
+    if (!byRegion.has(region)) byRegion.set(region, []);
+    byRegion.get(region).push(row);
+  });
+
+  const ordered = [];
+  const used = new Set();
+
+  if (userRegion && byRegion.has(userRegion)) {
+    ordered.push(userRegion);
+    used.add(userRegion);
+  }
+
+  DEFAULT_REGION_ORDER.forEach((region) => {
+    if (!used.has(region) && byRegion.has(region)) {
+      ordered.push(region);
+      used.add(region);
+    }
+  });
+
+  // Append any regions present in the sheet but not in the canonical list.
+  byRegion.forEach((_, region) => {
+    if (!used.has(region)) {
+      ordered.push(region);
+      used.add(region);
+    }
+  });
+
+  return ordered.flatMap((region) => byRegion.get(region));
+}
+
 async function decorateCountriesVariant(block) {
   let json;
   try {
@@ -422,7 +490,10 @@ async function decorateCountriesVariant(block) {
 
   if (!countries.length) return;
 
-  buildBlockFromSheet(block, config, countries);
+  const userRegion = getUserRegion(countries);
+  const orderedCountries = orderCountriesByRegion(countries, userRegion);
+
+  buildBlockFromSheet(block, config, orderedCountries);
   renderCountrySelector(block);
 }
 
