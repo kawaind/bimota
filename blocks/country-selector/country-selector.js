@@ -365,20 +365,19 @@ function getCountryNamesMap(json) {
 }
 
 /**
- * Localizes a country link label into the link's own target language.
- * Translates only the country-name portion, preserving any authored language
- * suffix (e.g. "(it)"). Falls back to the original label when no name is found.
+ * Localizes a country link label into the link's own target language and
+ * auto-generates the language suffix from the link path (e.g. /be/nl-be/ -> nl,
+ * giving "België (nl)"). The suffix is only appended when the country has more
+ * than one language link, so single-language entries stay clean (e.g. "Australia").
+ * Falls back to the authored label when no localized name is found.
  */
-function localizeCountryLabel(label, country, path, countryNames) {
+function localizeCountryLabel(label, country, path, countryNames, showSuffix) {
   const targetLang = getPathLanguage(path);
   const names = countryNames[country];
-  if (!names || !targetLang) return label;
-
-  const translated = names[targetLang] || names.en;
+  const translated = (names && (names[targetLang] || names.en)) || label;
   if (!translated) return label;
 
-  const suffixMatch = label.match(/\(([^)]*)\)\s*$/);
-  const suffix = suffixMatch ? ` (${suffixMatch[1]})` : '';
+  const suffix = showSuffix && targetLang ? ` (${targetLang})` : '';
   return `${translated}${suffix}`;
 }
 
@@ -439,6 +438,16 @@ function buildBlockFromSheet(block, config, countries, translations, lang, count
   headingRow.append(imageCell);
   block.append(headingRow);
 
+  // Count language links per country so the auto-generated language suffix is
+  // only shown when a country offers more than one language (e.g. Belgium),
+  // keeping single-language entries clean (e.g. "Australia").
+  const linkCountByCountry = {};
+  countries.forEach((row) => {
+    const country = (row.country || row.icon || '').trim();
+    if (!country) return;
+    linkCountByCountry[country] = (linkCountByCountry[country] || 0) + 1;
+  });
+
   // Subsequent rows: a region heading row, then one row per country group
   // (each group is a flag + list of language links), matching the authored DOM.
   let currentRegion = null;
@@ -452,7 +461,9 @@ function buildBlockFromSheet(block, config, countries, translations, lang, count
     const path = (row.path || '').trim();
     const icon = (row.icon || '').trim();
 
-    if (!label) return;
+    // Label is optional now (names come from country-names); a row is valid as
+    // long as it has a link path or an authored label (for "coming soon" text).
+    if (!label && !path) return;
 
     if (region && region !== currentRegion) {
       currentRegion = region;
@@ -487,7 +498,8 @@ function buildBlockFromSheet(block, config, countries, translations, lang, count
       block.append(countryRow);
     }
 
-    const localizedLabel = localizeCountryLabel(label, country, path, countryNames);
+    const showSuffix = (linkCountByCountry[country] || 0) > 1;
+    const localizedLabel = localizeCountryLabel(label, country, path, countryNames, showSuffix);
 
     const listItem = document.createElement('li');
     if (path) {
