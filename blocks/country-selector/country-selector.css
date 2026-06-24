@@ -32,6 +32,7 @@
     display: flex;
     flex-direction: column;
     gap: 40px;
+    padding-bottom: 40px;
 }
 
 .country-selector-region-wrapper .h5 {
@@ -133,6 +134,7 @@
 
     .country-selector-regions-container {
         gap: 60px;
+        padding-bottom: 60px;
     }
 
     .country-selector-country-wrapper {
@@ -167,6 +169,7 @@
 
     .country-selector-regions-container {
         gap: 60px;
+        padding-bottom: 60px;
     }
 
     .country-selector-country-wrapper {
