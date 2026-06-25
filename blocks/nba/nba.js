@@ -5,9 +5,7 @@ export default async function decorate(block) {
   textWrapper.classList.add('nba-text-wrapper');
 
   const headings = block.querySelectorAll('h1, h2, h3, h4, h5, h6');
-  [...headings].forEach((heading, index) => {
-    const headingClass = index === 0 ? 'h3' : 'h6';
-    heading.classList.add(headingClass);
+  [...headings].forEach((heading) => {
     textWrapper.append(heading);
   });
 
