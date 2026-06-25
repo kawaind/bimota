@@ -32,6 +32,7 @@
     display: flex;
     flex-direction: column;
     gap: 40px;
+    padding-bottom: 40px;
 }
 
 .country-selector-region-wrapper .h5 {
@@ -56,6 +57,16 @@
     display: flex;
     flex-flow: column;
     gap: 3px;
+}
+
+.cs-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cs-button-no-flag {
+  padding-left: 36px;
 }
 
 .country-selector-language-list li .cs-button {
@@ -107,16 +118,6 @@
   display: block;
 }
 
-.cs-button {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.cs-button-no-flag {
-  padding-left: 36px;
-}
-
 /* EXTRA SMALL IMAGE DISPLAY ##################### */
 @media (width >= 340px) {
     .country-selector-bike-image {
@@ -133,6 +134,7 @@
 
     .country-selector-regions-container {
         gap: 60px;
+        padding-bottom: 60px;
     }
 
     .country-selector-country-wrapper {
@@ -167,6 +169,7 @@
 
     .country-selector-regions-container {
         gap: 60px;
+        padding-bottom: 60px;
     }
 
     .country-selector-country-wrapper {
