@@ -1,44 +1,5 @@
 import { loadScript, getMetadata } from '../../scripts/aem.js';
-
-const LOCALE_TO_LANGUAGE = {
-  'fr-be': 'fr',
-  'nl-be': 'nl',
-  'en-be': 'en',
-  'nl-nl': 'nl',
-  'en-nl': 'en',
-  'en-ca': 'en',
-  'en-us': 'en',
-  'fr-ca': 'fr',
-  'en-mx': 'en',
-  'es-mx': 'es',
-  'en-lu': 'en',
-  'fr-lu': 'fr',
-};
-
-const SUPPORTED_LANGUAGES = ['en', 'it', 'ja', 'es', 'fr', 'de', 'nl', 'lu'];
-
-const getPathSegments = (pathname = '') => pathname
-  .toLowerCase()
-  .split('/')
-  .filter(Boolean);
-
-const getLanguage = (pathname, defaultLang = 'it') => {
-  const currentPathname = pathname
-    ?? (typeof window !== 'undefined' ? window.location.pathname : '');
-
-  const segments = getPathSegments(currentPathname);
-  const locale = segments[1];
-
-  if (locale && LOCALE_TO_LANGUAGE[locale]) {
-    return LOCALE_TO_LANGUAGE[locale];
-  }
-
-  if (locale && SUPPORTED_LANGUAGES.includes(locale)) {
-    return locale;
-  }
-
-  return defaultLang;
-};
+import { getPathSegments, getLanguageFromPath } from '../../scripts/helpers.js';
 
 export default async function decorate(block) {
   const dealerLocator = document.createElement('div');
@@ -46,7 +7,7 @@ export default async function decorate(block) {
   dealerLocator.setAttribute('id', 'dealer-locator');
   block.append(dealerLocator);
   const isOneLocationVariant = block.classList.contains('one-location');
-  const language = getLanguage();
+  const language = getLanguageFromPath();
   const isRedVariant = block.classList.contains('red');
   const redConfig = [
     {

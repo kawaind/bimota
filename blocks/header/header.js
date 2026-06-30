@@ -1,7 +1,31 @@
-import { getMetadata, getRootPath, fetchPlaceholders } from '../../scripts/aem.js';
+import { getMetadata, getRootPath } from '../../scripts/aem.js';
 import { addAnimateInOut } from '../../scripts/modal-helper.js';
 import { customDecoreateIcons } from '../../scripts/decorate-icon-helper.js';
+import { getLanguageFromPath } from '../../scripts/helpers.js';
 import { loadFragment } from '../fragment/fragment.js';
+
+/**
+ * Resolves the translated logo alt text from the global logoconfig.json sheet.
+ * The sheet has one row per label: a `key` (e.g. "logoAlt"), a `value` (default
+ * fallback) and one column per language code (en, fr, de, es, ja, nl, it...).
+ * The column matching the current URL's language wins; otherwise `value` is
+ * used. Adding a new language is purely an authoring change: add a column.
+ * @returns {Promise<string>} the resolved, language-appropriate logo alt text
+ */
+async function getLogoAlt() {
+  const fallback = 'Bimota - Home';
+  try {
+    const resp = await fetch('/logoconfig.json');
+    if (!resp.ok) return fallback;
+    const { data = [] } = await resp.json();
+    const row = data.find((r) => r.key === 'logoAlt');
+    if (!row) return fallback;
+    const lang = getLanguageFromPath();
+    return row[lang] || row.value || fallback;
+  } catch (e) {
+    return fallback;
+  }
+}
 
 // media query match that indicates mobile/tablet width
 const isDesktop = window.matchMedia('(min-width: 1025px)');
@@ -211,10 +235,10 @@ export default async function decorate(block) {
     brandLink.closest('.button-container').className = '';
 
     // Give the logo link an accessible name (the logo is an inline SVG with no
-    // text), translated per language via placeholders.json. Falls back to a
-    // sensible default so the link is never unlabelled. (WCAG 1.1.1, 2.4.4)
-    const placeholders = await fetchPlaceholders(getRootPath());
-    const logoLabel = placeholders.logoAlt || 'Bimota - Home';
+    // text), translated per language via the global logoconfig.json sheet.
+    // Falls back to a sensible default so the link is never unlabelled.
+    // (WCAG 1.1.1, 2.4.4)
+    const logoLabel = await getLogoAlt();
     brandLink.setAttribute('aria-label', logoLabel);
     brandLink.querySelectorAll('span.icon').forEach((iconEl) => {
       iconEl.setAttribute('aria-hidden', 'true');
