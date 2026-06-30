@@ -1,4 +1,4 @@
-import { getMetadata, getRootPath } from '../../scripts/aem.js';
+import { getMetadata, getRootPath, fetchPlaceholders } from '../../scripts/aem.js';
 import { addAnimateInOut } from '../../scripts/modal-helper.js';
 import { customDecoreateIcons } from '../../scripts/decorate-icon-helper.js';
 import { loadFragment } from '../fragment/fragment.js';
@@ -209,6 +209,16 @@ export default async function decorate(block) {
   if (brandLink) {
     brandLink.className = '';
     brandLink.closest('.button-container').className = '';
+
+    // Give the logo link an accessible name (the logo is an inline SVG with no
+    // text), translated per language via placeholders.json. Falls back to a
+    // sensible default so the link is never unlabelled. (WCAG 1.1.1, 2.4.4)
+    const placeholders = await fetchPlaceholders(getRootPath());
+    const logoLabel = placeholders.logoAlt || 'Bimota - Home';
+    brandLink.setAttribute('aria-label', logoLabel);
+    brandLink.querySelectorAll('span.icon').forEach((iconEl) => {
+      iconEl.setAttribute('aria-hidden', 'true');
+    });
   }
 
   const navSections = nav.querySelector('.nav-sections');
