@@ -37,7 +37,7 @@
   gap: var(--row-gap)
 }
 
-.nba-text-wrapper :is(h1, h2, h3, h4, h5, h6) {
+.nba-text-wrapper :is(h1, h2, h3, h4, h5, h6, p) {
   margin-bottom: 0;
   margin-top: 0;
 }
