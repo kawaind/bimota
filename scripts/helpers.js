@@ -239,6 +239,57 @@ export const autoScrollSlidesWhenInView = (block, {
   }, 100));
 };
 
+/**
+ * Maps a full locale path segment (e.g. "fr-be") to a base language code.
+ * Locales not listed here fall back to the base segment if it is a supported
+ * language, otherwise to the provided default.
+ */
+export const LOCALE_TO_LANGUAGE = {
+  'fr-be': 'fr',
+  'nl-be': 'nl',
+  'en-be': 'en',
+  'nl-nl': 'nl',
+  'en-nl': 'en',
+  'en-ca': 'en',
+  'en-us': 'en',
+  'fr-ca': 'fr',
+  'en-mx': 'en',
+  'es-mx': 'es',
+  'en-lu': 'en',
+  'fr-lu': 'fr',
+};
+
+export const SUPPORTED_LANGUAGES = ['en', 'it', 'ja', 'es', 'fr', 'de', 'nl', 'lu'];
+
+export const getPathSegments = (pathname = '') => pathname
+  .toLowerCase()
+  .split('/')
+  .filter(Boolean);
+
+/**
+ * Resolves the base language code for the current (or given) URL path.
+ * @param {string} [pathname] path to inspect; defaults to window.location
+ * @param {string} [defaultLang] fallback when the locale is unknown
+ * @returns {string} base language code (e.g. "en", "fr", "ja")
+ */
+export const getLanguageFromPath = (pathname, defaultLang = 'it') => {
+  const currentPathname = pathname
+    ?? (typeof window !== 'undefined' ? window.location.pathname : '');
+
+  const segments = getPathSegments(currentPathname);
+  const locale = segments[1];
+
+  if (locale && LOCALE_TO_LANGUAGE[locale]) {
+    return LOCALE_TO_LANGUAGE[locale];
+  }
+
+  if (locale && SUPPORTED_LANGUAGES.includes(locale)) {
+    return locale;
+  }
+
+  return defaultLang;
+};
+
 export const getLocale = () => {
   const [, country, langSegment] = window.location.pathname.split('/');
   const language = langSegment.includes('-') ? langSegment.split('-')[0] : langSegment;

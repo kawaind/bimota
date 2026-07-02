@@ -43,6 +43,11 @@
   --action-default: #ed1c24;
   --action-hover: #ae2d27;
   --action-focus: #82221d;
+
+  /* focus ring - non-colour-only indicator for keyboard navigation (WCAG 2.4.7, 1.4.11) */
+  --focus-ring-color: #0b5fff;
+  --focus-ring-width: 3px;
+  --focus-ring-offset: 2px;
   --success: #2d9d78;
   --warning: #e68619;
   --error: #b81f2d;
@@ -78,6 +83,9 @@
   --action-default: #fff;
   --action-hover: #bbb;
   --action-focus: #999;
+
+  /* lighter ring keeps 3:1 contrast against dark backgrounds (WCAG 1.4.11) */
+  --focus-ring-color: #66a3ff;
 }
 
 :root .homepage,
@@ -356,7 +364,14 @@ button:hover {
 a:focus,
 button:focus {
   color: var(--action-focus);
-  outline: none;
+}
+
+/* visible, non-colour-only focus indicator for keyboard users (WCAG 2.4.7, 1.4.1) */
+a:focus-visible,
+button:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: 2px;
 }
 
 button:disabled,
@@ -364,6 +379,11 @@ button:disabled:hover {
   cursor: not-allowed;
   color: var(--grey-50);
   border: none;
+}
+
+/* disabled controls must not be focusable/actionable (WCAG 4.1.2) */
+button:disabled {
+  pointer-events: none;
 }
 
 a.button span[class^="icon"] {
@@ -409,7 +429,16 @@ button.secondary:focus {
   color: var(--action-focus);
   background: var(--white);
   border: 1px solid var(--action-focus);
-  outline: none;
+}
+
+/* pill buttons: round the focus ring to match the 24px radius */
+a.button.primary:focus-visible,
+button.primary:focus-visible,
+a.button.secondary:focus-visible,
+button.secondary:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: 24px;
 }
 
 button.primary:disabled,

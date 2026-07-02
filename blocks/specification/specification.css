@@ -85,16 +85,15 @@
 
   .specification .button-container {
     margin-top: 60px;
+    padding-left: 0;
   }
 
   .specification .button-container .button {
     width: auto;
   }
-  .specification .button-container {
-    padding-left: 0;
-  }
+
   .specification .button-container .button.secondary {
-    position:relative;
+    position: relative;
     z-index: 1;
   }
 }
