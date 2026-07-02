@@ -50,12 +50,15 @@ function closeOnEscape(e) {
 
 function openOnKeydown(e) {
   const focused = document.activeElement;
-  const isNavDrop = focused.className === 'nav-drop';
+  const isNavDrop = focused.classList.contains('nav-drop');
   if (isNavDrop && (e.code === 'Enter' || e.code === 'Space')) {
-    const dropExpanded = focused.getAttribute('aria-expanded') === 'true';
+    // Prevent the Space key from scrolling the page when acting as a button.
+    e.preventDefault();
+    // Route through the same handler the mouse uses so the submenu reveal
+    // animation (subnav-fadein / grid expand) runs; setting aria-expanded
+    // alone leaves the desktop menu items at opacity 0 and thus invisible.
     // eslint-disable-next-line no-use-before-define
-    toggleAllNavSections(focused.closest('.nav-sections'));
-    focused.setAttribute('aria-expanded', dropExpanded ? 'false' : 'true');
+    toggleSubNav(focused, focused.closest('.nav-sections'));
   }
 }
 
@@ -155,9 +158,19 @@ function toggleSubNav(navSection, navSections) {
 }
 
 function checkForActiveLink(navSections) {
+  const normalise = (path) => path.replace(/\/+$/, '');
+  const currentPath = normalise(window.location.pathname);
+
   navSections.querySelectorAll(':scope .default-content-wrapper a').forEach((link) => {
     const href = link.getAttribute('href');
-    if (window.location.pathname.includes(href)) {
+    if (!href) return;
+
+    // Compare full path segments, not raw substrings: "/it/it/tesi-h2" must not
+    // match while on "/it/it/tesi-h2-tera" (and kb998/kb998-2027, bx450/
+    // bx450-2026, kb4/kb4rc likewise). Resolve relative hrefs against the
+    // current location so both absolute and relative nav links work.
+    const linkPath = normalise(new URL(href, window.location.href).pathname);
+    if (linkPath && linkPath === currentPath) {
       const navParent = link.closest('.nav-drop');
       navParent?.classList.add('active');
       link.classList.add('active');
