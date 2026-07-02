@@ -72,6 +72,25 @@ header:not(.transparent) .nav-sections a.active {
   text-underline-offset: 4px;
 }
 
+/* Subnavigation entries (the Models megamenu links inside .nav-sublist) follow
+   a distinct colour spec from the top-level menu: hover and focus = darker-red,
+   active = dark-red. Each state still carries an underline so state is never
+   conveyed by colour alone (WCAG 1.4.1). These override the top-level rules
+   above for links nested in the megamenu. */
+header .nav-sections .nav-sublist a:hover,
+header .nav-sections .nav-sublist a:focus {
+  color: var(--action-focus);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+header .nav-sections .nav-sublist a:active,
+header .nav-sections .nav-sublist a.active {
+  color: var(--action-hover);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
 /* Country/globe tool link. On desktop only the globe icon shows (label is
    hidden), so text-decoration cannot render an underline under the icon. A
    border-bottom is used instead so the non-colour indicator is present in
@@ -509,6 +528,24 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text:h
     color: var(--black);
     text-decoration: none;
   }
+
+  /* Subnav (Models megamenu) links live inside .nav-drop and never receive the
+     top-level ::after underline bar, so they keep their own text underline on
+     desktop. Colour spec: active = dark-red, hover/focus = darker-red. */
+  header:not(.transparent) .nav-sections .nav-sublist a.active {
+    color: var(--action-hover);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+
+  /* stylelint-disable no-descending-specificity */
+  header .nav-sections .nav-sublist a:hover,
+  header .nav-sections .nav-sublist a:focus {
+    color: var(--action-focus);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  /* stylelint-enable no-descending-specificity */
 
   /* stylelint-disable-next-line no-descending-specificity */
   header a:hover.active {
