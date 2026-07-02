@@ -134,19 +134,25 @@ ul.vehicle-selector__navigation {
   margin: auto;
 }
 
+/* Motorbike-name selectors. Default grey; interaction states pair a distinct
+   colour with an underline so state is never conveyed by colour alone
+   (WCAG 1.4.1 Use of Color, Level A). Colour follows the spec: hover =
+   dark-red, focus = darker-red. */
 .vehicle-selector__navigation button {
   color: var(--grey-60);
   line-height: 100%;
   margin: 0;
+  text-underline-offset: 4px;
 }
-
 
 .vehicle-selector__navigation button:hover {
   color: var(--action-hover);
+  text-decoration: underline;
 }
 
 .vehicle-selector__navigation button:focus-visible {
-  color: var(--action-default);
+  color: var(--action-focus);
+  text-decoration: underline;
 }
 
 .vehicle-selector__navigation-item.active button {

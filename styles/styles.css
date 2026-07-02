@@ -374,6 +374,36 @@ button:focus-visible {
   border-radius: 2px;
 }
 
+/* Inline (in-prose) links: any link sitting inside body copy that is not a
+   styled CTA/button. Unlike buttons these must flow within the text and are
+   always underlined so they are distinguishable from surrounding text by more
+   than colour (WCAG 1.4.1 Use of Color, Level A). Colour follows the spec:
+   default = black, hover = dark-red, focus = darker-red; the underline is
+   present in every state. These rules intentionally follow the base link rule
+   above, so the source-order-based descending-specificity check is disabled
+   for the block. */
+/* stylelint-disable no-descending-specificity */
+main .default-content-wrapper :is(p, li) a:not(.button),
+main .text-wrapper :is(p, li) a:not(.button) {
+  display: inline;
+  white-space: normal;
+  color: var(--black);
+  font-weight: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+main .default-content-wrapper :is(p, li) a:not(.button):hover,
+main .text-wrapper :is(p, li) a:not(.button):hover {
+  color: var(--action-hover);
+}
+
+main .default-content-wrapper :is(p, li) a:not(.button):focus,
+main .text-wrapper :is(p, li) a:not(.button):focus {
+  color: var(--action-focus);
+}
+/* stylelint-enable no-descending-specificity */
+
 button:disabled,
 button:disabled:hover {
   cursor: not-allowed;
@@ -475,6 +505,7 @@ button.secondary.small {
   padding: 3px 12px;
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .dark a:any-link,
 .dark button {
   background-color: transparent;
@@ -831,6 +862,7 @@ body.text-page ul {
   list-style-position: inside;
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 body.text-page a:any-link {
   text-wrap: auto;
   overflow-wrap: anywhere;

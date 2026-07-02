@@ -40,14 +40,55 @@ header a:any-link {
   color: var(--grey-90);
 }
 
-header a:active,
-header a:focus,
-header a:hover {
-  color: var(--action-default);
+/* Menu entries: each interaction state carries a distinct colour AND an
+   underline, so state is never conveyed by colour alone (WCAG 1.4.1 Use of
+   Color, Level A). Colour follows the brand spec: hover = dark-red,
+   focus = darker-red, active = black. The dealer pill (a.button) and the
+   brand logo are excluded and handled separately. These interaction-state
+   rules intentionally follow the base link rule above, so the
+   source-order-based descending-specificity check is disabled for the block. */
+/* stylelint-disable no-descending-specificity */
+header .nav-sections a:not(.nav-drop-text):hover {
+  color: var(--action-hover);
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 
-header a.active {
-  color: var(--action-default);
+header .nav-sections a:not(.nav-drop-text):focus {
+  color: var(--action-focus);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* Active (current page): black text with an underline. Scoped to the solid
+   header so the transparent hero variant keeps its white/contrast overrides.
+   On desktop the underline is also drawn as a full-width ::after bar (see the
+   >=1025px block); the text underline below covers mobile where that bar is
+   not used. */
+header:not(.transparent) a:active,
+header:not(.transparent) .nav-sections a.active {
+  color: var(--black);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* Country/globe tool link. On desktop only the globe icon shows (label is
+   hidden), so text-decoration cannot render an underline under the icon. A
+   border-bottom is used instead so the non-colour indicator is present in
+   both the mobile (text + icon) and desktop (icon-only) layouts. Colour
+   follows the spec: hover = dark-red, focus = darker-red. */
+header .nav-tools a {
+  border-bottom: 2px solid transparent;
+}
+
+header .nav-tools a:hover {
+  color: var(--action-hover);
+  border-bottom-color: currentcolor;
+}
+
+header .nav-tools a:focus {
+  color: var(--action-focus);
+  border-bottom-color: currentcolor;
 }
 
 /* brand */
@@ -59,7 +100,9 @@ header .nav-brand a:hover,
 header .nav-brand a:focus,
 header .nav-brand a:active {
   color: inherit;
+  text-decoration: none;
 }
+/* stylelint-enable no-descending-specificity */
 
 header .nav-brand span.icon {
   display: flex;
@@ -458,6 +501,16 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text:h
     color: inherit;
   }
 
+  /* Desktop draws the active-state underline as the full-width ::after bar on
+     the <li>, so drop the text-decoration underline here to avoid a double
+     line. The bar itself remains the non-colour indicator (WCAG 1.4.1). */
+  /* stylelint-disable-next-line no-descending-specificity */
+  header:not(.transparent) .nav-sections a.active {
+    color: var(--black);
+    text-decoration: none;
+  }
+
+  /* stylelint-disable-next-line no-descending-specificity */
   header a:hover.active {
     color: var(--action-default);
   }
