@@ -92,6 +92,13 @@
   transition: opacity 0.5s var(--easing-entrance) var(--duration-medium);
 }
 
+/* Visible focus indicator for the tabpanel, which is keyboard-focusable so
+   Tab can move from the tablist into the panel content (WCAG 2.4.7). */
+.vehicle-selector__desc-item:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: 2px;
+}
+
 .description-label {
   margin-bottom: 6px;
   color: var(--grey-60);
