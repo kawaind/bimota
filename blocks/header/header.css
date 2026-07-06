@@ -42,14 +42,14 @@ header a:any-link {
 
 /* Menu entries: each interaction state carries a distinct colour AND an
    underline, so state is never conveyed by colour alone (WCAG 1.4.1 Use of
-   Color, Level A). Colour follows the brand spec: hover = dark-red,
-   focus = darker-red, active = black. The dealer pill (a.button) and the
+   Color, Level A). Colour matches the Models flyout (subnav): hover and
+   focus = darker-red, active = dark-red. The dealer pill (a.button) and the
    brand logo are excluded and handled separately. These interaction-state
    rules intentionally follow the base link rule above, so the
    source-order-based descending-specificity check is disabled for the block. */
 /* stylelint-disable no-descending-specificity */
 header .nav-sections a:not(.nav-drop-text):hover {
-  color: var(--action-hover);
+  color: var(--action-focus);
   text-decoration: underline;
   text-underline-offset: 4px;
 }
@@ -60,14 +60,14 @@ header .nav-sections a:not(.nav-drop-text):focus {
   text-underline-offset: 4px;
 }
 
-/* Active (current page): black text with an underline. Scoped to the solid
+/* Active (current page): dark-red text with an underline. Scoped to the solid
    header so the transparent hero variant keeps its white/contrast overrides.
    On desktop the underline is also drawn as a full-width ::after bar (see the
    >=1025px block); the text underline below covers mobile where that bar is
    not used. */
 header:not(.transparent) a:active,
 header:not(.transparent) .nav-sections a.active {
-  color: var(--black);
+  color: var(--action-hover);
   text-decoration: underline;
   text-underline-offset: 4px;
 }
@@ -95,13 +95,13 @@ header .nav-sections .nav-sublist a.active {
    hidden), so text-decoration cannot render an underline under the icon. A
    border-bottom is used instead so the non-colour indicator is present in
    both the mobile (text + icon) and desktop (icon-only) layouts. Colour
-   follows the spec: hover = dark-red, focus = darker-red. */
+   matches the rest of the nav bar: hover and focus = darker-red. */
 header .nav-tools a {
   border-bottom: 2px solid transparent;
 }
 
 header .nav-tools a:hover {
-  color: var(--action-hover);
+  color: var(--action-focus);
   border-bottom-color: currentcolor;
 }
 
@@ -391,12 +391,12 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
 }
 
 header.transparent nav[aria-expanded="true"] .nav-link-section a:any-link:where(.active) {
-  color: var(--action-default);
+  color: var(--action-hover);
 }
 
 header.transparent nav[aria-expanded="true"] .nav-link-section a:any-link:hover,
 header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text:hover {
-  color: var(--action-default);
+  color: var(--action-focus);
 }
 
 @media (width >= 768px) {
@@ -503,7 +503,7 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text:h
   }
 
   header .nav-sections .nav-drop[aria-expanded="true"] .nav-drop-text:hover {
-    color: var(--action-default);
+    color: var(--action-focus);
   }
 
   header .nav-sections .nav-drop[aria-expanded="true"] .nav-drop-text::after {
@@ -525,7 +525,7 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text:h
      line. The bar itself remains the non-colour indicator (WCAG 1.4.1). */
   /* stylelint-disable-next-line no-descending-specificity */
   header:not(.transparent) .nav-sections a.active {
-    color: var(--black);
+    color: var(--action-hover);
     text-decoration: none;
   }
 
@@ -549,11 +549,11 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text:h
 
   /* stylelint-disable-next-line no-descending-specificity */
   header a:hover.active {
-    color: var(--action-default);
+    color: var(--action-focus);
   }
 
   header.transparent li:not(.nav-drop)[aria-expanded="false"] a:hover:any-link {
-    color: var(--action-default);
+    color: var(--action-focus);
   }
 
   header li:not(.nav-drop):has(a.active) {
@@ -567,7 +567,7 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text:h
     height: 1px;
     position: absolute;
     bottom: 0;
-    background: var(--black);
+    background: var(--action-hover);
   }
 
   header.transparent .default-content-wrapper>ul>li[aria-expanded="false"]:has(a.active)::after {
@@ -579,11 +579,11 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text:h
   }
 
   header div:not(.nav-sublist) li:not(.nav-drop):has(a:hover.active)::after {
-    background-color: var(--action-default);
+    background-color: var(--action-focus);
   }
 
   header.transparent div:not(.nav-sublist) li:not(.nav-drop):has(a:hover.active)::after {
-    background: var(--action-default);
+    background: var(--action-focus);
   }
 
   /* expanded menu item content */
@@ -706,7 +706,7 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text:h
     .nav-link-section
     .nav-drop
     a:hover {
-    color: var(--action-default);
+    color: var(--action-focus);
   }
 }
 
