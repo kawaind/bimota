@@ -48,6 +48,16 @@ header a:any-link {
    rules intentionally follow the base link rule above, so the
    source-order-based descending-specificity check is disabled for the block. */
 /* stylelint-disable no-descending-specificity */
+
+/* The base a:any-link rule sets display:inline-flex, but text-decoration does
+   not paint on a flex container, so the underline below would never render.
+   These plain-text menu links (the .nav-drop-text toggle is excluded as it
+   needs flex for its chevron) are switched to inline-block so the underline
+   shows. */
+header .nav-sections a:not(.nav-drop-text) {
+  display: inline-block;
+}
+
 header .nav-sections a:not(.nav-drop-text):hover {
   color: var(--action-focus);
   text-decoration: underline;
