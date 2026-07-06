@@ -1,4 +1,5 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
+import { forceHeadingLevel } from '../../scripts/helpers.js';
 
 export default function decorate(block) {
   /* change to ul, li */
@@ -11,8 +12,8 @@ export default function decorate(block) {
       else div.className = 'teaser-card-body';
     });
     ul.append(li);
-    // each heading should be rendered as h4
-    [...li.querySelectorAll('h1, h2, h3, h4, h5, h6')].forEach((heading) => heading.classList.add('h4'));
+    // Title: always semantic H2, visually sized as H4 (accessible outline).
+    [...li.querySelectorAll('h1, h2, h3, h4, h5, h6')].forEach((heading) => forceHeadingLevel(heading, 'h2', 'h4'));
   });
   ul.querySelectorAll('picture > img').forEach((img) => img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '750' }])));
   block.textContent = '';

@@ -1,4 +1,4 @@
-import { autoScrollSlidesWhenInView, throttle } from '../../scripts/helpers.js';
+import { autoScrollSlidesWhenInView, throttle, forceHeadingLevel } from '../../scripts/helpers.js';
 
 const setScaleForPicture = (block, picture, onSetScale) => {
   const setScale = () => {
@@ -73,8 +73,9 @@ export default async function decorate(block) {
 
   slides.forEach((slide, index) => {
     slide.classList.add('highlight-slide');
+    // Title: always semantic H3, visually sized as H1 (accessible outline).
     slide.querySelectorAll('h1, h2, h3, h4, h5, h6')
-      .forEach((heading) => heading.classList.add('h1'));
+      .forEach((heading) => forceHeadingLevel(heading, 'h3', 'h1'));
 
     if (index === 0) {
       slide.classList.add('active');

@@ -1,4 +1,4 @@
-import { adjustPretitle } from '../../scripts/helpers.js';
+import { adjustPretitle, forceHeadingLevel } from '../../scripts/helpers.js';
 
 export default async function decorate(block) {
   adjustPretitle(block);
@@ -6,8 +6,9 @@ export default async function decorate(block) {
 
   const headings = block.querySelectorAll('h1, h2, h3, h4, h5, h6');
   [...headings].forEach((heading) => {
+    // Title: always semantic H2 (accessible outline); visual size unchanged.
     const headingClass = isLineVariant ? 'h2' : 'h1';
-    heading.classList.add(headingClass);
+    forceHeadingLevel(heading, 'h2', headingClass);
   });
 
   const pretitle = block.querySelector('.pretitle');

@@ -152,6 +152,31 @@ export function stripEmptyTags(main, child) {
 }
 
 /**
+ * Replace a heading with one at a fixed semantic level, preserving its content
+ * (including inline markup like sup/sub/strong) and applying a visual class.
+ * Used to enforce a consistent, accessible heading outline regardless of the
+ * tag the author chose. If the source is already the target tag it is reused so
+ * event listeners/references are not lost; only the visual class is applied.
+ * @param {HTMLElement} source the authored heading/element to normalise
+ * @param {string} tagName the semantic tag to enforce (e.g. 'h2')
+ * @param {string} [visualClass] optional visual size class (e.g. 'h3')
+ * @returns {HTMLElement} the resulting element (new or the reused source)
+ */
+export function forceHeadingLevel(source, tagName, visualClass) {
+  let el = source;
+  if (source.tagName.toLowerCase() !== tagName.toLowerCase()) {
+    el = document.createElement(tagName);
+    el.append(...source.childNodes);
+    [...source.attributes].forEach((attr) => el.setAttribute(attr.name, attr.value));
+    source.replaceWith(el);
+  }
+  if (visualClass) {
+    el.classList.add(visualClass);
+  }
+  return el;
+}
+
+/**
  * Create an element with the given id and classes.
  * @param {string} tagName the tag
  * @param {Object} options the element options

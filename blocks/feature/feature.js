@@ -1,5 +1,6 @@
 import {
   onAppReady,
+  forceHeadingLevel,
 } from '../../scripts/helpers.js';
 
 const setActiveSlide = (newActiveIndex, block) => {
@@ -69,8 +70,9 @@ export default async function decorate(block) {
 
   const headings = block.querySelectorAll('h1, h2, h3, h4, h5, h6');
 
+  // Title: always semantic H3, visually sized as H5 (accessible outline).
   headings.forEach((heading) => {
-    heading.classList.add('h5');
+    forceHeadingLevel(heading, 'h3', 'h5');
   });
 
   createNavigation(block, slideCount, setActiveSlide);

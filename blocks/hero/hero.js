@@ -1,6 +1,7 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { customDecoreateIcons } from '../../scripts/decorate-icon-helper.js';
 import { getTextLabel } from '../../scripts/scripts.js';
+import { forceHeadingLevel } from '../../scripts/helpers.js';
 
 const addPauseButton = (block) => {
   const pauseButton = document.createElement('button');
@@ -168,7 +169,15 @@ export default function decorate(block) {
   textWrapper.append(...firstCell.querySelectorAll(':scope > *:not(picture, video)'));
 
   firstCell.append(textWrapper);
-  headings.forEach((h) => { h.classList.add('h1'); });
+  // Title: always semantic H1, visually sized as H1 (accessible outline).
+  headings.forEach((h) => { forceHeadingLevel(h, 'h1', 'h1'); });
+  // Secondary text: body copy paragraphs (excluding button links and the
+  // %TIME% countdown mount) visually sized as H6.
+  textWrapper.querySelectorAll(':scope > p').forEach((p) => {
+    if (!p.querySelector('a') && p.textContent.trim().toUpperCase() !== '%TIME%') {
+      p.classList.add('h6');
+    }
+  });
   links.forEach((link, index) => { link.classList.add(index ? 'secondary' : 'primary'); });
 
   addScrollIcon(block);

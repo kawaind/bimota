@@ -1,10 +1,12 @@
-import { gatherButtons } from '../../scripts/helpers.js';
+import { gatherButtons, forceHeadingLevel } from '../../scripts/helpers.js';
 
 export default async function decorate(block) {
   const textContainer = block.querySelector(':scope > div > div');
   const headings = block.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  // Title: always semantic H2, visually sized as H3 (accessible outline).
+  // forceHeadingLevel preserves inline markup like sup/sub.
   [...headings].forEach((heading) => {
-    heading.classList.add('h3');
+    forceHeadingLevel(heading, 'h2', 'h3');
   });
 
   const textElements = block.querySelectorAll('p');

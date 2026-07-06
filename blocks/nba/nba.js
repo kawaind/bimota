@@ -1,12 +1,4 @@
-import { unwrapDivs } from '../../scripts/helpers.js';
-
-function forceElement(source, tagName, className) {
-  const el = document.createElement(tagName);
-  el.classList.add(className);
-  el.append(...source.childNodes);
-  source.replaceWith(el);
-  return el;
-}
+import { unwrapDivs, forceHeadingLevel } from '../../scripts/helpers.js';
 
 export default async function decorate(block) {
   const textWrapper = document.createElement('div');
@@ -19,12 +11,12 @@ export default async function decorate(block) {
 
   // Force the title to always render as an <h2> styled as .h3.
   if (title) {
-    textWrapper.append(forceElement(title, 'h2', 'h3'));
+    textWrapper.append(forceHeadingLevel(title, 'h2', 'h3'));
   }
 
   // Force the secondary text to always render as a body copy <p> styled as .h6.
   if (secondary) {
-    textWrapper.append(forceElement(secondary, 'p', 'h6'));
+    textWrapper.append(forceHeadingLevel(secondary, 'p', 'h6'));
   }
 
   block.prepend(textWrapper);

@@ -1,6 +1,10 @@
+import { forceHeadingLevel } from '../../scripts/helpers.js';
+
 export default function decorate(block) {
   const tableHeader = block.querySelector(':scope > div > div');
-  tableHeader.querySelector('h1, h2, h3, h4, h5, h6').classList.add('h3', 'st-heading');
+  // Bike name: always semantic H2, visually sized as H3 (accessible outline).
+  const heading = forceHeadingLevel(tableHeader.querySelector('h1, h2, h3, h4, h5, h6'), 'h2', 'h3');
+  heading.classList.add('st-heading');
 
   const data = [];
 
