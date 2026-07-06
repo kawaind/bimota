@@ -49,37 +49,35 @@ header a:any-link {
    source-order-based descending-specificity check is disabled for the block. */
 /* stylelint-disable no-descending-specificity */
 
-/* The base a:any-link rule sets display:inline-flex, but text-decoration does
-   not paint on a flex container, so the underline below would never render.
-   These plain-text menu links (the .nav-drop-text toggle is excluded as it
-   needs flex for its chevron) are switched to inline-block so the underline
-   shows. */
-header .nav-sections a:not(.nav-drop-text) {
-  display: inline-block;
+/* Top-level menu entries: the direct links (Company, Heritage, Spirit of
+   Rimini, Racing) and the Models dropdown toggle. The underline indicator is a
+   border-bottom rather than text-decoration, because these are flex /
+   inline-flex boxes and text-decoration does not paint on a flex box - this is
+   the same technique the globe/country tool uses. Colour matches the Models
+   flyout: hover/focus = darker-red, active = dark-red. Sublist (flyout) links
+   keep their own rules below and are not matched by these child-combinator
+   selectors. */
+header .nav-sections .default-content-wrapper > ul > li > a,
+header .nav-sections .default-content-wrapper > ul > li > .nav-drop-text {
+  border-bottom: 2px solid transparent;
 }
 
-header .nav-sections a:not(.nav-drop-text):hover {
+header .nav-sections .default-content-wrapper > ul > li > a:hover,
+header .nav-sections .default-content-wrapper > ul > li > a:focus,
+header .nav-sections .default-content-wrapper > ul > li > .nav-drop-text:hover,
+header .nav-sections .default-content-wrapper > ul > li > .nav-drop-text:focus {
   color: var(--action-focus);
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
-
-header .nav-sections a:not(.nav-drop-text):focus {
-  color: var(--action-focus);
-  text-decoration: underline;
-  text-underline-offset: 4px;
+  border-bottom-color: currentcolor;
 }
 
 /* Active (current page): dark-red text with an underline. Scoped to the solid
    header so the transparent hero variant keeps its white/contrast overrides.
-   On desktop the underline is also drawn as a full-width ::after bar (see the
-   >=1025px block); the text underline below covers mobile where that bar is
-   not used. */
-header:not(.transparent) a:active,
-header:not(.transparent) .nav-sections a.active {
+   On desktop the underline is instead drawn as a full-width ::after bar (see
+   the >=1025px block, where this border is suppressed); the border below is
+   the mobile indicator. */
+header:not(.transparent) .nav-sections .default-content-wrapper > ul > li > a.active {
   color: var(--action-hover);
-  text-decoration: underline;
-  text-underline-offset: 4px;
+  border-bottom-color: currentcolor;
 }
 
 /* Subnavigation entries (the Models megamenu links inside .nav-sublist) follow
@@ -338,11 +336,13 @@ header .nav-drop[aria-expanded="true"] .icon-chevron {
   transform: rotate(180deg);
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .nav-sections .nav-drop-text {
   display: flex;
   justify-content: space-between;
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 .nav-sections .nav-drop-text:hover {
   text-decoration: none;
 }
@@ -508,8 +508,12 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text:h
     width: auto;
   }
 
+  /* When the dropdown is open the toggle shows the full-width ::after bar, so
+     the per-link border-bottom hover indicator is suppressed to avoid a double
+     line. */
   header .nav-sections .nav-drop[aria-expanded="true"] .nav-drop-text {
     color: var(--black);
+    border-bottom-color: transparent;
   }
 
   header .nav-sections .nav-drop[aria-expanded="true"] .nav-drop-text:hover {
@@ -531,12 +535,13 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text:h
   }
 
   /* Desktop draws the active-state underline as the full-width ::after bar on
-     the <li>, so drop the text-decoration underline here to avoid a double
-     line. The bar itself remains the non-colour indicator (WCAG 1.4.1). */
+     the <li>, so drop the per-link border here to avoid a double line. The bar
+     itself remains the non-colour indicator (WCAG 1.4.1). */
   /* stylelint-disable-next-line no-descending-specificity */
   header:not(.transparent) .nav-sections a.active {
     color: var(--action-hover);
     text-decoration: none;
+    border-bottom-color: transparent;
   }
 
   /* Subnav (Models megamenu) links live inside .nav-drop and never receive the
