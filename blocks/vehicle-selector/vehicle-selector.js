@@ -110,6 +110,14 @@ const updateActiveItem = (block, index) => {
     left: descriptionWidth * index,
     behavior: 'smooth',
   });
+
+  // Announce the vehicle name only when the change was driven from the image
+  // slider (the slider or one of its children holds focus). Tab navigation
+  // already announces the name via the focused tab, so we avoid duplicating it.
+  const liveRegion = block.querySelector(`.${blockName}__live-region`);
+  if (liveRegion && images.contains(document.activeElement)) {
+    liveRegion.textContent = tabs[index]?.textContent ?? '';
+  }
 };
 
 const listenScroll = (block, carousel) => {
@@ -270,6 +278,10 @@ export default function decorate(block) {
 
   const imagesWrapper = createElement('div', { classes: `${blockName}__slider-wrapper` });
   const imagesContainer = createElement('div', { classes: `${blockName}__images-container` });
+  // The image slider is a keyboard-operable scroll region; give it an
+  // accessible name so screen readers identify it on focus.
+  imagesContainer.setAttribute('role', 'group');
+  imagesContainer.setAttribute('aria-label', getTextLabel('Vehicle selector'));
   descriptionContainer.parentNode.prepend(imagesWrapper);
   imagesWrapper.appendChild(imagesContainer);
 
@@ -293,11 +305,20 @@ export default function decorate(block) {
   // Filter only the empty divs (no classes and no content)
   const imageContainers = Array.from(allDivs).filter((div) => !div.classList.length);
 
+  const tabButtons = [...tabNavigation.querySelectorAll('[role="tab"]')];
+
   tabItems.forEach((tabItem, i) => {
     // Create div for image and append inside image div container
     const picture = imageContainers[i]?.querySelector('picture');
     const imageItem = createElement('div', { classes: `${blockName}__image-item` });
     if (picture) {
+      // Name the image after its vehicle so the slide is meaningful to AT
+      // (the source images ship with empty/decorative alt text).
+      const img = picture.querySelector('img');
+      const vehicleName = tabButtons[i]?.textContent.trim();
+      if (img && vehicleName) {
+        img.setAttribute('alt', vehicleName);
+      }
       imageItem.appendChild(picture);
     }
     imagesContainer.appendChild(imageItem);
@@ -335,6 +356,17 @@ export default function decorate(block) {
       descriptionItems[i].prepend(stat);
     });
   });
+
+  // Visually-hidden live region. When the user navigates the image slider with
+  // the keyboard/arrows, focus stays on the scroll container, so scrolling a
+  // new vehicle into view announces nothing on its own. We mirror the active
+  // vehicle name here so it is announced, matching what the tab list conveys.
+  // Added after the loop above so stripEmptyTags (which prunes empty divs)
+  // doesn't remove this intentionally-empty element.
+  const liveRegion = createElement('div', { classes: `${blockName}__live-region` });
+  liveRegion.setAttribute('aria-live', 'polite');
+  liveRegion.setAttribute('role', 'status');
+  block.appendChild(liveRegion);
 
   // Set the initial active/selected state (tab 0 + its panel).
   updateActiveItem(block, 0);
