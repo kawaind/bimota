@@ -44,6 +44,21 @@
   --action-hover: #ae2d27;
   --action-focus: #82221d;
 
+  /* button palette (accessibility button spec) */
+  --coral: #f48680;
+  --lt-bg-grey: #ccc; /* == grey-20 */
+  --lt-text-grey: #808080; /* == grey-50 */
+  --bt-grey: #bbb;
+  --bt-dark-grey: #999; /* == grey-40 */
+  --bt-darker-grey: #4d4d4d; /* == grey-70 */
+
+  /* Stable brand reds for buttons. The .dark scope remaps --action-* to
+     white/greys for legacy generic dark styling, so button rules that need the
+     actual red palette reference these instead (they are never remapped). */
+  --btn-red: #ed1c24;
+  --btn-dark-red: #ae2d27;
+  --btn-darker-red: #82221d;
+
   /* focus ring - non-colour-only indicator for keyboard navigation (WCAG 2.4.7, 1.4.11) */
   --focus-ring-color: #0b5fff;
   --focus-ring-width: 3px;
@@ -429,6 +444,9 @@ button.secondary {
   height: 48px;
 }
 
+/* LIGHT THEME (button over white background) */
+
+/* Primary: solid red -> dark-red (hover) -> darker-red (focus); white text. */
 a.button.primary:any-link,
 button.primary {
   background: var(--action-default);
@@ -436,10 +454,11 @@ button.primary {
   border: solid 1px var(--action-default);
 }
 
+/* Secondary: white bg, black text, red border by default; fills on hover/focus. */
 a.button.secondary:any-link,
 button.secondary {
   background: var(--white);
-  color: var(--action-default);
+  color: var(--black);
   border: 1px solid var(--action-default);
 }
 
@@ -447,8 +466,8 @@ a.button.primary:hover,
 button.primary:hover,
 a.button.secondary:hover,
 button.secondary:hover {
-  color: var(--action-hover);
-  background: var(--white);
+  color: var(--white);
+  background: var(--action-hover);
   border: 1px solid var(--action-hover);
 }
 
@@ -456,8 +475,8 @@ a.button.primary:focus,
 button.primary:focus,
 a.button.secondary:focus,
 button.secondary:focus {
-  color: var(--action-focus);
-  background: var(--white);
+  color: var(--white);
+  background: var(--action-focus);
   border: 1px solid var(--action-focus);
 }
 
@@ -475,17 +494,18 @@ button.primary:disabled,
 button.primary:disabled:hover,
 button.primary:disabled:focus {
   cursor: not-allowed;
-  background-color: var(--grey-20);
-  color: var(--grey-50);
-  border-color: var(--grey-20);
+  background-color: var(--lt-bg-grey);
+  color: var(--lt-text-grey);
+  border-color: var(--lt-bg-grey);
 }
 
 button.secondary:disabled,
-button.secondary:disabled:hover {
+button.secondary:disabled:hover,
+button.secondary:disabled:focus {
   cursor: not-allowed;
   background-color: var(--white);
-  color: var(--grey-50);
-  border-color: var(--grey-50);
+  color: var(--lt-text-grey);
+  border-color: var(--lt-text-grey);
 }
 
 a.button.small,
@@ -505,49 +525,150 @@ button.secondary.small {
   padding: 3px 12px;
 }
 
+/* Tertiary button (light theme): a link that uses the page background. It is
+   always underlined so state is never conveyed by colour alone (WCAG 1.4.1).
+   Default black text / red underline; hover dark-red; focus darker-red;
+   disabled lt-text-grey. Scoped to main content so header/footer nav pills
+   (which are also plain .button but styled as pills) are unaffected. */
+/* stylelint-disable no-descending-specificity */
+main a.button:not(.primary, .secondary):any-link,
+main button.button:not(.primary, .secondary) {
+  background: transparent;
+  color: var(--black);
+  border: none;
+  text-decoration: underline;
+  text-decoration-color: var(--action-default);
+  text-underline-offset: 4px;
+}
+
+main a.button:not(.primary, .secondary):hover,
+main button.button:not(.primary, .secondary):hover {
+  color: var(--action-hover);
+  text-decoration-color: var(--action-hover);
+}
+
+main a.button:not(.primary, .secondary):focus,
+main button.button:not(.primary, .secondary):focus {
+  color: var(--action-focus);
+  text-decoration-color: var(--action-focus);
+}
+
+main button.button:not(.primary, .secondary):disabled,
+main button.button:not(.primary, .secondary):disabled:hover,
+main button.button:not(.primary, .secondary):disabled:focus {
+  cursor: not-allowed;
+  color: var(--lt-text-grey);
+  text-decoration-color: var(--lt-text-grey);
+}
+/* stylelint-enable no-descending-specificity */
+
 /* stylelint-disable-next-line no-descending-specificity */
 .dark a:any-link,
 .dark button {
   background-color: transparent;
 }
 
+/* DARK THEME (button over dark or image background) */
+/* stylelint-disable no-descending-specificity */
+
+/* Primary dark: white bg/black text -> hover white bg + dark-red text/border
+   -> focus bt-grey bg + darker-red text/border. */
 .dark a.button.primary,
 .dark button.primary {
   background: var(--white);
   color: var(--black);
-}
-
-.dark a.button.secondary:any-link,
-.dark button.secondary {
-  background-color: transparent;
+  border: solid 1px var(--white);
 }
 
 .dark a.button.primary:hover,
 .dark button.primary:hover {
-  color: #ae2d27;
-  border-color: #ae2d27;
+  color: var(--btn-dark-red);
+  background: var(--white);
+  border-color: var(--btn-dark-red);
 }
 
 .dark a.button.primary:focus,
 .dark button.primary:focus {
-  color: #82221d;
-  border-color: #82221d;
-  background: var(--action-hover);
+  color: var(--btn-darker-red);
+  background: var(--bt-grey);
+  border-color: var(--btn-darker-red);
 }
 
-.dark .button:disabled,
-.dark .button:disabled:focus,
-.dark .button:disabled:hover {
-  color: var(--grey-40);
-  border-color: var(--grey-40);
+/* Secondary dark: black bg/white text/white border -> hover white bg/dark-red
+   text -> focus bt-grey bg/darker-red text. */
+.dark a.button.secondary:any-link,
+.dark button.secondary {
+  background: var(--black);
+  color: var(--white);
+  border: 1px solid var(--white);
+}
+
+.dark a.button.secondary:hover,
+.dark button.secondary:hover {
+  color: var(--btn-dark-red);
+  background: var(--white);
+  border-color: var(--white);
+}
+
+.dark a.button.secondary:focus,
+.dark button.secondary:focus {
+  color: var(--btn-darker-red);
+  background: var(--bt-grey);
+  border-color: var(--bt-grey);
+}
+
+/* Tertiary dark: white text/red underline -> hover red/red -> focus coral/coral. */
+main .dark a.button:not(.primary, .secondary):any-link,
+main .dark button.button:not(.primary, .secondary) {
   background: transparent;
+  color: var(--white);
+  border: none;
+  text-decoration: underline;
+  text-decoration-color: var(--btn-red);
+  text-underline-offset: 4px;
 }
 
+main .dark a.button:not(.primary, .secondary):hover,
+main .dark button.button:not(.primary, .secondary):hover {
+  color: var(--btn-red);
+  text-decoration-color: var(--btn-red);
+}
+
+main .dark a.button:not(.primary, .secondary):focus,
+main .dark button.button:not(.primary, .secondary):focus {
+  color: var(--coral);
+  text-decoration-color: var(--coral);
+}
+
+/* Disabled (dark theme). Primary: bt-darker-grey bg / bt-dark-grey text.
+   Secondary: black bg / bt-dark-grey text + border. Tertiary: bt-dark-grey. */
 .dark .button.primary:disabled,
 .dark .button.primary:disabled:focus,
 .dark .button.primary:disabled:hover {
-  background: var(--grey-70);
+  cursor: not-allowed;
+  color: var(--bt-dark-grey);
+  background: var(--bt-darker-grey);
+  border-color: var(--bt-darker-grey);
 }
+
+.dark .button.secondary:disabled,
+.dark .button.secondary:disabled:focus,
+.dark .button.secondary:disabled:hover {
+  cursor: not-allowed;
+  color: var(--bt-dark-grey);
+  background: var(--black);
+  border-color: var(--bt-dark-grey);
+}
+
+main .dark .button:not(.primary, .secondary):disabled,
+main .dark .button:not(.primary, .secondary):disabled:focus,
+main .dark .button:not(.primary, .secondary):disabled:hover {
+  cursor: not-allowed;
+  color: var(--bt-dark-grey);
+  background: transparent;
+  text-decoration-color: var(--bt-dark-grey);
+}
+/* stylelint-enable no-descending-specificity */
 
 main img {
   max-width: 100%;
@@ -795,12 +916,21 @@ body.modal-visible > *:not(.modal) {
   height: 42px;
   background: var(--white);
   border-radius: 50%;
+  color: var(--action-default);
   border: solid 1px var(--action-default);
 }
 
+/* Close button colour follows the spec: red -> dark-red (hover) ->
+   darker-red (focus). Border and icon (currentColor) move together. */
 .modal .modal-close-button:hover,
 .modal .modal-close-button:active {
+  color: var(--action-hover);
   border-color: var(--action-hover);
+}
+
+.modal .modal-close-button:focus {
+  color: var(--action-focus);
+  border-color: var(--action-focus);
 }
 
 .modal .modal-close-button span {

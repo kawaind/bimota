@@ -210,9 +210,12 @@ ul.vehicle-selector__navigation {
   right: 10%;
 }
 
+/* Carousel arrow buttons: colour follows the spec red -> dark-red (hover) ->
+   darker-red (focus). Border + arrow icon (currentColor) move together. */
 .vehicle-selector__arrow-controls button {
   background-color: var(--white);
   border-radius: 50%;
+  color: var(--action-default);
   border: 1px solid var(--action-default);
   font-size: 0;
   line-height: 0;
@@ -224,6 +227,8 @@ ul.vehicle-selector__navigation {
 }
 
 .vehicle-selector__arrow-controls button:hover {
+  color: var(--action-hover);
+  border-color: var(--action-hover);
   box-shadow: 0 0 12px 2px rgb(77 77 77 / 20%);
 }
 
@@ -232,6 +237,8 @@ ul.vehicle-selector__navigation {
 }
 
 .vehicle-selector__arrow-controls button:focus-visible {
+  color: var(--action-focus);
+  border-color: var(--action-focus);
   outline: 2px solid var(--action-focus);
   outline-offset: 1px;
 }
