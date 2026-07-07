@@ -10,6 +10,27 @@
   margin: 0;
 }
 
+/* The specification groups use semantic <table>/<caption>/<tbody>/<tr>/<th>/<td>
+   for screen-reader relationships (WCAG 1.3.1). These resets neutralise the
+   default table rendering so the original flex layout is preserved exactly. */
+.specification-table table.st-category-wrapper {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  text-align: left;
+}
+
+.specification-table .st-category-wrapper .st-category {
+  text-align: left;
+}
+
+.specification-table .st-label,
+.specification-table .st-value {
+  font-weight: inherit;
+  text-align: left;
+  vertical-align: top;
+}
+
 .specification-table.block .st-category-wrapper {
   display: flex;
   flex-direction: column;

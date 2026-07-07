@@ -50,6 +50,16 @@ export function addAnimateInOut(animateTarget, {
   return animateInOut;
 }
 
+// Selector for elements that can receive keyboard focus, used by the trap.
+const FOCUSABLE_SELECTOR = [
+  'a[href]',
+  'button:not([disabled])',
+  'input:not([disabled])',
+  'select:not([disabled])',
+  'textarea:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])',
+].join(',');
+
 export function addModalHandling() {
   const modalLinks = document.querySelectorAll('a[href^="/#modal-"]');
   const modalContentMap = new Map();
@@ -65,17 +75,22 @@ export function addModalHandling() {
 
     mLink.addEventListener('click', (event) => {
       event.preventDefault();
-      const modalEvent = new CustomEvent('show-modal', { detail: modalContentName });
+      const modalEvent = new CustomEvent('show-modal', {
+        // Pass the trigger so focus can be restored to it on close (WCAG 2.4.3).
+        detail: { name: modalContentName, trigger: mLink },
+      });
 
       window.dispatchEvent(modalEvent);
     });
   });
 
+  // The modal is a dialog: role + aria-modal so AT treats it as a modal
+  // surface (WCAG 4.1.2). The close button gets an accessible label.
   const modalEl = document.createRange().createContextualFragment(`
-    <div class="modal modal-hidden">
+    <div class="modal modal-hidden" role="dialog" aria-modal="true">
       <div class="modal-background"></div>
       <div class="modal-content"></div>
-      <button class="modal-close-button">
+      <button class="modal-close-button" type="button" aria-label="Close">
         <span class="icon icon-close"></span>
       </button>
     </div>
@@ -91,15 +106,45 @@ export function addModalHandling() {
 
   document.body.querySelector('.modal-close-button').addEventListener('click', closeModal);
 
-  // Close the modal with the Escape key when it is open (WCAG 2.1.1 Keyboard).
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && document.body.classList.contains('modal-visible')) {
-      closeModal();
-    }
-  });
-
+  const modal = document.querySelector('.modal');
   const modalContent = document.querySelector('.modal .modal-content');
   const closeButton = document.querySelector('.modal-close-button');
+
+  // Background regions hidden from AT while the modal is open, restored on close.
+  const backgroundRegions = ['header', 'main', 'footer'];
+  // The element that opened the modal, so focus can return to it on close.
+  let lastTrigger = null;
+
+  // Focus trap: keep Tab/Shift+Tab cycling within the modal, and close on Esc
+  // (WCAG 2.1.1, 2.4.3). Attached only while the modal is open.
+  const onKeydown = (event) => {
+    if (event.key === 'Escape') {
+      closeModal();
+      return;
+    }
+
+    if (event.key !== 'Tab') return;
+
+    const focusable = [...modal.querySelectorAll(FOCUSABLE_SELECTOR)]
+      .filter((el) => el.offsetParent !== null || el === document.activeElement);
+    if (focusable.length === 0) {
+      event.preventDefault();
+      closeButton.focus();
+      return;
+    }
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  };
+
   const modalXSmallAnimationConfig = {
     startStyles: { transform: 'var(--modal-content-animation-start)' },
     endStyles: { transform: 'var(--modal-content-animation-end)' },
@@ -113,25 +158,54 @@ export function addModalHandling() {
   const closeButtonAnimation = addAnimateInOut(closeButton, closeXSmallAnimationConfig);
 
   window.addEventListener('show-modal', (event) => {
-    const elId = event.detail;
+    // detail may be a plain string (legacy callers, e.g. the header globe) or
+    // an object { name, trigger }.
+    const detail = typeof event.detail === 'string'
+      ? { name: event.detail }
+      : event.detail;
+    const { name: elId, trigger } = detail;
+    lastTrigger = trigger || document.activeElement;
+
     let content = modalContentMap.get(elId);
     if (!content) {
       content = document.querySelector(`.${elId}`);
       modalContentMap.set(elId, content);
     }
-    const modal = document.querySelector('.modal');
 
     modalContent.append(content);
+
+    // Label the dialog by the bike title if the content exposes one.
+    const title = content.querySelector('.st-heading[id]');
+    if (title) {
+      modal.setAttribute('aria-labelledby', title.id);
+    } else {
+      modal.removeAttribute('aria-labelledby');
+    }
+
+    // Hide the rest of the page from assistive technology.
+    backgroundRegions.forEach((sel) => {
+      document.querySelectorAll(sel).forEach((el) => el.setAttribute('aria-hidden', 'true'));
+    });
+
     modal.classList.remove('modal-hidden');
     document.body.classList.add('modal-visible');
 
     modalContentAnimation(true);
     closeButtonAnimation(true);
+
+    // Move focus into the modal and start trapping it.
+    closeButton.focus();
+    document.addEventListener('keydown', onKeydown);
   });
 
   window.addEventListener('hide-modal', () => {
-    const modal = document.querySelector('.modal');
     document.body.classList.remove('modal-visible');
+    document.removeEventListener('keydown', onKeydown);
+
+    // Reveal the background page again.
+    backgroundRegions.forEach((sel) => {
+      document.querySelectorAll(sel).forEach((el) => el.removeAttribute('aria-hidden'));
+    });
 
     // removing the modal content after the fade out
     modalContentAnimation(false, {
@@ -141,5 +215,11 @@ export function addModalHandling() {
       },
     });
     closeButtonAnimation(false);
+
+    // Restore focus to the element that opened the modal (WCAG 2.4.3).
+    if (lastTrigger && typeof lastTrigger.focus === 'function') {
+      lastTrigger.focus();
+    }
+    lastTrigger = null;
   });
 }
