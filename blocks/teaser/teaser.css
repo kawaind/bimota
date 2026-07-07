@@ -49,7 +49,12 @@
   display: flex;
 }
 
+/* Teaser CTAs are secondary buttons but presented as text-style links (arrow +
+   label, whole card clickable via ::after). Keep the background transparent in
+   every state so the shared secondary fill (red bg on hover/focus) doesn't
+   apply here — otherwise the dark-red text sits on a red fill and disappears. */
 .teaser .teaser-card-body a.button {
+  background: transparent;
   border-color: transparent;
   color: var(--black);
 }
@@ -61,10 +66,20 @@
   content: "";
 }
 
-.teaser li:hover .teaser-card-body a.button {
+/* stylelint-disable no-descending-specificity */
+.teaser li:hover .teaser-card-body a.button,
+.teaser .teaser-card-body a.button:hover,
+.teaser .teaser-card-body a.button:focus {
+  background: transparent;
   border-color: var(--action-hover);
   color: var(--action-hover);
 }
+
+.teaser .teaser-card-body a.button:focus {
+  color: var(--action-focus);
+  border-color: var(--action-focus);
+}
+/* stylelint-enable no-descending-specificity */
 
 .teaser .teaser-card-image {
   line-height: 0;
