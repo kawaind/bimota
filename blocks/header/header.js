@@ -37,8 +37,11 @@ function closeOnEscape(e) {
     const navSections = nav.querySelector('.nav-sections');
     const navSectionExpanded = navSections.querySelector('[aria-expanded="true"]');
     if (navSectionExpanded && isDesktop.matches) {
+      // Route through toggleSubNav so the megamenu fully closes: runs the
+      // fade-out animation and restores body scroll. toggleAllNavSections alone
+      // only flips aria-expanded, leaving the page scroll-locked.
       // eslint-disable-next-line no-use-before-define
-      toggleAllNavSections(navSections);
+      toggleSubNav(navSectionExpanded, navSections);
       navSectionExpanded.focus();
     } else if (!isDesktop.matches) {
       // eslint-disable-next-line no-use-before-define

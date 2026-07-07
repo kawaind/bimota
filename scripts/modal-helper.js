@@ -84,9 +84,18 @@ export function addModalHandling() {
   document.body.append(modalEl);
   customDecoreateIcons(modalEl);
 
-  document.body.querySelector('.modal-close-button').addEventListener('click', () => {
+  const closeModal = () => {
     const closeModalEvent = new CustomEvent('hide-modal');
     window.dispatchEvent(closeModalEvent);
+  };
+
+  document.body.querySelector('.modal-close-button').addEventListener('click', closeModal);
+
+  // Close the modal with the Escape key when it is open (WCAG 2.1.1 Keyboard).
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && document.body.classList.contains('modal-visible')) {
+      closeModal();
+    }
   });
 
   const modalContent = document.querySelector('.modal .modal-content');
