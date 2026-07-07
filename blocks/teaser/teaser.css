@@ -49,13 +49,14 @@
   display: flex;
 }
 
-/* Teaser CTAs are secondary buttons but presented as text-style links (arrow +
-   label, whole card clickable via ::after). Keep the background transparent in
-   every state so the shared secondary fill (red bg on hover/focus) doesn't
-   apply here — otherwise the dark-red text sits on a red fill and disappears. */
+/* Teaser CTAs follow the primary-button spec: white bg/black text ->
+   white bg + dark-red text/border (hover) -> bt-grey bg + darker-red
+   text/border (focus) -> bt-darker-grey bg / bt-dark-grey text (disabled).
+   Uses the stable --btn-* reds so colours are correct regardless of theme
+   scope. The ::after keeps the whole card clickable. */
 .teaser .teaser-card-body a.button {
-  background: transparent;
-  border-color: transparent;
+  background: var(--white);
+  border-color: var(--white);
   color: var(--black);
 }
 
@@ -68,16 +69,23 @@
 
 /* stylelint-disable no-descending-specificity */
 .teaser li:hover .teaser-card-body a.button,
-.teaser .teaser-card-body a.button:hover,
-.teaser .teaser-card-body a.button:focus {
-  background: transparent;
-  border-color: var(--action-hover);
-  color: var(--action-hover);
+.teaser .teaser-card-body a.button:hover {
+  background: var(--white);
+  border-color: var(--btn-dark-red);
+  color: var(--btn-dark-red);
 }
 
 .teaser .teaser-card-body a.button:focus {
-  color: var(--action-focus);
-  border-color: var(--action-focus);
+  background: var(--bt-grey);
+  border-color: var(--btn-darker-red);
+  color: var(--btn-darker-red);
+}
+
+.teaser .teaser-card-body a.button:disabled,
+.teaser .teaser-card-body button.button:disabled {
+  background: var(--bt-darker-grey);
+  border-color: var(--bt-darker-grey);
+  color: var(--bt-dark-grey);
 }
 /* stylelint-enable no-descending-specificity */
 
