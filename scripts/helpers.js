@@ -245,21 +245,48 @@ export const autoScrollSlidesWhenInView = (block, {
   getActiveIndex, slideCount, scrollToSlide, animationTime = 3,
 }) => {
   let interval = null;
+  // Auto-rotation pauses while the user hovers or keyboard-focuses inside the
+  // block, so they can read at their own pace (WCAG 2.2.2 Pause, Stop, Hide).
+  let paused = false;
+
+  const startRotation = () => {
+    if (interval || paused || !isInViewport(block)) return;
+    interval = setInterval(() => {
+      const activeIndex = getActiveIndex(block);
+      const newActiveIndex = activeIndex === slideCount - 1 ? 0 : activeIndex + 1;
+
+      scrollToSlide(block, newActiveIndex);
+    }, animationTime * 1000);
+  };
+
+  const stopRotation = () => {
+    clearInterval(interval);
+    interval = null;
+  };
+
+  const pause = () => {
+    paused = true;
+    stopRotation();
+  };
+
+  const resume = () => {
+    paused = false;
+    startRotation();
+  };
+
+  // Mouse users: pause on hover. Keyboard users: pause while focus is within.
+  block.addEventListener('mouseenter', pause);
+  block.addEventListener('mouseleave', resume);
+  block.addEventListener('focusin', pause);
+  block.addEventListener('focusout', resume);
 
   window.addEventListener('scroll', debounce(() => {
     if (isInViewport(block) && !interval) {
       block.classList.add('active');
-
-      interval = setInterval(() => {
-        const activeIndex = getActiveIndex(block);
-        const newActiveIndex = activeIndex === slideCount - 1 ? 0 : activeIndex + 1;
-
-        scrollToSlide(block, newActiveIndex);
-      }, animationTime * 1000);
+      startRotation();
     } else if (!isInViewport(block)) {
       block.classList.remove('active');
-      clearInterval(interval);
-      interval = null;
+      stopRotation();
     }
   }, 100));
 };

@@ -62,11 +62,18 @@
   align-items: flex-end;
   padding: 0 20px 56px;
   opacity: 0;
-  transition: opacity 3000ms ease-in-out;
+
+  /* Inactive slides are hidden from AT and keyboard focus once faded out.
+     `visibility` flips to hidden only after the 3000ms opacity fade so the
+     existing fade effect is preserved. */
+  visibility: hidden;
+  transition: opacity 3000ms ease-in-out, visibility 0s linear 3000ms;
 }
 
 .highlight .highlight-slide.active {
   opacity: 1;
+  visibility: visible;
+  transition: opacity 3000ms ease-in-out, visibility 0s linear 0s;
 }
 
 .highlight .highlight-slide div {

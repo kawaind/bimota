@@ -42,8 +42,12 @@ const scrollToSlide = (block, slideIndex) => {
   const slidersContainer = block.querySelector('.highlight-slides-container');
   slidersContainer.style.transform = `translateY(-${slideIndex * 100}%)`;
   slidersContainer.querySelectorAll('.highlight-slide').forEach((slide, index) => {
-    const addOrRemove = index === slideIndex ? 'add' : 'remove';
-    slide.classList[addOrRemove]('active');
+    const isActive = index === slideIndex;
+    slide.classList[isActive ? 'add' : 'remove']('active');
+    // Only the visible slide is exposed to assistive tech, so screen readers
+    // announce just its title and body copy (WCAG 4.1.2). The CSS also hides
+    // inactive slides from layout/focus once faded out.
+    slide.setAttribute('aria-hidden', isActive ? 'false' : 'true');
   });
 };
 
@@ -71,8 +75,21 @@ export default async function decorate(block) {
     .find((el) => el.startsWith('time-'))
     ?.split('time-')[1].replace('-', '.');
 
+  // The block is an auto-rotating region; label it so screen-reader users get
+  // structural context when they enter it (WCAG 1.3.1).
+  block.setAttribute('role', 'region');
+  block.setAttribute('aria-roledescription', 'carousel');
+  block.setAttribute('aria-label', 'Highlighted Features');
+
+  const totalSlides = slides.length;
   slides.forEach((slide, index) => {
     slide.classList.add('highlight-slide');
+    // Each slide is a labelled group giving "slide X of Y" context.
+    slide.setAttribute('role', 'group');
+    slide.setAttribute('aria-roledescription', 'slide');
+    slide.setAttribute('aria-label', `slide ${index + 1} of ${totalSlides}`);
+    // Only the first slide is exposed to AT initially; the rest are hidden.
+    slide.setAttribute('aria-hidden', index === 0 ? 'false' : 'true');
     // Title: always semantic H3, visually sized as H1 (accessible outline).
     slide.querySelectorAll('h1, h2, h3, h4, h5, h6')
       .forEach((heading) => forceHeadingLevel(heading, 'h3', 'h1'));
@@ -89,6 +106,12 @@ export default async function decorate(block) {
   block.append(slidesWrapper);
 
   const picture = pictureWrapper.querySelector('picture');
+  // Background image is decorative by default: only expose it to AT when the
+  // author supplied meaningful alt text in the da.live document (WCAG 1.1.1).
+  const img = picture.querySelector('img');
+  if (img && !img.getAttribute('alt')?.trim()) {
+    img.setAttribute('alt', '');
+  }
   pictureWrapper.replaceWith(picture);
 
   addFlag(block);
