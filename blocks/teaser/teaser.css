@@ -130,11 +130,15 @@ div.teaser-wrapper + div.teaser-wrapper {
   grid-area: 1 / 1;
   margin: 0;
   padding: 20px 16px;
+
+  /* Overlay gradient + backdrop blur darken the lower portion of the image so
+     the white foreground text keeps sufficient contrast (WCAG 1.4.3). */
   background-image: linear-gradient(
     180deg,
-    rgb(0 0 0 / 0%) 40%,
-    rgba(0 0 0/ 40%) 99%
+    rgb(0 0 0 / 0%) 33.87%,
+    rgb(0 0 0 / 61%) 67.63%
   );
+  backdrop-filter: blur(13.5px);
   justify-content: end;
 }
 
