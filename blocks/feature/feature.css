@@ -11,7 +11,17 @@
   flex-direction: column;
   gap: 32px;
   grid-area: 1 / 1 / 2 / 2;
-  transition: opacity 500ms ease-in-out;
+
+  /* Inactive slides are hidden from AT and taken out of the layer once faded
+     out. `visibility` is transitioned with a delay so it flips to hidden only
+     after the 500ms opacity fade completes, keeping the existing effect. */
+  visibility: hidden;
+  transition: opacity 500ms ease-in-out, visibility 0s linear 500ms;
+}
+
+.feature .feature-slide.active {
+  visibility: visible;
+  transition: opacity 500ms ease-in-out, visibility 0s linear 0s;
 }
 
 .feature .feature-image {
@@ -57,6 +67,13 @@
   border-radius: 50%;
 }
 
+/* Non-colour-only, visible keyboard focus indicator (WCAG 2.4.7). */
+.feature .feature-slide-nav-item:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: 50%;
+}
+
 .feature .active .feature-slide-nav-dot {
   width: 20px;
   height: 20px;
@@ -64,6 +81,16 @@
   border-radius: 50%;
   border-width: 0;
   letter-spacing: 0;
+}
+
+/* Hover/focus dot state (Figma): a 20x20 filled black dot. Applies to
+   non-active dots; the active dot keeps its own larger numbered style. */
+.feature .feature-slide-nav-item:not(.active):is(:hover, :focus-visible) .feature-slide-nav-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 20px;
+  border-width: 0;
+  background: var(--black);
 }
 
 .feature .feature-text {

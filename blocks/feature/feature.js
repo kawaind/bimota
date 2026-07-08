@@ -3,31 +3,63 @@ import {
   forceHeadingLevel,
 } from '../../scripts/helpers.js';
 
+let instanceCounter = 0;
+
 const setActiveSlide = (newActiveIndex, block) => {
   const slides = block.querySelectorAll('.feature-slides > div');
   const navItems = [...block.querySelectorAll('.feature-slide-nav-item')];
 
   slides.forEach((slide, index) => {
-    if (newActiveIndex === index) {
+    const isActive = newActiveIndex === index;
+
+    if (isActive) {
       slide.style.opacity = '1';
       slide.style.zIndex = '1';
       slide.classList.add('active');
-      navItems[index].classList.add('active');
     } else {
       slide.style.opacity = '0';
       slide.style.zIndex = '0';
       slide.classList.remove('active');
-      navItems[index].classList.remove('active');
     }
+
+    // Hidden slides are removed from the accessibility tree so screen readers
+    // only announce the visible slide's image alt, title and text (WCAG 4.1.2).
+    // The active tabpanel is focusable (tabindex=0) as it has no interactive
+    // children; inactive ones are taken out of the tab order.
+    slide.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+    slide.setAttribute('tabindex', isActive ? '0' : '-1');
+  });
+
+  navItems.forEach((navItem, index) => {
+    const isActive = newActiveIndex === index;
+    navItem.classList.toggle('active', isActive);
+    // Tabs pattern: selected state + roving tabindex so only the active tab is
+    // in the tab sequence; the rest are reached with arrow keys.
+    navItem.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    navItem.setAttribute('tabindex', isActive ? '0' : '-1');
   });
 };
 
-const createNavigation = (block, slideCount, onClick) => {
+const createNavigation = (block, slideCount, instanceId, onClick) => {
+  // Tablist: labelled container for the slide tabs (ARIA Tabs pattern).
+  const wrapper = document.createElement('div');
+  wrapper.classList.add('feature-slides-nav');
+  wrapper.setAttribute('role', 'tablist');
+  wrapper.setAttribute('aria-label', 'Feature slides');
+  wrapper.setAttribute('aria-orientation', 'vertical');
+
   const slidesDots = (new Array(slideCount))
     .fill(0)
     .map((_, index) => {
       const navItem = document.createElement('button');
       navItem.classList.add('feature-slide-nav-item');
+      navItem.setAttribute('type', 'button');
+      navItem.setAttribute('role', 'tab');
+      navItem.id = `${instanceId}-tab-${index}`;
+      navItem.setAttribute('aria-controls', `${instanceId}-panel-${index}`);
+      navItem.setAttribute('aria-label', `Go to slide ${index + 1}`);
+      navItem.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
+      navItem.setAttribute('tabindex', index === 0 ? '0' : '-1');
 
       if (!index) {
         navItem.classList.add('active');
@@ -35,6 +67,8 @@ const createNavigation = (block, slideCount, onClick) => {
 
       const dotEl = document.createElement('span');
       dotEl.classList.add('feature-slide-nav-dot');
+      // The number is decorative (the accessible name already says "slide N").
+      dotEl.setAttribute('aria-hidden', 'true');
       dotEl.textContent = index + 1;
 
       navItem.append(dotEl);
@@ -43,13 +77,47 @@ const createNavigation = (block, slideCount, onClick) => {
       return navItem;
     });
 
-  const wrapper = document.createElement('div');
-  wrapper.classList.add('feature-slides-nav');
   wrapper.append(...slidesDots);
+
+  // Arrow-key navigation for the vertical tablist. Moves focus between tabs
+  // (roving tabindex); Enter/Space activates via the native button click.
+  wrapper.addEventListener('keydown', (e) => {
+    const tabs = [...wrapper.querySelectorAll('[role="tab"]')];
+    const currentIndex = tabs.indexOf(document.activeElement);
+    if (currentIndex === -1) return;
+
+    let newIndex;
+    switch (e.key) {
+      case 'ArrowDown':
+      case 'ArrowRight':
+        newIndex = (currentIndex + 1) % tabs.length;
+        break;
+      case 'ArrowUp':
+      case 'ArrowLeft':
+        newIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+        break;
+      case 'Home':
+        newIndex = 0;
+        break;
+      case 'End':
+        newIndex = tabs.length - 1;
+        break;
+      default:
+        return;
+    }
+
+    e.preventDefault();
+    // Roving focus without auto-activation; the user confirms with Enter/Space.
+    tabs.forEach((tab, i) => tab.setAttribute('tabindex', i === newIndex ? '0' : '-1'));
+    tabs[newIndex].focus();
+  });
+
   block.append(wrapper);
 };
 
 export default async function decorate(block) {
+  instanceCounter += 1;
+  const instanceId = `feature-${instanceCounter}`;
   const slideCount = block.querySelectorAll(':scope > div').length;
   const slideWrapper = document.createElement('div');
   slideWrapper.classList.add('feature-slides');
@@ -60,6 +128,10 @@ export default async function decorate(block) {
     }
 
     el.classList.add('feature-slide');
+    // Each slide is a tabpanel labelled by its dot tab (ARIA Tabs pattern).
+    el.setAttribute('role', 'tabpanel');
+    el.id = `${instanceId}-panel-${index}`;
+    el.setAttribute('aria-labelledby', `${instanceId}-tab-${index}`);
     slideWrapper.append(el);
   });
 
@@ -75,7 +147,7 @@ export default async function decorate(block) {
     forceHeadingLevel(heading, 'h3', 'h5');
   });
 
-  createNavigation(block, slideCount, setActiveSlide);
+  createNavigation(block, slideCount, instanceId, setActiveSlide);
   setActiveSlide(0, block);
 
   // making sure that the slide gets enought space to display slide navigation
