@@ -907,6 +907,12 @@ body.modal-visible > *:not(.modal) {
   top: 0;
 }
 
+/* The dialog container is focused on open (tabindex=-1) for the screen-reader
+   announcement; it is not an interactive control, so suppress its focus ring. */
+.modal:focus {
+  outline: none;
+}
+
 .modal .modal-close-button {
   position: fixed;
   bottom: 40px;
@@ -918,6 +924,10 @@ body.modal-visible > *:not(.modal) {
   border-radius: 50%;
   color: var(--action-default);
   border: solid 1px var(--action-default);
+
+  /* Placed first in the DOM (before the full-viewport content) for keyboard
+     shortcut access, so it needs an explicit stacking order to stay on top. */
+  z-index: 1;
 }
 
 /* Close button colour follows the spec: red -> dark-red (hover) ->

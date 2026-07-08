@@ -60,6 +60,9 @@ const FOCUSABLE_SELECTOR = [
   '[tabindex]:not([tabindex="-1"])',
 ].join(',');
 
+// Ensures a unique id when labelling a dialog by a heading that lacks one.
+let modalTitleIdCounter = 0;
+
 export function addModalHandling() {
   const modalLinks = document.querySelectorAll('a[href^="/#modal-"]');
   const modalContentMap = new Map();
@@ -85,14 +88,18 @@ export function addModalHandling() {
   });
 
   // The modal is a dialog: role + aria-modal so AT treats it as a modal
-  // surface (WCAG 4.1.2). The close button gets an accessible label.
+  // surface (WCAG 4.1.2). tabindex=-1 lets us focus the container on open so
+  // the screen reader announces the dialog (title first, then the tables).
+  // The close button is placed as the very first element inside the modal so
+  // keyboard users can Shift+Tab once from the container to reach it and exit
+  // immediately, without tabbing through the entire tables.
   const modalEl = document.createRange().createContextualFragment(`
-    <div class="modal modal-hidden" role="dialog" aria-modal="true">
-      <div class="modal-background"></div>
-      <div class="modal-content"></div>
+    <div class="modal modal-hidden" role="dialog" aria-modal="true" tabindex="-1">
       <button class="modal-close-button" type="button" aria-label="Close">
         <span class="icon icon-close"></span>
       </button>
+      <div class="modal-background"></div>
+      <div class="modal-content"></div>
     </div>
   `).children[0];
 
@@ -136,7 +143,14 @@ export function addModalHandling() {
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
 
-    if (event.shiftKey && document.activeElement === first) {
+    // Focus starts on the dialog container (tabindex=-1) on open. Tab moves to
+    // the first focusable element (the close button, placed first in the DOM);
+    // Shift+Tab moves to the last — so a single Shift+Tab from the container is
+    // the shortcut to reach the close button and exit.
+    if (document.activeElement === modal) {
+      event.preventDefault();
+      (event.shiftKey ? last : first).focus();
+    } else if (event.shiftKey && document.activeElement === first) {
       event.preventDefault();
       last.focus();
     } else if (!event.shiftKey && document.activeElement === last) {
@@ -174,9 +188,16 @@ export function addModalHandling() {
 
     modalContent.append(content);
 
-    // Label the dialog by the bike title if the content exposes one.
-    const title = content.querySelector('.st-heading[id]');
+    // Give the dialog an accessible name so screen readers announce what
+    // opened (WCAG 4.1.2). Prefer the bike title (specification modal); fall
+    // back to the content's first heading (e.g. the country selector title).
+    // An id is assigned on the fly if the heading lacks one.
+    const title = content.querySelector('.st-heading, h1, h2, h3, h4, h5, h6');
     if (title) {
+      if (!title.id) {
+        modalTitleIdCounter += 1;
+        title.id = `modal-title-${modalTitleIdCounter}`;
+      }
       modal.setAttribute('aria-labelledby', title.id);
     } else {
       modal.removeAttribute('aria-labelledby');
@@ -193,8 +214,11 @@ export function addModalHandling() {
     modalContentAnimation(true);
     closeButtonAnimation(true);
 
-    // Move focus into the modal and start trapping it.
-    closeButton.focus();
+    // Focus the dialog container (not the close button) so the screen reader
+    // announces the dialog title first, then reads through the tables. With
+    // the close button placed first in the DOM, a single Shift+Tab from here
+    // reaches it to exit. Start trapping focus.
+    modal.focus();
     document.addEventListener('keydown', onKeydown);
   });
 
