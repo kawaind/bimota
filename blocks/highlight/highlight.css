@@ -20,7 +20,7 @@
 .highlight picture::after {
   display: block;
   content: "";
-  background: linear-gradient(180deg, rgb(0 0 0 / 0%), rgb(0 0 0 / 40%));
+  background: linear-gradient(180deg, rgb(0 0 0 / 0%), rgb(0 0 0 / 100%));
   top: revert-layer;
   left: 0;
   position: absolute;
