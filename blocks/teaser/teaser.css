@@ -130,16 +130,30 @@ div.teaser-wrapper + div.teaser-wrapper {
   grid-area: 1 / 1;
   margin: 0;
   padding: 20px 16px;
-
-  /* Overlay gradient + backdrop blur darken the lower portion of the image so
-     the white foreground text keeps sufficient contrast (WCAG 1.4.3). */
-  background-image: linear-gradient(
-    180deg,
-    rgb(0 0 0 / 0%) 33.87%,
-    rgb(0 0 0 / 61%) 67.63%
-  );
-  backdrop-filter: blur(13.5px);
+  position: relative;
   justify-content: end;
+}
+
+/* Darkening overlay + backdrop blur behind the foreground text so the white
+   copy keeps sufficient contrast (WCAG 1.4.3). A uniform 61% black fill is
+   shaped by a mask matching the gradient stops, so BOTH the darkening and the
+   blur fade in together over the same band (transparent above 33.87%, full at
+   67.63%) - i.e. the blur only affects what sits under the gradient. */
+.teaser.image-bg .teaser-card-body::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: rgb(0 0 0 / 61%);
+  backdrop-filter: blur(13.5px);
+  mask-image: linear-gradient(180deg, transparent 33.87%, #000 67.63%);
+  pointer-events: none;
+}
+
+/* Keep the text above the overlay layer. */
+.teaser.image-bg .teaser-card-body > * {
+  position: relative;
+  z-index: 1;
 }
 
 .teaser.image-bg .teaser-card-body .button-container {

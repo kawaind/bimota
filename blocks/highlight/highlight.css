@@ -17,10 +17,17 @@
   transform: scale(1) !important;
 }
 
+/* Darkening overlay + backdrop blur over the lower part of the image so the
+   white foreground text keeps sufficient contrast (WCAG 1.4.3). A uniform
+   black fill shaped by a mask matching the gradient ramp renders the same
+   top-to-bottom fade as before, while making the blur fade in with it - so the
+   blur only affects what sits under the gradient. */
 .highlight picture::after {
   display: block;
   content: "";
-  background: linear-gradient(180deg, rgb(0 0 0 / 0%), rgb(0 0 0 / 100%));
+  background: rgb(0 0 0 / 100%);
+  backdrop-filter: blur(13.5px);
+  mask-image: linear-gradient(180deg, transparent, #000);
   top: revert-layer;
   left: 0;
   position: absolute;
