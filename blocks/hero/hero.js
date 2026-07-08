@@ -1,7 +1,7 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { customDecoreateIcons } from '../../scripts/decorate-icon-helper.js';
 import { getTextLabel } from '../../scripts/scripts.js';
-import { forceHeadingLevel } from '../../scripts/helpers.js';
+import { forceHeadingLevel, describeButton } from '../../scripts/helpers.js';
 
 const addPauseButton = (block) => {
   const pauseButton = document.createElement('button');
@@ -179,6 +179,13 @@ export default function decorate(block) {
     }
   });
   links.forEach((link, index) => { link.classList.add(index ? 'secondary' : 'primary'); });
+
+  // Describe each CTA by its own text + the stage title (the h1) so screen
+  // readers announce e.g. "Discover, <title>" (WCAG 2.4.6, 4.1.2).
+  const [heroTitle] = headings;
+  if (heroTitle) {
+    links.forEach((link) => describeButton(link, heroTitle));
+  }
 
   addScrollIcon(block);
   addLogoFlag(block);

@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { createElement, stripEmptyTags } from '../../scripts/helpers.js';
+import { createElement, stripEmptyTags, describeButton } from '../../scripts/helpers.js';
 import { smoothScrollHorizontal } from '../../scripts/motion-helper.js';
 import { getTextLabel } from '../../scripts/scripts.js';
 
@@ -355,6 +355,14 @@ export default function decorate(block) {
       stat.append(valueEl);
       descriptionItems[i].prepend(stat);
     });
+
+    // Describe this vehicle's CTA by its own text + its tab (the vehicle name).
+    // Panel i is controlled by tab i, which carries aria-selected=true when the
+    // panel is the active one (WCAG 2.4.6, 4.1.2).
+    const ctaButton = descriptionItems[i].querySelector('a.button');
+    if (ctaButton && tabButtons[i]) {
+      describeButton(ctaButton, tabButtons[i]);
+    }
   });
 
   // Visually-hidden live region. When the user navigates the image slider with

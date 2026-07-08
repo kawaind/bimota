@@ -1,4 +1,6 @@
-import { throttle, gatherButtons, forceHeadingLevel } from '../../scripts/helpers.js';
+import {
+  throttle, gatherButtons, forceHeadingLevel, describeButton,
+} from '../../scripts/helpers.js';
 
 const moveImageOnScroll = (block, settings = {}) => {
   const [firstImage, secondImage] = block.querySelectorAll('.column-with-images img');
@@ -62,11 +64,17 @@ export default async function decorate(block) {
   const headings = block.querySelectorAll('h1, h2, h3, h4, h5, h6');
 
   // Title: always semantic H2, visually sized as H3 (accessible outline).
-  headings.forEach((heading) => {
-    forceHeadingLevel(heading, 'h2', 'h3');
-  });
+  const titleEls = [...headings].map((heading) => forceHeadingLevel(heading, 'h2', 'h3'));
+  const [titleEl] = titleEls;
 
   gatherButtons(block.querySelectorAll('.button-container'));
+
+  // Describe each CTA by its own text + the block title (WCAG 2.4.6).
+  if (titleEl) {
+    block.querySelectorAll('.button-container a.button').forEach((button) => {
+      describeButton(button, titleEl);
+    });
+  }
 
   if (block.classList.contains('stacked-images') || block.classList.contains('wide-stacked-images')) {
     moveImageOnScroll(block, { startOverlap: -1, endOverlap: 0.3, durationRatio: 0.33 });

@@ -176,6 +176,45 @@ export function forceHeadingLevel(source, tagName, visualClass) {
   return el;
 }
 
+let describedButtonId = 0;
+
+/**
+ * Ensure an element has an id, generating a stable unique one if needed.
+ * @param {HTMLElement} el the element
+ * @param {string} prefix id prefix used when generating
+ * @returns {string} the element's id
+ */
+const ensureId = (el, prefix) => {
+  if (!el.id) {
+    describedButtonId += 1;
+    el.id = `${prefix}-${describedButtonId}`;
+  }
+  return el.id;
+};
+
+/**
+ * Give a button a descriptive accessible name for screen readers by pointing
+ * aria-labelledby at both the button's own text and a contextual title (e.g.
+ * the heading above it), so a generic "Discover" reads as "Discover, <title>"
+ * (WCAG 2.4.6, 4.1.2). Native <button>s keep their role; non-button elements
+ * (links styled as buttons) get role="button".
+ * @param {HTMLElement} button the button/link element
+ * @param {HTMLElement} parent the element whose text provides context
+ */
+export function describeButton(button, parent) {
+  if (!button || !parent) return;
+
+  if (button.tagName !== 'BUTTON') {
+    button.setAttribute('role', 'button');
+  }
+
+  const buttonId = ensureId(button, 'button');
+  const parentId = ensureId(parent, 'button-context');
+
+  // Button's own id first so its label is read before the contextual title.
+  button.setAttribute('aria-labelledby', `${buttonId} ${parentId}`);
+}
+
 /**
  * Create an element with the given id and classes.
  * @param {string} tagName the tag
