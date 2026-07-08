@@ -33,10 +33,9 @@ const setActiveSlide = (newActiveIndex, block) => {
   navItems.forEach((navItem, index) => {
     const isActive = newActiveIndex === index;
     navItem.classList.toggle('active', isActive);
-    // Tabs pattern: selected state + roving tabindex so only the active tab is
-    // in the tab sequence; the rest are reached with arrow keys.
+    // Every dot stays in the tab sequence (tabindex=0) so the user can Tab
+    // to each number directly; aria-selected still reflects the active dot.
     navItem.setAttribute('aria-selected', isActive ? 'true' : 'false');
-    navItem.setAttribute('tabindex', isActive ? '0' : '-1');
   });
 };
 
@@ -59,7 +58,6 @@ const createNavigation = (block, slideCount, instanceId, onClick) => {
       navItem.setAttribute('aria-controls', `${instanceId}-panel-${index}`);
       navItem.setAttribute('aria-label', `Go to slide ${index + 1}`);
       navItem.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
-      navItem.setAttribute('tabindex', index === 0 ? '0' : '-1');
 
       if (!index) {
         navItem.classList.add('active');
@@ -79,8 +77,9 @@ const createNavigation = (block, slideCount, instanceId, onClick) => {
 
   wrapper.append(...slidesDots);
 
-  // Arrow-key navigation for the vertical tablist. Moves focus between tabs
-  // (roving tabindex); Enter/Space activates via the native button click.
+  // Every dot is a native button in the tab sequence, so Tab/Shift+Tab reach
+  // each number. Arrow/Home/End keys are also supported as a convenience for
+  // moving focus between the dots; Enter/Space activates a dot natively.
   wrapper.addEventListener('keydown', (e) => {
     const tabs = [...wrapper.querySelectorAll('[role="tab"]')];
     const currentIndex = tabs.indexOf(document.activeElement);
@@ -107,8 +106,6 @@ const createNavigation = (block, slideCount, instanceId, onClick) => {
     }
 
     e.preventDefault();
-    // Roving focus without auto-activation; the user confirms with Enter/Space.
-    tabs.forEach((tab, i) => tab.setAttribute('tabindex', i === newIndex ? '0' : '-1'));
     tabs[newIndex].focus();
   });
 
