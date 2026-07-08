@@ -43,29 +43,45 @@ export default function decorate(block) {
   // Each specification group is rendered as a semantic <table> so screen
   // readers announce the header/data relationships (WCAG 1.3.1). The visual
   // layout is preserved via CSS flex overrides on the table elements.
+  //
+  // IMPORTANT: overriding a table's `display` (to flex here) makes browsers
+  // drop the implicit ARIA table semantics, so NVDA/VoiceOver stop exposing
+  // the rows/cells. Explicit role="table/rowgroup/row/rowheader/cell" restores
+  // them regardless of display. The caption has no ARIA role, so the table's
+  // accessible name is wired with aria-labelledby to the caption's id.
   data.forEach((categoryRow) => {
+    headingIdCounter += 1;
+    const captionId = `st-caption-${headingIdCounter}`;
+
     const table = document.createElement('table');
     table.classList.add('st-category-wrapper');
+    table.setAttribute('role', 'table');
+    table.setAttribute('aria-labelledby', captionId);
 
     // Group name becomes the table caption (its accessible title).
     const caption = document.createElement('caption');
+    caption.id = captionId;
     caption.classList.add('h6', 'st-category');
     caption.append(...categoryRow.category.childNodes);
     table.append(caption);
 
     const tbody = document.createElement('tbody');
     tbody.classList.add('st-category-data-wrapper');
+    tbody.setAttribute('role', 'rowgroup');
 
     categoryRow.categoryData.forEach((el) => {
       const row = document.createElement('tr');
+      row.setAttribute('role', 'row');
 
       // Label is the row header; value is the data cell.
       const th = document.createElement('th');
       th.setAttribute('scope', 'row');
+      th.setAttribute('role', 'rowheader');
       th.classList.add('st-label');
       th.append(...el.label.childNodes);
 
       const td = document.createElement('td');
+      td.setAttribute('role', 'cell');
       td.classList.add('st-value');
       td.append(...el.value.childNodes);
 
