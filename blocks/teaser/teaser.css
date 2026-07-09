@@ -110,12 +110,18 @@ div.teaser-wrapper + div.teaser-wrapper {
 }
 
 /* teaser image */
+
+/* Explicit black background so automated contrast validators evaluate the
+   white foreground text against #000 (>=4.5:1) rather than defaulting to the
+   UA white and reporting a false 1:1 ratio (WCAG 1.4.3). The background image
+   layered on top is unaffected. */
 .teaser.image-bg li {
   overflow: hidden;
   min-height: 464px;
   display: grid;
   justify-content: unset;
   color: white;
+  background-color: var(--black);
 }
 
 .teaser.image-bg .teaser-card-image {
