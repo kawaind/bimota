@@ -318,11 +318,11 @@ header .nav-drop {
   cursor: pointer;
 }
 
-header .nav-drop[aria-expanded="false"] .nav-sublist {
+header .nav-drop:not(.is-open) .nav-sublist {
   display: none;
 }
 
-header .nav-sections .nav-drop[aria-expanded="true"] {
+header .nav-sections .nav-drop.is-open {
   color: var(--action-default);
 }
 
@@ -332,7 +332,7 @@ header .nav-drop .icon-chevron {
   display: flex;
 }
 
-header .nav-drop[aria-expanded="true"] .icon-chevron {
+header .nav-drop.is-open .icon-chevron {
   transform: rotate(180deg);
 }
 
@@ -511,16 +511,16 @@ header.transparent nav.nav-expanded .nav-link-section a.nav-drop-text:hover {
   /* When the dropdown is open the toggle shows the full-width ::after bar, so
      the per-link border-bottom hover indicator is suppressed to avoid a double
      line. */
-  header .nav-sections .nav-drop[aria-expanded="true"] .nav-drop-text {
+  header .nav-sections .nav-drop.is-open .nav-drop-text {
     color: var(--black);
     border-bottom-color: transparent;
   }
 
-  header .nav-sections .nav-drop[aria-expanded="true"] .nav-drop-text:hover {
+  header .nav-sections .nav-drop.is-open .nav-drop-text:hover {
     color: var(--action-focus);
   }
 
-  header .nav-sections .nav-drop[aria-expanded="true"] .nav-drop-text::after {
+  header .nav-sections .nav-drop.is-open .nav-drop-text::after {
     content: "";
     display: block;
     width: 100%;
@@ -567,15 +567,15 @@ header.transparent nav.nav-expanded .nav-link-section a.nav-drop-text:hover {
     color: var(--action-focus);
   }
 
-  header.transparent li:not(.nav-drop)[aria-expanded="false"] a:hover:any-link {
+  header.transparent li:not(.nav-drop, .is-open) a:hover:any-link {
     color: var(--action-focus);
   }
 
   header li:not(.nav-drop):has(a.active) {
     position: relative;
   }
-  
-  header .default-content-wrapper>ul>li[aria-expanded="false"]:has(a.active)::after {
+
+  header .default-content-wrapper>ul>li:not(.is-open):has(a.active)::after {
     content: "";
     display: block;
     width: 100%;
@@ -585,7 +585,7 @@ header.transparent nav.nav-expanded .nav-link-section a.nav-drop-text:hover {
     background: var(--action-hover);
   }
 
-  header.transparent .default-content-wrapper>ul>li[aria-expanded="false"]:has(a.active)::after {
+  header.transparent .default-content-wrapper>ul>li:not(.is-open):has(a.active)::after {
     background: var(--white);
   }
 
@@ -678,7 +678,7 @@ header.transparent nav.nav-expanded .nav-link-section a.nav-drop-text:hover {
     height: auto;
   }
 
-  header .nav-drop[aria-expanded="true"]::after {
+  header .nav-drop.is-open::after {
     content: "";
     display: block;
     width: 100vw;

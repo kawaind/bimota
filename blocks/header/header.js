@@ -30,53 +30,40 @@ async function getLogoAlt() {
 // media query match that indicates mobile/tablet width
 const isDesktop = window.matchMedia('(min-width: 1025px)');
 const fadeTransitionTime = 300;
+// unique id counter so each subnav trigger's aria-controls target is unique
+let subNavId = 0;
 
 function closeOnEscape(e) {
   if (e.code === 'Escape') {
     const nav = document.getElementById('nav');
     const navSections = nav.querySelector('.nav-sections');
-    const navSectionExpanded = navSections.querySelector('[aria-expanded="true"]');
-    if (navSectionExpanded && isDesktop.matches) {
+    const openSection = navSections.querySelector('.nav-drop.is-open');
+    if (openSection && isDesktop.matches) {
       // Route through toggleSubNav so the megamenu fully closes: runs the
-      // fade-out animation and restores body scroll. toggleAllNavSections alone
-      // only flips aria-expanded, leaving the page scroll-locked.
+      // fade-out animation and restores body scroll. Then return focus to the
+      // trigger button (WCAG 2.4.3 focus management).
       // eslint-disable-next-line no-use-before-define
-      toggleSubNav(navSectionExpanded, navSections);
-      navSectionExpanded.focus();
+      toggleSubNav(openSection, navSections);
+      openSection.querySelector(':scope > .nav-drop-text')?.focus();
     } else if (!isDesktop.matches) {
       // eslint-disable-next-line no-use-before-define
       toggleMenu(nav, navSections);
-      nav.querySelector('button').focus();
+      nav.querySelector('.nav-hamburger button')?.focus();
     }
   }
 }
 
-function openOnKeydown(e) {
-  const focused = document.activeElement;
-  const isNavDrop = focused.classList.contains('nav-drop');
-  if (isNavDrop && (e.code === 'Enter' || e.code === 'Space')) {
-    // Prevent the Space key from scrolling the page when acting as a button.
-    e.preventDefault();
-    // Route through the same handler the mouse uses so the submenu reveal
-    // animation (subnav-fadein / grid expand) runs; setting aria-expanded
-    // alone leaves the desktop menu items at opacity 0 and thus invisible.
-    // eslint-disable-next-line no-use-before-define
-    toggleSubNav(focused, focused.closest('.nav-sections'));
-  }
-}
-
-function focusNavSection() {
-  document.activeElement.addEventListener('keydown', openOnKeydown);
-}
-
 /**
- * Toggles all nav sections
+ * Collapse/expand all nav sections. The open state is tracked with an `is-open`
+ * class on the <li> (a listitem cannot host aria-expanded) and mirrored on the
+ * trigger button's aria-expanded (WCAG 4.1.2).
  * @param {Element} sections The container element
- * @param {Boolean} expanded Whether the element should be expanded or collapsed
+ * @param {Boolean} expanded Whether the elements should be expanded
  */
 function toggleAllNavSections(sections, expanded = false) {
   sections.querySelectorAll('.nav-sections .default-content-wrapper > ul > li').forEach((section) => {
-    section.setAttribute('aria-expanded', expanded);
+    section.classList.toggle('is-open', expanded);
+    section.querySelector(':scope > .nav-drop-text')?.setAttribute('aria-expanded', String(expanded));
   });
 }
 
@@ -98,15 +85,6 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
   button?.setAttribute('aria-expanded', expanded ? 'false' : 'true');
   toggleAllNavSections(navSections, false);
   button?.setAttribute('aria-label', expanded ? 'Open navigation' : 'Close navigation');
-  // enable nav dropdown keyboard accessibility
-  const navDrops = navSections.querySelectorAll('.nav-drop');
-  navDrops.forEach((drop) => {
-    if (!drop.hasAttribute('tabindex')) {
-      drop.setAttribute('role', 'button');
-      drop.setAttribute('tabindex', 0);
-      drop.addEventListener('focus', focusNavSection);
-    }
-  });
 
   const backdropEl = nav.querySelector('.nav-backdrop');
   if (!expanded) {
@@ -137,8 +115,9 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
 }
 
 function toggleSubNav(navSection, navSections) {
-  const expanded = navSection.getAttribute('aria-expanded') === 'true';
+  const expanded = navSection.classList.contains('is-open');
   const navSublist = navSection.querySelector('.nav-sublist');
+  const trigger = navSection.querySelector(':scope > .nav-drop-text');
   toggleAllNavSections(navSections);
 
   if (expanded) {
@@ -162,7 +141,8 @@ function toggleSubNav(navSection, navSections) {
   const animateInOut = addAnimateInOut(navSublist, animationConfig);
 
   animateInOut(!expanded);
-  navSection.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+  navSection.classList.toggle('is-open', !expanded);
+  trigger?.setAttribute('aria-expanded', expanded ? 'false' : 'true');
 }
 
 function checkForActiveLink(navSections) {
@@ -272,8 +252,19 @@ export default async function decorate(block) {
     navSections.querySelectorAll(':scope .default-content-wrapper > ul > li').forEach((navSection) => {
       const sublist = navSection.querySelector('ul');
       if (sublist) {
+        // The subnav trigger toggles a panel rather than navigating, so it is
+        // exposed as a button (role/tabindex) with aria-expanded + aria-controls
+        // pointing at the sublist it discloses (WCAG 4.1.2). A <button> element
+        // would be ideal, but role="button" on the existing anchor preserves the
+        // block's styling hooks while giving correct semantics.
+        subNavId += 1;
+        const sublistId = `nav-sublist-${subNavId}`;
         const textWrapper = document.createElement('a');
         textWrapper.classList.add('nav-drop-text');
+        textWrapper.setAttribute('role', 'button');
+        textWrapper.setAttribute('tabindex', '0');
+        textWrapper.setAttribute('aria-expanded', 'false');
+        textWrapper.setAttribute('aria-controls', sublistId);
         textWrapper.innerHTML += '<span class="icon icon-chevron"></span>';
         textWrapper.prepend(navSection.firstElementChild.innerHTML);
         navSection.firstElementChild.remove();
@@ -303,7 +294,7 @@ export default async function decorate(block) {
         });
 
         const navSublist = document.createRange().createContextualFragment(`
-          <div class="nav-sublist">
+          <div class="nav-sublist" id="${sublistId}">
             <div>
               <span>${textWrapper.textContent}</span>
               ${sublist.outerHTML}
@@ -325,6 +316,17 @@ export default async function decorate(block) {
           event.target.classList.contains('nav-drop-text')
           || event.target.classList.contains('nav-drop')
           || event.target.closest('.nav-drop-text')) {
+          toggleSubNav(navSection, navSections);
+        }
+      });
+
+      // The trigger is a role="button" anchor (no href), so Enter/Space must be
+      // handled explicitly to activate it (WCAG 2.1.1). Space is prevented from
+      // scrolling the page.
+      const trigger = navSection.querySelector(':scope > .nav-drop-text');
+      trigger?.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ' || event.code === 'Space') {
+          event.preventDefault();
           toggleSubNav(navSection, navSections);
         }
       });
