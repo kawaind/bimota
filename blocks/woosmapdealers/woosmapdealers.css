@@ -49,6 +49,12 @@
   color: #ed1c24;
 }
 
+/* Focused tab: focus colour, no underline (WCAG 2.4.7). */
+.woosmapdealers .dealers-tab-btn:focus {
+  color: var(--action-focus);
+  text-decoration: none;
+}
+
 .woosmapdealers .dealers-tab-btn.active {
   color: #ed1c24;
   border-bottom-color: #ed1c24;
@@ -106,8 +112,8 @@
   content: '';
   width: 12px;
   height: 12px;
-  border-right: 2px solid #ed1c24;
-  border-bottom: 2px solid #ed1c24;
+  border-right: 2px solid var(--action-focus);
+  border-bottom: 2px solid var(--action-focus);
   transform: rotate(45deg);
   transition: transform 0.3s ease;
   flex-shrink: 0;
