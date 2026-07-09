@@ -400,7 +400,8 @@ button:focus-visible {
    for the block. */
 /* stylelint-disable no-descending-specificity */
 main .default-content-wrapper :is(p, li) a:not(.button),
-main .text-wrapper :is(p, li) a:not(.button) {
+main .text-wrapper :is(p, li) a:not(.button),
+main .table-wrapper :is(td, th) a:not(.button) {
   display: inline;
   white-space: normal;
   color: var(--black);
@@ -410,12 +411,14 @@ main .text-wrapper :is(p, li) a:not(.button) {
 }
 
 main .default-content-wrapper :is(p, li) a:not(.button):hover,
-main .text-wrapper :is(p, li) a:not(.button):hover {
+main .text-wrapper :is(p, li) a:not(.button):hover,
+main .table-wrapper :is(td, th) a:not(.button):hover {
   color: var(--action-hover);
 }
 
 main .default-content-wrapper :is(p, li) a:not(.button):focus,
-main .text-wrapper :is(p, li) a:not(.button):focus {
+main .text-wrapper :is(p, li) a:not(.button):focus,
+main .table-wrapper :is(td, th) a:not(.button):focus {
   color: var(--action-focus);
 }
 /* stylelint-enable no-descending-specificity */
