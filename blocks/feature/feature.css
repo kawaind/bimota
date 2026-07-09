@@ -58,14 +58,16 @@
 }
 
 .feature-slide-nav-dot {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   display: block;
+  background: var(--black);
 
-  /* 2px boundary so the dot outline meets the minimum visible-boundary
-     thickness for a UI component (WCAG 1.4.11 Non-text Contrast). */
-  border: solid 2px var(--grey-90);
+  /* The decorative number is suppressed with font-size:0 (rather than a
+     transparent colour) so contrast checkers don't evaluate it as visible
+     text (WCAG 1.4.3). It is re-shown, white, only on the active dot. */
   color: transparent;
+  font-size: 0;
   overflow: hidden;
   border-radius: 50%;
 }
@@ -84,6 +86,10 @@
   border-radius: 50%;
   border-width: 0;
   letter-spacing: 0;
+
+  /* Re-show the number on the active dot: white on the black fill (>=4.5:1). */
+  color: var(--white);
+  font-size: 14px;
 }
 
 /* Hover/focus dot state (Figma): a 20x20 filled black dot. Applies to
