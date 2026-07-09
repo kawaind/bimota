@@ -61,7 +61,10 @@
   width: 8px;
   height: 8px;
   display: block;
-  border: solid 1px var(--grey-90);
+
+  /* 2px boundary so the dot outline meets the minimum visible-boundary
+     thickness for a UI component (WCAG 1.4.11 Non-text Contrast). */
+  border: solid 2px var(--grey-90);
   color: transparent;
   overflow: hidden;
   border-radius: 50%;
