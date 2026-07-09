@@ -56,11 +56,11 @@ const updateActiveItem = (block, index) => {
   if (!images || !descriptions || !navigation) return;
   const tabs = [...navigation.querySelectorAll('[role="tab"]')];
 
+  // Clear the previous active state. Link focusability is now handled entirely
+  // by the panel's `hidden` attribute (hidden content is unfocusable), so no
+  // per-link tabindex management is needed.
   [images, descriptions, navigation].forEach((c) => c.querySelectorAll('.active').forEach((i) => {
     i.classList.remove('active');
-
-    // Remove tabindex from previously active items
-    i.querySelectorAll('a').forEach((link) => link.setAttribute('tabindex', '-1'));
   }));
 
   images.children[index]?.classList.add('active');
@@ -75,21 +75,23 @@ const updateActiveItem = (block, index) => {
     tab.setAttribute('tabindex', selected ? '0' : '-1');
   });
 
-  // Tabpanels: only the active panel is focusable and exposed to AT; inactive
-  // panels stay in the DOM (the carousel animates by scrolling between them)
-  // but are bypassed via tabindex=-1 + aria-hidden, so hidden content and its
-  // links are skipped by keyboard and screen readers.
+  // Tabpanels: inactive panels are hidden with the native `hidden` attribute,
+  // NOT aria-hidden. These panels contain a focusable "Discover" CTA, and
+  // aria-hidden on a focusable element is a WCAG 4.1.2 failure (a keyboard user
+  // could still tab into content the AT is told to ignore). `hidden` removes
+  // them from layout, the a11y tree AND the tab order in one step, so no
+  // per-link tabindex juggling is needed. The active panel stays focusable so
+  // Tab can move from the tablist into it (APG Tabs pattern).
   [...descriptions.children].forEach((panel, i) => {
     const selected = i === index;
+    panel.hidden = !selected;
     panel.setAttribute('tabindex', selected ? '0' : '-1');
-    panel.setAttribute('aria-hidden', selected ? 'false' : 'true');
   });
+  // Images carry no focusable content, so aria-hidden is compliant here and
+  // keeps them in the layout for the visible slide animation.
   [...images.children].forEach((imageItem, i) => {
     imageItem.setAttribute('aria-hidden', i === index ? 'false' : 'true');
   });
-
-  // Make links of current panel accessible by keyboard
-  descriptions.children[index].querySelectorAll('a').forEach((link) => link.setAttribute('tabindex', '0'));
 
   // Center navigation item
   const navigationActiveItem = navigation.querySelector('.active');
@@ -104,12 +106,8 @@ const updateActiveItem = (block, index) => {
     });
   }
 
-  // Update description position
-  const descriptionWidth = descriptions.offsetWidth;
-  descriptions.scrollTo({
-    left: descriptionWidth * index,
-    behavior: 'smooth',
-  });
+  // Only the active description panel is laid out now (inactive ones are
+  // `hidden`), so the container no longer needs horizontal scrolling.
 
   // Announce the vehicle name only when the change was driven from the image
   // slider (the slider or one of its children holds focus). Tab navigation

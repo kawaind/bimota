@@ -102,6 +102,13 @@
   transition: opacity var(--duration-medium) var(--easing-exit);
 }
 
+/* Inactive panels use the native `hidden` attribute (not aria-hidden) because
+   they contain a focusable CTA. `display: grid` above would override the UA
+   `hidden { display: none }`, so re-assert it here. */
+.vehicle-selector__desc-item[hidden] {
+  display: none;
+}
+
 .vehicle-selector__desc-item.active {
   opacity: 1;
   transition: opacity 0.5s var(--easing-entrance) var(--duration-medium);
