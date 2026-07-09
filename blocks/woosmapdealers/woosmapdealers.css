@@ -161,9 +161,12 @@
   margin-bottom: 4px;
 }
 
+/* Dealer website / email links: black by default, dark-red on hover,
+   darker-red on focus; always underlined so state is never conveyed by
+   colour alone (WCAG 1.4.1). */
 .woosmapdealers .dealer-url a,
 .woosmapdealers .dealer-email a {
-  color: var(--action-default);
+  color: var(--black);
   text-decoration: underline;
   font-weight: 500;
   font-size: 16px;
@@ -176,6 +179,13 @@
 .woosmapdealers .dealer-url a:hover,
 .woosmapdealers .dealer-email a:hover {
   color: var(--action-hover);
+  text-decoration: underline;
+}
+
+.woosmapdealers .dealer-url a:focus,
+.woosmapdealers .dealer-email a:focus {
+  color: var(--action-focus);
+  text-decoration: underline;
 }
 
 /* global-title variant */
