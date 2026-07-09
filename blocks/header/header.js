@@ -87,12 +87,17 @@ function toggleAllNavSections(sections, expanded = false) {
  * @param {*} forceExpanded Optional param to force nav expand behavior when not null
  */
 function toggleMenu(nav, navSections, forceExpanded = null) {
-  const expanded = forceExpanded !== null ? !forceExpanded : nav.getAttribute('aria-expanded') === 'true';
+  // The open/closed state of the whole mobile menu lives on the hamburger
+  // button (aria-expanded + aria-controls), not on the <nav> landmark:
+  // aria-expanded is not a valid attribute on role="navigation" (WCAG 4.1.2).
+  // A `nav-expanded` class mirrors the state for CSS hooks.
   const button = nav.querySelector('.nav-hamburger button');
+  const expanded = forceExpanded !== null ? !forceExpanded : nav.classList.contains('nav-expanded');
   document.body.style.overflowY = (expanded || isDesktop.matches) ? '' : 'hidden';
-  nav.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+  nav.classList.toggle('nav-expanded', !expanded);
+  button?.setAttribute('aria-expanded', expanded ? 'false' : 'true');
   toggleAllNavSections(navSections, false);
-  button.setAttribute('aria-label', expanded ? 'Open navigation' : 'Close navigation');
+  button?.setAttribute('aria-label', expanded ? 'Open navigation' : 'Close navigation');
   // enable nav dropdown keyboard accessibility
   const navDrops = navSections.querySelectorAll('.nav-drop');
   navDrops.forEach((drop) => {
@@ -380,12 +385,11 @@ export default async function decorate(block) {
   if (navSections) {
     const hamburger = document.createElement('div');
     hamburger.classList.add('nav-hamburger');
-    hamburger.innerHTML = `<button type="button" aria-controls="nav" aria-label="Open navigation">
+    hamburger.innerHTML = `<button type="button" aria-controls="nav" aria-expanded="false" aria-label="Open navigation">
         <span class="icon icon-hamburger"></span>
       </button>`;
     hamburger.addEventListener('click', () => toggleMenu(nav, navSections));
     nav.append(hamburger);
-    nav.setAttribute('aria-expanded', 'false');
     // prevent mobile nav behavior on window resize
     toggleMenu(nav, navSections, isDesktop.matches);
     isDesktop.addEventListener('change', () => {

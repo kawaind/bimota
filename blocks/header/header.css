@@ -395,17 +395,17 @@ header.transparent .nav-dealer-locator a.button:focus {
   color: var(--action-focus);
 }
 
-header.transparent nav[aria-expanded="true"] .nav-link-section a:any-link,
-header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text {
+header.transparent nav.nav-expanded .nav-link-section a:any-link,
+header.transparent nav.nav-expanded .nav-link-section a.nav-drop-text {
   color: var(--grey-90);
 }
 
-header.transparent nav[aria-expanded="true"] .nav-link-section a:any-link:where(.active) {
+header.transparent nav.nav-expanded .nav-link-section a:any-link:where(.active) {
   color: var(--action-hover);
 }
 
-header.transparent nav[aria-expanded="true"] .nav-link-section a:any-link:hover,
-header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text:hover {
+header.transparent nav.nav-expanded .nav-link-section a:any-link:hover,
+header.transparent nav.nav-expanded .nav-link-section a.nav-drop-text:hover {
   color: var(--action-focus);
 }
 
@@ -692,16 +692,16 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text:h
   }
 
   /* stylelint-disable-next-line no-descending-specificity */
-  header.transparent nav[aria-expanded="true"] .nav-link-section a:any-link,
+  header.transparent nav.nav-expanded .nav-link-section a:any-link,
   header.transparent
-    nav[aria-expanded="true"]
+    nav.nav-expanded
     .nav-link-section
     a.nav-drop-text {
     color: var(--white);
   }
 
   header.transparent
-    nav[aria-expanded="true"]
+    nav.nav-expanded
     .nav-link-section
     .nav-drop
     a:any-link {
@@ -709,7 +709,7 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text:h
   }
 
   header.transparent
-    nav[aria-expanded="true"]
+    nav.nav-expanded
     .nav-link-section
     .nav-drop
     a:focus {
@@ -717,7 +717,7 @@ header.transparent nav[aria-expanded="true"] .nav-link-section a.nav-drop-text:h
   }
 
   header.transparent
-    nav[aria-expanded="true"]
+    nav.nav-expanded
     .nav-link-section
     .nav-drop
     a:hover {
