@@ -184,6 +184,54 @@ function swappingPlacesBlock(main) {
 }
 
 /**
+ * Inline button/new-tab authoring shortcut for links written in open text.
+ *
+ * Authors can turn a plain inline link into a secondary button by prefixing its
+ * text with `$`, and make it open in a new tab by suffixing the text with `+`:
+ *   - `$Discover`   -> secondary button, same tab
+ *   - `$Discover+`  -> secondary button, opens in a new tab
+ *   - `Read more+`  -> plain inline link that opens in a new tab
+ *
+ * The marker characters are stripped from the visible/accessible label. Links
+ * opening in a new tab get rel="noopener noreferrer" (security) and a
+ * visually-hidden "(opens in a new tab)" hint so screen-reader users are warned
+ * (WCAG 3.2.5). Runs after decorateButtons so it does not fight the existing
+ * paragraph-wrapping button convention.
+ * @param {Element} main The container element
+ */
+function decorateInlineButtons(main) {
+  main.querySelectorAll('a:any-link').forEach((a) => {
+    // Only act on text links (skip image links) and use the trimmed label.
+    if (a.querySelector('img')) return;
+    const label = a.textContent.trim();
+    if (!label) return;
+
+    const isButton = label.startsWith('$');
+    const newTab = label.endsWith('+');
+    if (!isButton && !newTab) return;
+
+    // Strip the markers from the visible text.
+    const cleanLabel = label.replace(/^\$/, '').replace(/\+$/, '').trim();
+    a.textContent = cleanLabel;
+    if (a.title === label) a.title = cleanLabel;
+
+    if (isButton && !a.classList.contains('button')) {
+      a.classList.add('button', 'secondary');
+    }
+
+    if (newTab) {
+      a.setAttribute('target', '_blank');
+      a.setAttribute('rel', 'noopener noreferrer');
+      // Warn AT users the link opens in a new tab (WCAG 3.2.5).
+      const hint = document.createElement('span');
+      hint.className = 'sr-only';
+      hint.textContent = ' (opens in a new tab)';
+      a.append(hint);
+    }
+  });
+}
+
+/**
  * Decorates the main element.
  * @param {Element} main The main element
  */
@@ -191,6 +239,7 @@ function swappingPlacesBlock(main) {
 export function decorateMain(main) {
   // hopefully forward compatible button decoration
   decorateButtons(main);
+  decorateInlineButtons(main);
   customDecoreateIcons(main);
   buildAutoBlocks(main);
   decorateSections(main);
