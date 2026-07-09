@@ -1,6 +1,6 @@
 import { getMetadata, getRootPath } from '../../scripts/aem.js';
 import { loadFragment } from '../fragment/fragment.js';
-import { addTitleAttributeToIconLink } from '../../scripts/helpers.js';
+import { addTitleAttributeToIconLink, forceHeadingLevel } from '../../scripts/helpers.js';
 
 const ICON_TOKEN_REGEX = /:([A-Za-z0-9][A-Za-z0-9-]*):/g;
 const YEAR_TOKEN_REGEX = /\{\s*year\s*\}/gi;
@@ -284,8 +284,11 @@ export default async function decorate(block) {
   columns.forEach((column) => {
     column.classList.add('footer-column');
 
-    // each heading should be rendered as font-small
-    [...column.querySelectorAll('h1, h2, h3, h4, h5, h6')].forEach((heading) => heading.classList.add('font-small'));
+    // Column titles are forced to a semantic H3 (consistent heading outline
+    // across the site) while keeping the H4 visual size via font-small.
+    [...column.querySelectorAll('h1, h2, h3, h4, h5, h6')].forEach((heading) => {
+      forceHeadingLevel(heading, 'h3', 'font-small');
+    });
   });
 
   // a11y for social icons
