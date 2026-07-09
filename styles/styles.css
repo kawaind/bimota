@@ -45,6 +45,7 @@
   --action-focus: #82221d;
 
   /* button palette (accessibility button spec) */
+  --red-on-white: #e7131a; /* default red for buttons over white (light theme) */
   --coral: #f48680;
   --lt-bg-grey: #ccc; /* == grey-20 */
   --lt-text-grey: #808080; /* == grey-50 */
@@ -446,20 +447,22 @@ button.secondary {
 
 /* LIGHT THEME (button over white background) */
 
-/* Primary: solid red -> dark-red (hover) -> darker-red (focus); white text. */
+/* Primary: red-on-white default -> dark-red (hover) -> darker-red (focus);
+   white text. */
 a.button.primary:any-link,
 button.primary {
-  background: var(--action-default);
+  background: var(--red-on-white);
   color: var(--white);
-  border: solid 1px var(--action-default);
+  border: solid 1px var(--red-on-white);
 }
 
-/* Secondary: white bg, black text, red border by default; fills on hover/focus. */
+/* Secondary: white bg, black text, red-on-white border by default; fills on
+   hover/focus. */
 a.button.secondary:any-link,
 button.secondary {
   background: var(--white);
   color: var(--black);
-  border: 1px solid var(--action-default);
+  border: 1px solid var(--red-on-white);
 }
 
 a.button.primary:hover,
@@ -537,7 +540,7 @@ main button.button:not(.primary, .secondary) {
   color: var(--black);
   border: none;
   text-decoration: underline;
-  text-decoration-color: var(--action-default);
+  text-decoration-color: var(--red-on-white);
   text-underline-offset: 4px;
 }
 
@@ -922,15 +925,15 @@ body.modal-visible > *:not(.modal) {
   height: 42px;
   background: var(--white);
   border-radius: 50%;
-  color: var(--action-default);
-  border: solid 1px var(--action-default);
+  color: var(--red-on-white);
+  border: solid 1px var(--red-on-white);
 
   /* Placed first in the DOM (before the full-viewport content) for keyboard
      shortcut access, so it needs an explicit stacking order to stay on top. */
   z-index: 1;
 }
 
-/* Close button colour follows the spec: red -> dark-red (hover) ->
+/* Close button colour follows the spec: red-on-white -> dark-red (hover) ->
    darker-red (focus). Border and icon (currentColor) move together. */
 .modal .modal-close-button:hover,
 .modal .modal-close-button:active {

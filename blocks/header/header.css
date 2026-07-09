@@ -161,7 +161,7 @@ header .nav-dealer-locator a.button {
   font-weight: 600;
   line-height: 150%;
   letter-spacing: 0.44px;
-  border: solid 1px var(--action-default);
+  border: solid 1px var(--red-on-white);
 }
 
 header .nav-dealer-locator a.button:hover {

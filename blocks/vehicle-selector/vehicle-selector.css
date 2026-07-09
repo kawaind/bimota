@@ -210,13 +210,14 @@ ul.vehicle-selector__navigation {
   right: 10%;
 }
 
-/* Carousel arrow buttons: colour follows the spec red -> dark-red (hover) ->
-   darker-red (focus). Border + arrow icon (currentColor) move together. */
+/* Carousel arrow buttons: colour follows the spec red-on-white -> dark-red
+   (hover) -> darker-red (focus). Border + arrow icon (currentColor) move
+   together. */
 .vehicle-selector__arrow-controls button {
   background-color: var(--white);
   border-radius: 50%;
-  color: var(--action-default);
-  border: 1px solid var(--action-default);
+  color: var(--red-on-white);
+  border: 1px solid var(--red-on-white);
   font-size: 0;
   line-height: 0;
   margin: 0;
