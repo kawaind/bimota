@@ -395,13 +395,13 @@ button:focus-visible {
    always underlined so they are distinguishable from surrounding text by more
    than colour (WCAG 1.4.1 Use of Color, Level A). Colour follows the spec:
    default = black, hover = dark-red, focus = darker-red; the underline is
-   present in every state. These rules intentionally follow the base link rule
-   above, so the source-order-based descending-specificity check is disabled
-   for the block. */
+   present in every state. Scope is every in-prose link inside main (any
+   block), excluding styled CTAs (.button) and the country-selector menu tiles
+   (.cs-button); table-cell links are covered too since they sit inside a <p>.
+   These rules intentionally follow the base link rule above, so the
+   source-order-based descending-specificity check is disabled for the block. */
 /* stylelint-disable no-descending-specificity */
-main .default-content-wrapper :is(p, li) a:not(.button),
-main .text-wrapper :is(p, li) a:not(.button),
-main .table-wrapper :is(td, th) a:not(.button) {
+main :is(p, li) a:not(.button, .cs-button) {
   display: inline;
   white-space: normal;
   color: var(--black);
@@ -410,15 +410,11 @@ main .table-wrapper :is(td, th) a:not(.button) {
   text-underline-offset: 3px;
 }
 
-main .default-content-wrapper :is(p, li) a:not(.button):hover,
-main .text-wrapper :is(p, li) a:not(.button):hover,
-main .table-wrapper :is(td, th) a:not(.button):hover {
+main :is(p, li) a:not(.button, .cs-button):hover {
   color: var(--action-hover);
 }
 
-main .default-content-wrapper :is(p, li) a:not(.button):focus,
-main .text-wrapper :is(p, li) a:not(.button):focus,
-main .table-wrapper :is(td, th) a:not(.button):focus {
+main :is(p, li) a:not(.button, .cs-button):focus {
   color: var(--action-focus);
 }
 /* stylelint-enable no-descending-specificity */
