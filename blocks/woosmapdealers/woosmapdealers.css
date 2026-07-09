@@ -56,8 +56,8 @@
 }
 
 .woosmapdealers .dealers-tab-btn.active {
-  color: #ed1c24;
-  border-bottom-color: #ed1c24;
+  color: var(--action-hover);
+  border-bottom-color: var(--action-hover);
   font-weight: 500;
 }
 
