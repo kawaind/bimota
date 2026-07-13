@@ -1,3 +1,22 @@
+// A trailing "+" on the link text makes it open in a new tab. Add the security
+// rel and a visually-hidden hint so screen-reader users are warned (WCAG 3.2.5).
+// Mirrors the site-wide inline-link convention, which doesn't reach these links
+// because the column layout collapses their paragraph wrappers.
+function applyNewTabShortcut(link) {
+  if (!link.textContent.trim().endsWith('+')) return;
+
+  link.textContent = link.textContent.trim().replace(/\+$/, '').trim();
+  if (link.title) link.title = link.title.replace(/\+$/, '').trim();
+
+  link.setAttribute('target', '_blank');
+  link.setAttribute('rel', 'noopener noreferrer');
+
+  const hint = document.createElement('span');
+  hint.className = 'sr-only';
+  hint.textContent = ' (opens in a new tab)';
+  link.append(hint);
+}
+
 // Ensure a link inside a column is styled as a button. The author picks the
 // style with inline emphasis: **bold** => primary, *italic* => secondary,
 // plain link => tertiary. The global decorateButtons only fires when the link
@@ -23,6 +42,8 @@ function decorateColumnButton(cell) {
   if (emphasis && emphasis.childNodes.length === 1) {
     emphasis.replaceWith(link);
   }
+
+  applyNewTabShortcut(link);
 }
 
 export default function decorate(block) {
