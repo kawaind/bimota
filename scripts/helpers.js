@@ -251,3 +251,37 @@ export const getLocale = () => {
     country, language, langSegment, locale,
   };
 };
+
+let lanconfigPromise;
+
+/**
+ * Fetch the site's language-config sheet (/lanconfig.json) once and cache it.
+ * @returns {Promise<Object|null>} the parsed sheet, or null if unavailable
+ */
+export const fetchLanguageConfig = () => {
+  if (!lanconfigPromise) {
+    lanconfigPromise = fetch(`${window.hlx?.codeBasePath || ''}/lanconfig.json`)
+      .then((resp) => (resp.ok ? resp.json() : null))
+      .catch(() => null);
+  }
+  return lanconfigPromise;
+};
+
+/**
+ * Resolve the "opens in a new tab" warning translated for the current URL's
+ * language, read from /lanconfig.json (row keyed "opensInNewTab", one column
+ * per language code). Falls back to English, then to a hard-coded default.
+ * @returns {Promise<string>} the translated warning text
+ */
+export const getOpensInNewTabLabel = async () => {
+  const fallback = '(opens in a new tab)';
+  const config = await fetchLanguageConfig();
+  const rows = config?.data;
+  if (!Array.isArray(rows)) return fallback;
+
+  const row = rows.find((r) => (r.Key || r.key) === 'opensInNewTab');
+  if (!row) return fallback;
+
+  const { language } = getLocale();
+  return row[language] || row.en || row.En || fallback;
+};
