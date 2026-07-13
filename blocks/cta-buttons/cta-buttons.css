@@ -1,0 +1,61 @@
+/* CTA Buttons: a grid of author-editable buttons. The column count (1-4) is
+   set from the number of cells the author adds per row and mapped to a
+   responsive grid. Buttons are centred within each column by default; the
+   (left) / (center) / (right) block variants override the alignment for all
+   columns regardless of how many are used. */
+
+.cta-buttons {
+  display: grid;
+  gap: 24px;
+}
+
+.cta-buttons .cta-buttons-row {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: 1fr;
+}
+
+/* Each column centres its button by default. */
+.cta-buttons .cta-buttons-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+}
+
+.cta-buttons .cta-buttons-col .button-container {
+  margin: 0;
+}
+
+/* Alignment variants - apply to buttons in every column, any column count. */
+.cta-buttons.left .cta-buttons-col {
+  align-items: flex-start;
+  text-align: left;
+}
+
+.cta-buttons.center .cta-buttons-col {
+  align-items: center;
+  text-align: center;
+}
+
+.cta-buttons.right .cta-buttons-col {
+  align-items: flex-end;
+  text-align: right;
+}
+
+/* Multi-column layouts stack on small screens and expand from the tablet
+   breakpoint up, matching the site's other column blocks. */
+@media (width >= 768px) {
+  .cta-buttons.cta-buttons-2-cols .cta-buttons-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .cta-buttons.cta-buttons-3-cols .cta-buttons-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .cta-buttons.cta-buttons-4-cols .cta-buttons-row {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
