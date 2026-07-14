@@ -44,6 +44,17 @@
   text-align: right;
 }
 
+/* Keyboard focus indicator: the global button rule sets `outline: none`, so
+   re-assert a visible blue focus ring for keyboard users (WCAG 2.4.7). Uses
+   :focus-visible so it only appears for keyboard/AT focus, not mouse clicks,
+   and is rounded to match the pill button shape. */
+.cta-buttons a.button:focus-visible,
+.cta-buttons button.button:focus-visible {
+  outline: 3px solid #0b5fff;
+  outline-offset: 2px;
+  border-radius: 24px;
+}
+
 /* Visually hidden but exposed to assistive tech: used for the "opens in a new
    tab" warning when the author adds a single "+". */
 .cta-buttons .sr-only {
