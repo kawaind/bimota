@@ -101,7 +101,7 @@ export default async function decorate(block) {
     breakPoint: 10,
     baseMapStyle: colorsConfig,
     tileStyle: {
-      color: '#ed1d24',
+      color: '#ED1C24',
       size: 13,
       minSize: 7,
     },
@@ -196,7 +196,7 @@ export default async function decorate(block) {
     initialZoom: getInitialZoom(),
     fitBounds: shouldFitBounds(),
     tileStyle: {
-      color: '#ed1d24',
+      color: '#ED1C24',
       size: 12,
       minSize: 10,
     },
@@ -241,7 +241,7 @@ export default async function decorate(block) {
                 },
               },
               theme: {
-                primaryColor: '#ed1d24',
+                primaryColor: '#ED1C24',
               },
               datasource: {
                 maxResponses: 5,
