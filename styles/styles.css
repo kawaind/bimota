@@ -703,7 +703,7 @@ header nav a.skip-link {
   color: var(--white);
   background-color: var(--btn-dark-red);
   font-family: var(--body-font-family);
-  font-size: 0.6125rem;
+  font-size: 0.675rem;
   font-weight: 700;
   white-space: nowrap;
   text-decoration: none;
@@ -715,7 +715,7 @@ header nav a.skip-link:focus-visible {
   width: auto;
   height: auto;
   margin: 0 16px;
-  padding: 6px 10px;
+  padding: 7px 11px;
   overflow: visible;
   clip: auto;
   clip-path: none;
