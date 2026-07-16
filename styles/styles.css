@@ -679,7 +679,8 @@ main img {
 }
 
 /* Skip-to-content link: first focusable element, visually hidden until it
-   receives keyboard focus, then revealed just beneath the logo (top-left).
+   receives keyboard focus, then revealed inside the header bar, to the left of
+   the logo and vertically centred within the nav height.
    Colours match the button spec: white text on --btn-dark-red when focused,
    darkening to --btn-darker-red on hover (WCAG 2.4.1 Bypass Blocks).
 
@@ -703,19 +704,19 @@ a.skip-link {
   color: var(--white);
   background-color: var(--btn-dark-red);
   font-family: var(--body-font-family);
-  font-size: var(--body-font-size);
+  font-size: 0.875rem;
   font-weight: 700;
   white-space: nowrap;
   text-decoration: none;
-  border-radius: 0 0 4px 4px;
+  border-radius: 4px;
 }
 
 a.skip-link:focus,
 a.skip-link:focus-visible {
-  top: var(--nav-height);
+  top: 18px;
   width: auto;
   height: auto;
-  padding: 10px 16px;
+  padding: 8px 14px;
   overflow: visible;
   clip: auto;
   clip-path: none;
