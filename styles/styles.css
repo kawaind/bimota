@@ -678,26 +678,25 @@ main img {
   height: auto;
 }
 
-/* Skip-to-content link: first focusable element, visually hidden until it
-   receives keyboard focus, then revealed inside the header bar, to the left of
-   the logo and vertically centred within the nav height.
+/* Skip-to-content link: lives in the header nav directly after the logo, so the
+   keyboard order is logo -> skip link -> menu (it is the second Tab stop). It is
+   an in-flow flex item in the nav bar, so when focused it appears between the
+   logo and the first menu item, vertically centred in the bar.
    Colours match the button spec: white text on --btn-dark-red when focused,
    darkening to --btn-darker-red on hover (WCAG 2.4.1 Bypass Blocks).
 
-   Hidden state uses the clip technique (a 1px clipped box that still sits at
-   the top of the viewport) rather than moving the element off-screen with a
-   transform. An element pushed entirely above the viewport is excluded by some
-   browsers from the sequential focus starting point, so the first Tab would
-   land on the logo and only Shift+Tab would reach the skip link. Keeping a 1px
-   footprint inside the viewport guarantees it is the first Tab stop. */
+   Hidden state uses the clip technique (a 1px clipped, in-flow box) rather than
+   moving the element off-screen. Keeping it in normal flow after a focusable
+   logo guarantees a forward Tab reaches it; an element removed from flow or
+   pushed off-screen before the focus starting point is only reachable with
+   Shift+Tab in some browsers. */
 a.skip-link {
-  position: fixed;
-  top: 0;
-  left: var(--section-x-padding);
-  z-index: calc(var(--z-index-header) + 1);
+  align-self: center;
+  flex-shrink: 0;
   width: 1px;
   height: 1px;
   padding: 0;
+  margin: 0;
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   clip-path: inset(50%);
@@ -713,9 +712,9 @@ a.skip-link {
 
 a.skip-link:focus,
 a.skip-link:focus-visible {
-  top: 18px;
   width: auto;
   height: auto;
+  margin: 0 16px;
   padding: 8px 14px;
   overflow: visible;
   clip: auto;

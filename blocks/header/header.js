@@ -27,6 +27,70 @@ async function getLogoAlt() {
   }
 }
 
+// English fallback shown until the translated label resolves (or if the sheet
+// is unavailable), so the skip link is never unlabelled.
+const SKIP_LINK_FALLBACK = 'Skip to content';
+
+/**
+ * Resolves the translated "Skip to content" label from the global lanconfig.json
+ * multi-sheet. The `sr-skipbutton` sheet has a `skipToContent` row with one
+ * column per language code (en, it, fr, de, nl, es, ja, lu); the column matching
+ * the current URL's language wins, else `en`. Adding a language is an authoring
+ * change: add a column. Falls back to the English default on any error.
+ * @returns {Promise<string>} the language-appropriate skip link label
+ */
+async function getSkipLinkLabel() {
+  try {
+    const resp = await fetch('/lanconfig.json?sheet=sr-skipbutton');
+    if (!resp.ok) return SKIP_LINK_FALLBACK;
+    const json = await resp.json();
+    const data = json['sr-skipbutton']?.data || json.data || [];
+    const row = data.find((r) => r.Key === 'skipToContent');
+    if (!row) return SKIP_LINK_FALLBACK;
+    const lang = getLanguageFromPath();
+    return row[lang] || row.en || SKIP_LINK_FALLBACK;
+  } catch (e) {
+    return SKIP_LINK_FALLBACK;
+  }
+}
+
+/**
+ * Injects a "skip to content" link immediately after the logo so it is the
+ * second element in the keyboard tab order (logo -> skip link -> menu) and sits
+ * in the header bar between the logo and the first menu item. Being a normal
+ * in-flow-order element after the first focusable guarantees a forward Tab
+ * reaches it, rather than it living before the focus starting point (WCAG 2.4.1
+ * Bypass Blocks, EAA/ADA). It is visually hidden until focused; on activation it
+ * moves focus to <main> (tabindex="-1", programmatically focusable but not in
+ * the tab order) so assistive tech follows along. The label starts as an English
+ * fallback and is swapped for the translated value once the sheet resolves.
+ * @param {Element} afterEl the element the skip link is inserted after (logo)
+ */
+function decorateSkipLink(afterEl) {
+  const main = document.querySelector('main');
+  if (!main || document.querySelector('.skip-link')) return;
+
+  main.id = main.id || 'main-content';
+  main.setAttribute('tabindex', '-1');
+
+  const skipLink = document.createElement('a');
+  skipLink.className = 'skip-link';
+  skipLink.href = `#${main.id}`;
+  skipLink.textContent = SKIP_LINK_FALLBACK;
+
+  skipLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    main.scrollIntoView();
+    main.focus();
+  });
+
+  afterEl.after(skipLink);
+
+  getSkipLinkLabel().then((label) => {
+    skipLink.textContent = label;
+  });
+}
+
 // media query match that indicates mobile/tablet width
 const isDesktop = window.matchMedia('(min-width: 1025px)');
 const fadeTransitionTime = 300;
@@ -245,6 +309,10 @@ export default async function decorate(block) {
       iconEl.setAttribute('aria-hidden', 'true');
     });
   }
+
+  // Skip link sits right after the logo, so keyboard order is
+  // logo -> skip link -> menu (the skip link is the second Tab stop).
+  decorateSkipLink(navBrand);
 
   const navSections = nav.querySelector('.nav-sections');
 

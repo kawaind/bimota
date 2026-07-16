@@ -15,7 +15,6 @@ import {
   toClassName,
 } from './aem.js';
 import { customDecoreateIcons } from './decorate-icon-helper.js';
-import { getLanguageFromPath } from './helpers.js';
 
 function buildVideoBlock(main) {
   const videoLinks = [...main.querySelectorAll('a[href$=".mp4"]')];
@@ -250,69 +249,6 @@ export function decorateMain(main) {
   swappingPlacesBlock(main);
 }
 
-// English fallback shown until the translated label resolves (or if the sheet
-// is unavailable), so the skip link is never unlabelled.
-const SKIP_LINK_FALLBACK = 'Skip to content';
-
-/**
- * Resolves the translated "Skip to content" label from the global lanconfig.json
- * multi-sheet. The `sr-skipbutton` sheet has a `skipToContent` row with one
- * column per language code (en, it, fr, de, nl, es, ja, lu); the column matching
- * the current URL's language wins, else `en`. Adding a language is an authoring
- * change: add a column. Falls back to the English default on any error.
- * @returns {Promise<string>} the language-appropriate skip link label
- */
-async function getSkipLinkLabel() {
-  try {
-    const resp = await fetch('/lanconfig.json?sheet=sr-skipbutton');
-    if (!resp.ok) return SKIP_LINK_FALLBACK;
-    const json = await resp.json();
-    const data = json['sr-skipbutton']?.data || json.data || [];
-    const row = data.find((r) => r.Key === 'skipToContent');
-    if (!row) return SKIP_LINK_FALLBACK;
-    const lang = getLanguageFromPath();
-    return row[lang] || row.en || SKIP_LINK_FALLBACK;
-  } catch (e) {
-    return SKIP_LINK_FALLBACK;
-  }
-}
-
-/**
- * Injects a "skip to content" link as the very first focusable element on the
- * page so keyboard and screen-reader users can bypass the repeated header/menu
- * and jump straight to the main content (WCAG 2.4.1 Bypass Blocks, EAA/ADA).
- * The link is visually hidden until focused; on activation it moves focus to
- * <main> (tabindex="-1" so it is programmatically focusable but not in the tab
- * order) rather than only scrolling, so assistive tech follows along. The label
- * is created with an English fallback and swapped for the translated value once
- * the lanconfig.json sheet resolves, so it is present in time for LCP.
- * @param {Document} doc the document
- * @param {Element} main the main element
- */
-function decorateSkipLink(doc, main) {
-  if (!main || doc.querySelector('.skip-link')) return;
-
-  main.id = main.id || 'main-content';
-  main.setAttribute('tabindex', '-1');
-
-  const skipLink = doc.createElement('a');
-  skipLink.className = 'skip-link';
-  skipLink.href = `#${main.id}`;
-  skipLink.textContent = SKIP_LINK_FALLBACK;
-
-  skipLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    main.scrollIntoView();
-    main.focus();
-  });
-
-  doc.body.prepend(skipLink);
-
-  getSkipLinkLabel().then((label) => {
-    skipLink.textContent = label;
-  });
-}
-
 function setMainPosition(main) {
   if (main.querySelector(':scope > .section:first-child > .hero-wrapper:first-child')) {
     main.classList.add('no-top-margin');
@@ -335,7 +271,6 @@ async function loadEager(doc) {
   decorateTemplateAndTheme();
   const main = doc.querySelector('main');
   if (main) {
-    decorateSkipLink(doc, main);
     decorateMain(main);
     setMainPosition(main);
     document.body.classList.add('appear');
