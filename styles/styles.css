@@ -678,6 +678,40 @@ main img {
   height: auto;
 }
 
+/* Skip-to-content link: first focusable element, hidden off-screen until it
+   receives keyboard focus, then revealed just beneath the logo (top-left).
+   Colours match the button spec: white text on --btn-dark-red when focused,
+   darkening to --btn-darker-red on hover (WCAG 2.4.1 Bypass Blocks). */
+a.skip-link {
+  position: fixed;
+  top: 0;
+  left: var(--section-x-padding);
+  z-index: calc(var(--z-index-header) + 1);
+  padding: 10px 16px;
+  color: var(--white);
+  background-color: var(--btn-dark-red);
+  font-family: var(--body-font-family);
+  font-size: var(--body-font-size);
+  font-weight: 700;
+  text-decoration: none;
+  border-radius: 0 0 4px 4px;
+  transform: translateY(-100%);
+  transition: transform 0.2s ease;
+}
+
+a.skip-link:focus,
+a.skip-link:focus-visible {
+  color: var(--white);
+  transform: translateY(var(--nav-height));
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+a.skip-link:hover {
+  color: var(--white);
+  background-color: var(--btn-darker-red);
+}
+
 /* Visually hidden but available to screen readers (e.g. "opens in a new tab"). */
 .sr-only {
   position: absolute;
@@ -719,6 +753,13 @@ div[class$="-wrapper"]:not(:first-child) {
 
 main {
   margin-top: var(--nav-height);
+}
+
+/* Remove the default focus outline when <main> is programmatically focused via
+   the skip link: the visible focus belongs on the content, not an outline box. */
+main:focus,
+main:focus-visible {
+  outline: none;
 }
 
 main.no-top-margin {
