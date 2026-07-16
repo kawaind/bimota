@@ -678,31 +678,48 @@ main img {
   height: auto;
 }
 
-/* Skip-to-content link: first focusable element, hidden off-screen until it
+/* Skip-to-content link: first focusable element, visually hidden until it
    receives keyboard focus, then revealed just beneath the logo (top-left).
    Colours match the button spec: white text on --btn-dark-red when focused,
-   darkening to --btn-darker-red on hover (WCAG 2.4.1 Bypass Blocks). */
+   darkening to --btn-darker-red on hover (WCAG 2.4.1 Bypass Blocks).
+
+   Hidden state uses the clip technique (a 1px clipped box that still sits at
+   the top of the viewport) rather than moving the element off-screen with a
+   transform. An element pushed entirely above the viewport is excluded by some
+   browsers from the sequential focus starting point, so the first Tab would
+   land on the logo and only Shift+Tab would reach the skip link. Keeping a 1px
+   footprint inside the viewport guarantees it is the first Tab stop. */
 a.skip-link {
   position: fixed;
   top: 0;
   left: var(--section-x-padding);
   z-index: calc(var(--z-index-header) + 1);
-  padding: 10px 16px;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
   color: var(--white);
   background-color: var(--btn-dark-red);
   font-family: var(--body-font-family);
   font-size: var(--body-font-size);
   font-weight: 700;
+  white-space: nowrap;
   text-decoration: none;
   border-radius: 0 0 4px 4px;
-  transform: translateY(-100%);
-  transition: transform 0.2s ease;
 }
 
 a.skip-link:focus,
 a.skip-link:focus-visible {
+  top: var(--nav-height);
+  width: auto;
+  height: auto;
+  padding: 10px 16px;
+  overflow: visible;
+  clip: auto;
+  clip-path: none;
   color: var(--white);
-  transform: translateY(var(--nav-height));
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: var(--focus-ring-offset);
 }
