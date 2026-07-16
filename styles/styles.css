@@ -690,7 +690,7 @@ main img {
    logo guarantees a forward Tab reaches it; an element removed from flow or
    pushed off-screen before the focus starting point is only reachable with
    Shift+Tab in some browsers. */
-a.skip-link {
+header nav a.skip-link {
   align-self: center;
   flex-shrink: 0;
   width: 1px;
@@ -703,19 +703,19 @@ a.skip-link {
   color: var(--white);
   background-color: var(--btn-dark-red);
   font-family: var(--body-font-family);
-  font-size: 0.875rem;
+  font-size: 0.6125rem;
   font-weight: 700;
   white-space: nowrap;
   text-decoration: none;
   border-radius: 4px;
 }
 
-a.skip-link:focus,
-a.skip-link:focus-visible {
+header nav a.skip-link:focus,
+header nav a.skip-link:focus-visible {
   width: auto;
   height: auto;
   margin: 0 16px;
-  padding: 8px 14px;
+  padding: 6px 10px;
   overflow: visible;
   clip: auto;
   clip-path: none;
@@ -724,7 +724,7 @@ a.skip-link:focus-visible {
   outline-offset: var(--focus-ring-offset);
 }
 
-a.skip-link:hover {
+header nav a.skip-link:hover {
   color: var(--white);
   background-color: var(--btn-darker-red);
 }
