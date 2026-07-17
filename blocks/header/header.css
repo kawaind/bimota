@@ -611,6 +611,10 @@ header.transparent nav.nav-expanded .nav-link-section a.nav-drop-text:hover {
     background: var(--white);
     padding: 0;
     overflow: hidden;
+
+    /* Sits above the .is-open::after backdrop (z-index 0) within the header's
+       stacking context, so the panel content stays on top. */
+    z-index: 1;
   }
 
   header .nav-sections .nav-drop .nav-sublist > div {
@@ -687,7 +691,13 @@ header.transparent nav.nav-expanded .nav-link-section a.nav-drop-text:hover {
     top: var(--nav-height);
     left: 0;
     background: rgb(0 0 0 / 40%);
-    z-index: -1;
+
+    /* The whole header is its own stacking context (z-index on `header`), so
+       the backdrop can sit at 0 (below the megamenu panel, which is raised to
+       1) and still paint above the page content. A negative z-index is avoided
+       because ARC Toolkit / accessibility tooling flags it: it can push an
+       element behind the page root and hide content. */
+    z-index: 0;
     cursor: auto;
   }
 

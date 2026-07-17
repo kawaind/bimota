@@ -1,4 +1,4 @@
-import { stripEmptyTags } from '../../scripts/helpers.js';
+import { stripEmptyTags, forceHeadingLevel } from '../../scripts/helpers.js';
 import { addModalHandling } from '../../scripts/modal-helper.js';
 
 const ICON_TOKEN_REGEX = /:([\w-]+):/;
@@ -159,8 +159,10 @@ function renderCountrySelector(block) {
       const blockHeading = dataRow.querySelector('h1, h2, h3, h4, h5, h6');
 
       if (blockHeading) {
-        blockHeading.classList.add('h2');
+        // The selector title is the page's main heading: enforce a semantic
+        // <h1> while keeping the .h2 visual size (WCAG 1.3.1, 2.4.6).
         blockHeadingWrapper = blockHeading.parentElement;
+        forceHeadingLevel(blockHeading, 'h1', 'h2');
         blockHeadingWrapper.classList.add('country-selector-heading-wrapper');
       }
 
@@ -177,9 +179,11 @@ function renderCountrySelector(block) {
       const countryLanguageList = dataRow.querySelector('ul');
 
       if (region?.textContent.trim()) {
-        region.classList.add('h5');
+        // Region headings sit one level below the selector title: enforce a
+        // semantic <h2> while keeping the .h5 visual size (WCAG 1.3.1).
+        const regionHeading = forceHeadingLevel(region, 'h2', 'h5');
         data.push({
-          region,
+          region: regionHeading,
           regionData: [],
         });
       }
