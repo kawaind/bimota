@@ -1,9 +1,36 @@
 import { getMetadata, getRootPath } from '../../scripts/aem.js';
 import { loadFragment } from '../fragment/fragment.js';
-import { addTitleAttributeToIconLink, forceHeadingLevel } from '../../scripts/helpers.js';
+import { addTitleAttributeToIconLink, forceHeadingLevel, getLanguageFromPath } from '../../scripts/helpers.js';
 
 const ICON_TOKEN_REGEX = /:([A-Za-z0-9][A-Za-z0-9-]*):/g;
 const YEAR_TOKEN_REGEX = /\{\s*year\s*\}/gi;
+
+// English fallback used until the translated label resolves (or if the sheet is
+// unavailable), so the back-to-top button always has an accessible name.
+const BACK_TO_TOP_FALLBACK = 'Back to top';
+
+/**
+ * Resolves the translated "Back to top" label from the global lanconfig.json
+ * multi-sheet. The `sr-topbutton` sheet has a `backToTop` row with one column
+ * per language code (en, it, fr, de, nl, es, ja, lu); the column matching the
+ * current URL's language wins, else `en`. Adding a language is an authoring
+ * change: add a column. Falls back to the English default on any error.
+ * @returns {Promise<string>} the language-appropriate back-to-top label
+ */
+async function getBackToTopLabel() {
+  try {
+    const resp = await fetch('/lanconfig.json?sheet=sr-topbutton');
+    if (!resp.ok) return BACK_TO_TOP_FALLBACK;
+    const json = await resp.json();
+    const data = json['sr-topbutton']?.data || json.data || [];
+    const row = data.find((r) => r.Key === 'backToTop');
+    if (!row) return BACK_TO_TOP_FALLBACK;
+    const lang = getLanguageFromPath();
+    return row[lang] || row.en || BACK_TO_TOP_FALLBACK;
+  } catch (e) {
+    return BACK_TO_TOP_FALLBACK;
+  }
+}
 
 function replaceYearTokens(container) {
   const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
@@ -318,16 +345,24 @@ export default async function decorate(block) {
     });
   });
 
-  // Back to top button
+  // Back to top button. The only content is a decorative chevron icon (alt=""
+  // + aria-hidden), so the button itself carries an aria-label giving screen
+  // readers an accessible name (WCAG 4.1.2, 2.4.4). The label is translated per
+  // language via the lanconfig.json `sr-topbutton` sheet, with an English
+  // fallback set immediately so the name is never missing.
   const backToTopNode = document.createRange().createContextualFragment(`
-    <button class="back-to-top">
-      <img data-icon-name="arrow" src="/icons/chevron-up.svg" alt="" loading="lazy">
+    <button class="back-to-top" type="button" aria-label="${BACK_TO_TOP_FALLBACK}">
+      <img data-icon-name="arrow" src="/icons/chevron-up.svg" alt="" aria-hidden="true" loading="lazy">
     </button>
   `);
 
   footer.prepend(backToTopNode);
 
   const backToTopButton = footer.querySelector('.back-to-top');
+
+  getBackToTopLabel().then((label) => {
+    backToTopButton.setAttribute('aria-label', label);
+  });
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
