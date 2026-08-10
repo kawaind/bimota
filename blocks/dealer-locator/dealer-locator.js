@@ -146,6 +146,10 @@ export default async function decorate(block) {
       lat: 36.204824,
       lng: 138.252924,
     },
+    china: {
+      lat: 30.834894900629152,
+      lng: 114.2391845355548,
+    },
   };
 
   const CENTER_BY_PATH = {
@@ -157,6 +161,7 @@ export default async function decorate(block) {
     'au/en': LOCATION_CENTERS.australia,
     'ph/en': LOCATION_CENTERS.philippines,
     'jp/ja': LOCATION_CENTERS.japan,
+    'cn/en': LOCATION_CENTERS.china,
   };
 
   const ZOOM_BY_PATH = {
