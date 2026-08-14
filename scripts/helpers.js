@@ -393,3 +393,53 @@ export const getLocale = () => {
     country, language, langSegment, locale,
   };
 };
+
+let lanconfigPromise;
+
+/**
+ * Fetch the site's language-config sheet (/lanconfig.json) once and cache it.
+ * @returns {Promise<Object|null>} the parsed sheet, or null if unavailable
+ */
+export const fetchLanguageConfig = () => {
+  if (!lanconfigPromise) {
+    lanconfigPromise = fetch(`${window.hlx?.codeBasePath || ''}/lanconfig.json`)
+      .then((resp) => (resp.ok ? resp.json() : null))
+      .catch(() => null);
+  }
+  return lanconfigPromise;
+};
+
+/**
+ * Read the rows of a named sheet from the multi-sheet lanconfig workbook.
+ * Supports the multi-sheet shape (sheet keyed by name with its own `data`
+ * array) and, as a fallback, a single-sheet workbook (top-level `data`).
+ * @param {Object|null} config the parsed lanconfig.json
+ * @param {string} sheetName the sheet to read (e.g. "sr-buttons")
+ * @returns {Array} the sheet's rows, or an empty array
+ */
+const getLanguageConfigSheet = (config, sheetName) => {
+  if (!config) return [];
+  if (Array.isArray(config[sheetName]?.data)) return config[sheetName].data;
+  if (Array.isArray(config.data)) return config.data;
+  return [];
+};
+
+/**
+ * Resolve the "opens in a new tab" warning translated for the current URL's
+ * language, read from the "sr-buttons" sheet in /lanconfig.json (row keyed
+ * "opensInNewTab", one column per language code). Falls back to English, then
+ * to a hard-coded default.
+ * @returns {Promise<string>} the translated warning text
+ */
+export const getOpensInNewTabLabel = async () => {
+  const fallback = '(opens in a new tab)';
+  const config = await fetchLanguageConfig();
+  const rows = getLanguageConfigSheet(config, 'sr-buttons');
+  if (!rows.length) return fallback;
+
+  const row = rows.find((r) => (r.Key || r.key) === 'opensInNewTab');
+  if (!row) return fallback;
+
+  const { language } = getLocale();
+  return row[language] || row.en || row.En || fallback;
+};
