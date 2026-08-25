@@ -16,14 +16,14 @@ const REGIONS = {
     'us', 'uy', 've', 'vg', 'vi',
   ],
   asia: [
-    'ae', 'af', 'am', 'az', 'bd', 'bh', 'bn', 'bt', 'cn', 'cy', 'ge', 'hk',
+    'ae', 'af', 'am', 'az', 'bd', 'bh', 'bn', 'bt', 'cn', 'ge', 'hk',
     'id', 'il', 'in', 'iq', 'ir', 'jo', 'jp', 'kg', 'kh', 'kp', 'kr', 'kw',
     'kz', 'la', 'lb', 'lk', 'mm', 'mn', 'mo', 'mv', 'my', 'np', 'om', 'ph',
     'pk', 'ps', 'qa', 'sa', 'sg', 'sy', 'th', 'tj', 'tl', 'tm', 'tr', 'tw',
     'uz', 'vn', 'ye',
   ],
   europe: [
-    'ad', 'al', 'at', 'ax', 'ba', 'be', 'bg', 'by', 'ch', 'cz', 'de', 'dk',
+    'ad', 'al', 'at', 'ax', 'ba', 'be', 'bg', 'by', 'ch', 'cz', 'cy', 'de', 'dk',
     'ee', 'es', 'fi', 'fo', 'fr', 'gb', 'gg', 'gi', 'gr', 'hr', 'hu', 'ie',
     'im', 'is', 'it', 'je', 'li', 'lt', 'lu', 'lv', 'mc', 'md', 'me', 'mk',
     'mt', 'nl', 'no', 'pl', 'pt', 'ro', 'rs', 'ru', 'se', 'si', 'sk', 'sm',
