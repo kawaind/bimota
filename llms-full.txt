@@ -1,0 +1,151 @@
+# Bimota
+
+> Bimota is an Italian motorcycle manufacturer founded in 1973 and based in Rimini, Italy. Known for hand-built, design-led motorcycles that pair distinctive engineering—such as hub-centre (Tesi) steering and composite chassis—with premium components and a racing heritage. The official website presents the current model range, brand story and heritage, and dealer information across multiple country and language editions.
+
+This file contains the full text content of the site's key pages. Links use the /za/en edition as representative examples; equivalent pages exist under each locale path (e.g. /it/en, /uk/en, /us/en, /jp, /de, /fr, /es, /nl).
+
+---
+
+## Models
+
+### KB998 Rimini
+URL: https://www.bimota.com/za/en/kb998
+
+**La Rivoluzione Nelle Corse**
+
+Bimota returns to the track with a vengeance. The KB998 Rimini is not just a street machine—it is a purpose-built racing weapon, crafted for victory at the highest levels of production-based racing. Born from the mind of bimota's genius mastermind, Pierluigi Marconi, and refined through collaboration with BbKRT's top racers, this machine meets the rigorous demands of professional racing with unmatched precision and seven-time world championship-winning power. No compromises—just pure racing performance. The KB998 Rimini is the embodiment of bimota's relentless pursuit of perfection on the track, and the revolution has only just begun.
+
+**Racing Revolution.** At the heart of the KB998 Rimini is a chassis shaped by 50 years of bimota heritage, highlighted by its adjustable rigidity and variable winglets. Powered by the 7-time title-winning Ninja ZX-10RR engine and suspension, these race-proven components are fully optimised in the bimota chassis.
+
+**bimota's Crown Jewel.** Part of bimota's ethos is finishing every part to perfection, showcasing the raw materials' beauty. This attention to detail is what turns a racebike into art—and this crown jewel is reserved for the few granted the privilege of experiencing this Rimini-born masterpiece.
+
+**Production.** The street version of the 2025 WorldSBK racer is in production; a total of 500 units will be produced to accomplish the FIM homologation rules.
+
+Technical highlights: Max. Power 147.1 kW / 200 hp @ 13,600 r/min; Max. Torque 111.0 N·m / 81.87 lbs-ft @ 11,700 r/min; Curb Mass 207 kg. Features a dry carbon exterior crafted in the Rimini region, a one-of-a-kind composite chassis, and variable winglets.
+
+### Tesi H2 TERA
+URL: https://www.bimota.com/za/en/tesi-h2-tera
+
+**Crossover Revolution**
+
+Across mountains and beyond borders, bimota's Tesi H2 TERA leads the way, where innovation meets raw power. Equipped with the groundbreaking TESI system and a supercharged engine, it effortlessly switches from high-speed runs on asphalt to exploring trails in the dirt, pushing the boundaries of performance where others hesitate. This is a machine crafted not just for roads, but for the kind of adventures that transcend the everyday. Embrace adventure, embody elegance, ignite revolution.
+
+**Frame and style.** The frame is the evolution of bimota's Tesi H2 model. The bike is entirely made using aluminium alloys and carbon fibre.
+
+**The meaning of "TERA."** Derived from the Italian *Tesi con Regolazione dell'Altezza* (Tesi with height adjustment). TERA is also similar to *terra*, the Italian word for "earth"—a reflection of this crossover machine's potential to explore boundless terrain.
+
+**Tesi Steering System: TERA.** The latest version of bimota's iconic Tesi centre-hub steering system completely separates the front's steering and suspension functions. It offers a significantly wider steering angle (35° vs 27° on the Tesi H2) and a much more direct connection between the handlebar and front wheel, increasing sensitivity from the road to the rider for a confidence-inspiring front-end feel.
+
+Technical highlights: Max. Power 147.1 kW / 200 hp @ 11,000 r/min; Max. Torque 137.0 N·m / 101 lbf-ft @ 8,500 r/min; Curb Mass 233 kg.
+
+### KB4
+URL: https://www.bimota.com/za/en/kb4
+
+**Vintage Inspired**
+
+A timeless tribute to bimota's storied past, the KB4 fuses neo-retro elegance with modern precision. Its lightweight handling and legendary racing spirit meet the thrilling pulse of a 142 PS engine. Thanks to its innovative rear radiator layout, the KB4 achieves a short wheelbase akin to that of a 250cc machine, enhancing agility and performance. The fourth-generation KB4 proudly carries the legacy of the KB name, blending tradition with cutting-edge innovation. Ride the legacy. Experience the evolution.
+
+**Innovative Design.** The whole of the KB4 is unique, its innovative exterior unseen anywhere else. The design is instantly recognisable as "bimota" and "KB4."
+
+**Light Weight.** Both weight reduction and a chassis design that does not let the rider feel its weight were pursued, resulting in light, nimble handling in a compact package.
+
+**Rideable Art.** From the carbon-crafted paintwork and machined alloy parts to OZ Racing forged wheels and a real leather seat, the KB4 exudes high quality down to the smallest detail.
+
+**Under-Seat Radiator System.** To achieve bimota's ideal front-rear weight distribution (54/46), the radiator is located under the seat, allowing the engine to be positioned farther forward and combining a short wheelbase with a long swingarm for agile handling and outstanding traction.
+
+Technical highlights: Max. Power 104.5 kW / 142 hp @ 10,000 r/min; Max. Torque 111 N·m / 81.87 lbf-ft @ 8,000 r/min; Curb Mass 194 kg. Features the Kawasaki 1,043 cm³ liquid-cooled inline-four engine, Öhlins suspension, Brembo brakes, and a TFT colour cockpit.
+
+### KB399
+URL: https://www.bimota.com/za/en/kb399
+
+**Espresso di bimota — A Condensation of bimota's Racing Spirit**
+
+Offering a mid-class model is atypical for bimota, but that is part of the KB399's charm. Its inline-four engine aligns perfectly with bimota's racing spirit. It is exciting and fun to ride, with a power delivery that allows riders to confidently open the throttle. A specially prepared Akrapovic silencer is fitted as standard.
+
+**Racing inspired.** Racy styling inspired by the KB998 Rimini is more than skin deep. From bodywork designed and sculpted by Italian craftsmen, to billet aluminium pieces and an elegantly painted frame, the KB399 looks every part an ambassador for the bimota brand.
+
+**Premium In-Line Four Engine.** The high-revving inline-four delivers class-leading power with a direct throttle response, combining strong low-mid range torque and screaming high-rpm power. A lightweight titanium Akrapovic silencer enhances the engine's howl.
+
+**Only the Finest Chassis Components.** A fully adjustable ø41 mm inverted Showa SFF-BP front fork is paired with a Showa BFRC lite shock (standard model) or an Öhlins STX46 unit (ES model), complemented by a Brembo brake package.
+
+### BX450
+URL: https://www.bimota.com/za/en/bx450
+
+**Off-Road — The Ultimate Enduro Motorcycle**
+
+Bimota adds a new model to the range based on a Kawasaki project. Developed from the KX450 model, the BX450 is the most incredible Made-in-Italy enduro model, built with the experience of Kawasaki off-road models. Enduro pros who appreciate true four-stroke off-road performance will love it.
+
+**Championship-Winning Experience.** The BX450 has been raced competitively in Italy since it was introduced at the EICMA show in 2022, racking up race wins and a 2024 Raid TT title in Italy. It offers championship-winning performance to a select few.
+
+**Instantly Recognisable bimota Looks.** White bodywork, unique bimota graphics, and a red seat with prominent bimota lettering set the BX450 apart in true bimota style.
+
+**High-Spec Athena GET ECU.** Tuned specifically for enduro racing, offering ideal fuel-injection settings with switchable racing maps.
+
+Technical highlights: Displacement 449 cm³; Fuel Tank Capacity 6.2 L; Curb Mass 108.9 kg (without fuel).
+
+---
+
+## Brand
+
+### Company
+URL: https://www.bimota.com/za/en/company
+
+**La rivoluzione continua**
+
+We represent a rich heritage capable of conceiving the motorcycle as a symbol of pure emotion and independence, in contrast to the ubiquitous concept of "line up and comply." We have dedicated our minds, our hands and our lives to designing and creating objects that Cycle magazine defined as motorcycles "sartorially and masterfully crafted."
+
+**Our Vision: Distinctly Italian. Pure Racing Emotion.** Italian at its core, bimota creates unique, innovative motorcycles that transcend conventional design, drawing on a racing mindset to fuse inspired engineering and high-end materials with artisanal style and masterful craftsmanship. Through our partnership with Kawasaki, we continually redefine the owner experience—delivering originality, passion, reliability, and ingenuity of engineering and design, all with a distinct Italian spirit.
+
+**Our Mission: Accelerate Innovation. Be the One and Only.** To create exclusive, meticulously crafted motorcycles that stand apart from the crowd, combining original design and singular engineering solutions. By focusing on innovation and performance, we offer a motorcycling experience that is truly one of a kind.
+
+**Our Promise: Experience Masterworks that Truly Stand Apart.** Choosing bimota is proof of your refined sense of aesthetics, technology and exclusive engineering. Owning a bimota is about embracing innovative thinking. A bimota is motorcycling's ultimate escape from the ordinary.
+
+**Born in Rimini.** Located in the east of Emilia-Romagna—home to numerous luxury sports car and motorcycle manufacturers and deeply rooted in motorsports culture—lies Rimini, a small yet beautiful port city facing the Adriatic Sea with a population of approximately 150,000. A small workshop in Rimini was the birthplace of bimota, and it is here that each bimota motorcycle is designed and developed, unchanged since the company's founding.
+
+### Heritage
+URL: https://www.bimota.com/za/en/heritage
+
+**More Than Half a Century of Beauty, Passion and Tradition**
+
+In 1966, Valerio Bianchi, Giuseppe Morri and Massimo Tamburini founded a plumbing company. They called it bimota, a combination of their three surnames. Tamburini—later hailed as a legendary motorcycle designer—began customising his personal machine, transforming a production motorcycle into a fully-fledged supersport machine. What began as a small workshop gradually evolved into a motorcycle manufacturer, and in 1973 bimota delivered a design and engineering feat unlike anything seen before.
+
+Notable models and technical milestones across bimota's history include:
+
+- **HB1 (1973):** The first bimota motorcycle, Honda-engined, with only 10 hand-made units. Introduced the eccentric-type chain adjuster still used in modern bimota models.
+- **YB1 (1974):** First model with cantilever-type suspension, offering progressive performance.
+- **SB1 (1976):** Introduced the coaxial swingarm pivot and, among the first, a linkage-type monoshock suspension.
+- **SB2:** First street-legal production model, featuring an under-frame fuel tank, coaxial swingarm, monocoque design, and linked mono-shock.
+- **SB2 (1977):** Front-and-rear split frame with the engine as a stressed member—a method still used in the current Tesi series.
+- **KB1:** First bimota with a Kawasaki engine (Z1000/Z1000MkII), the most widely sold pipe-frame model.
+- **YB3 (1980):** bimota won its first world title as Jon Ekerold became WGP 350cc champion.
+- **Tesi Concept:** As a university student, Pierluigi Marconi designed the frameless, centre-hub steering "Tesi" system, named after his graduation thesis.
+- **HB2 (1982):** Hybrid steel-and-aluminium frame designed by Tamburini; the concept lives on in the 2025 KB998 Rimini.
+- **DB1 (1985):** First Ducati-powered model, with fully covered bodywork that sparked an industry trend.
+- **YB4 (1986–87):** bimota's first aluminium twin-spar frame; won the 1987 TT-F1 World Championship.
+- **Tesi 1D 851 (1990):** First production model with the Tesi system.
+- **SB6:** bimota's best-selling model, with a 1,074 cm³ liquid-cooled Suzuki engine.
+- **500V due:** First model with both frame and engine made by bimota, featuring a 499 cm³ 2-stroke direct-injection engine.
+- **SB8 (1997):** Hybrid aluminium and CFRP (dry carbon) frame combining rigidity, flexibility and lightness.
+
+### Spirit of Rimini
+URL: https://www.bimota.com/za/en/spirit-of-rimini
+
+**The City Where It All Began**
+
+Since its founding, bimota has been headquartered in Rimini, a city overlooking the Adriatic Sea in the Emilia-Romagna region—an area renowned for prestigious brands including Ferrari, Lamborghini and Maserati, as well as numerous motorcycle manufacturers. Rimini is known as one of Italy's premier seaside resorts and retains numerous structures from ancient Roman times, such as the Arch of Augustus and the Tiberius Bridge, reflecting a deep-rooted history. It is also the birthplace of film director Federico Fellini.
+
+Rimini has long been closely tied to a strong motorcycle culture, symbolised by the "Temporada Romagnola," a prestigious public road race held from 1945 to 1971. Off-road events are still held annually on Rimini's beach, and several circuits—including the Misano World Circuit, which hosts MotoGP and WorldSBK races—are located nearby. In 1972, a young man from Rimini crashed at the Misano circuit, prompting him to design and build his own original frame; from this moment, bimota began its journey as a motorcycle manufacturer. Today, the KB998 Rimini—competing in WorldSBK—bears the name of the city, granted by Rimini in recognition of bimota's legacy and achievements.
+
+---
+
+## Ownership & Support
+
+- **Dealer Locator** — https://www.bimota.com/za/en/dealer — Find an authorised Bimota dealer.
+- **Contact Us** — https://www.bimota.com/za/en/contact-us — Get in touch with Bimota.
+- **Owner Manuals** — https://www.bimota.com/za/en/owner-manuals — Download owner's manuals for Bimota models (KB998 Rimini, Tesi H2 TERA, KB4).
+- **Spare Parts Catalogue** — https://www.bimota.com/za/en/spare-parts-catalogue — Access the Bimota spare parts catalogue.
+
+## Legal
+
+- **Privacy Policy** — https://www.bimota.com/za/en/privacy
+- **Cookie Policy** — https://www.bimota.com/za/en/cookie

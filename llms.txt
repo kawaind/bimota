@@ -1,0 +1,33 @@
+# Bimota
+
+> Bimota is an Italian motorcycle manufacturer founded in 1973 and based in Rimini, Italy. Known for hand-built, design-led motorcycles that pair distinctive engineering—such as hub-centre (Tesi) steering and composite chassis—with premium components. The official website presents the current model range, brand heritage, and dealer information across multiple country and language editions.
+
+## Models
+
+- [KB998 Rimini](https://www.bimota.com/za/en/kb998): Racing-bred superbike ("La Rivoluzione Nelle Corse") with a one-of-a-kind composite chassis, variable winglets, and a supercharged inline-four; the brand's flagship track-focused machine.
+- [Tesi H2 TERA](https://www.bimota.com/za/en/tesi-h2-tera): Crossover model featuring Bimota's signature Tesi hub-centre steering (TERA) and a supercharged engine, blending adventure-touring versatility with distinctive handling.
+- [KB4](https://www.bimota.com/za/en/kb4): Vintage-inspired neo-retro roadster with an under-seat radiator layout for a compact wheelbase, carbon bodywork, and a 142 PS inline-four engine.
+- [KB399](https://www.bimota.com/za/en/kb399): A condensation of Bimota's racing spirit in a lighter package, with a premium inline-four engine and top-tier chassis components.
+- [BX450](https://www.bimota.com/za/en/bx450): Championship-winning enduro/off-road motorcycle with a 449cc engine, aluminium frame, and race-derived electronics.
+
+## Brand
+
+- [Company](https://www.bimota.com/za/en/company): The Bimota company—its essence, vision, mission, and craftsmanship, built by hand in Rimini, Italy.
+- [Heritage](https://www.bimota.com/za/en/heritage): More than half a century of Bimota design and engineering history, from the founding in 1973 through its landmark models.
+- [Spirit of Rimini](https://www.bimota.com/za/en/spirit-of-rimini): The story of Bimota's home city of Rimini and how the location shapes the brand's identity.
+
+## Ownership & Support
+
+- [Dealer Locator](https://www.bimota.com/za/en/dealer): Find an authorised Bimota dealer.
+- [Contact Us](https://www.bimota.com/za/en/contact-us): Get in touch with Bimota.
+- [Owner Manuals](https://www.bimota.com/za/en/owner-manuals): Download owner's manuals for Bimota models.
+- [Spare Parts Catalogue](https://www.bimota.com/za/en/spare-parts-catalogue): Access the Bimota spare parts catalogue.
+
+## Optional
+
+- [Privacy Policy](https://www.bimota.com/za/en/privacy): Bimota's privacy policy.
+- [Cookie Policy](https://www.bimota.com/za/en/cookie): Information about cookies used on the site.
+
+## Notes
+
+- The site is published in multiple country/language editions (e.g. /it/en, /uk/en, /us/en, /za/en, /jp, /de, /fr, /es, /nl, and others). The links above use the /za/en edition as representative examples; equivalent pages exist under each locale path.
