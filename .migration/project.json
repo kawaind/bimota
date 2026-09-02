@@ -1,0 +1,10 @@
+{
+  "sites": {
+    "bimota": {
+      "libraryUrl": "https://main--bimota--kawaind.aem.page/docs/library/blocks.json",
+      "previewOrg": "kawaind",
+      "previewSite": "bimota",
+      "contentHostUrl": "https://content.da.live/kawaind/bimota/"
+    }
+  }
+}
