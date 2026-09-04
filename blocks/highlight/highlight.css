@@ -207,8 +207,11 @@
 }
 
 @media (width >= 1025px) {
+  /* Top-align the content and keep the top offset small so the title + body
+     start near the top of the block — long copy then has room to run down
+     without being clipped at the bottom edge. */
   .highlight .highlight-slide {
-    padding: 132px 30px 0;
+    padding: 64px 30px 0;
     align-items: flex-start;
   }
 
@@ -223,7 +226,7 @@
 
 @media (width >= 1440px) {
   .highlight .highlight-slide {
-    padding: 200px 30px 0;
+    padding: 88px 30px 0;
   }
 
   .highlight .highlight-slide div {
