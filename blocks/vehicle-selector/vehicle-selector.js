@@ -43,10 +43,59 @@ const ARROW_NEXT_SVG = `
  *   live region (used by the prev/next arrow controls, where focus stays on
  *   the arrow so the change would otherwise be silent to a screen reader).
  */
+const getActiveIndex = (block) => {
+  const tabs = [...block.querySelectorAll(`.${blockName}__navigation [role="tab"]`)];
+  const current = tabs.findIndex((tab) => tab.getAttribute('aria-selected') === 'true');
+  return current === -1 ? 0 : current;
+};
+
+const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/**
+ * Visual-only cross-slide between panels: the outgoing panel slides off to the
+ * left while the incoming one slides in from the right. This runs purely for
+ * appearance and never changes the accessibility state — `activate` has already
+ * made the incoming panel the only one exposed to assistive tech. During its
+ * exit the outgoing panel is marked `inert` so, even though it stays painted
+ * for the animation, it is removed from the a11y tree and its focusable CTA
+ * cannot be tabbed into. Skipped when the user prefers reduced motion.
+ * @param {HTMLElement[]} panels all panel elements
+ * @param {number} fromIndex the outgoing panel index
+ * @param {number} toIndex the incoming (now active) panel index
+ */
+const slidePanels = (panels, fromIndex, toIndex) => {
+  const incoming = panels[toIndex];
+  const outgoing = panels[fromIndex];
+
+  // Clear any in-flight transition so rapid switches don't leave ghosts.
+  panels.forEach((panel) => {
+    panel.classList.remove('is-entering', 'is-leaving');
+    panel.removeAttribute('inert');
+  });
+
+  if (prefersReducedMotion() || fromIndex === toIndex || !incoming || !outgoing) return;
+
+  incoming.classList.add('is-entering');
+  incoming.addEventListener('animationend', () => incoming.classList.remove('is-entering'), { once: true });
+
+  // Keep the outgoing panel painted (overriding its `hidden` display:none) only
+  // for the duration of its slide-out, then let `hidden` take over again.
+  outgoing.classList.add('is-leaving');
+  outgoing.setAttribute('inert', '');
+  outgoing.addEventListener('animationend', () => {
+    outgoing.classList.remove('is-leaving');
+    outgoing.removeAttribute('inert');
+  }, { once: true });
+};
+
 const activate = (block, index, { moveFocus = false, announce = false } = {}) => {
   const tabs = [...block.querySelectorAll(`.${blockName}__navigation [role="tab"]`)];
   const panels = [...block.querySelectorAll(`.${blockName}__panel`)];
   if (!tabs.length || index < 0 || index >= tabs.length) return;
+
+  // Remember which panel is leaving so we can animate the cross-slide after the
+  // accessibility state is updated below.
+  const previousIndex = getActiveIndex(block);
 
   tabs.forEach((tab, i) => {
     const selected = i === index;
@@ -62,6 +111,10 @@ const activate = (block, index, { moveFocus = false, announce = false } = {}) =>
     // panels are inert regardless, but keep the sequence explicit.
     panel.setAttribute('tabindex', selected ? '0' : '-1');
   });
+
+  // Visual cross-slide (appearance only; the a11y state above is already the
+  // source of truth). No-op on the initial render and on resize (same index).
+  slidePanels(panels, previousIndex, index);
 
   // Center the active tab within the horizontally-scrollable navigation.
   const nav = block.querySelector(`.${blockName}__navigation`);
@@ -87,12 +140,6 @@ const activate = (block, index, { moveFocus = false, announce = false } = {}) =>
   if (announce && liveRegion) {
     liveRegion.textContent = tabs[index]?.textContent ?? '';
   }
-};
-
-const getActiveIndex = (block) => {
-  const tabs = [...block.querySelectorAll(`.${blockName}__navigation [role="tab"]`)];
-  const current = tabs.findIndex((tab) => tab.getAttribute('aria-selected') === 'true');
-  return current === -1 ? 0 : current;
 };
 
 /**

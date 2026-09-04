@@ -15,15 +15,29 @@
   border: 0;
 }
 
-@keyframes vehicle-entry {
+/* Incoming vehicle slides in from the right. */
+@keyframes vehicle-slide-in {
   0% {
-    transform: translateX(40px);
+    transform: translateX(100%);
     opacity: 0;
   }
 
   100% {
     transform: translateX(0);
     opacity: 1;
+  }
+}
+
+/* Outgoing vehicle slides off to the left. */
+@keyframes vehicle-slide-out {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(-100%);
+    opacity: 0;
   }
 }
 
@@ -82,9 +96,12 @@ ul.vehicle-selector__navigation {
 }
 
 /* Panels: only the active one is shown; each panel stacks the vehicle image
-   over its specifications. */
+   over its specifications. The container is the positioning context and clips
+   the panels as they slide horizontally in/out. */
 .vehicle-selector__panels {
+  position: relative;
   margin: 0;
+  overflow: hidden;
 }
 
 .vehicle-selector__panel {
@@ -100,6 +117,23 @@ ul.vehicle-selector__navigation {
   display: none;
 }
 
+/* The incoming (now active) panel slides in from the right. */
+.vehicle-selector__panel.is-entering {
+  animation: vehicle-slide-in var(--duration-medium) var(--easing-entrance);
+}
+
+/* The outgoing panel slides off to the left. It is still `hidden` (so it is out
+   of the a11y tree and the JS marks it `inert`), so re-assert display and pull
+   it out of flow, overlaying the incoming panel for the duration of the slide.
+   `[hidden]` + this class must win over the plain `[hidden] { display:none }`
+   rule above, so it is intentionally more specific. */
+.vehicle-selector__panel[hidden].is-leaving {
+  display: grid;
+  position: absolute;
+  inset: 0;
+  animation: vehicle-slide-out var(--duration-medium) var(--easing-exit);
+}
+
 /* Visible focus indicator for the tabpanel, which is keyboard-focusable so Tab
    can move into the panel content (WCAG 2.4.7). */
 .vehicle-selector__panel:focus-visible {
@@ -113,9 +147,15 @@ ul.vehicle-selector__navigation {
 
 .vehicle-selector__panel-media picture {
   display: inline-block;
-  animation-duration: 0.6s;
-  animation-name: vehicle-entry;
-  animation-timing-function: ease-out;
+}
+
+/* Respect users who prefer reduced motion: no sliding, just an instant swap
+   (the JS also skips the animation classes in this case). */
+@media (prefers-reduced-motion: reduce) {
+  .vehicle-selector__panel.is-entering,
+  .vehicle-selector__panel[hidden].is-leaving {
+    animation: none;
+  }
 }
 
 .vehicle-selector__panel-media img {
