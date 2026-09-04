@@ -199,12 +199,16 @@ function buildDealerCard(store) {
         rel: 'noopener noreferrer',
       },
     });
-    link.textContent = url.replace(/^https?:\/\//, '');
+    const visibleUrl = url.replace(/^https?:\/\//, '');
+    link.textContent = visibleUrl;
     // Accessible name states the purpose, the dealer and that it opens a new
-    // tab (WCAG 2.4.4, 3.2.5). The shared "opensInNewTab" phrase already
+    // tab (WCAG 2.4.4, 3.2.5). It must also contain the visible link text (the
+    // URL) so the name matches the label a speech-input user would speak
+    // (WCAG 2.5.3 Label in Name). The shared "opensInNewTab" phrase already
     // includes its own parentheses.
     const newTab = t('opensInNewTab', '(opens in a new tab)');
-    link.setAttribute('aria-label', `${t('dealerWebsite', 'Website')}${name ? `, ${name}` : ''} ${newTab}`);
+    const websiteLabel = `${t('dealerWebsite', 'Website')}${name ? `, ${name}` : ''}, ${visibleUrl} ${newTab}`;
+    link.setAttribute('aria-label', websiteLabel);
     urlEl.append(link);
     addressEl.append(urlEl);
   }
