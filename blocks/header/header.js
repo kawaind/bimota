@@ -296,8 +296,13 @@ export default async function decorate(block) {
   const navBrand = nav.querySelector('.nav-brand');
   const brandLink = navBrand.querySelector('.button');
   if (brandLink) {
-    brandLink.className = '';
-    brandLink.closest('.button-container').className = '';
+    // Drop the styling hooks entirely rather than blanking them, so the link
+    // isn't left with empty `class=""`/`title=""` attributes (lint/markup
+    // cleanliness, and no confusing empty tooltip for pointer users).
+    brandLink.removeAttribute('class');
+    brandLink.removeAttribute('title');
+    const buttonContainer = brandLink.closest('.button-container');
+    if (buttonContainer) buttonContainer.removeAttribute('class');
 
     // Give the logo link an accessible name (the logo is an inline SVG with no
     // text), translated per language via the global logoconfig.json sheet.
@@ -305,7 +310,14 @@ export default async function decorate(block) {
     // (WCAG 1.1.1, 2.4.4)
     const logoLabel = await getLogoAlt();
     brandLink.setAttribute('aria-label', logoLabel);
-    brandLink.querySelectorAll('span.icon').forEach((iconEl) => {
+
+    // The link already carries the accessible name, so the logo graphic itself
+    // is decorative and must be hidden from assistive tech (WCAG 1.1.1). Mark
+    // the icon span aria-hidden; customDecoreateIcons then propagates that onto
+    // the inlined <svg>. Match the logo icon span by its `icon-` class rather
+    // than `span.icon`, because customDecoreateIcons may have already stripped
+    // the generic `icon` class by the time this runs.
+    brandLink.querySelectorAll('span[class*="icon-"]').forEach((iconEl) => {
       iconEl.setAttribute('aria-hidden', 'true');
     });
   }
