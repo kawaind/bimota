@@ -1,6 +1,4 @@
-import { createElement } from '../../scripts/helpers.js';
-import { getTextLabel } from '../../scripts/scripts.js';
-import { fetchPlaceholders } from '../../scripts/aem.js';
+import { createElement, getLanguageFromPath } from '../../scripts/helpers.js';
 
 let uidCounter = 0;
 // Unique id suffix so multiple instances / repeated regions don't collide.
@@ -9,20 +7,63 @@ const uid = () => {
   return `wd-${uidCounter}`;
 };
 
-/**
- * Resolve a localized label from the dictionary (placeholders sheet), falling
- * back to an English default when the entry is missing. getTextLabel returns
- * the key unchanged when there is no match, so we detect that and use the
- * supplied fallback instead. Keys are the camelCased form of the sheet's Key
- * column (e.g. "Dealer website" -> "dealerWebsite").
- * @param {string} key camelCased dictionary key
- * @param {string} fallback English default
- * @returns {string} the localized label (or the fallback)
- */
-const t = (key, fallback) => {
-  const value = getTextLabel(key);
-  return !value || value === key ? fallback : value;
+// Localized screen-reader / ARIA labels are authored in the global
+// lanconfig.json multi-sheet, one column per language code (en, it, fr, de,
+// nl, es, ja, lu) — the same dictionary the header uses for the skip link.
+// The `dealer-selector` sheet holds this component's labels; `sr-buttons`
+// already carries the shared "opensInNewTab" phrase, so we reuse it.
+const LABEL_FALLBACKS = {
+  dealerLocationsByRegion: 'Dealer locations by region',
+  dealerPhone: 'Phone',
+  dealerWebsite: 'Website',
+  dealerEmail: 'Email',
+  opensInNewTab: '(opens in a new tab)',
 };
+
+let labelDict = null;
+
+/**
+ * Load and cache the localized dealer-selector labels for the current URL
+ * language from lanconfig.json (sheets `dealer-selector` and `sr-buttons`).
+ * Each row is a Key plus one column per language code; the column matching the
+ * current language wins, else English, else the hard-coded fallback. Adding a
+ * language is a pure authoring change (add a column). Falls back gracefully on
+ * any fetch/parse error so the block is always usable.
+ */
+async function loadLabels() {
+  if (labelDict) return labelDict;
+  const lang = getLanguageFromPath();
+  const dict = { ...LABEL_FALLBACKS };
+  try {
+    const resp = await fetch('/lanconfig.json?sheet=dealer-selector&sheet=sr-buttons');
+    if (resp.ok) {
+      const json = await resp.json();
+      const rows = [
+        ...(json['dealer-selector']?.data || []),
+        ...(json['sr-buttons']?.data || []),
+      ];
+      rows.forEach((row) => {
+        if (row.Key && Object.prototype.hasOwnProperty.call(dict, row.Key)) {
+          dict[row.Key] = row[lang] || row.en || dict[row.Key];
+        }
+      });
+    }
+  } catch (e) {
+    // keep fallbacks
+  }
+  labelDict = dict;
+  return labelDict;
+}
+
+/**
+ * Return a localized label by key, using whatever loadLabels resolved (or the
+ * English fallback before/if the dictionary is unavailable).
+ * @param {string} key label key (e.g. "dealerWebsite")
+ * @param {string} [fallback] optional override fallback
+ * @returns {string} the localized label
+ */
+const t = (key, fallback) => (labelDict && labelDict[key])
+  || fallback || LABEL_FALLBACKS[key] || key;
 
 const REGIONS = {
   africa: [
@@ -160,9 +201,10 @@ function buildDealerCard(store) {
     });
     link.textContent = url.replace(/^https?:\/\//, '');
     // Accessible name states the purpose, the dealer and that it opens a new
-    // tab (WCAG 2.4.4, 3.2.5).
-    const newTab = t('opensInNewTab', 'opens in a new tab');
-    link.setAttribute('aria-label', `${t('dealerWebsite', 'Website')}${name ? `, ${name}` : ''} (${newTab})`);
+    // tab (WCAG 2.4.4, 3.2.5). The shared "opensInNewTab" phrase already
+    // includes its own parentheses.
+    const newTab = t('opensInNewTab', '(opens in a new tab)');
+    link.setAttribute('aria-label', `${t('dealerWebsite', 'Website')}${name ? `, ${name}` : ''} ${newTab}`);
     urlEl.append(link);
     addressEl.append(urlEl);
   }
@@ -573,10 +615,10 @@ async function decoratePriorityDealers(block) {
 }
 
 export default async function decorate(block) {
-  // Ensure the localization dictionary is loaded before we build labels, so the
-  // ARIA labels render in the site language on first paint (requirement #4).
-  // fetchPlaceholders is cached, so this is a no-op after the first call.
-  await fetchPlaceholders();
+  // Ensure the localized label dictionary is loaded before we build labels, so
+  // the ARIA labels render in the site language on first paint (requirement
+  // #4). loadLabels caches, so this is a no-op after the first call.
+  await loadLabels();
 
   if (block.classList.contains('global-title')) {
     decorateGlobalTitle(block);
