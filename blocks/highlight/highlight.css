@@ -134,6 +134,11 @@
   gap: 12px;
 }
 
+/* Solid white background with a red icon so the controls stay clearly visible
+   over any part of the photographic background — including the darkest areas of
+   a full-screen image where a translucent control would disappear. Colour
+   follows the site convention (red-on-white -> dark-red hover -> darker-red
+   focus), matching the vehicle-selector arrows. */
 .highlight-control {
   display: flex;
   align-items: center;
@@ -142,12 +147,13 @@
   height: 44px;
   padding: 0;
   margin: 0;
-  border: 1px solid var(--white);
+  border: 1px solid var(--red-on-white);
   border-radius: 50%;
-  background: rgb(0 0 0 / 35%);
-  color: var(--white);
+  background: var(--white);
+  color: var(--red-on-white);
   cursor: pointer;
-  transition: background-color 0.2s, border-color 0.2s;
+  box-shadow: 0 0 12px 2px rgb(0 0 0 / 25%);
+  transition: color 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 
 .highlight-control svg {
@@ -156,13 +162,15 @@
 }
 
 .highlight-control:hover {
-  background: rgb(0 0 0 / 60%);
+  color: var(--action-hover);
   border-color: var(--action-hover);
 }
 
 .highlight-control:focus-visible {
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: 2px;
+  color: var(--action-focus);
+  border-color: var(--action-focus);
 }
 
 .highlight.block .flag-wrapper {

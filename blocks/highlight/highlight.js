@@ -50,6 +50,35 @@ const setScaleForPicture = (block, picture, onSetScale) => {
   }, 250));
 };
 
+/**
+ * Grow the block so the tallest slide's content fits without clipping. The
+ * block's height is otherwise driven by a fixed aspect-ratio with the slides
+ * wrapper set to overflow:hidden, so long copy on any slide was being cut off.
+ * We measure each slide's natural content height (+ its vertical padding) and
+ * set the block's min-height to the largest, letting the aspect-ratio act as a
+ * floor. The image and its bottom-to-top gradient are height:100%, so they
+ * expand with the block; the vertical scroll transition is unaffected.
+ * @param {HTMLElement} block the block root
+ */
+const fitBlockHeight = (block) => {
+  const slides = [...block.querySelectorAll('.highlight-slide')];
+  if (!slides.length) return;
+  // Reset so a shrunk viewport can reduce the height again.
+  block.style.minHeight = '';
+  let tallest = 0;
+  slides.forEach((slide) => {
+    const content = slide.querySelector(':scope > div') || slide;
+    const styles = window.getComputedStyle(slide);
+    const padding = parseFloat(styles.paddingTop) + parseFloat(styles.paddingBottom);
+    tallest = Math.max(tallest, content.scrollHeight + padding);
+  });
+  // Only override when content actually needs more room than the aspect-ratio
+  // box already provides, so short slides keep the designed proportions.
+  if (tallest > block.clientHeight) {
+    block.style.minHeight = `${Math.ceil(tallest)}px`;
+  }
+};
+
 const addFlag = (block) => {
   const flagEl = `
     <svg width="100" height="80" viewBox="0 0 100 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
@@ -305,6 +334,14 @@ export default async function decorate(block) {
   }, 200));
 
   render(false);
+
+  // Size the block to the tallest slide so no copy is clipped, then keep it in
+  // sync on resize (text reflows at different widths). Runs after render and
+  // once fonts settle.
+  fitBlockHeight(block);
+  if (document.fonts?.ready) document.fonts.ready.then(() => fitBlockHeight(block));
+  window.addEventListener('resize', throttle(() => fitBlockHeight(block), 250));
+
   if (isInViewport(block)) {
     block.classList.add('active');
     startTimer();
