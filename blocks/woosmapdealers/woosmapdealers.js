@@ -1,4 +1,28 @@
 import { createElement } from '../../scripts/helpers.js';
+import { getTextLabel } from '../../scripts/scripts.js';
+import { fetchPlaceholders } from '../../scripts/aem.js';
+
+let uidCounter = 0;
+// Unique id suffix so multiple instances / repeated regions don't collide.
+const uid = () => {
+  uidCounter += 1;
+  return `wd-${uidCounter}`;
+};
+
+/**
+ * Resolve a localized label from the dictionary (placeholders sheet), falling
+ * back to an English default when the entry is missing. getTextLabel returns
+ * the key unchanged when there is no match, so we detect that and use the
+ * supplied fallback instead. Keys are the camelCased form of the sheet's Key
+ * column (e.g. "Dealer website" -> "dealerWebsite").
+ * @param {string} key camelCased dictionary key
+ * @param {string} fallback English default
+ * @returns {string} the localized label (or the fallback)
+ */
+const t = (key, fallback) => {
+  const value = getTextLabel(key);
+  return !value || value === key ? fallback : value;
+};
 
 const REGIONS = {
   africa: [
@@ -65,15 +89,24 @@ function getLocalizedCountryName(countryCode, langCode) {
   }
 }
 
+/**
+ * Build a single dealer as a semantic list item containing an <address>
+ * element (WCAG 1.3.1). The dealer name is the item's accessible heading text;
+ * interactive links (website, phone, email) carry visually-hidden context so
+ * their purpose is clear out of context to a screen reader (WCAG 2.4.4).
+ * @param {Object} store the Woosmap store feature
+ * @returns {HTMLLIElement} the dealer list item
+ */
 function buildDealerCard(store) {
   const { properties } = store;
   const { name, address, contact } = properties;
-  const card = createElement('div', { classes: 'dealer-card' });
+  const item = createElement('li', { classes: 'dealer-card' });
+  const addressEl = createElement('address', { classes: 'dealer-address' });
 
   if (name) {
     const nameEl = createElement('p', { classes: 'dealer-name' });
     nameEl.textContent = name;
-    card.append(nameEl);
+    addressEl.append(nameEl);
   }
 
   const lines = address?.lines;
@@ -81,7 +114,7 @@ function buildDealerCard(store) {
   if (street) {
     const streetEl = createElement('p', { classes: 'dealer-street' });
     streetEl.textContent = street;
-    card.append(streetEl);
+    addressEl.append(streetEl);
   }
 
   const city = address?.city || '';
@@ -90,14 +123,28 @@ function buildDealerCard(store) {
   if (cityZip) {
     const cityEl = createElement('p', { classes: 'dealer-city' });
     cityEl.textContent = cityZip;
-    card.append(cityEl);
+    addressEl.append(cityEl);
   }
 
-  const phone = contact?.phone || '';
+  // Helper: append visually-hidden context so links read meaningfully out of
+  // context (e.g. "Phone: +32 …", "Website: … (opens in a new tab), <dealer>").
+  const withContext = (linkEl, contextText) => {
+    const ctx = createElement('span', { classes: 'sr-only' });
+    ctx.textContent = `${contextText} `;
+    linkEl.prepend(ctx);
+  };
+
+  const phone = (contact?.phone || '').trim();
   if (phone) {
     const phoneEl = createElement('p', { classes: 'dealer-phone' });
-    phoneEl.textContent = phone;
-    card.append(phoneEl);
+    const telHref = `tel:${phone.replace(/[^\d+]/g, '')}`;
+    const phoneLink = createElement('a', { classes: 'dealer-phone-link', props: { href: telHref } });
+    phoneLink.textContent = phone;
+    withContext(phoneLink, `${t('dealerPhone', 'Phone')}:`);
+    const phoneLabel = `${t('dealerPhone', 'Phone')}: ${phone}${name ? `, ${name}` : ''}`;
+    phoneLink.setAttribute('aria-label', phoneLabel);
+    phoneEl.append(phoneLink);
+    addressEl.append(phoneEl);
   }
 
   const url = contact?.website || '';
@@ -112,8 +159,12 @@ function buildDealerCard(store) {
       },
     });
     link.textContent = url.replace(/^https?:\/\//, '');
+    // Accessible name states the purpose, the dealer and that it opens a new
+    // tab (WCAG 2.4.4, 3.2.5).
+    const newTab = t('opensInNewTab', 'opens in a new tab');
+    link.setAttribute('aria-label', `${t('dealerWebsite', 'Website')}${name ? `, ${name}` : ''} (${newTab})`);
     urlEl.append(link);
-    card.append(urlEl);
+    addressEl.append(urlEl);
   }
 
   const email = contact?.email || '';
@@ -121,11 +172,14 @@ function buildDealerCard(store) {
     const emailEl = createElement('p', { classes: 'dealer-email' });
     const mailLink = createElement('a', { props: { href: `mailto:${email}` } });
     mailLink.textContent = email;
+    if (name) mailLink.setAttribute('aria-label', `${t('dealerEmail', 'Email')}: ${email}, ${name}`);
+    else mailLink.setAttribute('aria-label', `${t('dealerEmail', 'Email')}: ${email}`);
     emailEl.append(mailLink);
-    card.append(emailEl);
+    addressEl.append(emailEl);
   }
 
-  return card;
+  item.append(addressEl);
+  return item;
 }
 
 function sortStores(stores, isCountryDealers, langCode) {
@@ -301,6 +355,94 @@ function getLocalizedRegionName(region, langCode) {
     || region.charAt(0).toUpperCase() + region.slice(1);
 }
 
+/**
+ * Set the selected tab in a tablist that uses automatic activation (ARIA APG
+ * Tabs pattern): update aria-selected + roving tabindex on every tab, show the
+ * matching panel and hide the rest. Optionally move DOM focus to the newly
+ * selected tab (used by the arrow / Home / End keys, which move focus and
+ * activate together).
+ * @param {HTMLElement[]} tabs the tab buttons
+ * @param {HTMLElement[]} panels the tab panels (index-aligned with tabs)
+ * @param {number} index the tab to select
+ * @param {boolean} [focusTab=false] move focus onto the selected tab
+ */
+function selectTab(tabs, panels, index, focusTab = false) {
+  tabs.forEach((tab, i) => {
+    const selected = i === index;
+    tab.setAttribute('aria-selected', selected ? 'true' : 'false');
+    tab.setAttribute('tabindex', selected ? '0' : '-1');
+    tab.classList.toggle('active', selected);
+  });
+  panels.forEach((panel, i) => {
+    const selected = i === index;
+    panel.hidden = !selected;
+    panel.classList.toggle('active', selected);
+  });
+  if (focusTab) tabs[index].focus();
+}
+
+/**
+ * Build one country accordion (ARIA APG Accordion pattern): a native <button>
+ * wrapped in a heading, controlling a collapsible region. Expanded state is
+ * exposed via aria-expanded; the panel is linked back to its button with
+ * aria-labelledby (WCAG 1.3.1, 4.1.2).
+ * @param {string} countryName the localized country name
+ * @param {Object[]} dealers the stores in this country
+ * @param {string} headingTag semantic heading level for the trigger
+ * @returns {HTMLElement} the accordion wrapper
+ */
+function buildCountryAccordion(countryName, dealers, headingTag) {
+  const instanceId = uid();
+  const buttonId = `${instanceId}-btn`;
+  const panelId = `${instanceId}-panel`;
+
+  const sortedDealers = [...dealers].sort((a, b) => {
+    const nameA = (a.properties?.name || '').toUpperCase();
+    const nameB = (b.properties?.name || '').toUpperCase();
+    return nameA.localeCompare(nameB);
+  });
+
+  const accordion = createElement('div', { classes: 'dealers-accordion' });
+
+  const heading = createElement(headingTag, { classes: 'dealers-accordion-heading' });
+  const button = createElement('button', {
+    classes: 'dealers-accordion-header',
+    props: {
+      type: 'button',
+      id: buttonId,
+      'aria-expanded': 'false',
+      'aria-controls': panelId,
+    },
+  });
+  const label = createElement('span', { classes: 'dealers-accordion-title' });
+  label.textContent = countryName;
+  button.append(label);
+  heading.append(button);
+  accordion.append(heading);
+
+  // Panel is a labelled region that wraps the dealer list. Keeping the region
+  // role on a container <div> (not the <ul>) preserves the list semantics of
+  // the <ul>/<li> dealer markup (WCAG 1.3.1).
+  const panel = createElement('div', {
+    classes: 'dealers-accordion-panel',
+    props: { id: panelId, role: 'region', 'aria-labelledby': buttonId },
+  });
+  panel.hidden = true;
+  const list = createElement('ul', { classes: 'dealers-grid' });
+  sortedDealers.forEach((store) => list.append(buildDealerCard(store)));
+  panel.append(list);
+  accordion.append(panel);
+
+  button.addEventListener('click', () => {
+    const expanded = button.getAttribute('aria-expanded') === 'true';
+    button.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+    panel.hidden = expanded;
+    accordion.classList.toggle('open', !expanded);
+  });
+
+  return accordion;
+}
+
 function buildRegionTabs(regionMap, langCode, container, userCountryIso) {
   const userRegion = userCountryIso ? getRegionForCountry(userCountryIso) : null;
   const sorted = Object.keys(regionMap).sort();
@@ -308,54 +450,89 @@ function buildRegionTabs(regionMap, langCode, container, userCountryIso) {
     ? [userRegion, ...sorted.filter((r) => r !== userRegion)]
     : sorted;
 
-  const tabNav = createElement('div', { classes: 'dealers-tabs' });
+  // Tablist (ARIA Tabs pattern, automatic activation).
+  const tabNav = createElement('ul', {
+    classes: 'dealers-tabs',
+    props: { role: 'tablist', 'aria-label': t('dealerLocationsByRegion', 'Dealer locations by region') },
+  });
   const tabContent = createElement('div', { classes: 'dealers-tab-content' });
 
-  regionNames.forEach((region, index) => {
-    const tabBtn = createElement('button', { classes: 'dealers-tab-btn' });
-    tabBtn.textContent = getLocalizedRegionName(region, langCode);
-    tabBtn.setAttribute('data-region', region);
-    if (index === 0) tabBtn.classList.add('active');
-    tabBtn.addEventListener('click', () => {
-      tabNav.querySelectorAll('.dealers-tab-btn').forEach((b) => b.classList.remove('active'));
-      tabBtn.classList.add('active');
-      tabContent.querySelectorAll('.dealers-tab-panel').forEach((p) => p.classList.remove('active'));
-      tabContent.querySelector(`[data-region="${region}"]`).classList.add('active');
-    });
-    tabNav.append(tabBtn);
-  });
+  const tabs = [];
+  const panels = [];
 
   regionNames.forEach((region, index) => {
-    const panel = createElement('div', { classes: 'dealers-tab-panel' });
-    panel.setAttribute('data-region', region);
+    const instanceId = uid();
+    const tabId = `${instanceId}-tab`;
+    const panelId = `${instanceId}-tabpanel`;
+
+    const listItem = createElement('li', { classes: 'dealers-tab-item', props: { role: 'presentation' } });
+    const tabBtn = createElement('button', {
+      classes: 'dealers-tab-btn',
+      props: {
+        type: 'button',
+        role: 'tab',
+        id: tabId,
+        'aria-controls': panelId,
+        'aria-selected': index === 0 ? 'true' : 'false',
+        tabindex: index === 0 ? '0' : '-1',
+      },
+    });
+    tabBtn.textContent = getLocalizedRegionName(region, langCode);
+    if (index === 0) tabBtn.classList.add('active');
+    listItem.append(tabBtn);
+    tabNav.append(listItem);
+    tabs.push(tabBtn);
+
+    const panel = createElement('div', {
+      classes: 'dealers-tab-panel',
+      props: {
+        role: 'tabpanel',
+        id: panelId,
+        tabindex: '0',
+        'aria-labelledby': tabId,
+      },
+    });
     if (index === 0) panel.classList.add('active');
+    panel.hidden = index !== 0;
 
     const countries = Object.keys(regionMap[region]).sort();
     countries.forEach((countryName) => {
-      const dealers = regionMap[region][countryName];
-      const sortedDealers = [...dealers].sort((a, b) => {
-        const nameA = (a.properties?.name || '').toUpperCase();
-        const nameB = (b.properties?.name || '').toUpperCase();
-        return nameA.localeCompare(nameB);
-      });
-
-      const details = document.createElement('details');
-      details.classList.add('dealers-accordion');
-
-      const summary = document.createElement('summary');
-      summary.classList.add('dealers-accordion-header');
-      summary.textContent = countryName;
-      details.append(summary);
-
-      const grid = createElement('div', { classes: 'dealers-grid' });
-      sortedDealers.forEach((store) => {
-        grid.append(buildDealerCard(store));
-      });
-      details.append(grid);
-      panel.append(details);
+      // Region heading is <h2> in the section, so country triggers are <h3>.
+      panel.append(buildCountryAccordion(countryName, regionMap[region][countryName], 'h3'));
     });
 
     tabContent.append(panel);
+    panels.push(panel);
+  });
+
+  // Automatic activation: selecting (via click) or focusing (via keyboard)
+  // a tab activates it.
+  tabs.forEach((tab, index) => {
+    tab.addEventListener('click', () => selectTab(tabs, panels, index));
+  });
+
+  tabNav.addEventListener('keydown', (e) => {
+    const current = tabs.indexOf(document.activeElement);
+    if (current === -1) return;
+    let next;
+    switch (e.key) {
+      case 'ArrowRight':
+        next = current === tabs.length - 1 ? 0 : current + 1;
+        break;
+      case 'ArrowLeft':
+        next = current === 0 ? tabs.length - 1 : current - 1;
+        break;
+      case 'Home':
+        next = 0;
+        break;
+      case 'End':
+        next = tabs.length - 1;
+        break;
+      default:
+        return;
+    }
+    e.preventDefault();
+    selectTab(tabs, panels, next, true);
   });
 
   container.append(tabNav);
@@ -388,7 +565,7 @@ async function decoratePriorityDealers(block) {
 
   const stores = await fetchDealers(apiKey, query);
   const sorted = sortStores(stores, false, langCode);
-  const grid = createElement('div', { classes: 'dealers-grid' });
+  const grid = createElement('ul', { classes: 'dealers-grid' });
   sorted.forEach((store) => {
     grid.append(buildDealerCard(store));
   });
@@ -396,6 +573,11 @@ async function decoratePriorityDealers(block) {
 }
 
 export default async function decorate(block) {
+  // Ensure the localization dictionary is loaded before we build labels, so the
+  // ARIA labels render in the site language on first paint (requirement #4).
+  // fetchPlaceholders is cached, so this is a no-op after the first call.
+  await fetchPlaceholders();
+
   if (block.classList.contains('global-title')) {
     decorateGlobalTitle(block);
     return;
@@ -457,7 +639,7 @@ export default async function decorate(block) {
     }
 
     const sorted = sortStores(stores, true, langCode);
-    const grid = createElement('div', { classes: 'dealers-grid' });
+    const grid = createElement('ul', { classes: 'dealers-grid' });
     sorted.forEach((store) => {
       grid.append(buildDealerCard(store));
     });
