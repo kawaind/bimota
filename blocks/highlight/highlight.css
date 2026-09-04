@@ -1,20 +1,22 @@
-/* Explicit black background so automated contrast validators evaluate the
-   white foreground text against #000 (>=4.5:1) rather than defaulting to the
-   UA white and reporting a false 1:1 ratio (WCAG 1.4.3). The background image
-   layered on top is unaffected. */
 .highlight {
   position: relative;
   color: var(--white);
-  background-color: var(--black);
   aspect-ratio: 3/4;
   width: 100%;
 }
 
+/* Explicit black background on the picture (not the block) so it adopts the
+   same size as the image and scales with it: as the picture transforms, the
+   black fill tracks its box exactly rather than leaving full-block black bars
+   around a scaled-down image (requirement 4). It also gives automated contrast
+   validators a solid #000 to evaluate the white foreground text against
+   (WCAG 1.4.3) instead of the UA white. */
 .highlight picture {
   display: flex;
   height: 100%;
   width: auto;
   margin: 0 calc((100vw - 100%) / -2);
+  background-color: var(--black);
   transition: all 300ms ease-in-out;
 }
 
@@ -88,7 +90,7 @@
   transition: opacity 3000ms ease-in-out, visibility 0s linear 0s;
 }
 
-.highlight .highlight-slide div {
+.highlight .highlight-slide > div {
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -96,6 +98,71 @@
 
 .highlight .highlight-slide h3 {
   margin: 0;
+}
+
+/* Slide body copy container (h6 visual scale applied via class on the wrapper
+   and inherited by its paragraphs). */
+.highlight .highlight-slide-body {
+  margin: 0;
+}
+
+.highlight .highlight-slide-body p {
+  margin: 0;
+}
+
+/* Visually-hidden live region: announced by screen readers, removed from view. */
+.highlight-live-region {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Carousel playback controls (Previous / Play-Pause / Next). Real buttons,
+   always keyboard-reachable with a visible focus indicator (WCAG 2.4.7). */
+.highlight-controls {
+  position: absolute;
+  z-index: 2;
+  right: 20px;
+  bottom: 20px;
+  display: flex;
+  gap: 12px;
+}
+
+.highlight-control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  margin: 0;
+  border: 1px solid var(--white);
+  border-radius: 50%;
+  background: rgb(0 0 0 / 35%);
+  color: var(--white);
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.highlight-control svg {
+  width: 24px;
+  height: 24px;
+}
+
+.highlight-control:hover {
+  background: rgb(0 0 0 / 60%);
+  border-color: var(--action-hover);
+}
+
+.highlight-control:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: 2px;
 }
 
 .highlight.block .flag-wrapper {

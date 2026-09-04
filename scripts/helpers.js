@@ -425,6 +425,34 @@ const getLanguageConfigSheet = (config, sheetName) => {
 };
 
 /**
+ * Resolve a set of screen-reader/ARIA labels translated for the current URL's
+ * language from a named /lanconfig.json sheet. Each row is a Key plus one
+ * column per language code; the column matching the current language wins, else
+ * English, else the caller's fallback. Adding a language is a pure authoring
+ * change (add a column). Returns the fallbacks as-is on any fetch/parse error,
+ * so callers are always usable.
+ * @param {string} sheetName the lanconfig sheet holding the labels
+ * @param {Object<string,string>} fallbacks map of key -> English default
+ * @returns {Promise<Object<string,string>>} map of key -> localized label
+ */
+export const getLanguageLabels = async (sheetName, fallbacks) => {
+  const labels = { ...fallbacks };
+  try {
+    const config = await fetchLanguageConfig();
+    const rows = getLanguageConfigSheet(config, sheetName);
+    if (!rows.length) return labels;
+    const { language } = getLocale();
+    Object.keys(fallbacks).forEach((key) => {
+      const row = rows.find((r) => (r.Key || r.key) === key);
+      if (row) labels[key] = row[language] || row.en || row.En || fallbacks[key];
+    });
+  } catch (e) {
+    // keep fallbacks
+  }
+  return labels;
+};
+
+/**
  * Resolve the "opens in a new tab" warning translated for the current URL's
  * language, read from the "sr-buttons" sheet in /lanconfig.json (row keyed
  * "opensInNewTab", one column per language code). Falls back to English, then
@@ -433,13 +461,6 @@ const getLanguageConfigSheet = (config, sheetName) => {
  */
 export const getOpensInNewTabLabel = async () => {
   const fallback = '(opens in a new tab)';
-  const config = await fetchLanguageConfig();
-  const rows = getLanguageConfigSheet(config, 'sr-buttons');
-  if (!rows.length) return fallback;
-
-  const row = rows.find((r) => (r.Key || r.key) === 'opensInNewTab');
-  if (!row) return fallback;
-
-  const { language } = getLocale();
-  return row[language] || row.en || row.En || fallback;
+  const labels = await getLanguageLabels('sr-buttons', { opensInNewTab: fallback });
+  return labels.opensInNewTab;
 };
