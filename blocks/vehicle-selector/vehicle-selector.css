@@ -15,8 +15,8 @@
   border: 0;
 }
 
-/* Incoming vehicle slides in from the right. */
-@keyframes vehicle-slide-in {
+/* Incoming vehicle slides in from the right (moving forward). */
+@keyframes vehicle-slide-in-right {
   0% {
     transform: translateX(100%);
     opacity: 0;
@@ -28,8 +28,21 @@
   }
 }
 
-/* Outgoing vehicle slides off to the left. */
-@keyframes vehicle-slide-out {
+/* Incoming vehicle slides in from the left (moving backward). */
+@keyframes vehicle-slide-in-left {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Outgoing vehicle slides off to the left (moving forward). */
+@keyframes vehicle-slide-out-left {
   0% {
     transform: translateX(0);
     opacity: 1;
@@ -37,6 +50,19 @@
 
   100% {
     transform: translateX(-100%);
+    opacity: 0;
+  }
+}
+
+/* Outgoing vehicle slides off to the right (moving backward). */
+@keyframes vehicle-slide-out-right {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(100%);
     opacity: 0;
   }
 }
@@ -55,8 +81,14 @@ ul.vehicle-selector__navigation {
   list-style: none;
   margin: 0;
   overflow: auto;
-  padding: 10px 32px 40px;
+
+  /* Left-aligned so the names read in from the left edge of the page, with a
+     modest inset. When there are more names than fit, the strip scrolls and the
+     active-tab auto-centering (see activate() in the JS) slides it leftward to
+     reveal the later names as the user moves toward the end. */
+  padding: 10px 20px 40px;
   position: relative;
+  scroll-behavior: smooth;
   scrollbar-width: none;
 }
 
@@ -117,21 +149,34 @@ ul.vehicle-selector__navigation {
   display: none;
 }
 
-/* The incoming (now active) panel slides in from the right. */
-.vehicle-selector__panel.is-entering {
-  animation: vehicle-slide-in var(--duration-medium) var(--easing-entrance);
+/* The incoming (now active) panel slides in — from the right when moving
+   forward, from the left when moving backward. */
+.vehicle-selector__panel.is-entering.from-right {
+  animation: vehicle-slide-in-right var(--duration-medium) var(--easing-entrance);
 }
 
-/* The outgoing panel slides off to the left. It is still `hidden` (so it is out
-   of the a11y tree and the JS marks it `inert`), so re-assert display and pull
-   it out of flow, overlaying the incoming panel for the duration of the slide.
-   `[hidden]` + this class must win over the plain `[hidden] { display:none }`
-   rule above, so it is intentionally more specific. */
+.vehicle-selector__panel.is-entering.from-left {
+  animation: vehicle-slide-in-left var(--duration-medium) var(--easing-entrance);
+}
+
+/* The outgoing panel slides off — to the left when moving forward, to the right
+   when moving backward. It is still `hidden` (so it is out of the a11y tree and
+   the JS marks it `inert`), so re-assert display and pull it out of flow,
+   overlaying the incoming panel for the duration of the slide. `[hidden]` +
+   this class must win over the plain `[hidden] { display:none }` rule above, so
+   it is intentionally more specific. */
 .vehicle-selector__panel[hidden].is-leaving {
   display: grid;
   position: absolute;
   inset: 0;
-  animation: vehicle-slide-out var(--duration-medium) var(--easing-exit);
+}
+
+.vehicle-selector__panel[hidden].is-leaving.to-left {
+  animation: vehicle-slide-out-left var(--duration-medium) var(--easing-exit);
+}
+
+.vehicle-selector__panel[hidden].is-leaving.to-right {
+  animation: vehicle-slide-out-right var(--duration-medium) var(--easing-exit);
 }
 
 /* Visible focus indicator for the tabpanel, which is keyboard-focusable so Tab
@@ -141,28 +186,38 @@ ul.vehicle-selector__navigation {
   outline-offset: 2px;
 }
 
+/* Reserve the media box up front from its aspect ratio so the block never
+   collapses while the image is still loading (no layout shift / CLS). The box
+   is capped so its height never exceeds 70vh (matching the previous sizing),
+   and is centered within the panel. */
 .vehicle-selector__panel-media {
+  width: 100%;
+  max-width: calc(70vh * 16 / 9);
+  margin-inline: auto;
+  aspect-ratio: 16 / 9;
   text-align: center;
 }
 
 .vehicle-selector__panel-media picture {
-  display: inline-block;
+  display: block;
+  height: 100%;
 }
 
 /* Respect users who prefer reduced motion: no sliding, just an instant swap
    (the JS also skips the animation classes in this case). */
 @media (prefers-reduced-motion: reduce) {
   .vehicle-selector__panel.is-entering,
-  .vehicle-selector__panel[hidden].is-leaving {
+  .vehicle-selector__panel[hidden].is-leaving,
+  .vehicle-selector__panel[hidden].is-leaving.to-left,
+  .vehicle-selector__panel[hidden].is-leaving.to-right {
     animation: none;
   }
 }
 
 .vehicle-selector__panel-media img {
-  aspect-ratio: 16 / 9;
-  max-height: 70vh;
-  width: auto;
-  max-width: 100%;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .vehicle-selector__panel-specs {
@@ -259,7 +314,7 @@ ul.vehicle-selector__navigation {
 
   ul.vehicle-selector__navigation {
     gap: 60px;
-    justify-content: center;
+    padding-inline: 32px;
   }
 
   .vehicle-selector .button-container {

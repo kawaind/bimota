@@ -51,9 +51,14 @@ const getActiveIndex = (block) => {
 
 const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+const SLIDE_CLASSES = ['is-entering', 'is-leaving', 'from-right', 'from-left', 'to-left', 'to-right'];
+
 /**
- * Visual-only cross-slide between panels: the outgoing panel slides off to the
- * left while the incoming one slides in from the right. This runs purely for
+ * Visual-only directional cross-slide between panels. The direction follows the
+ * order of the vehicles: moving forward (to a later vehicle) the incoming panel
+ * slides in from the right while the outgoing one slides off to the left;
+ * moving backward (to an earlier vehicle) the incoming panel slides in from the
+ * left while the outgoing one slides off to the right. This runs purely for
  * appearance and never changes the accessibility state — `activate` has already
  * made the incoming panel the only one exposed to assistive tech. During its
  * exit the outgoing panel is marked `inert` so, even though it stays painted
@@ -69,21 +74,23 @@ const slidePanels = (panels, fromIndex, toIndex) => {
 
   // Clear any in-flight transition so rapid switches don't leave ghosts.
   panels.forEach((panel) => {
-    panel.classList.remove('is-entering', 'is-leaving');
+    panel.classList.remove(...SLIDE_CLASSES);
     panel.removeAttribute('inert');
   });
 
   if (prefersReducedMotion() || fromIndex === toIndex || !incoming || !outgoing) return;
 
-  incoming.classList.add('is-entering');
-  incoming.addEventListener('animationend', () => incoming.classList.remove('is-entering'), { once: true });
+  const forward = toIndex > fromIndex;
+
+  incoming.classList.add('is-entering', forward ? 'from-right' : 'from-left');
+  incoming.addEventListener('animationend', () => incoming.classList.remove(...SLIDE_CLASSES), { once: true });
 
   // Keep the outgoing panel painted (overriding its `hidden` display:none) only
   // for the duration of its slide-out, then let `hidden` take over again.
-  outgoing.classList.add('is-leaving');
+  outgoing.classList.add('is-leaving', forward ? 'to-left' : 'to-right');
   outgoing.setAttribute('inert', '');
   outgoing.addEventListener('animationend', () => {
-    outgoing.classList.remove('is-leaving');
+    outgoing.classList.remove(...SLIDE_CLASSES);
     outgoing.removeAttribute('inert');
   }, { once: true });
 };
@@ -116,13 +123,20 @@ const activate = (block, index, { moveFocus = false, announce = false } = {}) =>
   // source of truth). No-op on the initial render and on resize (same index).
   slidePanels(panels, previousIndex, index);
 
-  // Center the active tab within the horizontally-scrollable navigation.
+  // Keep the active name in view within the horizontally-scrollable navigation.
+  // Only scroll when the strip actually overflows, so with a handful of names
+  // they simply stay left-aligned. When there are too many to fit, the strip
+  // slides left as the user moves toward the end, keeping the active name a
+  // little in from the left edge (rather than dead-centre) so it reads as the
+  // names sliding in from the left.
   const nav = block.querySelector(`.${blockName}__navigation`);
   const activeItem = nav?.querySelector(`.${blockName}__navigation-item.active`);
-  if (nav && activeItem) {
+  if (nav && activeItem && nav.scrollWidth > nav.clientWidth) {
     const { clientWidth: itemWidth, offsetLeft } = activeItem;
+    const inset = Math.min(nav.clientWidth * 0.25, nav.clientWidth - itemWidth);
+    const target = Math.max(0, offsetLeft - inset);
     nav.scrollTo({
-      left: offsetLeft - (nav.clientWidth - itemWidth) / 2,
+      left: Math.min(target, nav.scrollWidth - nav.clientWidth),
       behavior: 'smooth',
     });
   }
