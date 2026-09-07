@@ -707,7 +707,10 @@ header nav a.skip-link {
   font-weight: 700;
   white-space: nowrap;
   text-decoration: none;
-  border-radius: 4px;
+
+  /* Figma: white 1px border, fully-rounded pill (border-radius 100px). */
+  border: 1px solid var(--white);
+  border-radius: 100px;
 }
 
 header nav a.skip-link:focus,
