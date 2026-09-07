@@ -88,11 +88,10 @@ export function addModalHandling() {
   });
 
   // The modal is a dialog: role + aria-modal so AT treats it as a modal
-  // surface (WCAG 4.1.2). tabindex=-1 lets us focus the container on open so
-  // the screen reader announces the dialog (title first, then the tables).
-  // The close button is placed as the very first element inside the modal so
-  // keyboard users can Shift+Tab once from the container to reach it and exit
-  // immediately, without tabbing through the entire tables.
+  // surface (WCAG 4.1.2). tabindex=-1 keeps the container programmatically
+  // focusable as a trap fallback. The close button is placed as the very first
+  // element inside the modal and receives focus on open, so keyboard users can
+  // dismiss it immediately without tabbing through the entire tables.
   const modalEl = document.createRange().createContextualFragment(`
     <div class="modal modal-hidden" role="dialog" aria-modal="true" tabindex="-1">
       <button class="modal-close-button" type="button" aria-label="Close">
@@ -143,10 +142,10 @@ export function addModalHandling() {
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
 
-    // Focus starts on the dialog container (tabindex=-1) on open. Tab moves to
-    // the first focusable element (the close button, placed first in the DOM);
-    // Shift+Tab moves to the last — so a single Shift+Tab from the container is
-    // the shortcut to reach the close button and exit.
+    // Focus opens on the close button (first focusable). If focus is ever on
+    // the dialog container itself (tabindex=-1, e.g. a stray programmatic
+    // focus), Tab moves to the first focusable and Shift+Tab to the last so the
+    // trap still holds.
     if (document.activeElement === modal) {
       event.preventDefault();
       (event.shiftKey ? last : first).focus();
@@ -214,11 +213,12 @@ export function addModalHandling() {
     modalContentAnimation(true);
     closeButtonAnimation(true);
 
-    // Focus the dialog container (not the close button) so the screen reader
-    // announces the dialog title first, then reads through the tables. With
-    // the close button placed first in the DOM, a single Shift+Tab from here
-    // reaches it to exit. Start trapping focus.
-    modal.focus();
+    // Move keyboard focus directly to the Close button, the first focusable
+    // element inside the dialog, so keyboard users can dismiss it immediately
+    // without tabbing to reach it (WCAG 2.4.3 Focus Order). The button carries
+    // aria-label="Close" and the dialog is labelled by its title, so screen
+    // readers still announce the dialog context on entry. Start trapping focus.
+    closeButton.focus();
     document.addEventListener('keydown', onKeydown);
   });
 
