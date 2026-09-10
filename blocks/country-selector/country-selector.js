@@ -1,5 +1,45 @@
-import { stripEmptyTags, forceHeadingLevel } from '../../scripts/helpers.js';
+import { stripEmptyTags, forceHeadingLevel, getLanguageLabels } from '../../scripts/helpers.js';
 import { addModalHandling } from '../../scripts/modal-helper.js';
+
+// Accessible-name templates for the region country groups, English fallbacks.
+// {region} and {count} are substituted at runtime; {items} resolves to a
+// singular/plural word supplied per language. Localized via the
+// `country-selector` sheet in lanconfig.json (same mechanism as the other a11y
+// components); missing translations fall back to English.
+const A11Y_FALLBACKS = {
+  countryGroupLabel: '{region} countries, {count} {items}',
+  itemSingular: 'item',
+  itemPlural: 'items',
+};
+
+/**
+ * Programmatically groups each region's country lists under a descriptive,
+ * counted label so screen readers announce e.g. "Europe countries, 8 items,
+ * group" when focus enters (WCAG 1.3.1, 4.1.2). Native <ul>/<li> semantics are
+ * kept; role="group" only adds the region-level grouping native HTML can't
+ * express. Idempotent, so it can run again once the localized label resolves.
+ * @param {Element} block the decorated country-selector block
+ * @param {Object} labels resolved label set (template + singular/plural words)
+ */
+function applyRegionGroupLabels(block, labels) {
+  block.querySelectorAll('.country-selector-region-wrapper').forEach((wrapper) => {
+    const region = wrapper.querySelector('h1, h2, h3, h4, h5, h6')?.textContent.trim() || '';
+    const group = wrapper.querySelector('.country-selector-country-wrapper');
+    if (!group) return;
+
+    // One list per country, so the list count is the number of countries.
+    const count = group.querySelectorAll(':scope > ul').length;
+    const itemWord = count === 1 ? labels.itemSingular : labels.itemPlural;
+    group.setAttribute('role', 'group');
+    group.setAttribute(
+      'aria-label',
+      labels.countryGroupLabel
+        .replace('{region}', region)
+        .replace('{count}', String(count))
+        .replace('{items}', itemWord),
+    );
+  });
+}
 
 const ICON_TOKEN_REGEX = /:([\w-]+):/;
 const LOCALE_PREFIX_REGEX = /^\/([^/]+)\/([^/]+)(\/.*)?$/;
@@ -287,6 +327,15 @@ function renderCountrySelector(block) {
   });
 
   block.append(dataContainer);
+
+  // Group each region's country lists under a descriptive, counted label so
+  // screen readers announce the group + item count on entry (WCAG 1.3.1). Apply
+  // the English fallback synchronously so the grouping is never unlabelled, then
+  // swap in the localized label once the dictionary resolves.
+  applyRegionGroupLabels(block, A11Y_FALLBACKS);
+  getLanguageLabels('country-selector', A11Y_FALLBACKS).then((labels) => {
+    applyRegionGroupLabels(block, labels);
+  });
 
   // add modal class only when header/footer has option of country change
   const hasGlobeIcon = document.querySelector('.icon-globe');

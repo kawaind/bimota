@@ -1,4 +1,10 @@
 import { customDecoreateIcons } from './decorate-icon-helper.js';
+import { getLanguageLabels } from './helpers.js';
+
+// English fallback for the modal Close button's accessible name, used until the
+// localized label resolves (or if the dictionary lookup fails), so the button
+// always announces "Close, button" and never just "button" (WCAG 4.1.2).
+const CLOSE_LABEL_FALLBACK = 'Close';
 
 export function addAnimateInOut(animateTarget, {
   initStyles = {}, startStyles = {}, endStyles = {}, time = 300,
@@ -94,7 +100,7 @@ export function addModalHandling() {
   // dismiss it immediately without tabbing through the entire tables.
   const modalEl = document.createRange().createContextualFragment(`
     <div class="modal modal-hidden" role="dialog" aria-modal="true" tabindex="-1">
-      <button class="modal-close-button" type="button" aria-label="Close">
+      <button class="modal-close-button" type="button" aria-label="${CLOSE_LABEL_FALLBACK}">
         <span class="icon icon-close"></span>
       </button>
       <div class="modal-background"></div>
@@ -115,6 +121,13 @@ export function addModalHandling() {
   const modal = document.querySelector('.modal');
   const modalContent = document.querySelector('.modal .modal-content');
   const closeButton = document.querySelector('.modal-close-button');
+
+  // Localize the Close button's accessible name for the current page language,
+  // read from the `sr-buttons` sheet (English fallback already set on the
+  // element). Exposed consistently across all viewports (WCAG 4.1.2).
+  getLanguageLabels('sr-buttons', { closeModal: CLOSE_LABEL_FALLBACK }).then((labels) => {
+    closeButton.setAttribute('aria-label', labels.closeModal);
+  });
 
   // Background regions hidden from AT while the modal is open, restored on close.
   const backgroundRegions = ['header', 'main', 'footer'];
