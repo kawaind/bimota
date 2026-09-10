@@ -45,12 +45,13 @@ footer {
 /* A second titled group an author adds within a column (e.g. "Mobile
    Application" below the social icons): separate it clearly from the list
    above, space the content under its heading, and cap any logo image so it
-   sits neatly in the column instead of dominating it. */
-.footer .footer-column ul + h3 {
+   sits neatly in the column instead of dominating it. The heading level is
+   matched with :is() because footer.js may emit h3 (normalised) or h4. */
+.footer .footer-column ul + :is(h3, h4) {
   margin-top: 40px;
 }
 
-.footer .footer-column h3 + p {
+.footer .footer-column :is(h3, h4) + p {
   margin-top: 16px;
 }
 
@@ -237,7 +238,7 @@ footer {
 /* Cap a logo image an author places under a column heading (e.g. the app logo
    below "Mobile Application") so it stays proportionate to the column rather
    than rendering at its full intrinsic width. */
-.footer .footer-column h3 + p img {
+.footer .footer-column :is(h3, h4) + p img {
   width: auto;
   max-width: 180px;
   height: auto;
