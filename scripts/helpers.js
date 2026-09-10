@@ -1,3 +1,35 @@
+// Hash prefixes reserved by other features (modals, block swapping) that must
+// not be treated as in-page anchor links. Shared so the body anchor handling
+// (scripts.js) and the nav anchor handling (header block) stay in sync.
+export const RESERVED_HASH_PREFIXES = ['modal-', 'id-'];
+
+/**
+ * Whether a hash (without the leading '#') is reserved by another feature and
+ * so must not be handled as an in-page anchor link.
+ * @param {string} hash the hash value, e.g. "modal-country-selector"
+ * @returns {boolean}
+ */
+export function isReservedHash(hash) {
+  return RESERVED_HASH_PREFIXES.some((prefix) => hash.startsWith(prefix));
+}
+
+/**
+ * Smooth-scroll to an in-page anchor target by id. Targets are the ids that
+ * decorateAnchors() assigns to headings / bold paragraphs (via a `{#id}`
+ * marker) or to standalone anchor points, so authors reuse the exact same
+ * mechanism the page body already uses. Reserved hashes (modals, block
+ * swapping) are ignored. No-op if the target does not exist on the page.
+ * @param {string} targetId the id to scroll to (without '#')
+ * @returns {boolean} true if a target was found and scrolled to
+ */
+export function scrollToAnchor(targetId) {
+  if (!targetId || isReservedHash(targetId)) return false;
+  const target = document.getElementById(targetId);
+  if (!target) return false;
+  target.scrollIntoView({ behavior: 'smooth' });
+  return true;
+}
+
 export function addSwiping(swipeEl, onSwipe) {
   let startX = 0;
   let endX = 0;
