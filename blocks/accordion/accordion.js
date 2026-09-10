@@ -11,10 +11,9 @@ const uid = () => {
 
 /**
  * Move a cell's content into `target`, unwrapping a single wrapping <p>. The
- * authoring model wraps cell text in a paragraph, but the trigger label and the
- * group heading only allow phrasing content — a nested <p> there is invalid
- * HTML. When the cell is exactly one <p>, its inline children are moved instead
- * of the <p> itself.
+ * authoring model wraps cell text in a paragraph, but the trigger label only
+ * allows phrasing content — a nested <p> inside a button is invalid HTML. When
+ * the cell is exactly one <p>, its inline children are moved instead of the <p>.
  * @param {HTMLElement} target destination element
  * @param {HTMLElement} cell authored source cell
  */
@@ -30,27 +29,30 @@ const appendUnwrapped = (target, cell) => {
 };
 
 /**
- * Build one accordion item (ARIA APG Accordion pattern): a native <button>
+ * Build a disclosure widget (ARIA APG Accordion pattern): a native <button>
  * wrapped in a heading controls a collapsible panel. Expanded state is exposed
  * via aria-expanded; the panel is a labelled region linked back to its button
  * with aria-labelledby (WCAG 1.3.1, 4.1.2). Collapsed panels use the native
  * `hidden` attribute so their content is removed from layout, the a11y tree and
- * the tab order in one step.
- * @param {HTMLElement} summaryCell the authored trigger content (the question)
- * @param {HTMLElement} panelCell the authored panel content (the answer)
- * @param {string} headingTag semantic heading level for the trigger
- * @returns {HTMLElement} the accordion item wrapper
+ * the tab order in one step. Returns the wrapper and its (empty) panel so the
+ * caller can fill the panel with either an answer or nested question items.
+ * @param {Object} opts
+ * @param {string} opts.headingTag semantic heading level for the trigger
+ * @param {string} opts.variant class suffix, '' for a category or 'sub' for a question
+ * @param {HTMLElement} opts.labelSource authored cell holding the trigger label
+ * @returns {{ item: HTMLElement, panel: HTMLElement }}
  */
-const buildItem = (summaryCell, panelCell, headingTag) => {
+const buildDisclosure = ({ headingTag, variant, labelSource }) => {
+  const p = variant ? `${blockName}-${variant}` : `${blockName}-`;
   const instanceId = uid();
   const buttonId = `${instanceId}-btn`;
   const panelId = `${instanceId}-panel`;
 
-  const item = createElement('div', { classes: `${blockName}-item` });
+  const item = createElement('div', { classes: `${p}item` });
 
-  const heading = createElement(headingTag, { classes: `${blockName}-heading` });
+  const heading = createElement(headingTag, { classes: `${p}heading` });
   const button = createElement('button', {
-    classes: `${blockName}-trigger`,
+    classes: `${p}trigger`,
     props: {
       type: 'button',
       id: buttonId,
@@ -58,20 +60,17 @@ const buildItem = (summaryCell, panelCell, headingTag) => {
       'aria-controls': panelId,
     },
   });
-  const label = createElement('span', { classes: `${blockName}-title` });
-  // Move the authored summary content (text/inline markup) into the label,
-  // unwrapping a lone <p> so we don't nest block content inside the button.
-  appendUnwrapped(label, summaryCell);
-  button.append(label);
+  const title = createElement('span', { classes: `${p}title` });
+  appendUnwrapped(title, labelSource);
+  button.append(title);
   heading.append(button);
   item.append(heading);
 
   const panel = createElement('div', {
-    classes: `${blockName}-panel`,
+    classes: `${p}panel`,
     props: { id: panelId, role: 'region', 'aria-labelledby': buttonId },
   });
   panel.hidden = true;
-  panel.append(...panelCell.childNodes);
   item.append(panel);
 
   button.addEventListener('click', () => {
@@ -81,7 +80,7 @@ const buildItem = (summaryCell, panelCell, headingTag) => {
     item.classList.toggle('open', !expanded);
   });
 
-  return item;
+  return { item, panel };
 };
 
 export default function decorate(block) {
@@ -89,28 +88,41 @@ export default function decorate(block) {
 
   // Region grouping the accordion so screen readers get structural context.
   block.setAttribute('role', 'region');
-  const blockHeadingLevel = 'h2'; // category dividers
-  const itemHeadingLevel = 'h3'; // question triggers (keep h2 -> h3 order)
 
   const container = createElement('div', { classes: `${blockName}-container` });
+
+  // The current category's panel — question items are nested inside it. Before
+  // the first category appears (defensive), questions fall back to the container.
+  let currentCategoryPanel = null;
 
   rows.forEach((row) => {
     const cells = [...row.children];
 
-    // Single-cell row = a category divider (a subheading between item groups).
+    // Single-cell row = a category: a top-level collapsible dropdown (h2). Its
+    // panel becomes the destination for the questions that follow it.
     if (cells.length === 1) {
-      const groupHeading = createElement(blockHeadingLevel, { classes: `${blockName}-group-heading` });
-      appendUnwrapped(groupHeading, cells[0]);
-      // Only treat as a heading if it actually has text; otherwise skip empties.
-      if (groupHeading.textContent.trim()) {
-        container.append(groupHeading);
-      }
+      if (!cells[0].textContent.trim()) return;
+      const { item, panel } = buildDisclosure({
+        headingTag: 'h2',
+        variant: '',
+        labelSource: cells[0],
+      });
+      container.append(item);
+      currentCategoryPanel = panel;
       return;
     }
 
-    // Two-cell row = an accordion item: [summary/question, panel/answer].
+    // Two-cell row = a question: a nested collapsible (h3) whose panel holds the
+    // answer. Nested inside the current category's panel so the Q&A group under
+    // their category (keeps a clean h2 -> h3 heading order).
     if (cells.length >= 2) {
-      container.append(buildItem(cells[0], cells[1], itemHeadingLevel));
+      const { item, panel } = buildDisclosure({
+        headingTag: 'h3',
+        variant: 'sub-',
+        labelSource: cells[0],
+      });
+      panel.append(...cells[1].childNodes);
+      (currentCategoryPanel || container).append(item);
     }
   });
 
