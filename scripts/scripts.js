@@ -15,6 +15,7 @@ import {
   toClassName,
 } from './aem.js';
 import { customDecoreateIcons } from './decorate-icon-helper.js';
+import { isReservedHash } from './helpers.js';
 
 function buildVideoBlock(main) {
   const videoLinks = [...main.querySelectorAll('a[href$=".mp4"]')];
@@ -76,14 +77,6 @@ export function customDecorateBlocks(main) {
       block.parentElement.classList.add('wrapper-full-width');
     }
   });
-}
-
-// Hash prefixes reserved by other features (modals, block swapping) that must
-// not be treated as in-page anchor links.
-const RESERVED_HASH_PREFIXES = ['modal-', 'id-'];
-
-function isReservedHash(hash) {
-  return RESERVED_HASH_PREFIXES.some((prefix) => hash.startsWith(prefix));
 }
 
 function decorateAnchors(main) {

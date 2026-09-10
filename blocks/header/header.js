@@ -1,6 +1,7 @@
 import { getMetadata, getRootPath } from '../../scripts/aem.js';
 import { addAnimateInOut } from '../../scripts/modal-helper.js';
 import { customDecoreateIcons } from '../../scripts/decorate-icon-helper.js';
+import { isReservedHash, scrollToAnchor } from '../../scripts/helpers.js';
 import { loadFragment } from '../fragment/fragment.js';
 
 // media query match that indicates mobile/tablet width
@@ -183,6 +184,45 @@ async function loadCountrySelectorBlock() {
   while (fragment.firstElementChild) main.append(fragment.firstElementChild);
 }
 /**
+ * Wire same-page anchor links in the nav so an author can point a menu item at
+ * a section on the current page. The author sets the nav link's URL to "#id"
+ * and marks the target on the page with the existing anchor mechanism (a
+ * `{#id}` marker on a heading, or a standalone anchor point) — the same thing
+ * the page body already uses, so there is no new target concept.
+ *
+ * On click of an in-page nav link we smooth-scroll to the target in <main>
+ * (scroll-only: the URL is left unchanged) and first close the mobile menu so
+ * the destination is actually visible. Reserved hashes (modal triggers, block
+ * swapping) keep their own behavior. Cross-page links (e.g. "/company#id") are
+ * left as normal navigation.
+ * @param {Element} nav the decorated <nav> element
+ */
+function decorateNavAnchorLinks(nav) {
+  nav.querySelectorAll('a[href*="#"]').forEach((link) => {
+    const url = new URL(link.href, window.location.href);
+    // Same page only: the link must target the current path, differing just by
+    // hash. This lets "#id" and an explicit "/current-path#id" both work while
+    // leaving genuine cross-page links to navigate normally.
+    if (url.pathname !== window.location.pathname) return;
+
+    const targetId = url.hash.substring(1);
+    if (!targetId || isReservedHash(targetId)) return;
+
+    link.addEventListener('click', (e) => {
+      const target = document.getElementById(targetId);
+      if (!target) return;
+      e.preventDefault();
+      // Close the mobile menu first so the section is visible when we scroll.
+      if (!isDesktop.matches && nav.classList.contains('nav-expanded')) {
+        const navSections = nav.querySelector('.nav-sections');
+        if (navSections) toggleMenu(nav, navSections);
+      }
+      scrollToAnchor(targetId);
+    });
+  });
+}
+
+/**
  * loads and decorates the header, mainly the nav
  * @param {Element} block The header block element
  */
@@ -351,6 +391,7 @@ export default async function decorate(block) {
   if (navSections) {
     checkForActiveLink(navSections);
   }
+  decorateNavAnchorLinks(nav);
   handleTransparentAndScrolling(nav);
   customDecoreateIcons(nav);
 }
