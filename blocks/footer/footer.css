@@ -42,6 +42,18 @@ footer {
   color: var(--grey-20);
 }
 
+/* A second titled group an author adds within a column (e.g. "Mobile
+   Application" below the social icons): separate it clearly from the list
+   above, space the content under its heading, and cap any logo image so it
+   sits neatly in the column instead of dominating it. */
+.footer .footer-column ul + h3 {
+  margin-top: 40px;
+}
+
+.footer .footer-column h3 + p {
+  margin-top: 16px;
+}
+
 .footer .footer-list-item {
   display: flex;
   gap: 15px;
@@ -220,6 +232,23 @@ footer {
   height: 24px;
   object-fit: contain;
   display: block;
+}
+
+/* Cap a logo image an author places under a column heading (e.g. the app logo
+   below "Mobile Application") so it stays proportionate to the column rather
+   than rendering at its full intrinsic width. */
+.footer .footer-column h3 + p img {
+  width: auto;
+  max-width: 180px;
+  height: auto;
+}
+
+/* The Bimota stripes mark in the footer corner. The global `.icon img` rule
+   forces a 20x20 box, which squashes the ~2.5:1 stripes to a tiny sliver. Size
+   it to ~48px wide keeping its aspect ratio so the brand stripes read clearly. */
+.footer .section .default-content-wrapper .icon-logo-flag img {
+  width: 48px;
+  height: auto;
 }
 
 .country-selector-page .section:last-child .default-content-wrapper {
