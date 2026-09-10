@@ -1,0 +1,121 @@
+/* Accordion block. Styling ported from the woosmapdealers dealer accordion so
+   the expand/collapse triggers, chevron indicator and panels look consistent
+   across the site. */
+
+.accordion .accordion-container {
+  width: 100%;
+}
+
+/* Category divider between groups of accordion items. */
+.accordion .accordion-group-heading {
+  margin: 32px 0 8px;
+  font-weight: 500;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 130%;
+  letter-spacing: 0;
+  color: #1a1a1a;
+}
+
+.accordion .accordion-group-heading:first-child {
+  margin-top: 0;
+}
+
+/* One accordion item. */
+.accordion .accordion-item {
+  border-bottom: 1px solid var(--grey-20);
+}
+
+.accordion .accordion-heading {
+  margin: 0;
+  font: inherit;
+}
+
+/* Trigger button: full-width, left-aligned, with a rotating chevron. */
+.accordion .accordion-trigger {
+  width: 100%;
+  background: none;
+  border: none;
+  font-weight: 500;
+  font-style: normal;
+  font-size: 20px;
+  line-height: 130%;
+  letter-spacing: 0;
+  color: #1a1a1a;
+  padding: 24px 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+  gap: 16px;
+  user-select: none;
+}
+
+/* Clear visible focus indicator for the trigger (WCAG 2.4.7). */
+.accordion .accordion-trigger:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: 2px;
+}
+
+.accordion .accordion-title {
+  flex: 1;
+}
+
+/* Chevron indicator, rotates when the item is expanded. */
+.accordion .accordion-trigger::after {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border-right: 2px solid var(--action-focus);
+  border-bottom: 2px solid var(--action-focus);
+  transform: rotate(45deg);
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+  margin-left: 16px;
+}
+
+.accordion .accordion-trigger[aria-expanded='true']::after {
+  transform: rotate(-135deg);
+}
+
+/* Collapsed panels are removed from layout/AT/tab order via the hidden attr. */
+.accordion .accordion-panel[hidden] {
+  display: none;
+}
+
+.accordion .accordion-panel {
+  overflow: hidden;
+  padding-bottom: 24px;
+  font-weight: 500;
+  font-style: normal;
+  font-size: 16px;
+  line-height: 150%;
+  letter-spacing: 0;
+  color: #1a1a1a;
+}
+
+.accordion .accordion-panel p {
+  margin: 0 0 12px;
+}
+
+.accordion .accordion-panel :last-child {
+  margin-bottom: 0;
+}
+
+/* Answer links: black by default, dark-red on hover, darker-red on focus;
+   always underlined so state is never conveyed by colour alone (WCAG 1.4.1). */
+.accordion .accordion-panel a {
+  color: var(--black);
+  text-decoration: underline;
+}
+
+.accordion .accordion-panel a:hover {
+  color: var(--action-hover);
+}
+
+.accordion .accordion-panel a:focus-visible {
+  color: var(--action-focus);
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: 2px;
+}
