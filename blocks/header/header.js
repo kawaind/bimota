@@ -326,6 +326,18 @@ export default async function decorate(block) {
   nav.id = 'nav';
   while (fragment.firstElementChild) nav.append(fragment.firstElementChild);
 
+  // An author may add a Submenu block to the nav document to get a secondary
+  // bar under the main menu. Pulled out of the nav's flex row here (before the
+  // index-based section classing below) so it does not get squashed as a nav
+  // flex child; it is re-inserted as a full-width bar under the nav further
+  // down. Its empty wrapper section is removed so the brand/sections/tools/
+  // dealer-locator index mapping stays correct regardless of where it was added.
+  const submenuBlock = nav.querySelector('.submenu');
+  if (submenuBlock) {
+    const submenuSection = submenuBlock.closest(':scope > div') || submenuBlock;
+    submenuSection.remove();
+  }
+
   const classes = ['brand', 'sections', 'tools', 'dealer-locator'];
   classes.forEach((c, i) => {
     const section = nav.children[i];
@@ -521,12 +533,30 @@ export default async function decorate(block) {
   const navWrapper = document.createElement('div');
   navWrapper.className = 'nav-wrapper';
   navWrapper.append(nav);
+
+  // Re-insert an author-added submenu as a full-width bar directly under the
+  // nav, inside the header, so it spans the viewport (not squashed in the nav
+  // flex row) and hides/shows together with the header on scroll. Marked
+  // `submenu-in-nav` so the block renders static/full-width here and skips its
+  // own sticky + scroll-hide (the header owns hide/show in this placement).
+  if (submenuBlock) {
+    submenuBlock.classList.add('submenu-in-nav');
+    navWrapper.append(submenuBlock);
+    block.closest('header')?.classList.add('has-submenu');
+    // The block's decorate() runs via the fragment's decorateMain, wiring the
+    // links; keep it here in the header so it moves with the nav.
+  }
+
   block.append(navWrapper);
 
   if (navSections) {
     checkForActiveLink(navSections);
   }
   decorateNavAnchorLinks(nav);
+  // Anchor links inside an in-nav submenu use the same nav anchor wiring so
+  // they smooth-scroll to page sections (the block's own handler also covers
+  // the standalone case).
+  if (submenuBlock) decorateNavAnchorLinks(submenuBlock);
   handleTransparentAndScrolling(nav);
   customDecoreateIcons(nav);
 }
