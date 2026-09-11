@@ -1,0 +1,97 @@
+/* Submenu header bar: a horizontal strip of navigation links with four
+   author-selectable background-colour variants. Colours are driven by two
+   custom properties set per variant so the link/hover/focus rules stay shared. */
+
+.submenu {
+  --submenu-bg: var(--white);
+  --submenu-fg: var(--black);
+
+  background-color: var(--submenu-bg);
+  color: var(--submenu-fg);
+  width: 100%;
+}
+
+/* ---- Colour variants ---- */
+
+/* dark-gray: #666 background, white text */
+.submenu.dark-gray {
+  --submenu-bg: #666;
+  --submenu-fg: var(--white);
+}
+
+/* light-gray: #f8f8f8 background, black text */
+.submenu.light-gray {
+  --submenu-bg: #f8f8f8;
+  --submenu-fg: var(--black);
+}
+
+/* white: #fff background, black text (also the default) */
+.submenu.white {
+  --submenu-bg: var(--white);
+  --submenu-fg: var(--black);
+}
+
+/* black: #000 background, white text */
+.submenu.black {
+  --submenu-bg: var(--black);
+  --submenu-fg: var(--white);
+}
+
+/* ---- Layout ---- */
+
+.submenu .submenu-nav {
+  width: 100%;
+}
+
+.submenu .submenu-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 32px;
+  min-height: 48px;
+}
+
+.submenu .submenu-item {
+  display: flex;
+  align-items: center;
+}
+
+/* Links inherit the variant foreground colour so they read correctly on every
+   background. Underline appears on hover/focus so state is not colour-only
+   (WCAG 1.4.1). */
+.submenu .submenu-link {
+  color: var(--submenu-fg);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 150%;
+  letter-spacing: 0.25px;
+  padding: 12px 0;
+  display: inline-block;
+  border-bottom: 2px solid transparent;
+}
+
+.submenu .submenu-link:hover {
+  text-decoration: underline;
+}
+
+/* The current page's link is marked persistently with an underline border. */
+.submenu .submenu-link[aria-current='page'] {
+  border-bottom-color: var(--submenu-fg);
+}
+
+/* Visible focus indicator that works on any variant background (WCAG 2.4.7). */
+.submenu .submenu-link:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: 2px;
+  text-decoration: underline;
+}
+
+@media (width >= 768px) {
+  .submenu .submenu-list {
+    padding: 0 40px;
+  }
+}
