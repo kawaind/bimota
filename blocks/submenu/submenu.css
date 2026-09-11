@@ -9,9 +9,13 @@
   background-color: var(--submenu-bg);
   color: var(--submenu-fg);
   width: 100%;
+}
 
-  /* Sticky just below the fixed main nav so it stays in view while reading, and
-     hides/shows in sync with the nav on scroll (see .submenu-hidden). */
+/* Standalone (in page content): sticky just below the fixed main nav so it
+   stays in view while reading, and hides/shows in sync with the nav on scroll
+   (see .submenu-hidden). When placed inside the nav (.submenu-in-nav) the
+   header owns positioning and hide/show, so these rules are scoped out. */
+.submenu:not(.submenu-in-nav) {
   position: sticky;
   top: var(--nav-height);
   z-index: 1;
@@ -20,8 +24,15 @@
 
 /* Scrolling down: slide up out of view together with the main nav (which moves
    to top: -nav-height). Scrolling up: slide back to its sticky position. */
-.submenu.submenu-hidden {
+.submenu:not(.submenu-in-nav).submenu-hidden {
   transform: translateY(calc(-1 * var(--nav-height)));
+}
+
+/* Inside the nav: a full-width bar directly under the main menu row. Static
+   flow inside the fixed header, which moves it on scroll. */
+.submenu.submenu-in-nav {
+  position: static;
+  display: block;
 }
 
 /* ---- Colour variants ---- */

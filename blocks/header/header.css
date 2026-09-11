@@ -11,6 +11,21 @@ header.fade-out {
   top: calc(-1 * var(--nav-height));
 }
 
+/* When the header carries an author-added submenu bar under the nav, let the
+   fixed header grow to fit both the nav row and the submenu bar so it can be
+   hidden as a unit. */
+header.has-submenu {
+  height: auto;
+}
+
+/* Fading out: slide the whole header (nav + submenu, whatever its height) fully
+   out of view via a 100% translate, so both disappear and reappear together on
+   scroll — regardless of how tall the submenu wraps. */
+header.has-submenu.fade-out {
+  top: 0;
+  transform: translateY(-100%);
+}
+
 header .nav-wrapper {
   width: 100%;
   color: var(--grey-90);
