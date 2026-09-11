@@ -1,4 +1,6 @@
-import { createElement } from '../../scripts/helpers.js';
+import {
+  createElement, isReservedHash, scrollToAnchor,
+} from '../../scripts/helpers.js';
 
 const blockName = 'submenu';
 
@@ -11,17 +13,51 @@ const COLOR_VARIANTS = ['dark-gray', 'light-gray', 'white', 'black'];
 // "Submenu 2", ...), keeping landmarks distinguishable (WCAG 1.3.1).
 let instanceCount = 0;
 
+// Scroll position at the last direction check, shared by every submenu instance
+// so the show/hide tracks the page the same way the header does.
+let lastScrollY = 0;
+let scrollBound = false;
+
+/**
+ * Hide the sticky submenu(s) while the user scrolls down (past a small
+ * threshold) and reveal them again on scroll-up — mirroring the main nav's
+ * fade-out behaviour so the bar disappears and reappears together with it.
+ * A single shared scroll listener toggles the `submenu-hidden` class on every
+ * instance. Bound once, lazily, so multiple blocks don't stack listeners.
+ */
+function bindScrollHide() {
+  if (scrollBound) return;
+  scrollBound = true;
+  lastScrollY = window.scrollY;
+
+  document.addEventListener('scroll', () => {
+    const { scrollY } = window;
+    const bars = document.querySelectorAll(`.${blockName}`);
+    // Scrolling down and past the header height: hide. Scrolling up: show.
+    if (scrollY - lastScrollY > 0 && scrollY > 200) {
+      bars.forEach((bar) => bar.classList.add(`${blockName}-hidden`));
+    } else if (lastScrollY - scrollY > 0) {
+      bars.forEach((bar) => bar.classList.remove(`${blockName}-hidden`));
+    }
+    lastScrollY = scrollY;
+  }, { passive: true });
+}
+
 /**
  * Sub-menu header bar: a horizontal navigation strip of author-defined links.
+ * Works both as an in-page block and when placed inside the nav fragment.
  * Supports three link kinds with no special authoring beyond the href:
  *  - external links (absolute URLs to other sites),
  *  - internal links to other pages in the same locale site,
- *  - in-page anchor links ("#id"), which the site's global anchor handling
- *    (decorateAnchors in scripts.js) already wires for smooth-scroll — the
- *    block lives inside <main>, so no per-block anchor code is needed.
+ *  - in-page anchor links ("#id" / "/current-path#id"), which smooth-scroll to
+ *    a target on the page — the same behaviour as the cookie page and the main
+ *    nav. The block wires these itself (via the shared scrollToAnchor helper) so
+ *    they work even inside the header fragment, where the site's global anchor
+ *    decoration does not run.
  * Links are exposed as a <nav> landmark wrapping a <ul>/<li> list so the bar is
  * announced as navigation and its items as a list (WCAG 1.3.1, 4.1.2); the link
  * matching the current page is flagged with aria-current="page" (WCAG 2.4.8).
+ * The bar is sticky and hides/shows in sync with the main nav on scroll.
  * @param {Element} block the submenu block element
  */
 export default function decorate(block) {
@@ -48,12 +84,23 @@ export default function decorate(block) {
     const item = createElement('li', { classes: `${blockName}-item` });
     link.classList.add(`${blockName}-link`);
 
-    // A plain link to the current page (no hash) is exposed as the current item
-    // (WCAG 2.4.8). In-page anchor links are handled by the site's global anchor
-    // decoration, and external/internal links navigate normally.
     const url = new URL(link.href, window.location.href);
     const samePage = url.pathname.replace(/\/+$/, '') === currentPath;
-    if (samePage && !url.hash) {
+    const targetId = url.hash.substring(1);
+    const isAnchor = !!url.hash && samePage && targetId && !isReservedHash(targetId);
+
+    if (isAnchor) {
+      // In-page anchor: smooth-scroll to the target instead of navigating,
+      // matching the main nav's anchor behaviour. Wired here (not left to the
+      // global decorateAnchors) so it also works when the submenu lives in the
+      // header fragment. No-op if the target is not present on the page.
+      link.addEventListener('click', (e) => {
+        if (!document.getElementById(targetId)) return;
+        e.preventDefault();
+        scrollToAnchor(targetId);
+      });
+    } else if (samePage && !url.hash) {
+      // A plain link to the current page is exposed as the current item.
       link.setAttribute('aria-current', 'page');
     }
 
@@ -64,4 +111,6 @@ export default function decorate(block) {
   nav.append(list);
   block.textContent = '';
   block.append(nav);
+
+  bindScrollHide();
 }
