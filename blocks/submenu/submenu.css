@@ -9,6 +9,19 @@
   background-color: var(--submenu-bg);
   color: var(--submenu-fg);
   width: 100%;
+
+  /* Sticky just below the fixed main nav so it stays in view while reading, and
+     hides/shows in sync with the nav on scroll (see .submenu-hidden). */
+  position: sticky;
+  top: var(--nav-height);
+  z-index: 1;
+  transition: transform 500ms ease, top 500ms ease;
+}
+
+/* Scrolling down: slide up out of view together with the main nav (which moves
+   to top: -nav-height). Scrolling up: slide back to its sticky position. */
+.submenu.submenu-hidden {
+  transform: translateY(calc(-1 * var(--nav-height)));
 }
 
 /* ---- Colour variants ---- */
