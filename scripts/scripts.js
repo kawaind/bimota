@@ -130,13 +130,32 @@ function decorateAnchors(main) {
   //    slug becomes the element id (e.g. "5. Long Header {#tech-notes}").
   main.querySelectorAll('h1, h2, h3, h4, h5, h6, p').forEach((el) => {
     const match = el.textContent.match(customSlugRegex);
-    if (match) {
-      const slug = match[1].toLowerCase();
-      el.innerHTML = el.innerHTML.replace(/\s*\{#[a-z0-9-]+\}/i, '');
-      if (!isReservedHash(slug) && !el.id) {
-        el.id = registerId(slug);
-        el.classList.add('anchor-target');
+    if (!match) return;
+
+    const slug = match[1].toLowerCase();
+
+    // A paragraph whose entire text is just the marker (e.g. <p>{#function}</p>)
+    // is an author's standalone anchor point, not visible copy. Replace it with
+    // an invisible anchor span carrying the id, so no empty/leftover paragraph
+    // (or a flash of the raw "{#slug}" text) is left in the layout.
+    if (el.tagName === 'P' && el.textContent.trim() === match[0]) {
+      if (!isReservedHash(slug) && !document.getElementById(slug)) {
+        const anchor = document.createElement('span');
+        anchor.id = registerId(slug);
+        anchor.className = 'anchor-point';
+        el.replaceWith(anchor);
+      } else {
+        el.remove();
       }
+      return;
+    }
+
+    // Otherwise strip the marker from the visible text and put the id on the
+    // element itself (heading or paragraph that also carries real content).
+    el.innerHTML = el.innerHTML.replace(/\s*\{#[a-z0-9-]+\}/i, '');
+    if (!isReservedHash(slug) && !el.id) {
+      el.id = registerId(slug);
+      el.classList.add('anchor-target');
     }
   });
 
