@@ -119,18 +119,44 @@ header .nav-sections .nav-sublist a.active {
    border-bottom is used instead so the non-colour indicator is present in
    both the mobile (text + icon) and desktop (icon-only) layouts. Colour
    matches the rest of the nav bar: hover and focus = darker-red. */
-header .nav-tools a {
+header .nav-tools a,
+header .nav-tools .nav-tools-cs-button {
   border-bottom: 2px solid transparent;
 }
 
-header .nav-tools a:hover {
+/* The country-selector trigger is a native <button> (it opens a modal); reset
+   the button chrome so it matches the adjacent tool links visually while
+   keeping proper button semantics. */
+header .nav-tools .nav-tools-cs-button {
+  display: inline-flex;
+  align-items: center;
+  gap: inherit;
+  padding: 0;
+  background: none;
+  border-left: 0;
+  border-right: 0;
+  border-top: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+header .nav-tools a:hover,
+header .nav-tools .nav-tools-cs-button:hover {
   color: var(--action-focus);
   border-bottom-color: currentcolor;
 }
 
-header .nav-tools a:focus {
+header .nav-tools a:focus,
+header .nav-tools .nav-tools-cs-button:focus {
   color: var(--action-focus);
   border-bottom-color: currentcolor;
+}
+
+/* Visible keyboard focus indicator (WCAG 2.4.7). */
+header .nav-tools .nav-tools-cs-button:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: 2px;
 }
 
 /* brand */
@@ -300,7 +326,8 @@ header .nav-tools .default-content-wrapper li.active::after {
 }
 
 /* stylelint-disable-next-line no-descending-specificity */
-header .nav-tools .default-content-wrapper li a:any-link {
+header .nav-tools .default-content-wrapper li a:any-link,
+header .nav-tools .default-content-wrapper li .nav-tools-cs-button {
   font-size: 0.875rem;
   font-style: normal;
   font-weight: 600;
@@ -385,10 +412,12 @@ header.transparent .nav-wrapper {
   background-color: transparent;
 }
 
-/* stylelint-disable-next-line no-descending-specificity */
-header.transparent a:any-link {
+/* stylelint-disable no-descending-specificity */
+header.transparent a:any-link,
+header.transparent .nav-tools-cs-button {
   color: var(--white);
 }
+/* stylelint-enable no-descending-specificity */
 
 header.transparent .nav-hamburger svg {
   color: var(--white);
@@ -511,7 +540,8 @@ header.transparent nav.nav-expanded .nav-link-section a.nav-drop-text:hover {
 
   header .nav-sections ul,
   header .nav-link-section a:any-link,
-  header .nav-tools .default-content-wrapper li a:any-link {
+  header .nav-tools .default-content-wrapper li a:any-link,
+  header .nav-tools .default-content-wrapper li .nav-tools-cs-button {
     font-size: 0.875rem;
     font-style: normal;
     font-weight: 600;

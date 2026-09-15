@@ -1,8 +1,15 @@
 import { getMetadata, getRootPath } from '../../scripts/aem.js';
 import { addAnimateInOut } from '../../scripts/modal-helper.js';
 import { customDecoreateIcons } from '../../scripts/decorate-icon-helper.js';
-import { getLanguageFromPath, isReservedHash, scrollToAnchor } from '../../scripts/helpers.js';
+import {
+  getLanguageFromPath, isReservedHash, scrollToAnchor, getLanguageLabels,
+} from '../../scripts/helpers.js';
 import { loadFragment } from '../fragment/fragment.js';
+
+// English fallback for the country-selector trigger's accessible name, used
+// until the localized label resolves (or if the dictionary lookup fails), so
+// the button always announces "Choose your country, button" (WCAG 4.1.2).
+const CHOOSE_COUNTRY_FALLBACK = 'Choose your country';
 
 /**
  * Resolves the translated logo alt text from the global logoconfig.json sheet.
@@ -479,8 +486,25 @@ export default async function decorate(block) {
       textWrapper.classList.add('nav-tools-text');
       globeIcon.parentElement.append(textWrapper);
 
-      globeIcon.addEventListener('click', (event) => {
-        event.preventDefault();
+      // The trigger opens a modal, so it must be a button, not a link (WCAG
+      // 4.1.2): links imply navigation and expose the wrong role/keyboard
+      // contract. Replace the authored <a href="#modal-..."> with a native
+      // <button> — which gives Enter/Space activation for free and removes all
+      // link semantics (no href). The globe icon + label move into it, and a
+      // localized aria-label names it "Choose your country" from the dictionary
+      // (English fallback set immediately so the name is never missing).
+      const csTrigger = globeIcon.closest('a') || globeIcon.parentElement;
+      const csButton = document.createElement('button');
+      csButton.type = 'button';
+      csButton.className = `nav-tools-cs-button ${csTrigger.className}`.trim();
+      csButton.setAttribute('aria-label', CHOOSE_COUNTRY_FALLBACK);
+      csButton.append(...csTrigger.childNodes);
+      csTrigger.replaceWith(csButton);
+
+      getLanguageLabels('country-selector', { chooseCountry: CHOOSE_COUNTRY_FALLBACK })
+        .then((labels) => csButton.setAttribute('aria-label', labels.chooseCountry));
+
+      csButton.addEventListener('click', () => {
         const modalEvent = new CustomEvent('show-modal', { detail: 'modal-country-selector' });
         window.dispatchEvent(modalEvent);
       });
