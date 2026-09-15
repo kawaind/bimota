@@ -97,13 +97,6 @@
   display: block;
 }
 
-/* Tabpanel is focusable (tabindex=0) so Tab reaches it after the tablist;
-   give it a visible focus indicator (WCAG 2.4.7). */
-.woosmapdealers .dealers-tab-panel:focus-visible {
-  outline: var(--focus-ring-width) solid var(--focus-ring-color);
-  outline-offset: 2px;
-}
-
 /* Dealer grid (semantic list) */
 .woosmapdealers .dealers-grid {
   display: grid;

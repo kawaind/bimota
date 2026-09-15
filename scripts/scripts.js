@@ -15,7 +15,37 @@ import {
   toClassName,
 } from './aem.js';
 import { customDecoreateIcons } from './decorate-icon-helper.js';
-import { isReservedHash } from './helpers.js';
+import { isReservedHash, forceHeadingLevel } from './helpers.js';
+
+/**
+ * Ensure the page exposes exactly one top-level <h1> (WCAG 1.3.1 / 2.4.6; the
+ * "page has a level-one heading" check AudioEye/axe run). Some pages (e.g. the
+ * legal/text pages) author their top heading as <h2> and have no hero to
+ * promote one, so `main` ends up with no <h1>. When that happens, promote the
+ * first heading in `main` to <h1> AND shift every other heading up by the same
+ * amount, so the document outline keeps its relative structure and no
+ * heading-order jump is introduced. Visual sizes are preserved via a matching
+ * class, so there is no visual change. No-op when an <h1> already exists.
+ * @param {Element} main the page's main element
+ */
+function ensurePageHeadingOne(main) {
+  if (!main || main.querySelector('h1')) return;
+  const headings = [...main.querySelectorAll('h2, h3, h4, h5, h6')];
+  if (!headings.length) return;
+
+  // The shallowest heading currently present becomes the new h1 baseline; every
+  // heading shifts up by that delta so relative nesting (and order) is kept.
+  const levels = headings.map((h) => Number(h.tagName[1]));
+  const minLevel = Math.min(...levels);
+  const delta = minLevel - 1;
+  if (delta <= 0) return;
+
+  headings.forEach((h) => {
+    const newLevel = Math.max(1, Number(h.tagName[1]) - delta);
+    const visualClass = h.tagName.toLowerCase(); // keep current visual size
+    forceHeadingLevel(h, `h${newLevel}`, visualClass);
+  });
+}
 
 function buildVideoBlock(main) {
   const videoLinks = [...main.querySelectorAll('a[href$=".mp4"]')];
@@ -291,6 +321,7 @@ async function loadLazy(doc) {
   await loadSections(main);
 
   decorateAnchors(main);
+  ensurePageHeadingOne(main);
 
   const { hash } = window.location;
   const element = hash ? doc.getElementById(hash.substring(1)) : false;

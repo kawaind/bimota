@@ -529,12 +529,17 @@ function buildRegionTabs(regionMap, langCode, container, userCountryIso) {
     tabNav.append(listItem);
     tabs.push(tabBtn);
 
+    // The tabpanel is NOT given tabindex=0: it always contains focusable
+    // content (the country accordion buttons), and the ARIA APG only recommends
+    // making a panel focusable when it has no focusable children. A focusable
+    // container also trips WCAG 2.2 target-size (it registers as a large but
+    // "obscured" clickable target). Keyboard users still reach the panel content
+    // via the accordion buttons right after the tablist.
     const panel = createElement('div', {
       classes: 'dealers-tab-panel',
       props: {
         role: 'tabpanel',
         id: panelId,
-        tabindex: '0',
         'aria-labelledby': tabId,
       },
     });

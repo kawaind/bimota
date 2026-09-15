@@ -417,6 +417,42 @@ export default async function decorate(block) {
     if (!anchor.hasAttribute('aria-label')) addTitleAttributeToIconLink(anchor);
   });
 
+  // Image-only footer links with no accessible name (e.g. an app-store / app
+  // logo link under a "Mobile Application" heading) fail WCAG 2.4.4/1.1.1.
+  // Name each from the nearest preceding column heading and hide the decorative
+  // image, so the link is announced by its section (e.g. "Mobile Application").
+  footer.querySelectorAll('.footer-column a').forEach((anchor) => {
+    if (anchor.getAttribute('aria-label') || anchor.textContent.trim()) return;
+    const img = anchor.querySelector('img');
+    if (!img) return;
+
+    // Prefer the image's own alt; else the nearest heading *preceding* the link
+    // in its column (e.g. the "Mobile Application" heading right above it), not
+    // just the column's first heading.
+    let name = img.getAttribute('alt')?.trim();
+    if (!name) {
+      const column = anchor.closest('.footer-column');
+      // Walk the column in document order, remembering the most recent heading
+      // seen before we reach the link.
+      let preceding = null;
+      if (column) {
+        const nodes = [...column.querySelectorAll('h1, h2, h3, h4, h5, h6, a')];
+        for (let i = 0; i < nodes.length; i += 1) {
+          if (nodes[i] === anchor) break;
+          if (/^H[1-6]$/.test(nodes[i].tagName)) preceding = nodes[i];
+        }
+      }
+      name = preceding?.textContent.trim();
+    }
+    if (!name) return;
+
+    anchor.setAttribute('aria-label', name);
+    anchor.querySelectorAll('img').forEach((el) => {
+      el.setAttribute('alt', '');
+      el.setAttribute('aria-hidden', 'true');
+    });
+  });
+
   const lists = [...footer.querySelectorAll('ul')];
   lists.forEach((list) => {
     [...list.querySelectorAll(':scope > li')].forEach((listItem) => {
