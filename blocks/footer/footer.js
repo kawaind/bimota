@@ -1,6 +1,8 @@
 import { getMetadata, getRootPath } from '../../scripts/aem.js';
 import { loadFragment } from '../fragment/fragment.js';
-import { addTitleAttributeToIconLink, forceHeadingLevel, getLanguageFromPath } from '../../scripts/helpers.js';
+import {
+  addTitleAttributeToIconLink, forceHeadingLevel, getLanguageFromPath, getLanguageLabels,
+} from '../../scripts/helpers.js';
 
 const ICON_TOKEN_REGEX = /:([A-Za-z0-9][A-Za-z0-9-]*):/g;
 const YEAR_TOKEN_REGEX = /\{\s*year\s*\}/gi;
@@ -8,6 +10,38 @@ const YEAR_TOKEN_REGEX = /\{\s*year\s*\}/gi;
 // English fallback used until the translated label resolves (or if the sheet is
 // unavailable), so the back-to-top button always has an accessible name.
 const BACK_TO_TOP_FALLBACK = 'Back to top';
+
+// Accessible-name templates + defaults for the footer's icon-only controls,
+// localized via the `footer` sheet in lanconfig.json (one column per language),
+// with these English strings as the fallback so names are never missing.
+// {network}/{current} are substituted at runtime. Adding a language or a new
+// network is a pure authoring change (add a column / a networkName-* row).
+const A11Y_FALLBACKS = {
+  // Country/language selector "Change" link (WCAG 2.4.4, 4.1.2).
+  changeCountryLanguage: 'Change country and language (current: {current})',
+  // Social icon links (WCAG 1.1.1, 2.4.4): "Bimota on X" etc.
+  socialLink: 'Bimota on {network}',
+  opensInNewTab: '(opens in a new tab)',
+  // Proper display names per network icon token (fallbacks; localizable).
+  'networkName-x': 'X',
+  'networkName-twitter': 'X',
+  'networkName-facebook': 'Facebook',
+  'networkName-instagram': 'Instagram',
+  'networkName-youtube': 'YouTube',
+  'networkName-tiktok': 'TikTok',
+  'networkName-linkedin': 'LinkedIn',
+};
+
+// Which footer column is the social row: its links are icon-only and each needs
+// a descriptive, network-identifying accessible name.
+const SOCIAL_HOST_TO_TOKEN = [
+  { match: /(twitter|x\.com)/i, token: 'x' },
+  { match: /facebook/i, token: 'facebook' },
+  { match: /instagram/i, token: 'instagram' },
+  { match: /youtube/i, token: 'youtube' },
+  { match: /tiktok/i, token: 'tiktok' },
+  { match: /linkedin/i, token: 'linkedin' },
+];
 
 /**
  * Resolves the translated "Back to top" label from the global lanconfig.json
@@ -298,7 +332,24 @@ export default async function decorate(block) {
     const arrowIcon = csIcon.querySelector('.icon-arrow-right');
     if (arrowIcon) {
       arrowIcon.classList.add('footer-cs-arrow-icon');
+      // The arrow glyph is decorative; hide it from assistive tech so the link
+      // is not announced with a stray "arrow" (WCAG 1.1.1).
+      arrowIcon.setAttribute('aria-hidden', 'true');
     }
+
+    // The visible "Change" text alone doesn't convey purpose or current
+    // selection. Give the link a descriptive, localized accessible name that
+    // includes the current country/language (WCAG 2.4.4, 4.1.2). The visible
+    // text is unchanged. Applied synchronously with the English fallback, then
+    // swapped for the localized value once the dictionary resolves.
+    const setChangeLabel = (template) => {
+      const current = countryName || selectorLabel;
+      const label = current ? template.replace('{current}', current) : template.replace(' (current: {current})', '');
+      csIcon.setAttribute('aria-label', label);
+    };
+    setChangeLabel(A11Y_FALLBACKS.changeCountryLanguage);
+    getLanguageLabels('footer', { changeCountryLanguage: A11Y_FALLBACKS.changeCountryLanguage })
+      .then((labels) => setChangeLabel(labels.changeCountryLanguage));
 
     flagWrapper.append(csIcon);
 
@@ -318,9 +369,53 @@ export default async function decorate(block) {
     });
   });
 
-  // a11y for social icons
-  const socialIconLinks = footer.querySelectorAll('.footer-column:has(a[title=""]) a[title=""]');
-  socialIconLinks.forEach((anchor) => addTitleAttributeToIconLink(anchor));
+  // a11y for social icons: each is an icon-only link, so it needs a
+  // descriptive, network-identifying accessible name (WCAG 1.1.1, 2.4.4,
+  // 4.1.2). Derive the network from the link href, name it "Bimota on X" (etc)
+  // via the localized `footer` dictionary, hide the decorative icon, and append
+  // a visually-hidden "(opens in a new tab)" when the link opens in a new tab.
+  // Any other icon-only footer link falls back to the icon's name.
+  const socialLinks = [...footer.querySelectorAll('a')].filter((a) => {
+    const href = a.getAttribute('href') || '';
+    return SOCIAL_HOST_TO_TOKEN.some(({ match }) => match.test(href))
+      && !a.textContent.trim();
+  });
+
+  if (socialLinks.length) {
+    const nameSocialLinks = (labels) => {
+      socialLinks.forEach((anchor) => {
+        const href = anchor.getAttribute('href') || '';
+        const entry = SOCIAL_HOST_TO_TOKEN.find(({ match }) => match.test(href));
+        const network = labels[`networkName-${entry.token}`] || entry.token;
+        let label = (labels.socialLink || A11Y_FALLBACKS.socialLink).replace('{network}', network);
+
+        // Warn AT users when the link opens in a new tab (WCAG 3.2.5).
+        if (anchor.getAttribute('target') === '_blank') {
+          label += ` ${labels.opensInNewTab || A11Y_FALLBACKS.opensInNewTab}`;
+        }
+
+        anchor.setAttribute('aria-label', label);
+        anchor.removeAttribute('title');
+
+        // The icon graphic is decorative once the link is named (WCAG 1.1.1).
+        anchor.querySelectorAll('img, svg').forEach((el) => {
+          el.setAttribute('aria-hidden', 'true');
+          if (el.tagName.toLowerCase() === 'img') el.setAttribute('alt', '');
+        });
+      });
+    };
+
+    // English fallback names applied immediately; localized names swapped in
+    // once the dictionary resolves.
+    nameSocialLinks(A11Y_FALLBACKS);
+    getLanguageLabels('footer', A11Y_FALLBACKS).then((labels) => nameSocialLinks(labels));
+  }
+
+  // Any remaining icon-only footer links (non-social) keep the icon-name title
+  // fallback so they are never unnamed.
+  footer.querySelectorAll('.footer-column a[title=""]').forEach((anchor) => {
+    if (!anchor.hasAttribute('aria-label')) addTitleAttributeToIconLink(anchor);
+  });
 
   const lists = [...footer.querySelectorAll('ul')];
   lists.forEach((list) => {
