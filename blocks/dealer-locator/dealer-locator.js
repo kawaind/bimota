@@ -1,5 +1,73 @@
 import { loadScript, getMetadata } from '../../scripts/aem.js';
-import { getPathSegments, getLanguageFromPath } from '../../scripts/helpers.js';
+import { getPathSegments, getLanguageFromPath, getLanguageLabels } from '../../scripts/helpers.js';
+
+// English fallback for the map's accessible name, used until the localized
+// label resolves (or if the dictionary lookup fails), so the map always exposes
+// a descriptive name and never a generic ("Map") or missing one (WCAG 4.1.2;
+// technique H64 when the map is an iframe).
+const DEALER_MAP_TITLE_FALLBACK = 'Map of Bimota dealer locations';
+
+/**
+ * Give the Woosmap map a descriptive, localized accessible name so screen
+ * readers announce its purpose on focus, instead of the generic "Map" the SDK
+ * sets (WCAG 4.1.2; also supports 2.4.1 / 1.3.1).
+ *
+ * The map is rendered asynchronously by the Woosmap WebApp SDK. Depending on
+ * the SDK/provider it is either a WebGL `<canvas role="region" aria-label="Map">`
+ * or an embedded `<iframe>`. This names whichever is present:
+ *  - iframe: set the native `title` attribute (technique H64);
+ *  - canvas map region: replace the generic `aria-label` with the descriptive
+ *    name (an ARIA name is the only option a canvas can expose).
+ * A MutationObserver waits for the map element to appear, names it, and
+ * disconnects. No visual/behaviour/focus-order change.
+ * @param {Element} container the dealer-locator map container (#dealer-locator)
+ */
+function nameMapRegion(container) {
+  const applyName = (name) => {
+    // Prefer an iframe (spec's H64 path) if the SDK ever renders one.
+    const iframe = container.querySelector('iframe:not([title]), iframe[title=""]');
+    if (iframe) {
+      iframe.setAttribute('title', name);
+      return true;
+    }
+    // Otherwise name the map region the SDK labels generically as "Map".
+    const region = container.querySelector('[role="region"][aria-label="Map"], canvas[aria-label="Map"]');
+    if (region) {
+      region.setAttribute('aria-label', name);
+      return true;
+    }
+    return false;
+  };
+
+  // The Woosmap/Mapbox attribution control is injected with role="list" but
+  // holds plain <a> links (not listitems), which fails ARIA required-children.
+  // It is purely decorative attribution, so drop the list roles to leave valid
+  // markup (the links still render and work). Not our markup, but neutralised
+  // here so the map block stays axe-clean.
+  const fixAttributionRoles = () => {
+    container.querySelectorAll('[role="list"]').forEach((list) => {
+      if (list.closest('.mapboxgl-ctrl-attrib, .woosmap-webapp-container')) {
+        list.removeAttribute('role');
+      }
+    });
+  };
+
+  // Resolve the localized name once; apply it as soon as the map element exists.
+  getLanguageLabels('dealer-selector', { dealerMap: DEALER_MAP_TITLE_FALLBACK })
+    .then((labels) => {
+      const name = labels.dealerMap || DEALER_MAP_TITLE_FALLBACK;
+      const done = () => applyName(name) && !container.querySelector('.mapboxgl-ctrl-attrib [role="list"]');
+      fixAttributionRoles();
+      if (done()) return;
+
+      const observer = new MutationObserver(() => {
+        applyName(name);
+        fixAttributionRoles();
+        if (done()) observer.disconnect();
+      });
+      observer.observe(container, { childList: true, subtree: true, attributes: true });
+    });
+}
 
 export default async function decorate(block) {
   const dealerLocator = document.createElement('div');
@@ -220,6 +288,9 @@ export default async function decorate(block) {
               webapp.setInitialStateToSelectedStore('990002');
             }
             webapp.render();
+            // Give the map a descriptive, localized accessible name once the
+            // SDK injects it (async) — iframe title or canvas region aria-label.
+            nameMapRegion(dealerLocator);
           }
           loadWebApp();
         });
