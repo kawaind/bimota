@@ -124,6 +124,46 @@ function injectScript(src, crossOrigin = '') {
   }
 }
 
+/**
+ * Resolve the Google Analytics G-Tag (GA4 Measurement ID) for the current
+ * country and push it into the Adobe Client Data Layer BEFORE Adobe Launch
+ * loads. All country sites live under the same .com domain, so a single Launch
+ * property fires GA4 for every path; to track only the selected country we look
+ * up its Measurement ID from an author-editable placeholder sheet
+ * (/gtag-config.json) and expose it on the data layer. In Launch a Data Element
+ * reads `gaMeasurementId` and a single GA4 rule uses it, so adding or changing a
+ * country's tag is a pure authoring change — no code deploy, no Launch republish.
+ *
+ * Sheet shape (single sheet, one row per country plus an optional `default`):
+ *   key         | measurementId
+ *   ------------ ---------------
+ *   jp          | G-JP1234567
+ *   it          | G-IT2345678
+ *   default     | G-XXXXXXXXXX
+ *
+ * On any missing sheet/row the data layer simply carries no ID (or the default
+ * row), so tracking degrades safely rather than firing the wrong property.
+ * @returns {Promise<void>}
+ */
+async function pushCountryGtag() {
+  window.adobeDataLayer = window.adobeDataLayer || [];
+  try {
+    const { country } = getLocale();
+    const response = await fetch(`${window.hlx?.codeBasePath || ''}/gtag-config.json`);
+    if (!response.ok) return;
+    const sheet = await response.json();
+    const rows = Array.isArray(sheet?.data) ? sheet.data : [];
+    const rowFor = (value) => rows.find((r) => (r.key || r.Key) === value);
+    const row = rowFor(country) || rowFor('default');
+    const measurementId = row?.measurementId || row?.MeasurementId;
+    if (measurementId) {
+      window.adobeDataLayer.push({ gaMeasurementId: measurementId, country });
+    }
+  } catch (e) {
+    // No per-country G-Tag resolved; Launch loads without one.
+  }
+}
+
 function loadLaunch() {
   window.adobeDataLayer = window.adobeDataLayer || [];
 
@@ -135,4 +175,7 @@ function loadLaunch() {
   injectScript(src);
 }
 
+// Resolve the country's G-Tag onto the data layer, THEN load Launch so the
+// Measurement ID is already present when Launch's GA4 rule reads it.
+await pushCountryGtag();
 loadLaunch();
