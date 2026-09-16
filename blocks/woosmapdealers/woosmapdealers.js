@@ -17,6 +17,12 @@ const LABEL_FALLBACKS = {
   dealerPhone: 'Phone',
   dealerWebsite: 'Website',
   dealerEmail: 'Email',
+  // Action-oriented link purposes (WCAG 2.4.4). `{name}` is replaced with the
+  // dealer name at render time; translations position the placeholder to suit
+  // each language's grammar. Used when a dealer name is present; the single-word
+  // labels above are the fallback when it is not.
+  dealerVisitWebsite: 'Visit website of {name}',
+  dealerSendEmail: 'Send an email to {name}',
   opensInNewTab: '(opens in a new tab)',
 };
 
@@ -201,13 +207,17 @@ function buildDealerCard(store) {
     });
     const visibleUrl = url.replace(/^https?:\/\//, '');
     link.textContent = visibleUrl;
-    // Accessible name states the purpose, the dealer and that it opens a new
-    // tab (WCAG 2.4.4, 3.2.5). It must also contain the visible link text (the
-    // URL) so the name matches the label a speech-input user would speak
-    // (WCAG 2.5.3 Label in Name). The shared "opensInNewTab" phrase already
-    // includes its own parentheses.
+    // Accessible name states the purpose ("Visit website of <dealer>"), that it
+    // opens a new tab (WCAG 2.4.4, 3.2.5), and contains the visible link text
+    // (the URL) so the name matches what a speech-input user would speak (WCAG
+    // 2.5.3 Label in Name). Falls back to the plain "Website" label when the
+    // dealer has no name. The shared "opensInNewTab" phrase carries its own
+    // parentheses.
     const newTab = t('opensInNewTab', '(opens in a new tab)');
-    const websiteLabel = `${t('dealerWebsite', 'Website')}${name ? `, ${name}` : ''}, ${visibleUrl} ${newTab}`;
+    const purpose = name
+      ? t('dealerVisitWebsite', 'Visit website of {name}').replace('{name}', name)
+      : t('dealerWebsite', 'Website');
+    const websiteLabel = `${purpose}, ${visibleUrl} ${newTab}`;
     link.setAttribute('aria-label', websiteLabel);
     urlEl.append(link);
     addressEl.append(urlEl);
@@ -218,8 +228,13 @@ function buildDealerCard(store) {
     const emailEl = createElement('p', { classes: 'dealer-email' });
     const mailLink = createElement('a', { props: { href: `mailto:${email}` } });
     mailLink.textContent = email;
-    if (name) mailLink.setAttribute('aria-label', `${t('dealerEmail', 'Email')}: ${email}, ${name}`);
-    else mailLink.setAttribute('aria-label', `${t('dealerEmail', 'Email')}: ${email}`);
+    // Accessible name states the purpose ("Send an email to <dealer>") and
+    // includes the visible address so it matches the spoken label (WCAG 2.4.4,
+    // 2.5.3). Falls back to the plain "Email" label when no dealer name.
+    const emailPurpose = name
+      ? t('dealerSendEmail', 'Send an email to {name}').replace('{name}', name)
+      : t('dealerEmail', 'Email');
+    mailLink.setAttribute('aria-label', `${emailPurpose}, ${email}`);
     emailEl.append(mailLink);
     addressEl.append(emailEl);
   }
