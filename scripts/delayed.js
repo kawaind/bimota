@@ -74,10 +74,81 @@ if (!window.location.pathname.includes('srcdoc')
     updateCookieLinks(country, langSegment, cookiesLinks);
   });
 
+  // --- Cookie dialog: return focus to the trigger on close (WCAG 2.4.3) ---
+  // CCM19 owns the dialog markup and does not restore focus to the invoking
+  // control when the dialog closes (Escape or its own close/accept/reject
+  // buttons), dropping keyboard and screen-reader users onto <body>. We capture
+  // the element that opened the dialog and, once CCM19 removes or hides the
+  // dialog, move focus back to it — resolved via a stable selector so a
+  // re-rendered trigger still works, and inside requestAnimationFrame so the
+  // focus call isn't discarded during CCM19's teardown (ARIA APG modal pattern).
+  // No visual change; CCM19 keeps ownership of the dialog's own focus trap.
+  const COOKIE_TRIGGER_SELECTOR = 'a[href="#cookie-settings"]';
+  const COOKIE_DIALOG_SELECTOR = '.ccm-widget, .ccm-control-panel, .ccm-modal';
+  let cookieInvoker = null;
+  let cookieDialogShown = false;
+
+  const isCookieDialogShown = () => {
+    const dialog = document.querySelector(COOKIE_DIALOG_SELECTOR);
+    if (!dialog) return false;
+    const style = window.getComputedStyle(dialog);
+    return style.display !== 'none' && style.visibility !== 'hidden';
+  };
+
+  const resolveCookieTrigger = () => {
+    // Prefer a live element matching the stable selector (survives CCM19
+    // re-rendering the trigger); fall back to the captured node if it is still
+    // connected; finally the CCM19 settings summoner, so focus never lands on
+    // <body> when the original trigger is gone.
+    const bySelector = document.querySelector(COOKIE_TRIGGER_SELECTOR);
+    if (bySelector) return bySelector;
+    if (cookieInvoker && cookieInvoker.isConnected) return cookieInvoker;
+    return document.querySelector('.ccm-settings-summoner');
+  };
+
+  const restoreCookieFocus = () => {
+    const invoked = !!cookieInvoker;
+    cookieInvoker = null;
+    // Only restore focus when the user opened the dialog; never yank focus when
+    // the consent banner appears on its own (e.g. first visit).
+    if (!invoked) return;
+    requestAnimationFrame(() => {
+      const target = resolveCookieTrigger();
+      if (target && typeof target.focus === 'function') target.focus();
+    });
+  };
+
+  // CCM19 exposes no reliable public close callback, so watch the DOM: once a
+  // dialog is shown, its removal or hiding signals a close (the MutationObserver
+  // fallback the ARIA APG allows for third-party dialogs).
+  const cookieObserver = new MutationObserver(() => {
+    const shown = isCookieDialogShown();
+    if (shown && !cookieDialogShown) {
+      cookieDialogShown = true;
+      // Capture the invoking element if a click didn't already record it (e.g.
+      // the dialog was opened via CCM19's own summoner button).
+      if (!cookieInvoker) {
+        const active = document.activeElement;
+        if (active && active !== document.body && active.tagName) cookieInvoker = active;
+      }
+    } else if (!shown && cookieDialogShown) {
+      cookieDialogShown = false;
+      restoreCookieFocus();
+    }
+  });
+  cookieObserver.observe(document.body, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['class', 'style', 'hidden'],
+  });
+
   document.addEventListener('click', (e) => {
     const link = e.target.closest('a[href="#cookie-settings"]');
     if (link) {
       e.preventDefault();
+      // Remember the trigger so focus can return to it when the dialog closes.
+      cookieInvoker = link;
       if (window.CCM && window.CCM.openControlPanel) {
         window.CCM.openControlPanel();
       }
