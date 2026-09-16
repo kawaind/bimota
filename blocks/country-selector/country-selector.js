@@ -300,6 +300,12 @@ function renderCountrySelector(block) {
 
           if (countryButton.getAttribute('href') === window.location.pathname) {
             countryButton.classList.add('active');
+            // Expose the selected country/language as the current selection so
+            // screen readers announce it as "current" instead of just "same
+            // page link" (WCAG 1.3.1). This is a selection within the dialog
+            // group, so aria-current="true" is used (per the task's technical
+            // note); the href match is unique, so only one option is flagged.
+            countryButton.setAttribute('aria-current', 'true');
           }
 
           if (countryButton.tagName === 'A' && countryButton.getAttribute('href')) {

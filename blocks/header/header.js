@@ -233,6 +233,11 @@ function checkForActiveLink(navSections) {
       const navParent = link.closest('.nav-drop');
       navParent?.classList.add('active');
       link.classList.add('active');
+      // Expose the active menu item (top-level link or model dropdown link) as
+      // the current page so screen readers announce "current page" rather than
+      // just "same page link" (WCAG 1.3.1; aria-current="page" per MDN). Path
+      // matching is unique, so exactly one link is flagged per nav.
+      link.setAttribute('aria-current', 'page');
     }
   });
 }
