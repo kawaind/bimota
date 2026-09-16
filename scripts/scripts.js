@@ -297,6 +297,39 @@ function setMainPosition(main) {
   }
 }
 
+// Brand suffix appended to every page title so authors only type the page
+// name (e.g. "Home") in the metadata table and the "<name> | Bimota" form is
+// produced automatically.
+const BRAND_SUFFIX = ' | Bimota';
+
+/**
+ * Append the brand suffix ("<title> | Bimota") to the document title and the
+ * social title meta (og:title, twitter:title), so authors type only the page
+ * name in the metadata table. Idempotent: skips any value that already ends
+ * with the suffix, and skips empty/brand-only titles so we never produce a
+ * bare " | Bimota".
+ */
+function applyBrandSuffix() {
+  const brandOnly = BRAND_SUFFIX.replace(/^\s*\|\s*/, ''); // "Bimota"
+
+  const withSuffix = (value) => {
+    const base = (value || '').trim();
+    // Nothing to brand, or the author already typed the brand as the title.
+    if (!base || base === brandOnly) return base;
+    // Already suffixed (e.g. author typed it, or a re-run) — leave as-is.
+    if (base.endsWith(BRAND_SUFFIX)) return base;
+    return `${base}${BRAND_SUFFIX}`;
+  };
+
+  document.title = withSuffix(document.title);
+
+  ['og:title', 'twitter:title'].forEach((name) => {
+    const attr = name.startsWith('og:') ? 'property' : 'name';
+    const meta = document.head.querySelector(`meta[${attr}="${name}"]`);
+    if (meta) meta.setAttribute('content', withSuffix(meta.getAttribute('content')));
+  });
+}
+
 /**
  * Loads everything needed to get to LCP.
  * @param {Element} doc The container element
@@ -309,6 +342,8 @@ async function loadEager(doc) {
   if (pathTokens[1] === 'us' && pathTokens[2] === 'en-us') {
     document.body.classList.add('locale-us');
   }
+
+  applyBrandSuffix();
 
   decorateTemplateAndTheme();
   const main = doc.querySelector('main');
