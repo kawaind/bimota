@@ -77,15 +77,16 @@ ul.vehicle-selector__navigation {
   display: flex;
   gap: 30px;
   flex-flow: row nowrap;
-  justify-content: flex-start;
+
+  /* `safe center` centres the names when they all fit, but falls back to
+     start-alignment when they overflow — so a short line-up (e.g. a few
+     vehicles) is centred, while a long one still scrolls from the left with
+     no names clipped or made unreachable. The active-tab auto-centering (see
+     activate() in the JS) continues to work in the overflow case. */
+  justify-content: safe center;
   list-style: none;
   margin: 0;
   overflow: auto;
-
-  /* Left-aligned so the names read in from the left edge of the page, with a
-     modest inset. When there are more names than fit, the strip scrolls and the
-     active-tab auto-centering (see activate() in the JS) slides it leftward to
-     reveal the later names as the user moves toward the end. */
   padding: 10px 20px 40px;
   position: relative;
   scroll-behavior: smooth;
