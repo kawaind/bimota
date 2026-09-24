@@ -144,8 +144,14 @@ export function addModalHandling() {
 
     if (event.key !== 'Tab') return;
 
+    // Visibility test via getClientRects() rather than offsetParent: the close
+    // button is position:fixed, and offsetParent is always null for fixed
+    // elements even when they are fully visible — which previously dropped the
+    // close button out of the focus cycle, so Tab from the last country wrapped
+    // to the first country instead of back to the close button. getClientRects()
+    // reports a box for any rendered element regardless of positioning.
     const focusable = [...modal.querySelectorAll(FOCUSABLE_SELECTOR)]
-      .filter((el) => el.offsetParent !== null || el === document.activeElement);
+      .filter((el) => el.getClientRects().length > 0 || el === document.activeElement);
     if (focusable.length === 0) {
       event.preventDefault();
       closeButton.focus();

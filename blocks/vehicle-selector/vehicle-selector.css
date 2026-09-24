@@ -294,8 +294,11 @@ ul.vehicle-selector__navigation {
 
   /* Use the site-wide high-contrast focus ring (WCAG 2.4.7, 2.4.11) instead of
      a thinner dark-red outline, for a consistent, clearly visible indicator.
-     The outline follows the arrow's border-radius (50%), so the ring is
-     circular and matches the round button — no squared overlay. */
+     Keep the round shape: the global `button:focus-visible` rule forces
+     border-radius:2px, which would square off this round arrow and its outline,
+     so re-assert 50% here (higher specificity wins). The outline then follows
+     the circle, giving a round ring on the round button — no squared overlay. */
+  border-radius: 50%;
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: var(--focus-ring-offset);
 }
