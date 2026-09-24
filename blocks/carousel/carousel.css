@@ -108,6 +108,15 @@
   border-color: transparent;
 }
 
+/* Keyboard focus indicator for the round pagination dots (WCAG 2.4.7): these
+   are focusable <button>s but only had a colour-only :focus change. The outline
+   follows the button's border-radius (50%), so the ring stays circular and
+   matches the dot's geometry — no squared overlay (WCAG 2.4.11). */
+.carousel-nav-button:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
 .carousel-slide-media-only {
   width: 100%;
   height: 100%;

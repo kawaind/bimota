@@ -291,8 +291,13 @@ ul.vehicle-selector__navigation {
 .vehicle-selector__arrow:focus-visible {
   color: var(--action-focus);
   border-color: var(--action-focus);
-  outline: 2px solid var(--action-focus);
-  outline-offset: 1px;
+
+  /* Use the site-wide high-contrast focus ring (WCAG 2.4.7, 2.4.11) instead of
+     a thinner dark-red outline, for a consistent, clearly visible indicator.
+     The outline follows the arrow's border-radius (50%), so the ring is
+     circular and matches the round button — no squared overlay. */
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
 }
 
 /* Reveal the arrows on hover, or whenever one has keyboard focus (WCAG 2.4.7
