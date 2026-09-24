@@ -60,7 +60,13 @@
 .feature-slide-nav-dot {
   width: 10px;
   height: 10px;
-  display: block;
+
+  /* Flex-centre the number in the dot at every viewport so the active-dot digit
+     is always centred (bug KAW-10947 — previously the centring lived only in
+     the >=768px media query, so the number was off-centre on mobile). */
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: var(--black);
 
   /* The decorative number is suppressed with font-size:0 (rather than a
@@ -72,7 +78,10 @@
   border-radius: 50%;
 }
 
-/* Non-colour-only, visible keyboard focus indicator (WCAG 2.4.7). */
+/* Non-colour-only, visible keyboard focus indicator (WCAG 2.4.7). The 42px
+   button box is larger than every dot state (10/20/32px), so the outline wraps
+   the dot without clipping at any size (spec: focus wraps changing dot sizes).
+   border-radius:50% keeps the ring circular around the round dot (WCAG 2.4.11). */
 .feature .feature-slide-nav-item:focus-visible {
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: var(--focus-ring-offset);
@@ -87,12 +96,14 @@
   border-width: 0;
   letter-spacing: 0;
 
-  /* Re-show the number on the active dot: white on the black fill (>=4.5:1). */
+  /* Re-show the number on the active dot: white on the black fill (>=4.5:1).
+     Centring is inherited from the base .feature-slide-nav-dot flex rule, so
+     the digit is centred at every viewport (bug KAW-10947). */
   color: var(--white);
   font-size: 14px;
 }
 
-/* Hover/focus dot state (Figma): a 20x20 filled black dot. Applies to
+/* Hover/focus dot state (spec): a 20x20 filled black dot. Applies to
    non-active dots; the active dot keeps its own larger numbered style. */
 .feature .feature-slide-nav-item:not(.active):is(:hover, :focus-visible) .feature-slide-nav-dot {
   width: 20px;

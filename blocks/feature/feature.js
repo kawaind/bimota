@@ -1,10 +1,37 @@
 import {
   onAppReady,
   forceHeadingLevel,
+  getLanguageLabels,
 } from '../../scripts/helpers.js';
 
 let instanceCounter = 0;
 
+// Localizable strings for the carousel's ARIA metadata (ARIA APG Carousel +
+// Tabs pattern). Authors translate these via the `feature` sheet in
+// lanconfig.json (one column per language code); English is the fallback.
+// {n}, {x} and {y} are substituted at render time.
+const LABEL_FALLBACKS = {
+  carouselRoleDescription: 'carousel',
+  carouselLabel: 'Feature slides',
+  slideTab: 'Slide {n}', // tab accessible name
+  slideRoleDescription: 'slide', // tabpanel role description
+  slidePosition: '{x} of {y}', // tabpanel accessible name
+};
+
+const fillTemplate = (template, values) => Object.entries(values)
+  .reduce((str, [key, value]) => str.replaceAll(`{${key}}`, value), template);
+
+/**
+ * Show the slide at `newActiveIndex` and sync the tablist to match (ARIA APG
+ * Tabs pattern, automatic activation). The visible slide is exposed to
+ * assistive tech and placed in the page tab sequence; every other slide is
+ * hidden (aria-hidden + taken out of the tab order) so screen readers only
+ * announce the active slide's image alt, title and text. The tabs use a roving
+ * tabindex: only the selected tab is tabbable (its tabindex attribute is
+ * removed, per the APG note for button-based tabs), the rest are tabindex=-1.
+ * @param {number} newActiveIndex the slide/tab to activate
+ * @param {Element} block the decorated feature block
+ */
 const setActiveSlide = (newActiveIndex, block) => {
   const slides = block.querySelectorAll('.feature-slides > div');
   const navItems = [...block.querySelectorAll('.feature-slide-nav-item')];
@@ -33,18 +60,29 @@ const setActiveSlide = (newActiveIndex, block) => {
   navItems.forEach((navItem, index) => {
     const isActive = newActiveIndex === index;
     navItem.classList.toggle('active', isActive);
-    // Every dot stays in the tab sequence (tabindex=0) so the user can Tab
-    // to each number directly; aria-selected still reflects the active dot.
     navItem.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    // Roving tabindex: the selected tab is the only one in the page tab
+    // sequence. For a native <button> the APG removes the tabindex attribute on
+    // the selected tab (rather than setting 0); non-selected tabs get -1.
+    if (isActive) {
+      navItem.removeAttribute('tabindex');
+    } else {
+      navItem.setAttribute('tabindex', '-1');
+    }
   });
 };
 
-const createNavigation = (block, slideCount, instanceId, onClick) => {
-  // Tablist: labelled container for the slide tabs (ARIA Tabs pattern).
+/**
+ * Build the vertical dot tablist (ARIA APG Tabs pattern). Each dot is a native
+ * <button role="tab"> controlling its slide's tabpanel. The tablist is inserted
+ * before the slides so the keyboard tab order is: selected tab -> visible slide
+ * -> next block on the page.
+ */
+const createNavigation = (block, slideWrapper, slideCount, instanceId, labels, onClick) => {
   const wrapper = document.createElement('div');
   wrapper.classList.add('feature-slides-nav');
   wrapper.setAttribute('role', 'tablist');
-  wrapper.setAttribute('aria-label', 'Feature slides');
+  wrapper.setAttribute('aria-label', labels.carouselLabel);
   wrapper.setAttribute('aria-orientation', 'vertical');
 
   const slidesDots = (new Array(slideCount))
@@ -56,8 +94,10 @@ const createNavigation = (block, slideCount, instanceId, onClick) => {
       navItem.setAttribute('role', 'tab');
       navItem.id = `${instanceId}-tab-${index}`;
       navItem.setAttribute('aria-controls', `${instanceId}-panel-${index}`);
-      navItem.setAttribute('aria-label', `Go to slide ${index + 1}`);
+      navItem.setAttribute('aria-label', fillTemplate(labels.slideTab, { n: index + 1 }));
       navItem.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
+      // Roving tabindex: only the first (selected) tab is initially tabbable.
+      if (index !== 0) navItem.setAttribute('tabindex', '-1');
 
       if (!index) {
         navItem.classList.add('active');
@@ -65,7 +105,8 @@ const createNavigation = (block, slideCount, instanceId, onClick) => {
 
       const dotEl = document.createElement('span');
       dotEl.classList.add('feature-slide-nav-dot');
-      // The number is decorative (the accessible name already says "slide N").
+      // The number is decorative: the tab's accessible name already conveys the
+      // slide ("Slide N"), so exposing the digit too would double-announce.
       dotEl.setAttribute('aria-hidden', 'true');
       dotEl.textContent = index + 1;
 
@@ -77,9 +118,10 @@ const createNavigation = (block, slideCount, instanceId, onClick) => {
 
   wrapper.append(...slidesDots);
 
-  // Every dot is a native button in the tab sequence, so Tab/Shift+Tab reach
-  // each number. Arrow/Home/End keys are also supported as a convenience for
-  // moving focus between the dots; Enter/Space activates a dot natively.
+  // Automatic activation (ARIA APG carousel-2-tablist): Arrow/Home/End move the
+  // focus between tabs AND show the associated slide. Left/Up = previous (wraps
+  // to last), Right/Down = next (wraps to first), Home = first, End = last.
+  // Enter/Space activate natively via the button click handler.
   wrapper.addEventListener('keydown', (e) => {
     const tabs = [...wrapper.querySelectorAll('[role="tab"]')];
     const currentIndex = tabs.indexOf(document.activeElement);
@@ -106,10 +148,13 @@ const createNavigation = (block, slideCount, instanceId, onClick) => {
     }
 
     e.preventDefault();
-    tabs[newIndex].focus();
+    onClick(newIndex, block); // show the slide + move the tab into the sequence
+    tabs[newIndex].focus(); // then move focus to it
   });
 
-  block.append(wrapper);
+  // Insert the tablist before the slides so it is reached first when tabbing
+  // into the block, then the visible slide, then the next block.
+  block.insertBefore(wrapper, slideWrapper);
 };
 
 export default async function decorate(block) {
@@ -119,16 +164,26 @@ export default async function decorate(block) {
   const slideWrapper = document.createElement('div');
   slideWrapper.classList.add('feature-slides');
 
+  // The block itself is the carousel container (ARIA APG Carousel pattern).
+  block.setAttribute('aria-roledescription', LABEL_FALLBACKS.carouselRoleDescription);
+  block.setAttribute('aria-label', LABEL_FALLBACKS.carouselLabel);
+
   block.querySelectorAll(':scope > div').forEach((el, index) => {
     if (!index) {
       el.replaceWith(slideWrapper);
     }
 
     el.classList.add('feature-slide');
-    // Each slide is a tabpanel labelled by its dot tab (ARIA Tabs pattern).
+    // Each slide is a tabpanel controlled by its dot tab. It carries a "slide"
+    // role description and an "X of Y" position label (ARIA APG Carousel).
     el.setAttribute('role', 'tabpanel');
     el.id = `${instanceId}-panel-${index}`;
     el.setAttribute('aria-labelledby', `${instanceId}-tab-${index}`);
+    el.setAttribute('aria-roledescription', LABEL_FALLBACKS.slideRoleDescription);
+    el.setAttribute('aria-label', fillTemplate(LABEL_FALLBACKS.slidePosition, {
+      x: index + 1,
+      y: slideCount,
+    }));
     slideWrapper.append(el);
   });
 
@@ -144,8 +199,28 @@ export default async function decorate(block) {
     forceHeadingLevel(heading, 'h3', 'h5');
   });
 
-  createNavigation(block, slideCount, instanceId, setActiveSlide);
+  createNavigation(block, slideWrapper, slideCount, instanceId, LABEL_FALLBACKS, setActiveSlide);
   setActiveSlide(0, block);
+
+  // Swap in localized ARIA labels once the dictionary resolves (English is
+  // shown until then, so the labels are never missing). Adding a language is a
+  // pure authoring change (add a column to the `feature` lanconfig sheet).
+  getLanguageLabels('feature', LABEL_FALLBACKS).then((labels) => {
+    block.setAttribute('aria-roledescription', labels.carouselRoleDescription);
+    block.setAttribute('aria-label', labels.carouselLabel);
+    const nav = block.querySelector('.feature-slides-nav');
+    if (nav) nav.setAttribute('aria-label', labels.carouselLabel);
+    block.querySelectorAll('.feature-slide-nav-item').forEach((tab, index) => {
+      tab.setAttribute('aria-label', fillTemplate(labels.slideTab, { n: index + 1 }));
+    });
+    block.querySelectorAll('.feature-slides > div').forEach((panel, index) => {
+      panel.setAttribute('aria-roledescription', labels.slideRoleDescription);
+      panel.setAttribute('aria-label', fillTemplate(labels.slidePosition, {
+        x: index + 1,
+        y: slideCount,
+      }));
+    });
+  });
 
   // making sure that the slide gets enought space to display slide navigation
   const onResize = () => {
