@@ -245,11 +245,11 @@ footer {
 }
 
 /* The Bimota stripes mark in the footer corner. The global `.icon img` rule
-   forces a 20x20 box, which squashes the ~2.5:1 stripes to a tiny sliver. Size
-   it to ~48px wide keeping its aspect ratio so the brand stripes read clearly. */
+   forces a 20x20 box, which squashes the stripes to a tiny sliver, so size it
+   explicitly to the design's 100x40 footprint. */
 .footer .section .default-content-wrapper .icon-logo-flag img {
-  width: 48px;
-  height: auto;
+  width: 100px;
+  height: 40px;
 }
 
 .country-selector-page .section:last-child .default-content-wrapper {
