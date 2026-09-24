@@ -51,10 +51,27 @@ const setActiveSlide = (newActiveIndex, block) => {
 
     // Hidden slides are removed from the accessibility tree so screen readers
     // only announce the visible slide's image alt, title and text (WCAG 4.1.2).
-    // The active tabpanel is focusable (tabindex=0) as it has no interactive
-    // children; inactive ones are taken out of the tab order.
+    // Inactive slides are taken out of the tab order; their descendants are also
+    // unreachable because inactive slides are visibility:hidden in CSS.
     slide.setAttribute('aria-hidden', isActive ? 'false' : 'true');
-    slide.setAttribute('tabindex', isActive ? '0' : '-1');
+    if (!isActive) {
+      slide.setAttribute('tabindex', '-1');
+      return;
+    }
+    // The active tabpanel is only made focusable (tabindex=0) when it has NO
+    // focusable children. Per the ARIA APG (and bug KAW-11082), a tabpanel that
+    // contains interactive content (e.g. an authored CTA link) must NOT be a tab
+    // stop itself, otherwise reading-flow navigation stops on the panel and then
+    // again on its child, double-reading the content. When the slide has such a
+    // child, drop the panel from the tab order and let the child be the stop.
+    const hasFocusable = slide.querySelector(
+      'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    );
+    if (hasFocusable) {
+      slide.removeAttribute('tabindex');
+    } else {
+      slide.setAttribute('tabindex', '0');
+    }
   });
 
   navItems.forEach((navItem, index) => {
