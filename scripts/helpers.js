@@ -211,6 +211,91 @@ export function createElement(tagName, options = {}) {
   return elem;
 }
 
+let labelIdCounter = 0;
+
+/**
+ * Return the element's id, assigning a unique one first if it has none.
+ * @param {Element} el the element
+ * @param {string} [prefix='lbl'] prefix for a generated id
+ * @returns {string} the element id
+ */
+export function ensureId(el, prefix = 'lbl') {
+  if (!el.id) {
+    labelIdCounter += 1;
+    el.id = `${prefix}-${labelIdCounter}`;
+  }
+  return el.id;
+}
+
+/**
+ * Give a control a contextual accessible name through aria-labelledby: its own
+ * label, a comma, then the context element(s). A generic CTA "Explore" next to
+ * the "Tesi H2" tab is announced as "Explore, Tesi H2" (WCAG 2.4.4, 2.4.6), and
+ * because the visible text comes first the name still satisfies Label in Name
+ * (WCAG 2.5.3). Reusable by any CTA or action button on the site.
+ *
+ * aria-labelledby joins the referenced texts with a space, so a comma placed in
+ * its own element would read "Explore , Tesi H2". The comma is therefore put
+ * inside the first referenced element, which is always one this helper owns:
+ * - without `label`: the control's own visible text is wrapped in a span and a
+ *   zero-size comma is appended to it (no visual change);
+ * - with `label`: a `hidden` span holding "label," is appended to the control
+ *   (hidden text is still used when it is referenced by aria-labelledby, and is
+ *   not read twice in browse mode).
+ * Idempotent: calling it again on the same control replaces the previous setup.
+ * @param {Element} control the link/button (or other element) to name
+ * @param {Element|Element[]} context element(s) whose text follows the comma
+ * @param {Object} [options]
+ * @param {string} [options.label] use this text as the first part instead of
+ *   the control's visible text
+ * @param {string} [options.separator=','] separator glued to the first part
+ *   (e.g. '、' for Japanese)
+ */
+export function labelWithContext(control, context, { label, separator = ',' } = {}) {
+  let first = control.querySelector(':scope > [data-label-own]');
+
+  if (label !== undefined) {
+    if (first && !first.hidden) {
+      first.replaceWith(...first.childNodes);
+      first = null;
+    }
+    if (!first) {
+      first = createElement('span', { props: { 'data-label-own': '' } });
+      first.hidden = true;
+      control.append(first);
+    }
+    first.textContent = `${label}${separator}`;
+  } else {
+    if (first?.hidden) {
+      first.remove();
+      first = null;
+    }
+    if (!first) {
+      // Wrap the control's own text; decorative children (icons, SVGs,
+      // aria-hidden nodes) stay outside so they never join the name.
+      first = createElement('span', { props: { 'data-label-own': '' } });
+      const textNodes = [...control.childNodes].filter((node) => (
+        node.nodeType === Node.TEXT_NODE
+        || (node.nodeType === Node.ELEMENT_NODE
+          && !node.matches('.icon, [class*="icon-"], svg, img, [aria-hidden="true"]'))
+      ));
+      textNodes[0]?.before(first);
+      first.append(...textNodes);
+    }
+    first.querySelector(':scope > [data-label-separator]')?.remove();
+    const sep = createElement('span', { props: { 'data-label-separator': '' } });
+    // Zero-size, so it adds nothing visually but stays in the computed name.
+    sep.style.fontSize = '0';
+    sep.textContent = separator;
+    first.append(sep);
+  }
+
+  const contextIds = (Array.isArray(context) ? context : [context])
+    .filter(Boolean)
+    .map((el) => ensureId(el));
+  control.setAttribute('aria-labelledby', [ensureId(first), ...contextIds].join(' '));
+}
+
 export const isInViewport = (element) => {
   const rect = element.getBoundingClientRect();
   const windowHeight = (window.visualViewport || window).height;
