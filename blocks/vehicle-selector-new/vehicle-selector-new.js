@@ -140,17 +140,6 @@ const getAuthoredLabels = async (lang, base) => {
 };
 
 /**
- * Signed distance from the active slide, wrapped so the slide before the first
- * is the last one. Drives the translateX position and the "adjacent" state.
- */
-const circularOffset = (index, active, total) => {
-  let offset = index - active;
-  if (offset > total / 2) offset -= total;
-  if (offset < -total / 2) offset += total;
-  return offset;
-};
-
-/**
  * Read one authored row: column 1 model name, column 2 image, column 3 the
  * specifications (odd lines = titles, even lines = values) and a CTA link.
  * A trailing unpaired line (e.g. a footnote) is kept as a note.
@@ -189,6 +178,52 @@ const buildSpecs = (specs) => {
   return list;
 };
 
+let svgIdCount = 0;
+
+/**
+ * Give every id inside an inline SVG a unique suffix and update the
+ * `url(#id)` / `#id` references that point at them. The same icon is inlined
+ * in every slide, so shared ids (e.g. a clipPath) would all resolve to the
+ * first copy — which sits in a hidden slide, making the icon disappear.
+ * @param {SVGElement} svg the inline SVG
+ */
+const uniquifySvgIds = (svg) => {
+  svgIdCount += 1;
+  const nodes = [svg, ...svg.querySelectorAll('*')];
+  svg.querySelectorAll('[id]').forEach((el) => {
+    const oldId = el.id;
+    const newId = `${oldId}-vsn${svgIdCount}`;
+    el.id = newId;
+    nodes.forEach((node) => {
+      [...node.attributes].forEach((attr) => {
+        if (attr.value.includes(`#${oldId}`)) {
+          node.setAttribute(attr.name, attr.value
+            .replaceAll(`url(#${oldId})`, `url(#${newId})`)
+            .replace(new RegExp(`^#${oldId}$`), `#${newId}`));
+        }
+      });
+    });
+  });
+};
+
+/**
+ * Apply uniquifySvgIds to an inline icon, waiting for its SVG if the icon
+ * decorator has not fetched and inserted it yet.
+ * @param {Element} icon the icon span
+ */
+const fixIconIds = (icon) => {
+  const run = () => {
+    const svg = icon.querySelector('svg');
+    if (svg) uniquifySvgIds(svg);
+    return !!svg;
+  };
+  if (run()) return;
+  const observer = new MutationObserver(() => {
+    if (run()) observer.disconnect();
+  });
+  observer.observe(icon, { childList: true, subtree: true });
+};
+
 const buildCta = (link) => {
   const wrapper = createElement('p', { classes: `${blockName}-cta` });
   link.className = `${blockName}-cta-link`;
@@ -199,6 +234,7 @@ const buildCta = (link) => {
   // Icons are decorative (inline icons keep only their `icon-<name>` class).
   link.querySelectorAll('.icon, [class*="icon-"], svg, img')
     .forEach((icon) => icon.setAttribute('aria-hidden', 'true'));
+  link.querySelectorAll('[class*="icon-"]').forEach(fixIconIds);
   wrapper.append(link);
   return wrapper;
 };
@@ -263,13 +299,17 @@ export default function decorate(block) {
       media.append(slide.picture);
     }
 
+    // Details row: specifications (+ optional note) fill columns 1–3 and the
+    // CTA sits in column 4, so reading order matches the visual order.
     const details = createElement('div', { classes: `${blockName}-details` });
-    if (slide.specs.length) details.append(buildSpecs(slide.specs));
+    const info = createElement('div', { classes: `${blockName}-info` });
+    if (slide.specs.length) info.append(buildSpecs(slide.specs));
     if (slide.note) {
       const note = createElement('p', { classes: `${blockName}-note` });
       note.append(...slide.note.childNodes);
-      details.append(note);
+      info.append(note);
     }
+    if (info.childElementCount) details.append(info);
     if (slide.link) details.append(buildCta(slide.link));
 
     panel.append(heading, media, details);
@@ -342,13 +382,15 @@ export default function decorate(block) {
    * announces the change, so the live region is muted for that update to
    * avoid a second, overlapping announcement. Arrow/swipe changes keep focus on
    * the control, so the live region stays polite and speaks a short status.
-   * @param {number} index slide to show (wraps around)
+   * The carousel is finite: the index is clamped to the first/last slide
+   * (no wrap-around), and Previous/Next are disabled at the ends.
+   * @param {number} index slide to show
    * @param {Object} [options]
    * @param {boolean} [options.focusTab=false] move focus to the new tab
    * @param {boolean} [options.announce=false] announce via the live region
    */
   const setActive = (index, { focusTab = false, announce = false } = {}) => {
-    active = ((index % total) + total) % total;
+    active = Math.min(Math.max(index, 0), total - 1);
 
     clearTimeout(liveTimer);
     clearTimeout(statusTimer);
@@ -362,7 +404,9 @@ export default function decorate(block) {
 
     panels.forEach((panel, i) => {
       const isActive = i === active;
-      const offset = circularOffset(i, active, total);
+      // Linear position in the finite sequence: slides only ever move one way
+      // across the strip, never jump from one side to the other.
+      const offset = i - active;
       panel.style.setProperty('--vsn-offset', offset);
       panel.classList.toggle('is-active', isActive);
       panel.classList.toggle('is-adjacent', !isActive && Math.abs(offset) === 1);
@@ -380,6 +424,20 @@ export default function decorate(block) {
       if (isActive && !focusables.length) panel.setAttribute('tabindex', '0');
       else panel.removeAttribute('tabindex');
     });
+
+    // Disable Previous on the first slide and Next on the last. A disabled
+    // button cannot hold focus, so if the arrow the user just pressed becomes
+    // disabled, focus moves to the other arrow instead of being dropped.
+    const focusedArrow = document.activeElement;
+    [[prevButton, active === 0], [nextButton, active === total - 1]]
+      .forEach(([button, atEnd]) => {
+        if (!button) return;
+        button.disabled = atEnd;
+        button.setAttribute('aria-disabled', atEnd ? 'true' : 'false');
+      });
+    if (focusedArrow?.disabled) {
+      (focusedArrow === prevButton ? nextButton : prevButton)?.focus();
+    }
 
     centerTab(tabs[active]);
     if (focusTab) tabs[active].focus();
@@ -406,22 +464,27 @@ export default function decorate(block) {
     if (current === -1) return;
     let target;
     switch (event.key) {
-      case 'ArrowRight': target = current + 1; break;
-      case 'ArrowLeft': target = current - 1; break;
+      // Finite: Left on the first tab / Right on the last tab do nothing.
+      case 'ArrowRight': target = Math.min(current + 1, total - 1); break;
+      case 'ArrowLeft': target = Math.max(current - 1, 0); break;
       case 'Home': target = 0; break;
       case 'End': target = total - 1; break;
       default: return;
     }
     event.preventDefault();
-    setActive(target, { focusTab: true });
+    if (target !== current) setActive(target, { focusTab: true });
   });
 
-  prevButton?.addEventListener('click', () => setActive(active - 1, { announce: true }));
-  nextButton?.addEventListener('click', () => setActive(active + 1, { announce: true }));
+  // Step one slide; ignored at the ends so nothing is re-announced.
+  const step = (delta) => {
+    const target = active + delta;
+    if (target < 0 || target > total - 1) return;
+    setActive(target, { announce: true });
+  };
+  prevButton?.addEventListener('click', () => step(-1));
+  nextButton?.addEventListener('click', () => step(1));
   if (total > 1) {
-    addSwiping(track, (direction) => {
-      setActive(active + (direction === 'next' ? 1 : -1), { announce: true });
-    });
+    addSwiping(track, (direction) => step(direction === 'next' ? 1 : -1));
   }
 
   applyLabels();
