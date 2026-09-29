@@ -1,0 +1,410 @@
+/* Vehicle Selector (new) — accessible tablist + finite carousel.
+   Colours are fixed values chosen for contrast on the white background:
+   - tab default #666 (5.7:1), active #ae2d27 (6.9:1), focus #82221d (9.9:1)
+   - CTA / arrow red #e7131a (4.7:1); the global --action-default red (#ed1c24)
+     is only 4.4:1 on white, so it is not used for text here.
+   The focus ring uses the site token when one exists, otherwise #0b5fff
+   (5.2:1 against white, well above the 3:1 minimum). */
+.vehicle-selector-new {
+  --vsn-tab: #666;
+  --vsn-tab-active: #ae2d27;
+  --vsn-focus: #82221d;
+  --vsn-accent: var(--red-on-white, #e7131a);
+  --vsn-disabled: #999;
+  --vsn-text: #1a1a1a;
+  --vsn-ring-color: var(--focus-ring-color, #0b5fff);
+  --vsn-ring-width: var(--focus-ring-width, 3px);
+  --vsn-ring-offset: var(--focus-ring-offset, 2px);
+
+  /* Page gutter and content width, matching the site's section layout, used to
+     keep the tabs and details aligned with the rest of the page. */
+  --vsn-gutter: 20px;
+  --vsn-content-max: 1240px;
+
+  /* Media width as a share of the viewport, and how far each neighbouring
+     slide is moved so only part of it shows at the screen edge. */
+  --vsn-media-width: 80%;
+  --vsn-shift: 78%;
+  --vsn-controls-ratio: 2.2222; /* stage width / (media width * 9 / 16) */
+  --vsn-duration: 500ms;
+
+  /* Full viewport width: break out of the section's padding and max-width.
+     The page body clips horizontal overflow, so this never adds a scrollbar. */
+  width: 100vw;
+  margin-inline: calc(50% - 50vw);
+}
+
+.vehicle-selector-new .vehicle-selector-new-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Tabs: centred when they fit, scrollable from the start when they do not.
+   Block padding leaves room for the focus ring inside the scroll container. */
+.vehicle-selector-new .vehicle-selector-new-tablist {
+  position: relative;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: safe center;
+  gap: 8px 24px;
+  overflow-x: auto;
+  padding: 8px var(--vsn-gutter) 16px;
+  scrollbar-width: none;
+}
+
+.vehicle-selector-new .vehicle-selector-new-tablist::-webkit-scrollbar {
+  display: none;
+}
+
+.vehicle-selector-new .vehicle-selector-new-tab {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 8px 4px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--vsn-tab);
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0;
+  text-decoration: none;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 6px;
+  white-space: nowrap;
+  overflow: visible;
+}
+
+.vehicle-selector-new .vehicle-selector-new-tab:hover,
+.vehicle-selector-new .vehicle-selector-new-tab[aria-selected='true'] {
+  color: var(--vsn-tab-active);
+  text-decoration-line: underline;
+}
+
+.vehicle-selector-new .vehicle-selector-new-tab:focus-visible {
+  color: var(--vsn-focus);
+  text-decoration-line: underline;
+  outline: var(--vsn-ring-width) solid var(--vsn-ring-color);
+  outline-offset: var(--vsn-ring-offset);
+}
+
+/* Stage: arrows float over the vertical centre of the active image. */
+.vehicle-selector-new .vehicle-selector-new-stage {
+  position: relative;
+}
+
+.vehicle-selector-new .vehicle-selector-new-controls {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 3;
+  aspect-ratio: var(--vsn-controls-ratio);
+  pointer-events: none;
+}
+
+/* Arrows sit just outside the active image, between it and the neighbours. */
+.vehicle-selector-new .vehicle-selector-new-arrow {
+  --vsn-arrow-inset: max(8px, calc((100% - var(--vsn-media-width)) / 2 - 64px));
+
+  position: absolute;
+  top: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: 1px solid var(--vsn-accent);
+  border-radius: 50%;
+  background: var(--white, #fff);
+  color: var(--vsn-accent);
+  box-shadow: 0 0 12px 2px rgb(0 0 0 / 12%);
+  transform: translateY(-50%);
+  pointer-events: auto;
+  overflow: visible;
+}
+
+.vehicle-selector-new .vehicle-selector-new-arrow-prev {
+  left: var(--vsn-arrow-inset);
+}
+
+.vehicle-selector-new .vehicle-selector-new-arrow-next {
+  right: var(--vsn-arrow-inset);
+}
+
+.vehicle-selector-new .vehicle-selector-new-arrow span {
+  display: flex;
+}
+
+.vehicle-selector-new .vehicle-selector-new-arrow:hover {
+  border-color: var(--vsn-tab-active);
+  color: var(--vsn-tab-active);
+}
+
+.vehicle-selector-new .vehicle-selector-new-arrow:focus-visible {
+  border-color: var(--vsn-focus);
+  color: var(--vsn-focus);
+  outline: var(--vsn-ring-width) solid var(--vsn-ring-color);
+  outline-offset: var(--vsn-ring-offset);
+}
+
+/* First/last slide: the unavailable direction is disabled and greyed out. */
+.vehicle-selector-new .vehicle-selector-new-arrow:disabled {
+  border-color: var(--vsn-disabled);
+  color: var(--vsn-disabled);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* Track: every slide shares one grid cell and is placed with translateX in a
+   straight line (slide n sits n steps from the active one), so moving between
+   slides is a linear horizontal step with no wrap-around. The track is as tall
+   as the tallest slide (no layout shift on change); overflow-x: clip hides
+   far slides without clipping focus rings vertically. */
+.vehicle-selector-new .vehicle-selector-new-track {
+  position: relative;
+  display: grid;
+  overflow-x: clip;
+}
+
+.vehicle-selector-new .vehicle-selector-new-panel {
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  min-width: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateX(calc(var(--vsn-offset, 0) * var(--vsn-shift)));
+  transition:
+    transform var(--vsn-duration) ease-in-out,
+    visibility 0s linear var(--vsn-duration);
+}
+
+.vehicle-selector-new .vehicle-selector-new-panel.is-active,
+.vehicle-selector-new .vehicle-selector-new-panel.is-adjacent {
+  visibility: visible;
+  transition:
+    transform var(--vsn-duration) ease-in-out,
+    visibility 0s linear 0s;
+}
+
+.vehicle-selector-new .vehicle-selector-new-panel.is-active {
+  z-index: 2;
+  pointer-events: auto;
+}
+
+.vehicle-selector-new .vehicle-selector-new-panel.is-adjacent {
+  z-index: 1;
+}
+
+.vehicle-selector-new .vehicle-selector-new-panel:focus-visible {
+  outline: var(--vsn-ring-width) solid var(--vsn-ring-color);
+  outline-offset: calc(var(--vsn-ring-width) * -1);
+}
+
+.vehicle-selector-new .vehicle-selector-new-media {
+  width: var(--vsn-media-width);
+  aspect-ratio: 16 / 9;
+}
+
+.vehicle-selector-new .vehicle-selector-new-media picture {
+  display: block;
+  height: 100%;
+}
+
+.vehicle-selector-new .vehicle-selector-new-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Details row, aligned with the page content: specifications in columns 1–3
+   and the CTA in column 4 (stacked on small screens). Everything is
+   left-aligned and wraps instead of clipping. */
+.vehicle-selector-new .vehicle-selector-new-details {
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 24px 32px;
+  align-items: start;
+  align-self: stretch;
+  width: 100%;
+  max-width: calc(var(--vsn-content-max) + 2 * var(--vsn-gutter));
+  margin-inline: auto;
+  padding: 8px var(--vsn-gutter) 16px;
+  text-align: left;
+}
+
+/* Neighbours show only their image; their details stay hidden. */
+.vehicle-selector-new .vehicle-selector-new-panel.is-adjacent .vehicle-selector-new-details {
+  visibility: hidden;
+}
+
+.vehicle-selector-new .vehicle-selector-new-info {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.vehicle-selector-new .vehicle-selector-new-specs {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px 32px;
+  margin: 0;
+}
+
+.vehicle-selector-new .vehicle-selector-new-spec {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.vehicle-selector-new .vehicle-selector-new-spec-title,
+.vehicle-selector-new .vehicle-selector-new-spec-value,
+.vehicle-selector-new .vehicle-selector-new-note {
+  margin: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.vehicle-selector-new .vehicle-selector-new-spec-title {
+  color: var(--vsn-tab);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.vehicle-selector-new .vehicle-selector-new-spec-value {
+  color: var(--vsn-text);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.vehicle-selector-new .vehicle-selector-new-note {
+  color: var(--vsn-tab);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+/* Outlined pill CTA. The link's `button` classes are replaced in JS, so only
+   the global `a:any-link` / `a:focus` base rules apply and these win. The
+   label may wrap in a narrow column rather than being cut off with an
+   ellipsis by the global link styles. */
+.vehicle-selector-new .vehicle-selector-new-cta {
+  min-width: 0;
+  margin: 0;
+}
+
+.vehicle-selector-new .vehicle-selector-new-cta-link:any-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  min-height: 48px;
+  padding: 8px 24px;
+  box-sizing: border-box;
+  border: 1px solid var(--vsn-accent);
+  border-radius: 24px;
+  background: var(--white, #fff);
+  color: var(--vsn-accent);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.5;
+  text-align: left;
+  text-decoration: none;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: break-word;
+}
+
+.vehicle-selector-new .vehicle-selector-new-cta-link:any-link:hover {
+  border-color: var(--vsn-tab-active);
+  color: var(--vsn-tab-active);
+}
+
+.vehicle-selector-new .vehicle-selector-new-cta-link:any-link:focus-visible {
+  border-color: var(--vsn-focus);
+  color: var(--vsn-focus);
+  outline: var(--vsn-ring-width) solid var(--vsn-ring-color);
+  outline-offset: var(--vsn-ring-offset);
+}
+
+.vehicle-selector-new .vehicle-selector-new-cta-link [class*='icon-'] {
+  display: inline-flex;
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+}
+
+.vehicle-selector-new .vehicle-selector-new-cta-link [class*='icon-'] svg {
+  width: 100%;
+  height: 100%;
+  fill: currentcolor;
+}
+
+@media (width >= 768px) {
+  .vehicle-selector-new {
+    --vsn-gutter: 30px;
+    --vsn-media-width: 64%;
+    --vsn-shift: 72%;
+    --vsn-controls-ratio: 2.7778;
+  }
+
+  .vehicle-selector-new .vehicle-selector-new-tablist {
+    gap: 8px 48px;
+  }
+
+  /* 4 equal columns: the info block spans 1–3 (its own 3-column grid lines up
+     with them because the gaps match) and the CTA takes column 4. */
+  .vehicle-selector-new .vehicle-selector-new-details {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .vehicle-selector-new .vehicle-selector-new-info {
+    grid-column: 1 / 4;
+  }
+
+  .vehicle-selector-new .vehicle-selector-new-specs {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .vehicle-selector-new .vehicle-selector-new-cta {
+    grid-column: 4;
+  }
+}
+
+@media (width >= 1025px) {
+  .vehicle-selector-new {
+    --vsn-gutter: 40px;
+    --vsn-media-width: 50%;
+    --vsn-shift: 62%;
+    --vsn-controls-ratio: 3.5556;
+  }
+}
+
+/* No sliding or smooth scrolling for users who ask for reduced motion: the
+   slides jump to their new positions instantly. */
+@media (prefers-reduced-motion: reduce) {
+  .vehicle-selector-new .vehicle-selector-new-panel,
+  .vehicle-selector-new .vehicle-selector-new-panel.is-active,
+  .vehicle-selector-new .vehicle-selector-new-panel.is-adjacent {
+    transition: none;
+  }
+
+  .vehicle-selector-new .vehicle-selector-new-tablist {
+    scroll-behavior: auto;
+  }
+}
