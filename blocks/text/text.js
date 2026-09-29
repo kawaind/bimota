@@ -1,4 +1,4 @@
-import { gatherButtons, forceHeadingLevel, describeButton } from '../../scripts/helpers.js';
+import { gatherButtons, forceHeadingLevel, labelWithContext } from '../../scripts/helpers.js';
 
 export default async function decorate(block) {
   const textContainer = block.querySelector(':scope > div > div');
@@ -21,7 +21,7 @@ export default async function decorate(block) {
   // Describe each CTA by its own text + the text block's title (WCAG 2.4.6).
   if (titleEl) {
     block.querySelectorAll('.button-container a.button').forEach((button) => {
-      describeButton(button, titleEl);
+      labelWithContext(button, titleEl);
     });
   }
 

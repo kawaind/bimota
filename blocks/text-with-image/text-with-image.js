@@ -1,5 +1,5 @@
 import {
-  throttle, gatherButtons, forceHeadingLevel, describeButton,
+  throttle, gatherButtons, forceHeadingLevel, labelWithContext,
 } from '../../scripts/helpers.js';
 
 const moveImageOnScroll = (block, settings = {}) => {
@@ -72,7 +72,7 @@ export default async function decorate(block) {
   // Describe each CTA by its own text + the block title (WCAG 2.4.6).
   if (titleEl) {
     block.querySelectorAll('.button-container a.button').forEach((button) => {
-      describeButton(button, titleEl);
+      labelWithContext(button, titleEl);
     });
   }
 

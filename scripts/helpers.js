@@ -225,11 +225,12 @@ export const ensureId = (el, prefix = 'lbl') => {
 };
 
 /**
- * Give a button a descriptive accessible name for screen readers by pointing
- * aria-labelledby at both the button's own text and a contextual title (e.g.
- * the heading above it), so a generic "Discover" reads as "Discover, <title>"
- * (WCAG 2.4.6, 4.1.2). Native <button>s keep their role; non-button elements
- * (links styled as buttons) get role="button".
+ * Give a button a descriptive accessible name for screen readers: its own text,
+ * a comma, then a contextual title (e.g. the heading above it), so a generic
+ * "Discover" reads as "Discover, <title>" (WCAG 2.4.6, 4.1.2). Native
+ * <button>s keep their role; non-button elements (links that act as buttons)
+ * get role="button". For plain navigation links use labelWithContext() instead,
+ * which names the link the same way but keeps its native link role.
  * @param {HTMLElement} button the button/link element
  * @param {HTMLElement} parent the element whose text provides context
  */
@@ -240,11 +241,9 @@ export function describeButton(button, parent) {
     button.setAttribute('role', 'button');
   }
 
-  const buttonId = ensureId(button, 'button');
-  const parentId = ensureId(parent, 'button-context');
-
-  // Button's own id first so its label is read before the contextual title.
-  button.setAttribute('aria-labelledby', `${buttonId} ${parentId}`);
+  // Own text first (with the comma pause), then the contextual title.
+  // eslint-disable-next-line no-use-before-define
+  labelWithContext(button, parent);
 }
 
 /**
@@ -296,10 +295,13 @@ export function createElement(tagName, options = {}) {
  * @param {Object} [options]
  * @param {string} [options.label] use this text as the first part instead of
  *   the control's visible text
- * @param {string} [options.separator=','] separator glued to the first part
- *   (e.g. '、' for Japanese)
+ * @param {string} [options.separator] separator glued to the first part;
+ *   defaults to the page language's comma (',' — or '、' for Japanese)
  */
-export function labelWithContext(control, context, { label, separator = ',' } = {}) {
+export function labelWithContext(control, context, {
+  label,
+  separator = (document.documentElement.lang || '').toLowerCase().startsWith('ja') ? '、' : ',',
+} = {}) {
   let first = control.querySelector(':scope > [data-label-own]');
 
   if (label !== undefined) {

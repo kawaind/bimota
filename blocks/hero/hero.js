@@ -1,7 +1,7 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { customDecoreateIcons } from '../../scripts/decorate-icon-helper.js';
 import { getTextLabel } from '../../scripts/scripts.js';
-import { forceHeadingLevel, describeButton } from '../../scripts/helpers.js';
+import { forceHeadingLevel, labelWithContext } from '../../scripts/helpers.js';
 
 const addPauseButton = (block) => {
   const pauseButton = document.createElement('button');
@@ -184,7 +184,7 @@ export default function decorate(block) {
   // readers announce e.g. "Discover, <title>" (WCAG 2.4.6, 4.1.2).
   const [heroTitle] = headings;
   if (heroTitle) {
-    links.forEach((link) => describeButton(link, heroTitle));
+    links.forEach((link) => labelWithContext(link, heroTitle));
   }
 
   addScrollIcon(block);

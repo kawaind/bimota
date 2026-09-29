@@ -93,7 +93,8 @@ main .hero-container .hero-wrapper {
   font-weight: 500;
 }
 
-.hero .button span {
+/* label spans stay inline so the accessible name reads "Discover, <title>" */
+.hero .button span:not(:where([data-label-own], [data-label-separator])) {
   display: flex;
 }
 

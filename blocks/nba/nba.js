@@ -1,4 +1,4 @@
-import { unwrapDivs, forceHeadingLevel, describeButton } from '../../scripts/helpers.js';
+import { unwrapDivs, forceHeadingLevel, labelWithContext } from '../../scripts/helpers.js';
 
 export default async function decorate(block) {
   const textWrapper = document.createElement('div');
@@ -33,7 +33,7 @@ export default async function decorate(block) {
     }
     // Describe the button by its own text + the NBA title (WCAG 2.4.6).
     if (titleEl) {
-      describeButton(button, titleEl);
+      labelWithContext(button, titleEl);
     }
     buttonWrapper.append(button);
   });
