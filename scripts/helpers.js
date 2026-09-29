@@ -213,10 +213,10 @@ let describedButtonId = 0;
 /**
  * Ensure an element has an id, generating a stable unique one if needed.
  * @param {HTMLElement} el the element
- * @param {string} prefix id prefix used when generating
+ * @param {string} [prefix='lbl'] id prefix used when generating
  * @returns {string} the element's id
  */
-const ensureId = (el, prefix) => {
+export const ensureId = (el, prefix = 'lbl') => {
   if (!el.id) {
     describedButtonId += 1;
     el.id = `${prefix}-${describedButtonId}`;
@@ -273,22 +273,6 @@ export function createElement(tagName, options = {}) {
   }
 
   return elem;
-}
-
-let labelIdCounter = 0;
-
-/**
- * Return the element's id, assigning a unique one first if it has none.
- * @param {Element} el the element
- * @param {string} [prefix='lbl'] prefix for a generated id
- * @returns {string} the element id
- */
-export function ensureId(el, prefix = 'lbl') {
-  if (!el.id) {
-    labelIdCounter += 1;
-    el.id = `${prefix}-${labelIdCounter}`;
-  }
-  return el.id;
 }
 
 /**
