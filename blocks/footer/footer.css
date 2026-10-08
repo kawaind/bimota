@@ -235,12 +235,28 @@ footer {
   display: block;
 }
 
-/* Cap a logo image an author places under a column heading (e.g. the app logo
-   below "Mobile Application") so it stays proportionate to the column rather
-   than rendering at its full intrinsic width. */
-.footer .footer-column :is(h3, h4) + p img {
-  width: auto;
-  max-width: 180px;
+/* App logo under a column heading (e.g. the Bimota App badge below "Mobile
+   Application"), marked by footer.js. Whatever size the uploaded image is, it
+   scales proportionally to at most 300px wide, and never wider than the column
+   on small screens. It is sized from its width attribute (--footer-logo-width,
+   set by footer.js) rather than the `.columns img` 100% width, so the space is
+   reserved before it loads (no layout shift) and a small logo is not stretched.
+   The link shrink-wraps the image so the keyboard focus ring outlines the logo
+   itself. */
+.footer .footer-app-logo > :is(a, picture) {
+  display: inline-block;
+  max-width: min(300px, 100%);
+  vertical-align: top;
+}
+
+.footer .footer-app-logo a picture {
+  display: block;
+}
+
+.footer .footer-app-logo img {
+  display: block;
+  width: var(--footer-logo-width, auto);
+  max-width: 100%;
   height: auto;
 }
 
