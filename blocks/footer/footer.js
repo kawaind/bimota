@@ -4,6 +4,11 @@ import { addTitleAttributeToIconLink } from '../../scripts/helpers.js';
 
 const ICON_TOKEN_REGEX = /:([A-Za-z0-9][A-Za-z0-9-]*):/g;
 const YEAR_TOKEN_REGEX = /\{\s*year\s*\}/gi;
+const HEADING_SELECTOR = 'h1, h2, h3, h4, h5, h6';
+
+// Alt text for the app logo under a column heading (WCAG 1.1.1), used when the
+// author left the image alt empty.
+const APP_LOGO_ALT_FALLBACK = 'Bimota App';
 
 function replaceYearTokens(container) {
   const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
@@ -207,6 +212,70 @@ function getCountrySelectorLines(csWrapper, buttonEle) {
 }
 
 /**
+ * Finds the app logo an author places under a column heading (e.g. the Bimota
+ * App badge under "Mobile Application"), either inside the heading itself
+ * (h4 > a > picture) or as an image-only paragraph right below it. A link
+ * nested in a heading is announced as part of the heading, so the logo is moved
+ * out into its own paragraph after the heading (WCAG 1.3.1, 2.4.6). Each logo
+ * paragraph gets the `footer-app-logo` class, which footer.css sizes.
+ * @param {Element[]} columns the footer columns
+ * @returns {Element[]} the logo paragraphs
+ */
+function extractAppLogos(columns) {
+  const logos = [];
+
+  columns.forEach((column) => {
+    column.querySelectorAll(`:is(${HEADING_SELECTOR}) picture`).forEach((picture) => {
+      const heading = picture.closest(HEADING_SELECTOR);
+      const link = picture.closest('a');
+      const logo = link && heading.contains(link) ? link : picture;
+      const wrapper = document.createElement('p');
+      wrapper.append(logo);
+
+      // A heading that held only the logo would be left empty; drop it.
+      if (heading.textContent.trim()) heading.after(wrapper);
+      else heading.replaceWith(wrapper);
+    });
+
+    column.querySelectorAll(`:is(${HEADING_SELECTOR}) + p`).forEach((paragraph) => {
+      if (!paragraph.querySelector('picture') || paragraph.textContent.trim()) return;
+      paragraph.classList.add('footer-app-logo');
+      logos.push(paragraph);
+    });
+  });
+
+  return logos;
+}
+
+/**
+ * Gives each app logo image a meaningful alt (the authored alt, else
+ * "Bimota App"), so a linked logo is named by its image (WCAG 1.1.1, 2.4.4,
+ * 4.1.2). Clears the whitespace-only title decorateButtons copies from the
+ * link's text, which would otherwise surface as an empty tooltip.
+ * @param {Element[]} logos the logo paragraphs
+ */
+function decorateAppLogos(logos) {
+  logos.forEach((logo) => {
+    logo.querySelectorAll('a').forEach((anchor) => {
+      anchor.removeAttribute('aria-label');
+      if (!anchor.getAttribute('title')?.trim()) anchor.removeAttribute('title');
+    });
+
+    logo.querySelectorAll('img').forEach((img) => {
+      img.alt = img.getAttribute('alt')?.trim() || APP_LOGO_ALT_FALLBACK;
+      img.removeAttribute('aria-hidden');
+
+      // Expose the image's intrinsic width to footer.css, which caps it (300px /
+      // column width) and scales the height proportionally. Sizing from the
+      // width attribute reserves the space before the lazy image loads (no
+      // layout shift) and never stretches a logo smaller than the cap.
+      const width = parseInt(img.getAttribute('width'), 10);
+      if (width > 0) img.style.setProperty('--footer-logo-width', `${width}px`);
+    });
+  });
+}
+
+/**
  * loads and decorates the footer
  * @param {Element} block The footer block element
  */
@@ -287,6 +356,8 @@ export default async function decorate(block) {
     // each heading should be rendered as font-small
     [...column.querySelectorAll('h1, h2, h3, h4, h5, h6')].forEach((heading) => heading.classList.add('font-small'));
   });
+
+  decorateAppLogos(extractAppLogos(columns));
 
   // a11y for social icons
   const socialIconLinks = footer.querySelectorAll('.footer-column:has(a[title=""]) a[title=""]');
