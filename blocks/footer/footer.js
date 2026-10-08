@@ -30,7 +30,12 @@ const A11Y_FALLBACKS = {
   'networkName-youtube': 'YouTube',
   'networkName-tiktok': 'TikTok',
   'networkName-linkedin': 'LinkedIn',
+  // Alt text for the app logo under a column heading (WCAG 1.1.1), used when
+  // the author left the image alt empty.
+  appLogoAlt: 'Bimota App',
 };
+
+const HEADING_SELECTOR = 'h1, h2, h3, h4, h5, h6';
 
 // Which footer column is the social row: its links are icon-only and each needs
 // a descriptive, network-identifying accessible name.
@@ -268,6 +273,85 @@ function getCountrySelectorLines(csWrapper, buttonEle) {
 }
 
 /**
+ * Finds the app logo an author places under a column heading (e.g. the Bimota
+ * App badge under "Mobile Application"), either inside the heading itself
+ * (h4 > a > picture) or as an image-only paragraph right below it. A link
+ * nested in a heading is announced as part of the heading, so the logo is moved
+ * out into its own paragraph after the heading (WCAG 1.3.1, 2.4.6). Each logo
+ * paragraph gets the `footer-app-logo` class, which footer.css sizes.
+ * @param {Element[]} columns the footer columns
+ * @returns {Element[]} the logo paragraphs
+ */
+function extractAppLogos(columns) {
+  const logos = [];
+
+  columns.forEach((column) => {
+    column.querySelectorAll(`:is(${HEADING_SELECTOR}) picture`).forEach((picture) => {
+      const heading = picture.closest(HEADING_SELECTOR);
+      const link = picture.closest('a');
+      const logo = link && heading.contains(link) ? link : picture;
+      const wrapper = document.createElement('p');
+      wrapper.append(logo);
+
+      // A heading that held only the logo would be left empty; drop it.
+      if (heading.textContent.trim()) heading.after(wrapper);
+      else heading.replaceWith(wrapper);
+    });
+
+    column.querySelectorAll(`:is(${HEADING_SELECTOR}) + p`).forEach((paragraph) => {
+      if (!paragraph.querySelector('picture') || paragraph.textContent.trim()) return;
+      paragraph.classList.add('footer-app-logo');
+      logos.push(paragraph);
+    });
+  });
+
+  return logos;
+}
+
+/**
+ * Gives each app logo image a meaningful alt (the authored alt, else the
+ * localized "Bimota App"), so a linked logo is named by its image (WCAG 1.1.1,
+ * 2.4.4, 4.1.2). Clears the whitespace-only title decorateButtons copies from
+ * the link's text, which would otherwise surface as an empty tooltip.
+ * @param {Element[]} logos the logo paragraphs
+ */
+function decorateAppLogos(logos) {
+  if (!logos.length) return;
+
+  const images = logos.flatMap((logo) => [...logo.querySelectorAll('img')])
+    .map((img) => ({ img, authoredAlt: img.getAttribute('alt')?.trim() }));
+
+  // Expose the image's intrinsic width to footer.css, which caps it (300px /
+  // column width) and scales the height proportionally. Sizing from the width
+  // attribute reserves the space before the lazy image loads (no layout shift)
+  // and never stretches a logo smaller than the cap.
+  images.forEach(({ img }) => {
+    const width = parseInt(img.getAttribute('width'), 10);
+    if (width > 0) img.style.setProperty('--footer-logo-width', `${width}px`);
+  });
+
+  logos.forEach((logo) => {
+    logo.querySelectorAll('a').forEach((anchor) => {
+      anchor.removeAttribute('aria-label');
+      if (!anchor.getAttribute('title')?.trim()) anchor.removeAttribute('title');
+    });
+  });
+
+  const setAlt = (fallback) => {
+    images.forEach(({ img, authoredAlt }) => {
+      img.alt = authoredAlt || fallback;
+      img.removeAttribute('aria-hidden');
+    });
+  };
+
+  // English fallback applied immediately; localized value swapped in once the
+  // dictionary resolves.
+  setAlt(A11Y_FALLBACKS.appLogoAlt);
+  getLanguageLabels('footer', { appLogoAlt: A11Y_FALLBACKS.appLogoAlt })
+    .then((labels) => setAlt(labels.appLogoAlt));
+}
+
+/**
  * loads and decorates the footer
  * @param {Element} block The footer block element
  */
@@ -369,6 +453,8 @@ export default async function decorate(block) {
     });
   });
 
+  decorateAppLogos(extractAppLogos(columns));
+
   // a11y for social icons: each is an icon-only link, so it needs a
   // descriptive, network-identifying accessible name (WCAG 1.1.1, 2.4.4,
   // 4.1.2). Derive the network from the link href, name it "Bimota on X" (etc)
@@ -421,7 +507,9 @@ export default async function decorate(block) {
   // logo link under a "Mobile Application" heading) fail WCAG 2.4.4/1.1.1.
   // Name each from the nearest preceding column heading and hide the decorative
   // image, so the link is announced by its section (e.g. "Mobile Application").
+  // App logo links are named by their image alt (decorateAppLogos).
   footer.querySelectorAll('.footer-column a').forEach((anchor) => {
+    if (anchor.closest('.footer-app-logo')) return;
     if (anchor.getAttribute('aria-label') || anchor.textContent.trim()) return;
     const img = anchor.querySelector('img');
     if (!img) return;
