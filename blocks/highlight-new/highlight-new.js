@@ -307,8 +307,10 @@ export default async function decorate(block) {
   const flag = createElement('div', { classes: 'highlight-new-flag', props: { 'aria-hidden': 'true' } });
   flag.innerHTML = FLAG;
 
+  // unique landmark names when a page has more than one (WCAG 1.3.1, 2.4.1)
+  const instance = document.querySelectorAll('.highlight-new[role="region"]').length + 1;
   block.setAttribute('role', 'region');
-  block.setAttribute('aria-label', labels.carousel);
+  block.setAttribute('aria-label', instance > 1 ? `${labels.carousel} ${instance}` : labels.carousel);
   block.replaceChildren(media);
 
   const total = slides.length;
