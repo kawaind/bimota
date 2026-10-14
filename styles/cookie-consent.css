@@ -1,0 +1,28 @@
+/* Cookie consent (CCM19) keyboard focus indicators (KAW-11190, WCAG 2.4.7 / 2.4.11).
+   Loaded by scripts/delayed.js together with the CCM19 widget. CCM19's own
+   stylesheet removes the outline on its "change consent" summoner button and
+   tree toggles, and its other focus outlines are 1px dashed and drawn inside the
+   control, so they are barely visible. Apply the site-wide focus ring instead
+   (same tokens as styles.css), on :focus-visible only so mouse/touch users see
+   no change. CCM19's stylesheet is injected after ours and uses long selector
+   chains, so outline declarations are marked !important to override it
+   reliably. Only focus-state outlines (and the summoner's focus radius) change:
+   no layout shift. */
+
+.ccm-root :is(button, a[href], select, [role="button"]):focus-visible {
+  outline: var(--focus-ring-width, 3px) solid var(--focus-ring-color, #0b5fff) !important;
+  outline-offset: var(--focus-ring-offset, 2px) !important;
+}
+
+/* the round "change consent" summoner: CCM19 squares buttons on :focus, so keep
+   the ring following its circular icon (as on the site's other round controls) */
+.ccm-root [role="complementary"] > button:focus-visible {
+  border-radius: 50%;
+}
+
+/* consent switches: the real checkbox is a 0x0 transparent input, the visible
+   track is the label's ::before, so draw the ring on the track */
+.ccm-root input[type="checkbox"][class*="ccm-checkbox-type--"]:focus-visible + label::before {
+  outline: var(--focus-ring-width, 3px) solid var(--focus-ring-color, #0b5fff) !important;
+  outline-offset: var(--focus-ring-offset, 2px) !important;
+}
