@@ -191,8 +191,42 @@ if (!window.location.pathname.includes('srcdoc')
     requestAnimationFrame(attempt);
   };
 
+  // The preferences panel can also be opened from the banner's own "Cookie
+  // Settings" link and closed while the banner stays open; focus then goes back
+  // to that link (CCM19 doesn't always do it, e.g. after a Space activation).
+  let panelShown = false;
+  let panelOpener = null;
+  const restoreBannerFocus = (opener) => {
+    let frames = 0;
+    const attempt = () => {
+      if (!opener.isConnected || !isRendered(opener.closest('.ccm-widget'))) return;
+      // the banner can stay inert for a few frames after the blocking panel closes
+      if (opener.closest('[inert]') && frames < 30) {
+        frames += 1;
+        requestAnimationFrame(attempt);
+        return;
+      }
+      const active = document.activeElement;
+      if (!active || active === document.body || !active.closest('.ccm-widget')) opener.focus();
+    };
+    requestAnimationFrame(attempt);
+  };
+
   const onCookieDialogMutation = () => {
     upgradeCookieTriggers();
+    const panel = document.querySelector('.ccm-control-panel');
+    const panelNowShown = !!panel && isRendered(panel);
+    if (panelNowShown && !panelShown) {
+      panelOpener = cookieInvoker?.closest('.ccm-widget') ? cookieInvoker : null;
+    } else if (!panelNowShown && panelShown) {
+      if (panelOpener && isCookieDialogShown()) {
+        cookieInvoker = null;
+        restoreBannerFocus(panelOpener);
+      }
+      panelOpener = null;
+    }
+    panelShown = panelNowShown;
+
     const shown = isCookieDialogShown();
     if (shown && !cookieDialogShown) {
       cookieDialogShown = true;
@@ -234,11 +268,25 @@ if (!window.location.pathname.includes('srcdoc')
     }
   });
 
-  // links given role="button" must also activate with Space, like a native button
+  // links given role="button" must also activate with Space, like a native
+  // button: on key release (keydown only stops the page from scrolling), and
+  // only if the key was pressed on the same link
+  let spacePressedLink = null;
+  const roleButtonLink = (e) => e.target.closest?.(`a[href="${COOKIE_TRIGGER_HREF}"][role="button"]`);
   document.addEventListener('keydown', (e) => {
     if (e.key !== ' ') return;
-    const link = e.target.closest?.(`a[href="${COOKIE_TRIGGER_HREF}"][role="button"]`);
+    const link = roleButtonLink(e);
     if (link) {
+      e.preventDefault();
+      spacePressedLink = link;
+    }
+  });
+  document.addEventListener('keyup', (e) => {
+    if (e.key !== ' ') return;
+    const link = roleButtonLink(e);
+    const pressed = spacePressedLink;
+    spacePressedLink = null;
+    if (link && link === pressed) {
       e.preventDefault();
       link.click();
     }
