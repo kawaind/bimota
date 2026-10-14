@@ -61,7 +61,9 @@ footer {
   align-items: center;
 }
 
-.footer .footer-list-item a {
+/* .cookie-settings-trigger: the "#cookie-settings" link, turned into a <button>
+   by scripts/delayed.js because it opens a dialog; it keeps the link look */
+.footer .footer-list-item :is(a, .cookie-settings-trigger) {
   border-bottom: 1px solid transparent;
   color: var(--c-primary-white);
   display: flex;
@@ -70,9 +72,9 @@ footer {
   font-weight: normal;
 }
 
-.footer .footer-list-item a:hover,
-.footer .footer-list-item a:focus,
-.footer .footer-list-item a:active {
+.footer .footer-list-item :is(a, .cookie-settings-trigger):hover,
+.footer .footer-list-item :is(a, .cookie-settings-trigger):focus,
+.footer .footer-list-item :is(a, .cookie-settings-trigger):active {
   border-bottom: 1px solid var(--c-primary-white);
 }
 

@@ -1,4 +1,4 @@
-import { loadScript } from './aem.js';
+import { loadCSS, loadScript } from './aem.js';
 import { getLocale } from './helpers.js';
 
 function updateCookieLinks(country, langSeg, cookiesLinks) {
@@ -74,84 +74,221 @@ if (!window.location.pathname.includes('srcdoc')
     updateCookieLinks(country, langSegment, cookiesLinks);
   });
 
-  // --- Cookie dialog: return focus to the trigger on close (WCAG 2.4.3) ---
-  // CCM19 owns the dialog markup and does not restore focus to the invoking
-  // control when the dialog closes (Escape or its own close/accept/reject
-  // buttons), dropping keyboard and screen-reader users onto <body>. We capture
-  // the element that opened the dialog and, once CCM19 removes or hides the
-  // dialog, move focus back to it — resolved via a stable selector so a
-  // re-rendered trigger still works, and inside requestAnimationFrame so the
-  // focus call isn't discarded during CCM19's teardown (ARIA APG modal pattern).
-  // No visual change; CCM19 keeps ownership of the dialog's own focus trap.
-  const COOKIE_TRIGGER_SELECTOR = 'a[href="#cookie-settings"]';
+  // --- Cookie dialog: accessible triggers + focus management (KAW-11190) ---
+  // Authors open the CCM19 preferences with a link to "#cookie-settings". That
+  // control opens a dialog rather than navigating, so it must be a button
+  // (WCAG 4.1.2): ours are replaced with a native <button type="button"> (Enter
+  // AND Space, no link semantics); the ones inside CCM19's own banner copy stay
+  // in CCM19's markup and only get role="button" + Space activation.
+  // CCM19 also leaves keyboard and screen-reader users on <body> when its
+  // dialogs close (Escape, close, accept/decline or save), so we remember the
+  // element focused before a dialog opened and return focus to it once the
+  // dialog is hidden (WCAG 2.4.3, ARIA APG dialog pattern). CCM19 exposes no
+  // reliable close callback, so a MutationObserver scoped to its root watches
+  // for the dialog being hidden. Focus-visible styles live in cookie-consent.css.
+  const COOKIE_TRIGGER_HREF = '#cookie-settings';
+  const COOKIE_TRIGGER_SELECTOR = `a[href="${COOKIE_TRIGGER_HREF}"], button[data-cookie-settings]`;
   const COOKIE_DIALOG_SELECTOR = '.ccm-widget, .ccm-control-panel, .ccm-modal';
+  const COOKIE_SUMMONER_SELECTOR = '.ccm-settings-summoner--link';
   let cookieInvoker = null;
+  let cookieOpener = null;
+  let lastFocusedElement = null;
   let cookieDialogShown = false;
 
-  const isCookieDialogShown = () => {
-    const dialog = document.querySelector(COOKIE_DIALOG_SELECTOR);
-    if (!dialog) return false;
-    const style = window.getComputedStyle(dialog);
-    return style.display !== 'none' && style.visibility !== 'hidden';
-  };
+  loadCSS(`${window.hlx?.codeBasePath || ''}/styles/cookie-consent.css`);
 
-  const resolveCookieTrigger = () => {
-    // Prefer a live element matching the stable selector (survives CCM19
-    // re-rendering the trigger); fall back to the captured node if it is still
-    // connected; finally the CCM19 settings summoner, so focus never lands on
-    // <body> when the original trigger is gone.
-    const bySelector = document.querySelector(COOKIE_TRIGGER_SELECTOR);
-    if (bySelector) return bySelector;
-    if (cookieInvoker && cookieInvoker.isConnected) return cookieInvoker;
-    return document.querySelector('.ccm-settings-summoner');
-  };
-
-  const restoreCookieFocus = () => {
-    const invoked = !!cookieInvoker;
-    cookieInvoker = null;
-    // Only restore focus when the user opened the dialog; never yank focus when
-    // the consent banner appears on its own (e.g. first visit).
-    if (!invoked) return;
-    requestAnimationFrame(() => {
-      const target = resolveCookieTrigger();
-      if (target && typeof target.focus === 'function') target.focus();
+  const upgradeCookieTriggers = () => {
+    document.querySelectorAll(`a[href="${COOKIE_TRIGGER_HREF}"]:not([role="button"])`).forEach((link) => {
+      if (link.closest('.ccm-root')) {
+        link.setAttribute('role', 'button');
+        link.setAttribute('aria-haspopup', 'dialog');
+        return;
+      }
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = `cookie-settings-trigger ${link.className}`.trim();
+      button.dataset.cookieSettings = '';
+      button.setAttribute('aria-haspopup', 'dialog');
+      // a title repeating the visible text is redundant for screen readers
+      const { title } = link;
+      if (title && title.trim() !== link.textContent.trim()) button.title = title;
+      button.append(...link.childNodes);
+      const hadFocus = document.activeElement === link;
+      link.replaceWith(button);
+      if (hadFocus) button.focus();
     });
   };
 
-  // CCM19 exposes no reliable public close callback, so watch the DOM: once a
-  // dialog is shown, its removal or hiding signals a close (the MutationObserver
-  // fallback the ARIA APG allows for third-party dialogs).
-  const cookieObserver = new MutationObserver(() => {
+  upgradeCookieTriggers();
+  // the footer is normally decorated well before this script runs; if not, upgrade once it is
+  const footerBlock = document.querySelector('footer .footer');
+  if (footerBlock && footerBlock.dataset.blockStatus !== 'loaded') {
+    const footerObserver = new MutationObserver(() => {
+      if (footerBlock.dataset.blockStatus !== 'loaded') return;
+      footerObserver.disconnect();
+      upgradeCookieTriggers();
+    });
+    footerObserver.observe(footerBlock, { attributes: true, attributeFilter: ['data-block-status'] });
+  }
+
+  const isRendered = (el) => {
+    const style = window.getComputedStyle(el);
+    return !el.hidden && style.display !== 'none' && style.visibility !== 'hidden';
+  };
+
+  const isCookieDialogShown = () => [...document.querySelectorAll(COOKIE_DIALOG_SELECTOR)]
+    .some(isRendered);
+
+  // focusable, visible and outside the (closed) CCM19 dialogs
+  const canReceiveFocus = (el) => !!el
+    && el.isConnected
+    && el !== document.body
+    && !el.closest(`[hidden], [inert], ${COOKIE_DIALOG_SELECTOR}`)
+    && el.getClientRects().length > 0
+    && isRendered(el);
+
+  // Track the element focused before a dialog takes focus. Capturing it when the
+  // dialog opens is too late: CCM19 has already moved focus into the dialog.
+  document.addEventListener('focusin', (e) => {
+    if (!e.target.closest?.(COOKIE_DIALOG_SELECTOR)) lastFocusedElement = e.target;
+  });
+
+  const restoreCookieFocus = () => {
+    const opener = cookieOpener;
+    cookieOpener = null;
+    cookieInvoker = null;
+    let frames = 0;
+    // in requestAnimationFrame so the focus call isn't undone by CCM19's teardown
+    const attempt = () => {
+      // CCM19 can swap one dialog for another (banner -> preferences); not a close
+      if (isCookieDialogShown()) return;
+      // a blocking dialog makes the page (and the summoner) inert, and CCM19 lifts
+      // that a few frames after hiding the dialog (e.g. on save); focus() is
+      // ignored until then
+      if (document.querySelector('body > :not(.ccm-root)[inert], .ccm-settings-summoner[inert]')
+        && frames < 30) {
+        frames += 1;
+        requestAnimationFrame(attempt);
+        return;
+      }
+      const active = document.activeElement;
+      const focusLost = !canReceiveFocus(active);
+      if (canReceiveFocus(opener)) {
+        if (active !== opener) opener.focus();
+        return;
+      }
+      // Only step in when focus was dropped (e.g. the first-visit banner, which
+      // opens on its own): fall back to the CCM19 "change consent" button, which
+      // replaces the banner, then to the main content (the skip-link target).
+      if (!focusLost) return;
+      const summoner = document.querySelector(COOKIE_SUMMONER_SELECTOR);
+      if (canReceiveFocus(summoner)) {
+        summoner.focus();
+        return;
+      }
+      document.querySelector('main[tabindex]')?.focus({ preventScroll: true });
+    };
+    requestAnimationFrame(attempt);
+  };
+
+  // The preferences panel can also be opened from the banner's own "Cookie
+  // Settings" link and closed while the banner stays open; focus then goes back
+  // to that link (CCM19 doesn't always do it, e.g. after a Space activation).
+  let panelShown = false;
+  let panelOpener = null;
+  const restoreBannerFocus = (opener) => {
+    let frames = 0;
+    const attempt = () => {
+      if (!opener.isConnected || !isRendered(opener.closest('.ccm-widget'))) return;
+      // the banner can stay inert for a few frames after the blocking panel closes
+      if (opener.closest('[inert]') && frames < 30) {
+        frames += 1;
+        requestAnimationFrame(attempt);
+        return;
+      }
+      const active = document.activeElement;
+      if (!active || active === document.body || !active.closest('.ccm-widget')) opener.focus();
+    };
+    requestAnimationFrame(attempt);
+  };
+
+  const onCookieDialogMutation = () => {
+    upgradeCookieTriggers();
+    const panel = document.querySelector('.ccm-control-panel');
+    const panelNowShown = !!panel && isRendered(panel);
+    if (panelNowShown && !panelShown) {
+      panelOpener = cookieInvoker?.closest('.ccm-widget') ? cookieInvoker : null;
+    } else if (!panelNowShown && panelShown) {
+      if (panelOpener && isCookieDialogShown()) {
+        cookieInvoker = null;
+        restoreBannerFocus(panelOpener);
+      }
+      panelOpener = null;
+    }
+    panelShown = panelNowShown;
+
     const shown = isCookieDialogShown();
     if (shown && !cookieDialogShown) {
       cookieDialogShown = true;
-      // Capture the invoking element if a click didn't already record it (e.g.
-      // the dialog was opened via CCM19's own summoner button).
-      if (!cookieInvoker) {
-        const active = document.activeElement;
-        if (active && active !== document.body && active.tagName) cookieInvoker = active;
-      }
+      cookieOpener = cookieInvoker || lastFocusedElement;
     } else if (!shown && cookieDialogShown) {
       cookieDialogShown = false;
       restoreCookieFocus();
     }
-  });
-  cookieObserver.observe(document.body, {
-    childList: true,
-    subtree: true,
-    attributes: true,
-    attributeFilter: ['class', 'style', 'hidden'],
-  });
+  };
+
+  // Scope the observer to CCM19's root (a direct child of <body>) so the
+  // page's own class/style changes (carousels etc.) never trigger it.
+  const cookieObserver = new MutationObserver(onCookieDialogMutation);
+  const observeCookieRoot = () => {
+    const root = document.querySelector('body > .ccm-root');
+    if (!root || root.dataset.cookieObserved) return;
+    root.dataset.cookieObserved = 'true';
+    cookieObserver.observe(root, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['class', 'style', 'hidden'],
+    });
+    onCookieDialogMutation();
+  };
+  new MutationObserver(observeCookieRoot).observe(document.body, { childList: true });
+  observeCookieRoot();
 
   document.addEventListener('click', (e) => {
-    const link = e.target.closest('a[href="#cookie-settings"]');
-    if (link) {
+    const trigger = e.target.closest(COOKIE_TRIGGER_SELECTOR);
+    if (trigger) {
       e.preventDefault();
-      // Remember the trigger so focus can return to it when the dialog closes.
-      cookieInvoker = link;
+      // Remember the trigger so focus can return to it when the dialog closes
+      // (a mouse click doesn't focus a button in every browser).
+      cookieInvoker = trigger;
       if (window.CCM && window.CCM.openControlPanel) {
         window.CCM.openControlPanel();
       }
+    }
+  });
+
+  // links given role="button" must also activate with Space, like a native
+  // button: on key release (keydown only stops the page from scrolling), and
+  // only if the key was pressed on the same link
+  let spacePressedLink = null;
+  const roleButtonLink = (e) => e.target.closest?.(`a[href="${COOKIE_TRIGGER_HREF}"][role="button"]`);
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== ' ') return;
+    const link = roleButtonLink(e);
+    if (link) {
+      e.preventDefault();
+      spacePressedLink = link;
+    }
+  });
+  document.addEventListener('keyup', (e) => {
+    if (e.key !== ' ') return;
+    const link = roleButtonLink(e);
+    const pressed = spacePressedLink;
+    spacePressedLink = null;
+    if (link && link === pressed) {
+      e.preventDefault();
+      link.click();
     }
   });
 
