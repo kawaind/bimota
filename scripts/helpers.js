@@ -335,7 +335,10 @@ export function labelWithContext(control, context, {
     first.querySelector(':scope > [data-label-separator]')?.remove();
     const sep = createElement('span', { props: { 'data-label-separator': '' } });
     // Zero-size, so it adds nothing visually but stays in the computed name.
+    // line-height 0 too: with the inherited line-height it still made the line
+    // box taller and pushed the visible label up off-centre in buttons.
     sep.style.fontSize = '0';
+    sep.style.lineHeight = '0';
     sep.textContent = separator;
     first.append(sep);
   }
