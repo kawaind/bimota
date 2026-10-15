@@ -43,13 +43,16 @@
   align-items: center;
 }
 
-.button-container {
+/* Scoped to .text: unscoped, these rules reached the buttons of every other
+   block on a page that has a Text block (e.g. News Stories CTAs pushed 50px
+   to the right). The Text block's own buttons always sit inside .text. */
+.text .button-container {
   display: flex;
   gap: 32px;
   padding-bottom: 12px;
 }
 
-.text-container .button-container  span[class^="icon-"] {
+.text .button-container span[class^="icon-"] {
   display: flex;
 }
 
@@ -65,7 +68,7 @@
 
   .text .h3,
   .text-content,
-  .button-container {
+  .text .button-container {
     padding-left: 50px;
     padding-right: 50px;
   }
@@ -105,7 +108,7 @@
     padding-bottom: 40px;
   }
 
-  .button-container {
+  .text .button-container {
     padding-bottom: 20px;
   }
 }
