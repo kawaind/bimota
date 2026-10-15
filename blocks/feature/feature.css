@@ -46,15 +46,34 @@
   right: 0;
   top: calc(75vw + 40px);
   margin-right: calc(var(--section-x-padding) * -1);
-  z-index: 1;
+
+  /* above the active slide, which gets z-index:1 from setActiveSlide() and
+     comes later in the DOM: at an equal z-index it covered the dots and took
+     every mouse click / tap (KAW-11189) */
+  z-index: 2;
 }
 
 .feature .feature-slide-nav-item {
+  position: relative;
   width: 42px;
   height: 42px;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  touch-action: manipulation;
+
+  /* the global button rule clips overflow, which would cut off the hit area */
+  overflow: visible;
+}
+
+/* Invisible hit area: 58x58px, filling the 16px gaps between the dots without
+   overlapping, so one tap or click always lands on a dot (WCAG 2.5.5 / 2.5.8).
+   The visible dot and the layout are unchanged. */
+.feature .feature-slide-nav-item::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
 }
 
 .feature-slide-nav-dot {
@@ -104,13 +123,25 @@
 }
 
 /* Hover/focus dot state (spec): a 20x20 filled black dot. Applies to
-   non-active dots; the active dot keeps its own larger numbered style. */
-.feature .feature-slide-nav-item:not(.active):is(:hover, :focus-visible) .feature-slide-nav-dot {
+   non-active dots; the active dot keeps its own larger numbered style. The
+   hover part only applies to devices that can hover, so a tap on a touch
+   screen is never taken as a hover first (KAW-11189). */
+.feature .feature-slide-nav-item:not(.active):focus-visible .feature-slide-nav-dot {
   width: 20px;
   height: 20px;
   border-radius: 20px;
   border-width: 0;
   background: var(--black);
+}
+
+@media (hover: hover) {
+  .feature .feature-slide-nav-item:not(.active):hover .feature-slide-nav-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 20px;
+    border-width: 0;
+    background: var(--black);
+  }
 }
 
 .feature .feature-text {
@@ -141,7 +172,7 @@
     width: 42px;
     top: 0;
     margin-right: 0;
-    z-index: 1;
+    z-index: 2;
   }
 
   .feature .feature-slide-nav-item {
