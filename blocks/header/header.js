@@ -34,66 +34,101 @@ async function getLogoAlt() {
   }
 }
 
-// English fallback shown until the translated label resolves (or if the sheet
-// is unavailable), so the skip link is never unlabelled.
-const SKIP_LINK_FALLBACK = 'Skip to content';
+// "Skip to content" in every language of the site, so the link is labelled in
+// the page's language from the start (WCAG 3.1.2). The `skipToContent` row of
+// the lanconfig.json `sr-skipbutton` sheet (one column per language) overrides
+// these, so wording changes stay an authoring change.
+const SKIP_LINK_LABELS = {
+  en: 'Skip to content',
+  it: 'Vai al contenuto',
+  fr: 'Aller au contenu',
+  de: 'Zum Inhalt springen',
+  nl: 'Naar de inhoud',
+  es: 'Saltar al contenido',
+  ja: 'コンテンツにスキップ',
+  lu: 'Zum Inhalt sprangen',
+  bg: 'Премини към съдържанието',
+};
+
+// the language the page declares (<html lang>, set from the URL in scripts.js)
+const getPageLanguage = () => (document.documentElement.lang || 'en').toLowerCase().split('-')[0];
 
 /**
- * Resolves the translated "Skip to content" label from the global lanconfig.json
- * multi-sheet. The `sr-skipbutton` sheet has a `skipToContent` row with one
- * column per language code (en, it, fr, de, nl, es, ja, lu); the column matching
- * the current URL's language wins, else `en`. Adding a language is an authoring
- * change: add a column. Falls back to the English default on any error.
- * @returns {Promise<string>} the language-appropriate skip link label
+ * Resolves the translated "Skip to content" label: the page language's column
+ * of the `sr-skipbutton` sheet, else the built-in translation, else English.
+ * @param {string} lang the page language
+ * @returns {Promise<string>} the label
  */
-async function getSkipLinkLabel() {
+async function getSkipLinkLabel(lang) {
+  const fallback = SKIP_LINK_LABELS[lang] || SKIP_LINK_LABELS.en;
   try {
     const resp = await fetch('/lanconfig.json?sheet=sr-skipbutton');
-    if (!resp.ok) return SKIP_LINK_FALLBACK;
+    if (!resp.ok) return fallback;
     const json = await resp.json();
     const data = json['sr-skipbutton']?.data || json.data || [];
     const row = data.find((r) => r.Key === 'skipToContent');
-    if (!row) return SKIP_LINK_FALLBACK;
-    const lang = getLanguageFromPath();
-    return row[lang] || row.en || SKIP_LINK_FALLBACK;
+    return row?.[lang] || fallback;
   } catch (e) {
-    return SKIP_LINK_FALLBACK;
+    return fallback;
   }
 }
 
 /**
- * Injects a "skip to content" link immediately after the logo so it is the
- * second element in the keyboard tab order (logo -> skip link -> menu) and sits
- * in the header bar between the logo and the first menu item. Being a normal
- * in-flow-order element after the first focusable guarantees a forward Tab
- * reaches it, rather than it living before the focus starting point (WCAG 2.4.1
- * Bypass Blocks, EAA/ADA). It is visually hidden until focused; on activation it
- * moves focus to <main> (tabindex="-1", programmatically focusable but not in
- * the tab order) so assistive tech follows along. The label starts as an English
- * fallback and is swapped for the translated value once the sheet resolves.
- * @param {Element} afterEl the element the skip link is inserted after (logo)
+ * "Skip to content" link (WCAG 2.4.1 Bypass Blocks, KAW-11086): inserted as the
+ * first element of <body>, so it is the first focusable element on the page.
+ * It is hidden until focused; then it shows as a full-width bar at the top that
+ * pushes the whole page (including the fixed header) down. Activating it moves
+ * focus to the content container itself, <main> (tabindex="-1": focusable from
+ * script, not a Tab stop), so screen readers continue from the start of the
+ * content and the next Tab reaches the first control inside it.
  */
-function decorateSkipLink(afterEl) {
+function decorateSkipLink() {
   const main = document.querySelector('main');
   if (!main || document.querySelector('.skip-link')) return;
 
   main.id = main.id || 'main-content';
   main.setAttribute('tabindex', '-1');
 
+  const lang = getPageLanguage();
   const skipLink = document.createElement('a');
   skipLink.className = 'skip-link';
   skipLink.href = `#${main.id}`;
-  skipLink.textContent = SKIP_LINK_FALLBACK;
+  skipLink.textContent = SKIP_LINK_LABELS[lang] || SKIP_LINK_LABELS.en;
+
+  // the padded wrapper takes the space while the link is shown (padding, unlike
+  // margins, never collapses with the content below)
+  const wrapper = document.createElement('div');
+  wrapper.className = 'skip-link-wrapper';
+  wrapper.append(skipLink);
+
+  // while shown, the fixed header moves down by the same height as the page
+  // (--skip-link-offset, used in styles.css), so nothing is covered
+  const root = document.documentElement;
+  skipLink.addEventListener('focus', () => {
+    root.style.setProperty('--skip-link-offset', `${wrapper.offsetHeight}px`);
+  });
+  // when it hides, the header goes back up at once with the page instead of
+  // through its 500ms transition (which would cover the content meanwhile)
+  skipLink.addEventListener('blur', () => {
+    root.classList.add('skip-link-closing');
+    requestAnimationFrame(() => requestAnimationFrame(() => root.classList.remove('skip-link-closing')));
+  });
 
   skipLink.addEventListener('click', (e) => {
     e.preventDefault();
-    main.scrollIntoView();
-    main.focus();
+    main.focus({ preventScroll: true });
+    // the link hides once it loses focus; then show the start of the content
+    // just below the fixed header
+    requestAnimationFrame(() => {
+      const headerHeight = document.querySelector('header')?.offsetHeight || 0;
+      const mainTop = main.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo(0, Math.max(0, mainTop - headerHeight));
+    });
   });
 
-  afterEl.after(skipLink);
+  document.body.prepend(wrapper);
 
-  getSkipLinkLabel().then((label) => {
+  getSkipLinkLabel(lang).then((label) => {
     skipLink.textContent = label;
   });
 }
@@ -327,6 +362,10 @@ function decorateNavAnchorLinks(nav) {
  * @param {Element} block The header block element
  */
 export default async function decorate(block) {
+  // first focusable element of the page, before the header (KAW-11086); added
+  // first so it exists even if the nav fragment is missing or slow
+  decorateSkipLink();
+
   // load nav as fragment
   const navMeta = getMetadata('nav');
   const navPath = navMeta ? new URL(navMeta, window.location).pathname : `${getRootPath()}/nav`;
@@ -384,10 +423,6 @@ export default async function decorate(block) {
       iconEl.setAttribute('aria-hidden', 'true');
     });
   }
-
-  // Skip link sits right after the logo, so keyboard order is
-  // logo -> skip link -> menu (the skip link is the second Tab stop).
-  decorateSkipLink(navBrand);
 
   const navSections = nav.querySelector('.nav-sections');
 

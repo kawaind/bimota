@@ -681,58 +681,61 @@ main img {
   height: auto;
 }
 
-/* Skip-to-content link: lives in the header nav directly after the logo, so the
-   keyboard order is logo -> skip link -> menu (it is the second Tab stop). It is
-   an in-flow flex item in the nav bar, so when focused it appears between the
-   logo and the first menu item, vertically centred in the bar.
-   Colours match the button spec: white text on --btn-dark-red when focused,
-   darkening to --btn-darker-red on hover (WCAG 2.4.1 Bypass Blocks).
-
-   Hidden state uses the clip technique (a 1px clipped, in-flow box) rather than
-   moving the element off-screen. Keeping it in normal flow after a focusable
-   logo guarantees a forward Tab reaches it; an element removed from flow or
-   pushed off-screen before the focus starting point is only reachable with
-   Shift+Tab in some browsers. */
-header nav a.skip-link {
-  align-self: center;
-  flex-shrink: 0;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: 0;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  clip-path: inset(50%);
-  color: var(--white);
-  background-color: var(--btn-dark-red);
-  font-family: var(--body-font-family);
-  font-size: 0.675rem;
-  font-weight: 700;
-  white-space: nowrap;
-  text-decoration: none;
-
-  /* Figma: white 1px border, fully-rounded pill (border-radius 100px). */
-  border: 1px solid var(--white);
-  border-radius: 100px;
+/* Skip-to-content link (WCAG 2.4.1 Bypass Blocks, KAW-11086): the first child
+   of <body>, so it is the first focusable element on the page. Hidden above the
+   viewport until focused; when focused it becomes a full-width bar at the top
+   of the page, in normal flow, so the whole page moves down below it (and the
+   fixed header moves down with it, see below). Styled after va.gov's skip link,
+   in the site font, with black text and the site focus ring. */
+.skip-link-wrapper {
+  position: absolute;
+  top: -20rem;
+  left: 0;
+  z-index: calc(var(--z-index-header) + 1);
+  box-sizing: border-box;
+  width: 100%;
+  padding: 1.0625rem;
+  background-color: var(--white);
 }
 
-header nav a.skip-link:focus,
-header nav a.skip-link:focus-visible {
-  width: auto;
-  height: auto;
-  margin: 0 16px;
-  padding: 7px 11px;
+.skip-link-wrapper:focus-within {
+  position: static;
+}
+
+a.skip-link:any-link {
+  display: block;
+  padding: 1.0625rem;
+  background-color: var(--white);
+  color: var(--black);
+  font-family: var(--body-font-family);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: normal;
   overflow: visible;
-  clip: auto;
-  clip-path: none;
-  color: var(--white);
+  text-overflow: clip;
+  text-decoration: underline;
+}
+
+a.skip-link:any-link:focus,
+a.skip-link:any-link:hover {
+  color: var(--black);
+}
+
+a.skip-link:any-link:focus-visible {
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: var(--focus-ring-offset);
 }
 
-header nav a.skip-link:hover {
-  color: var(--white);
-  background-color: var(--btn-darker-red);
+/* while the skip link is shown, the fixed header sits below it and moves
+   together with the page (no transition), also when it hides again */
+.skip-link-closing header {
+  transition: none;
+}
+
+body:has(> .skip-link-wrapper:focus-within) header {
+  top: var(--skip-link-offset, 0);
+  transition: none;
 }
 
 /* Visually hidden but available to screen readers (e.g. "opens in a new tab"). */
