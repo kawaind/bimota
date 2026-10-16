@@ -544,18 +544,18 @@ function buildRegionTabs(regionMap, langCode, container, userCountryIso) {
     tabNav.append(listItem);
     tabs.push(tabBtn);
 
-    // The tabpanel is NOT given tabindex=0: it always contains focusable
-    // content (the country accordion buttons), and the ARIA APG only recommends
-    // making a panel focusable when it has no focusable children. A focusable
-    // container also trips WCAG 2.2 target-size (it registers as a large but
-    // "obscured" clickable target). Keyboard users still reach the panel content
-    // via the accordion buttons right after the tablist.
+    // The countries container (tabpanel) is not a Tab stop: tabindex="-1" keeps
+    // it out of the tab sequence, so Tab goes from the tablist straight to the
+    // first country button, while it can still be focused from script
+    // (KAW-11116). The ARIA APG only makes a panel a Tab stop when it has no
+    // focusable content, and these always contain the country buttons.
     const panel = createElement('div', {
       classes: 'dealers-tab-panel',
       props: {
         role: 'tabpanel',
         id: panelId,
         'aria-labelledby': tabId,
+        tabindex: '-1',
       },
     });
     if (index === 0) panel.classList.add('active');
