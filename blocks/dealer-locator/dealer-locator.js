@@ -297,11 +297,39 @@ export default async function decorate(block) {
       });
   };
 
+  // The Woosmap SDK costs several seconds of main-thread work, so the map is
+  // loaded only once the visitor has interacted with the page (pointer, key,
+  // touch, wheel or scroll) AND the map is in or near view. The map box keeps
+  // its fixed height meanwhile, so loading it later shifts nothing.
+  const INTERACTIONS = ['pointerdown', 'pointermove', 'keydown', 'touchstart', 'wheel', 'scroll'];
+  const listenerOptions = { capture: true, passive: true };
+  let interacted = false;
+  let nearView = false;
+  let loaded = false;
+
+  const loadWhenReady = () => {
+    if (loaded || !interacted || !nearView) return;
+    loaded = true;
+    loadDealerLocator();
+  };
+
+  const onFirstInteraction = () => {
+    interacted = true;
+    INTERACTIONS.forEach((type) => {
+      window.removeEventListener(type, onFirstInteraction, listenerOptions);
+    });
+    loadWhenReady();
+  };
+  INTERACTIONS.forEach((type) => {
+    window.addEventListener(type, onFirstInteraction, listenerOptions);
+  });
+
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.intersectionRatio > 0) {
-        loadDealerLocator();
+        nearView = true;
         observer.disconnect();
+        loadWhenReady();
       }
     });
   }, { threshold: [0.1], rootMargin: '500px' });

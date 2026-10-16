@@ -26,18 +26,22 @@
   color: var(--grey-90);
 }
 
-/* Tabs */
+/* Tabs. The tablist scrolls sideways on small screens, and a scroll container
+   clips anything outside its padding box, so it gets 6px of padding (offset by
+   a negative margin, keeping the tabs aligned with the content) for the focus
+   ring to fit in (KAW-11108). The bottom padding is the 40px gap between the
+   selected tab's red line and the grey line, which sits on the tab content so
+   it spans exactly the content width (KAW-11109). */
 .woosmapdealers .dealers-tabs {
   display: flex;
   justify-content: flex-start;
   gap: 80px;
-  border-bottom: 1px solid var(--grey-20);
-  overflow-x: auto;
+  overflow: auto hidden;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
   list-style: none;
-  margin: 0;
-  padding: 0;
+  margin: -6px -6px 0;
+  padding: 22px 6px 40px;
 }
 
 .woosmapdealers .dealers-tabs::-webkit-scrollbar {
@@ -49,11 +53,12 @@
   padding: 0;
 }
 
+/* the selected tab's 1px red line sits directly under the text (KAW-11109) */
 .woosmapdealers .dealers-tab-btn {
   background: none;
   border: none;
-  border-bottom: 3px solid transparent;
-  padding: 16px 0;
+  border-bottom: 1px solid transparent;
+  padding: 0;
   font-family: var(--font-family-boxed, 'Boxed', sans-serif);
   font-size: 28px;
   font-weight: 500;
@@ -87,6 +92,7 @@
 /* Tab panels */
 .woosmapdealers .dealers-tab-content {
   width: 100%;
+  border-top: 1px solid var(--grey-20);
 }
 
 .woosmapdealers .dealers-tab-panel[hidden] {
@@ -137,13 +143,16 @@
   line-height: 130%;
   letter-spacing: 0;
   color: #1a1a1a;
-  padding: 24px 0;
+  padding: 16px 0; /* KAW-11111 */
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: space-between;
   text-align: left;
   user-select: none;
+
+  /* the global button rule clips overflow, which cut off the arrow */
+  overflow: visible;
 }
 
 /* Clear visible focus indicator for the accordion trigger (WCAG 2.4.7). */
@@ -152,20 +161,29 @@
   outline-offset: 2px;
 }
 
+/* Expand/collapse arrow: the site chevron icon, centred in the button and
+   fully inside it (KAW-11106); #E7131A when collapsed, #82221D when expanded
+   (KAW-11107). Not shown on S/XS viewports, per the design (KAW-11112). */
 .woosmapdealers .dealers-accordion-header::after {
   content: '';
-  width: 12px;
-  height: 12px;
-  border-right: 2px solid var(--action-focus);
-  border-bottom: 2px solid var(--action-focus);
-  transform: rotate(45deg);
-  transition: transform 0.3s ease;
   flex-shrink: 0;
+  width: 24px;
+  height: 24px;
   margin-left: 16px;
+  background-color: var(--red-on-white);
+  mask: url('/icons/chevron.svg') center / contain no-repeat;
+  transition: transform 0.3s ease;
 }
 
 .woosmapdealers .dealers-accordion-header[aria-expanded='true']::after {
-  transform: rotate(-135deg);
+  background-color: var(--btn-darker-red);
+  transform: rotate(180deg);
+}
+
+@media (width < 1025px) {
+  .woosmapdealers .dealers-accordion-header::after {
+    display: none;
+  }
 }
 
 .woosmapdealers .dealers-accordion-panel[hidden] {
@@ -212,7 +230,7 @@
   line-height: 130%;
   letter-spacing: 0;
   color: #1a1a1a;
-  margin-bottom: 4px;
+  margin-bottom: 24px; /* KAW-11113 */
 }
 
 /* Dealer website / email links: black by default, dark-red on hover,
