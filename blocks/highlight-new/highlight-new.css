@@ -1,0 +1,239 @@
+/* Highlight (new): full-bleed image with a vertical text carousel.
+   The block is always full width; before it scrolls into view the visible
+   area is clipped to the content column (--hn-inset) and it "expands" to the
+   full screen width by animating the clip, so nothing below it moves (no
+   layout shift). Text, controls and flag always sit inside the visible area. */
+.highlight-new {
+  --hn-inset: var(--section-x-padding);
+  --hn-radius: 4px;
+  --hn-gutter: max(16px, var(--section-x-padding));
+  --hn-control-size: 44px;
+  --hn-controls-bottom: 16px;
+  --hn-flag-width: 60px;
+  --hn-duration: 800ms;
+
+  position: relative;
+  display: grid;
+  aspect-ratio: 3 / 4;
+  color: var(--white);
+  background-color: var(--black);
+
+  /* `clip` rather than `hidden` keeps the same clipping but is not a scroll
+     container, so long copy or 200% text zoom grows the block instead of being
+     cut off (WCAG 1.4.4, 1.4.10, 1.4.12) */
+  overflow: hidden;
+  overflow: clip;
+  clip-path: inset(0 var(--hn-inset) round var(--hn-radius));
+  transition: clip-path var(--hn-duration) ease-in-out;
+}
+
+.highlight-new.is-expanded {
+  --hn-inset: 0px;
+  --hn-radius: 0px;
+}
+
+/* decorative background image + bottom-to-top darkening gradient */
+.highlight-new-media {
+  position: absolute;
+  inset: 0;
+}
+
+.highlight-new-media picture,
+.highlight-new-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.highlight-new-media img {
+  object-fit: cover;
+}
+
+.highlight-new-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgb(0 0 0 / 0%) 0%, rgb(0 0 0 / 60%) 100%);
+}
+
+/* Text area, at the bottom of the block. Its own scrim reaches 60% black where
+   the text starts, so white text keeps at least 5.7:1 contrast even over a
+   pure white image (WCAG 1.4.3, 1.4.11 for the controls drawn on it). The
+   bottom padding keeps the copy clear of the controls row. */
+.highlight-new-slides {
+  position: relative;
+  z-index: 1;
+  align-self: end;
+  padding: 64px var(--hn-gutter) calc(var(--hn-controls-bottom) + var(--hn-control-size) + 20px);
+  background: linear-gradient(180deg, rgb(0 0 0 / 0%) 0, rgb(0 0 0 / 60%) 64px);
+}
+
+/* Slides are stacked in one grid cell (the block fits the tallest one) and
+   clipped while they slide; the padding keeps focus rings inside the clip. */
+.highlight-new-viewport {
+  display: grid;
+  max-width: 560px;
+  padding: 8px;
+  margin: -8px;
+  overflow: hidden;
+}
+
+.highlight-new-slide {
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 16px;
+  visibility: hidden;
+}
+
+.highlight-new-slide.is-active,
+.highlight-new-slide.is-leaving {
+  visibility: visible;
+}
+
+/* fixed visual scale: H1 titles and H6 body copy, whatever was authored */
+.highlight-new .slide-title,
+.highlight-new .slide-body {
+  margin: 0;
+  color: inherit;
+}
+
+.highlight-new ul.slide-body,
+.highlight-new ol.slide-body {
+  padding-inline-start: 1.25em;
+}
+
+/* reset: other blocks' unscoped .button-container rules can leak in */
+.highlight-new .button-container {
+  margin: 0;
+  padding: 0;
+}
+
+/* Play/Pause, Previous, Next: left-aligned on mobile, right-aligned (clear of
+   the flag) on larger screens; 44x44px targets (WCAG 2.5.8) */
+.highlight-new-controls {
+  position: absolute;
+  z-index: 2;
+  bottom: var(--hn-controls-bottom);
+  left: var(--hn-gutter);
+  right: auto;
+  display: flex;
+  gap: 20px;
+}
+
+.highlight-new-control,
+.highlight-new-control:hover,
+.highlight-new-control:focus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--hn-control-size);
+  height: var(--hn-control-size);
+  min-width: var(--hn-control-size);
+  min-height: var(--hn-control-size);
+  padding: 0;
+  margin: 0;
+  border: 1px solid #fff;
+  border-radius: 50%;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+
+.highlight-new-control:hover {
+  background: rgb(255 255 255 / 15%);
+}
+
+.highlight-new-control svg {
+  width: 24px;
+  height: 24px;
+  fill: #fff;
+  stroke: none;
+}
+
+/* white ring on a black halo: visible on light and dark images (WCAG 2.4.7,
+   2.4.11, 1.4.11) */
+.highlight-new-control:focus-visible,
+.highlight-new a:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px #000;
+}
+
+.highlight-new .slide-body a:any-link {
+  color: inherit;
+}
+
+/* CTAs keep white text in every state: the image behind can be bright, so the
+   dark theme's red hover / coral focus text isn't guaranteed 4.5:1 here */
+main .highlight-new.dark a.button:not(.primary, .secondary):is(:hover, :focus) {
+  color: var(--white);
+  text-decoration-color: var(--white);
+}
+
+.highlight-new-flag {
+  position: absolute;
+  z-index: 2;
+  right: var(--hn-inset);
+  bottom: 0;
+  width: var(--hn-flag-width);
+  line-height: 0;
+  pointer-events: none;
+  transition: right var(--hn-duration) ease-in-out;
+}
+
+.highlight-new-flag svg {
+  width: 100%;
+  height: auto;
+}
+
+@media (width >= 768px) {
+  .highlight-new {
+    --hn-controls-bottom: 24px;
+
+    aspect-ratio: 16 / 9;
+  }
+
+  .highlight-new-slides {
+    padding-bottom: calc(var(--hn-controls-bottom) + var(--hn-control-size) + 24px);
+  }
+
+  .highlight-new-viewport {
+    max-width: min(560px, 50%);
+  }
+
+  .highlight-new-controls {
+    left: auto;
+    right: calc(var(--hn-gutter) + var(--hn-flag-width) + 20px);
+  }
+}
+
+@media (width >= 1025px) {
+  .highlight-new {
+    --hn-flag-width: 80px;
+  }
+
+  .highlight-new-slide {
+    gap: 20px;
+  }
+}
+
+@media (width >= 1440px) {
+  .highlight-new {
+    --hn-flag-width: 100px;
+  }
+
+  .highlight-new-slide {
+    gap: 24px;
+  }
+}
+
+/* no expansion or sliding animation (WCAG 2.3.3); slides swap instantly */
+@media (prefers-reduced-motion: reduce) {
+  .highlight-new,
+  .highlight-new-flag {
+    transition: none;
+  }
+}
