@@ -686,7 +686,7 @@ main img {
    viewport until focused; when focused it becomes a full-width bar at the top
    of the page, in normal flow, so the whole page moves down below it (and the
    fixed header moves down with it, see below). Styled after va.gov's skip link,
-   in the site font and with the site focus ring. */
+   in the site font, with black text and the site focus ring. */
 .skip-link-wrapper {
   position: absolute;
   top: -20rem;
@@ -706,7 +706,7 @@ a.skip-link:any-link {
   display: block;
   padding: 1.0625rem;
   background-color: var(--white);
-  color: #162e51;
+  color: var(--black);
   font-family: var(--body-font-family);
   font-size: 1.0625rem;
   font-weight: 600;
@@ -719,7 +719,7 @@ a.skip-link:any-link {
 
 a.skip-link:any-link:focus,
 a.skip-link:any-link:hover {
-  color: #162e51;
+  color: var(--black);
 }
 
 a.skip-link:any-link:focus-visible {
