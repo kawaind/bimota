@@ -50,8 +50,6 @@ const SKIP_LINK_LABELS = {
   bg: 'Премини към съдържанието',
 };
 
-const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), iframe, summary, [tabindex]:not([tabindex="-1"]), [contenteditable="true"]';
-
 // the language the page declares (<html lang>, set from the URL in scripts.js)
 const getPageLanguage = () => (document.documentElement.lang || 'en').toLowerCase().split('-')[0];
 
@@ -75,20 +73,14 @@ async function getSkipLinkLabel(lang) {
   }
 }
 
-// the first element a keyboard user can reach in the page content
-const getFirstFocusable = (root) => [...root.querySelectorAll(FOCUSABLE)].find((el) => (
-  el.tabIndex >= 0
-  && el.getClientRects().length
-  && !el.closest('[inert], [hidden], [aria-hidden="true"]')
-  && getComputedStyle(el).visibility !== 'hidden'));
-
 /**
  * "Skip to content" link (WCAG 2.4.1 Bypass Blocks, KAW-11086): inserted as the
  * first element of <body>, so it is the first focusable element on the page.
  * It is hidden until focused; then it shows as a full-width bar at the top that
  * pushes the whole page (including the fixed header) down. Activating it moves
- * focus past the header to the first focusable element in the page content, or
- * to <main> itself (tabindex="-1") when the content has none.
+ * focus to the content container itself, <main> (tabindex="-1": focusable from
+ * script, not a Tab stop), so screen readers continue from the start of the
+ * content and the next Tab reaches the first control inside it.
  */
 function decorateSkipLink() {
   const main = document.querySelector('main');
@@ -124,16 +116,13 @@ function decorateSkipLink() {
 
   skipLink.addEventListener('click', (e) => {
     e.preventDefault();
-    const target = getFirstFocusable(main) || main;
-    target.focus({ preventScroll: true });
-    // the link hides once it loses focus; then show the target below the header
+    main.focus({ preventScroll: true });
+    // the link hides once it loses focus; then show the start of the content
+    // just below the fixed header
     requestAnimationFrame(() => {
       const headerHeight = document.querySelector('header')?.offsetHeight || 0;
-      const { top, bottom } = target.getBoundingClientRect();
-      if (target === main) window.scrollTo(0, 0);
-      else if (top < headerHeight || bottom > window.innerHeight) {
-        window.scrollBy(0, top - headerHeight - 16);
-      }
+      const mainTop = main.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo(0, Math.max(0, mainTop - headerHeight));
     });
   });
 
