@@ -439,7 +439,10 @@ a.button.primary:any-link,
 button.primary,
 a.button.secondary:any-link,
 button.secondary {
-  padding: 0 20px;
+  /* The Boxed font's metrics sit its letters slightly above the centre of the
+     line box; 0.125em of top padding brings the label to the visual centre
+     (equal space above the capitals and below the baseline). */
+  padding: 0.125em 20px 0;
   border-radius: 24px;
   height: 48px;
 }
