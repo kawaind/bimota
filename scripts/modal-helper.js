@@ -130,7 +130,7 @@ export function addModalHandling() {
   });
 
   // Background regions hidden from AT while the modal is open, restored on close.
-  const backgroundRegions = ['header', 'main', 'footer'];
+  const backgroundRegions = ['.skip-link-wrapper', 'header', 'main', 'footer'];
   // The element that opened the modal, so focus can return to it on close.
   let lastTrigger = null;
 
