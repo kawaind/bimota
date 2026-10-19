@@ -151,7 +151,9 @@
 /* Carousel playback controls (Previous / Play-Pause / Next). Real buttons,
    always keyboard-reachable with a visible focus indicator (WCAG 2.4.7).
    Anchored to the image (not the block) 20px above its bottom edge and 30px
-   left of the flag, following it while the image scales (Figma). */
+   left of the flag, following it while the image scales (Figma). They are a
+   direct child of the block, outside the clipping slides wrapper, so they can
+   follow the full-bleed image beyond the block's width. */
 .highlight-controls {
   /* Dark-background action colours and focus ring (same values as .dark). */
   --action-hover: #bbb;

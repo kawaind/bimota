@@ -352,7 +352,11 @@ export default async function decorate(block) {
     // A single slide is not a carousel: drop the controls and roledescription.
     block.removeAttribute('aria-roledescription');
   } else {
-    slidesWrapper.append(controls);
+    // Directly in the block (not in the slides wrapper, which clips with
+    // overflow:hidden to the block's width) so the controls stay visible when
+    // the image is full-bleed and wider than the block. Placed right after the
+    // slides to keep the same Tab order.
+    slidesWrapper.after(controls);
   }
   block.append(liveRegion);
 
