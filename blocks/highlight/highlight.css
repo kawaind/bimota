@@ -5,6 +5,23 @@
   width: 100%;
 }
 
+/* Offsets of the image's bottom-right corner, shared by the flag and the
+   controls so both stay inside the image while it scales on scroll: while the
+   block is not active the picture is scaled down by --flag-margin (set from
+   JS), once active it is full size and full-bleed. */
+.highlight.block {
+  --flag-width: 60px;
+  --flag-right: calc(var(--flag-margin) + var(--section-x-padding) * -1 + 30px);
+  --flag-bottom: var(--flag-margin);
+}
+
+/* Active: the picture is full-bleed (100vw), so its right edge sits half the
+   viewport overflow beyond the block's. */
+.highlight.block.active {
+  --flag-right: calc((100% - 100vw) / 2 + 30px);
+  --flag-bottom: 0px;
+}
+
 /* Explicit black background on the picture (not the block) so it adopts the
    same size as the image and scales with it: as the picture transforms, the
    black fill tracks its box exactly rather than leaving full-block black bars
@@ -74,7 +91,10 @@
   min-height: 100%;
   display: flex;
   align-items: flex-end;
-  padding: 0 20px 56px;
+
+  /* Bottom room for the controls below the copy (Figma XS): controls offset
+     20px + 44px buttons + 40px gap, so the text never runs under them. */
+  padding: 0 20px 104px;
   opacity: 0;
 
   /* Inactive slides are hidden from AT and keyboard focus once faded out.
@@ -100,10 +120,15 @@
   margin: 0;
 }
 
-/* Slide body copy container (h6 visual scale applied via class on the wrapper
-   and inherited by its paragraphs). */
+/* Slide body copy: fixed H6 typography owned by the block, not a utility
+   class, so changing or adding a heading class does not alter the design. */
 .highlight .highlight-slide-body {
   margin: 0;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 140%;
+  letter-spacing: 0.15px;
 }
 
 .highlight .highlight-slide-body p {
@@ -124,21 +149,27 @@
 }
 
 /* Carousel playback controls (Previous / Play-Pause / Next). Real buttons,
-   always keyboard-reachable with a visible focus indicator (WCAG 2.4.7). */
+   always keyboard-reachable with a visible focus indicator (WCAG 2.4.7).
+   Anchored to the image (not the block) 20px above its bottom edge and 30px
+   left of the flag, following it while the image scales (Figma). */
 .highlight-controls {
+  /* Dark-background action colours and focus ring (same values as .dark). */
+  --action-hover: #bbb;
+  --action-focus: #999;
+  --focus-ring-color: #66a3ff;
+
   position: absolute;
   z-index: 2;
-  right: 20px;
-  bottom: 20px;
+  right: calc(var(--flag-right) + var(--flag-width) + 30px);
+  bottom: calc(var(--flag-bottom) + 20px);
   display: flex;
-  gap: 12px;
+  gap: 20px;
+  transition: right 300ms ease-in-out, bottom 300ms ease-in-out;
 }
 
-/* Solid white background with a red icon so the controls stay clearly visible
-   over any part of the photographic background — including the darkest areas of
-   a full-screen image where a translucent control would disappear. Colour
-   follows the site convention (red-on-white -> dark-red hover -> darker-red
-   focus), matching the vehicle-selector arrows. */
+/* White outline and icon on a transparent background (Figma). The controls sit
+   on the black bottom gradient, so white keeps well over 3:1 contrast
+   (WCAG 1.4.11). */
 .highlight-control {
   display: flex;
   align-items: center;
@@ -147,13 +178,12 @@
   height: 44px;
   padding: 0;
   margin: 0;
-  border: 1px solid var(--red-on-white);
+  border: 1px solid var(--white);
   border-radius: 50%;
-  background: var(--white);
-  color: var(--red-on-white);
+  background: transparent;
+  color: var(--white);
   cursor: pointer;
-  box-shadow: 0 0 12px 2px rgb(0 0 0 / 25%);
-  transition: color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  transition: color 0.2s, border-color 0.2s;
 }
 
 .highlight-control svg {
@@ -166,22 +196,27 @@
   border-color: var(--action-hover);
 }
 
+/* Keep the round shape (and a round focus ring) over the global
+   button:focus-visible radius. */
 .highlight-control:focus-visible {
+  border-radius: 50%;
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: 2px;
   color: var(--action-focus);
   border-color: var(--action-focus);
 }
 
+/* Flag: 30px from the image's right edge, overhanging its bottom edge with its
+   top 20px above it, level with the bottom of the controls (Figma XS-M). */
 .highlight.block .flag-wrapper {
   position: absolute;
   display: flex;
-  bottom: var(--flag-margin);
-  right: calc(var(--flag-margin) + var(--section-x-padding) * -1 + 30px);
-  translate: 0 0;
+  bottom: calc(var(--flag-bottom) + 20px);
+  right: var(--flag-right);
+  translate: 0 100%;
   padding: 0;
   transition: all 300ms ease-in-out;
-  width: 60px;
+  width: var(--flag-width);
 }
 
 .highlight.block .flag-wrapper svg {
@@ -189,9 +224,12 @@
   height: auto;
 }
 
-.highlight.block.active .flag-wrapper {
-  right: calc(var(--section-x-padding) * -1 + 30px);
-  bottom: 0;
+/* Mobile: controls left-aligned with the copy (Figma XS). */
+@media (width < 768px) {
+  .highlight-controls {
+    right: auto;
+    left: 20px;
+  }
 }
 
 @media (width >= 768px) {
@@ -199,8 +237,10 @@
     aspect-ratio: 16/9;
   }
 
+  /* Equal top/bottom room for the controls (20px offset + 44px buttons + 20px)
+     keeps the copy centred while long copy can no longer run under them. */
   .highlight .highlight-slide {
-    padding: 0 30px;
+    padding: 84px 30px;
     align-items: center;
     max-width: 507px;
   }
@@ -219,8 +259,12 @@
     gap: 20px;
   }
 
-  .highlight.block .flag-wrapper {
-    width: 80px;
+  .highlight.block {
+    --flag-width: 80px;
+  }
+
+  .highlight .highlight-slide-body {
+    font-size: 1.25rem;
   }
 }
 
@@ -233,8 +277,18 @@
     gap: 24px;
   }
 
+  .highlight.block {
+    --flag-width: 100px;
+    --flag-right: 30px;
+  }
+
+  .highlight.block.active {
+    --flag-right: calc((100% - 100vw) / 2 + 30px);
+  }
+
+  /* Figma L: the flag's bottom edge sits 20px below the image. */
   .highlight.block .flag-wrapper {
-    right: 30px;
-    width: 100px;
+    bottom: var(--flag-bottom);
+    translate: 0 20px;
   }
 }
