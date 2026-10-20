@@ -208,14 +208,14 @@
   border-color: var(--action-focus);
 }
 
-/* Flag: 30px from the image's right edge, overhanging its bottom edge with its
-   top 20px above it, level with the bottom of the controls (Figma XS-M). */
+/* Flag: 30px from the image's right edge and standing on its bottom edge, so
+   the bars sit completely inside the image, like the other flags on the site
+   (e.g. the hero). */
 .highlight.block .flag-wrapper {
   position: absolute;
   display: flex;
-  bottom: calc(var(--flag-bottom) + 20px);
+  bottom: var(--flag-bottom);
   right: var(--flag-right);
-  translate: 0 100%;
   padding: 0;
   transition: all 300ms ease-in-out;
   width: var(--flag-width);
@@ -286,11 +286,5 @@
 
   .highlight.block.active {
     --flag-right: calc((100% - 100vw) / 2 + 30px);
-  }
-
-  /* Figma L: the flag's bottom edge sits 20px below the image. */
-  .highlight.block .flag-wrapper {
-    bottom: var(--flag-bottom);
-    translate: 0 20px;
   }
 }
