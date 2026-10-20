@@ -13,6 +13,10 @@
   --flag-width: 60px;
   --flag-right: calc(var(--flag-margin) + var(--section-x-padding) * -1 + 30px);
   --flag-bottom: var(--flag-margin);
+
+  /* One timing for everything that moves when the block expands/compresses
+     (image scale, its corner radius, flag, controls) so they move together. */
+  --expand-transition: 700ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Active: the picture is full-bleed (100vw), so its right edge sits half the
@@ -34,7 +38,7 @@
   width: auto;
   margin: 0 calc((100vw - 100%) / -2);
   background-color: var(--black);
-  transition: all 300ms ease-in-out;
+  transition: transform var(--expand-transition);
 }
 
 .highlight.active picture {
@@ -64,6 +68,7 @@
   width: 100%;
   height: 100%;
   border-radius: 4px;
+  transition: border-radius var(--expand-transition);
 }
 
 .highlight.active picture img {
@@ -166,7 +171,7 @@
   bottom: calc(var(--flag-bottom) + 20px);
   display: flex;
   gap: 20px;
-  transition: right 300ms ease-in-out, bottom 300ms ease-in-out;
+  transition: right var(--expand-transition), bottom var(--expand-transition);
 }
 
 /* White outline and icon on a transparent background (Figma). The controls sit
@@ -217,8 +222,29 @@
   bottom: var(--flag-bottom);
   right: var(--flag-right);
   padding: 0;
-  transition: all 300ms ease-in-out;
+  transition: right var(--expand-transition), bottom var(--expand-transition);
   width: var(--flag-width);
+}
+
+/* 1px marker on the block's bottom edge, watched to expand/compress the block
+   (see decorate). */
+.highlight .highlight-bottom-sentinel {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+/* No expand/compress animation for users who ask for reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  .highlight picture,
+  .highlight picture img,
+  .highlight .highlight-controls,
+  .highlight.block .flag-wrapper {
+    transition: none;
+  }
 }
 
 .highlight.block .flag-wrapper svg {

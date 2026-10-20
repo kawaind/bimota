@@ -390,13 +390,28 @@ export default async function decorate(block) {
   // Only rotate while the carousel is on screen; keeps it idle off-screen.
   window.addEventListener('scroll', throttle(() => {
     if (isInViewport(block)) {
-      block.classList.add('active');
       startTimer();
     } else {
-      block.classList.remove('active');
       stopTimer();
     }
   }, 200));
+
+  // Expanded (full-size, full-bleed image) from the moment the block's bottom
+  // edge comes into view while scrolling down, and it stays expanded while the
+  // page keeps scrolling down past it. It compresses again only when scrolling
+  // back up moves the bottom edge below the viewport. A 1px sentinel on the
+  // bottom edge is watched with an IntersectionObserver, so the state follows
+  // the scroll immediately (no throttled scroll handler, no flicker).
+  const bottomSentinel = createElement('div', {
+    classes: 'highlight-bottom-sentinel',
+    props: { 'aria-hidden': 'true' },
+  });
+  block.append(bottomSentinel);
+  new IntersectionObserver(([entry]) => {
+    const rootTop = entry.rootBounds ? entry.rootBounds.top : 0;
+    const expanded = entry.isIntersecting || entry.boundingClientRect.bottom <= rootTop;
+    block.classList.toggle('active', expanded);
+  }).observe(bottomSentinel);
 
   render(false);
   updateLive();
@@ -410,8 +425,5 @@ export default async function decorate(block) {
   const fitObserver = new ResizeObserver(() => fitBlockHeight(block));
   slides.forEach((slide) => fitObserver.observe(slide.querySelector(':scope > div') || slide));
 
-  if (isInViewport(block)) {
-    block.classList.add('active');
-    startTimer();
-  }
+  if (isInViewport(block)) startTimer();
 }
