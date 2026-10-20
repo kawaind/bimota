@@ -132,8 +132,16 @@ body.appear {
   display: block;
 }
 
+/* Fixed from the first paint (same as blocks/header/header.css), so the page
+   layout doesn't change when the header block's styles load later: an in-flow
+   70px header first pushed <main> down, then main jumped up once the header
+   became fixed (a layout shift on every page). */
 header {
+  position: fixed;
+  top: 0;
+  width: 100vw;
   height: var(--nav-height);
+  z-index: var(--z-index-header);
 }
 
 h1,
