@@ -54,35 +54,36 @@ const DEFAULT_IMAGE = 'https://content.da.live/kawaind/bimota/.index/media_1a3a4
 const DEFAULT_REGION_ORDER = ['Europe', 'Asia', 'Oceania', 'North America'];
 
 /**
- * Extracts the page slug from the current URL path (everything after /{country}/{lang}/).
- * Returns empty string if on the index page.
+ * Extracts the page path from the current URL (everything after /{country}/{lang}/),
+ * e.g. "kb998", "bimota-app/" or "bimota-app/voice". A trailing slash is kept:
+ * a folder's index page is only served at "/folder/" ("/folder" is a 404), so
+ * dropping it would make every section index (e.g. the App page) look missing
+ * in the target locale. An explicit trailing "index" is normalised to the
+ * folder URL. Returns empty string on the locale home page.
  */
-function getCurrentPageSlug() {
+function getCurrentPagePath() {
   const match = window.location.pathname.match(LOCALE_PREFIX_REGEX);
   if (!match) return '';
-  const rest = match[3] || '';
-  const slug = rest.replace(/^\//, '').replace(/\/$/, '');
-  return slug;
+  return (match[3] || '').replace(/^\/+/, '').replace(/(^|\/)index$/, '$1');
 }
 
 /**
  * Builds the target URL preserving the current page under the new locale prefix.
- * Falls back to the locale index if the page doesn't exist.
+ * Falls back to the locale home page if the page doesn't exist there.
  */
 async function resolveCountryUrl(targetBase) {
-  const slug = getCurrentPageSlug();
-  if (!slug || slug === 'index') {
-    return targetBase.replace(/\/?$/, '/');
-  }
+  const homeUrl = targetBase.replace(/\/?$/, '/');
+  const pagePath = getCurrentPagePath();
+  if (!pagePath) return homeUrl;
 
-  const targetPage = `${targetBase.replace(/\/?$/, '')}/${slug}`;
+  const targetPage = `${homeUrl}${pagePath}`;
 
   try {
     const resp = await fetch(targetPage, { method: 'HEAD' });
     if (resp.ok) return targetPage;
-  } catch { /* fall through to index */ }
+  } catch { /* fall through to the home page */ }
 
-  return targetBase.replace(/\/?$/, '/');
+  return homeUrl;
 }
 
 function getIconConfig(iconName) {
