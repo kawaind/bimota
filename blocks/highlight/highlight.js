@@ -26,28 +26,32 @@ const setScaleForPicture = (block, picture, onSetScale) => {
     const maxHeight = maxWidth / aspectRatio;
 
     const initialWidth = block.clientWidth;
+    if (!initialWidth || !maxWidth) return false;
     block.style.height = maxHeight;
 
     const initScale = initialWidth / maxWidth;
 
     picture.style.transform = `scale(${initScale})`;
     onSetScale(initScale);
+    return true;
   };
 
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.intersectionRatio > 0) {
-        setScale(block, picture);
-        observer.disconnect();
-      }
-    });
-  }, { threshold: [0.1], rootMargin: '100px' });
-
-  observer.observe(block);
-
-  window.addEventListener('resize', throttle(() => {
-    setScale(block, picture);
-  }, 250));
+  // Apply the compressed scale as soon as the block has a size (the section is
+  // hidden while decorating), so the image is already small when it is first
+  // painted, and re-apply it whenever the block's width changes. The first
+  // application skips the transition so the image never visibly shrinks into
+  // place on page load.
+  let scaled = false;
+  new ResizeObserver(() => {
+    if (scaled) {
+      setScale();
+      return;
+    }
+    picture.style.transition = 'none';
+    scaled = setScale();
+    picture.getBoundingClientRect();
+    picture.style.transition = '';
+  }).observe(block);
 };
 
 /**
@@ -401,16 +405,27 @@ export default async function decorate(block) {
   // page keeps scrolling down past it. It compresses again only when scrolling
   // back up moves the bottom edge below the viewport. A 1px sentinel on the
   // bottom edge is watched with an IntersectionObserver, so the state follows
-  // the scroll immediately (no throttled scroll handler, no flicker).
+  // the scroll immediately (no throttled scroll handler, no flicker). On page
+  // load the block always starts compressed: it only expands once the user has
+  // scrolled, even if the page opens with the block already in view.
   const bottomSentinel = createElement('div', {
     classes: 'highlight-bottom-sentinel',
     props: { 'aria-hidden': 'true' },
   });
   block.append(bottomSentinel);
+  let bottomReached = false;
+  let userScrolled = false;
+  const updateExpanded = () => {
+    block.classList.toggle('active', userScrolled && bottomReached);
+  };
+  window.addEventListener('scroll', () => {
+    userScrolled = true;
+    updateExpanded();
+  }, { once: true, passive: true });
   new IntersectionObserver(([entry]) => {
     const rootTop = entry.rootBounds ? entry.rootBounds.top : 0;
-    const expanded = entry.isIntersecting || entry.boundingClientRect.bottom <= rootTop;
-    block.classList.toggle('active', expanded);
+    bottomReached = entry.isIntersecting || entry.boundingClientRect.bottom <= rootTop;
+    updateExpanded();
   }).observe(bottomSentinel);
 
   render(false);
