@@ -181,7 +181,10 @@ export default async function decorate(block) {
   const slideWrapper = document.createElement('div');
   slideWrapper.classList.add('feature-slides');
 
-  // The block itself is the carousel container (ARIA APG Carousel pattern).
+  // The block itself is the carousel container (ARIA APG Carousel pattern): a
+  // labelled region with a "carousel" role description, announced as
+  // "Feature slides, carousel" on entry. aria-roledescription needs a role.
+  block.setAttribute('role', 'region');
   block.setAttribute('aria-roledescription', LABEL_FALLBACKS.carouselRoleDescription);
   block.setAttribute('aria-label', LABEL_FALLBACKS.carouselLabel);
 
@@ -191,11 +194,13 @@ export default async function decorate(block) {
     }
 
     el.classList.add('feature-slide');
-    // Each slide is a tabpanel controlled by its dot tab. It carries a "slide"
-    // role description and an "X of Y" position label (ARIA APG Carousel).
+    // Each slide is a tabpanel controlled by its dot tab (aria-controls). It
+    // carries a "slide" role description and an "X of Y" position label, so it
+    // is announced as "1 of 8, slide" (ARIA APG Carousel). It deliberately has
+    // no aria-labelledby: that would override the position label with the
+    // tab's name ("Slide 1").
     el.setAttribute('role', 'tabpanel');
     el.id = `${instanceId}-panel-${index}`;
-    el.setAttribute('aria-labelledby', `${instanceId}-tab-${index}`);
     el.setAttribute('aria-roledescription', LABEL_FALLBACKS.slideRoleDescription);
     el.setAttribute('aria-label', fillTemplate(LABEL_FALLBACKS.slidePosition, {
       x: index + 1,
