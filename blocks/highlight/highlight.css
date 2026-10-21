@@ -95,11 +95,13 @@
 .highlight .highlight-slide {
   min-height: 100%;
   display: flex;
-  align-items: flex-end;
 
-  /* Bottom room for the controls below the copy (Figma XS): controls offset
-     20px + 44px buttons + 40px gap, so the text never runs under them. */
-  padding: 0 20px 104px;
+  /* Copy vertically centred at every viewport. Equal top/bottom room for the
+     controls (20px offset + 44px buttons + 20px gap) keeps it centred while
+     long copy can never run under them; the block grows to fit taller copy
+     (see fitBlockHeight). */
+  align-items: center;
+  padding: 84px 20px;
   opacity: 0;
 
   /* Inactive slides are hidden from AT and keyboard focus once faded out.
@@ -265,24 +267,13 @@
     aspect-ratio: 16/9;
   }
 
-  /* Equal top/bottom room for the controls (20px offset + 44px buttons + 20px)
-     keeps the copy centred while long copy can no longer run under them. */
   .highlight .highlight-slide {
     padding: 84px 30px;
-    align-items: center;
     max-width: 507px;
   }
 }
 
 @media (width >= 1025px) {
-  /* Top-align the content and keep the top offset small so the title + body
-     start near the top of the block — long copy then has room to run down
-     without being clipped at the bottom edge. */
-  .highlight .highlight-slide {
-    padding: 64px 30px 0;
-    align-items: flex-start;
-  }
-
   .highlight .highlight-slide div {
     gap: 20px;
   }
@@ -297,10 +288,6 @@
 }
 
 @media (width >= 1440px) {
-  .highlight .highlight-slide {
-    padding: 88px 30px 0;
-  }
-
   .highlight .highlight-slide div {
     gap: 24px;
   }
