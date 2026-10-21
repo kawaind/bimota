@@ -291,6 +291,19 @@ export function decorateMain(main) {
   swappingPlacesBlock(main);
 }
 
+/**
+ * Wait for the first image of the first section before showing it (as
+ * aem.js waitForFirstImage does), unless that image is hidden at the current
+ * viewport, e.g. the desktop picture of a hero with separate mobile/desktop
+ * images. The first paint then never waits for an image that isn't shown.
+ * @param {Element} section The first section
+ */
+function waitForFirstVisibleImage(section) {
+  const first = section.querySelector('img');
+  const hidden = first && window.getComputedStyle(first.closest('picture') || first).display === 'none';
+  return hidden ? Promise.resolve() : waitForFirstImage(section);
+}
+
 function setMainPosition(main) {
   if (main.querySelector(':scope > .section:first-child > .hero-wrapper:first-child')) {
     main.classList.add('no-top-margin');
@@ -351,7 +364,7 @@ async function loadEager(doc) {
     decorateMain(main);
     setMainPosition(main);
     document.body.classList.add('appear');
-    await loadSection(main.querySelector('.section'), waitForFirstImage);
+    await loadSection(main.querySelector('.section'), waitForFirstVisibleImage);
   }
 
   sampleRUM.enhance();

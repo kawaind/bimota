@@ -5,6 +5,27 @@
   width: 100%;
 }
 
+/* Offsets of the image's bottom-right corner, shared by the flag and the
+   controls so both stay inside the image while it scales on scroll: while the
+   block is not active the picture is scaled down by --flag-margin (set from
+   JS), once active it is full size and full-bleed. */
+.highlight.block {
+  --flag-width: 60px;
+  --flag-right: calc(var(--flag-margin) + var(--section-x-padding) * -1 + 30px);
+  --flag-bottom: var(--flag-margin);
+
+  /* One timing for everything that moves when the block expands/compresses
+     (image scale, its corner radius, flag, controls) so they move together. */
+  --expand-transition: 700ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Active: the picture is full-bleed (100vw), so its right edge sits half the
+   viewport overflow beyond the block's. */
+.highlight.block.active {
+  --flag-right: calc((100% - 100vw) / 2 + 30px);
+  --flag-bottom: 0px;
+}
+
 /* Explicit black background on the picture (not the block) so it adopts the
    same size as the image and scales with it: as the picture transforms, the
    black fill tracks its box exactly rather than leaving full-block black bars
@@ -17,7 +38,7 @@
   width: auto;
   margin: 0 calc((100vw - 100%) / -2);
   background-color: var(--black);
-  transition: all 300ms ease-in-out;
+  transition: transform var(--expand-transition);
 }
 
 .highlight.active picture {
@@ -47,6 +68,7 @@
   width: 100%;
   height: 100%;
   border-radius: 4px;
+  transition: border-radius var(--expand-transition);
 }
 
 .highlight.active picture img {
@@ -73,8 +95,13 @@
 .highlight .highlight-slide {
   min-height: 100%;
   display: flex;
-  align-items: flex-end;
-  padding: 0 20px 56px;
+
+  /* Copy vertically centred at every viewport. Equal top/bottom room for the
+     controls (20px offset + 44px buttons + 20px gap) keeps it centred while
+     long copy can never run under them; the block grows to fit taller copy
+     (see fitBlockHeight). */
+  align-items: center;
+  padding: 84px 20px;
   opacity: 0;
 
   /* Inactive slides are hidden from AT and keyboard focus once faded out.
@@ -100,10 +127,15 @@
   margin: 0;
 }
 
-/* Slide body copy container (h6 visual scale applied via class on the wrapper
-   and inherited by its paragraphs). */
+/* Slide body copy: fixed H6 typography owned by the block, not a utility
+   class, so changing or adding a heading class does not alter the design. */
 .highlight .highlight-slide-body {
   margin: 0;
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 140%;
+  letter-spacing: 0.15px;
 }
 
 .highlight .highlight-slide-body p {
@@ -124,21 +156,29 @@
 }
 
 /* Carousel playback controls (Previous / Play-Pause / Next). Real buttons,
-   always keyboard-reachable with a visible focus indicator (WCAG 2.4.7). */
+   always keyboard-reachable with a visible focus indicator (WCAG 2.4.7).
+   Anchored to the image (not the block) 20px above its bottom edge and 30px
+   left of the flag, following it while the image scales (Figma). They are a
+   direct child of the block, outside the clipping slides wrapper, so they can
+   follow the full-bleed image beyond the block's width. */
 .highlight-controls {
+  /* Dark-background action colours and focus ring (same values as .dark). */
+  --action-hover: #bbb;
+  --action-focus: #999;
+  --focus-ring-color: #66a3ff;
+
   position: absolute;
   z-index: 2;
-  right: 20px;
-  bottom: 20px;
+  right: calc(var(--flag-right) + var(--flag-width) + 30px);
+  bottom: calc(var(--flag-bottom) + 20px);
   display: flex;
-  gap: 12px;
+  gap: 20px;
+  transition: right var(--expand-transition), bottom var(--expand-transition);
 }
 
-/* Solid white background with a red icon so the controls stay clearly visible
-   over any part of the photographic background — including the darkest areas of
-   a full-screen image where a translucent control would disappear. Colour
-   follows the site convention (red-on-white -> dark-red hover -> darker-red
-   focus), matching the vehicle-selector arrows. */
+/* White outline and icon on a transparent background (Figma). The controls sit
+   on the black bottom gradient, so white keeps well over 3:1 contrast
+   (WCAG 1.4.11). */
 .highlight-control {
   display: flex;
   align-items: center;
@@ -147,13 +187,12 @@
   height: 44px;
   padding: 0;
   margin: 0;
-  border: 1px solid var(--red-on-white);
+  border: 1px solid var(--white);
   border-radius: 50%;
-  background: var(--white);
-  color: var(--red-on-white);
+  background: transparent;
+  color: var(--white);
   cursor: pointer;
-  box-shadow: 0 0 12px 2px rgb(0 0 0 / 25%);
-  transition: color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  transition: color 0.2s, border-color 0.2s;
 }
 
 .highlight-control svg {
@@ -166,22 +205,48 @@
   border-color: var(--action-hover);
 }
 
+/* Keep the round shape (and a round focus ring) over the global
+   button:focus-visible radius. */
 .highlight-control:focus-visible {
+  border-radius: 50%;
   outline: var(--focus-ring-width) solid var(--focus-ring-color);
   outline-offset: 2px;
   color: var(--action-focus);
   border-color: var(--action-focus);
 }
 
+/* Flag: 30px from the image's right edge and standing on its bottom edge, so
+   the bars sit completely inside the image, like the other flags on the site
+   (e.g. the hero). */
 .highlight.block .flag-wrapper {
   position: absolute;
   display: flex;
-  bottom: var(--flag-margin);
-  right: calc(var(--flag-margin) + var(--section-x-padding) * -1 + 30px);
-  translate: 0 0;
+  bottom: var(--flag-bottom);
+  right: var(--flag-right);
   padding: 0;
-  transition: all 300ms ease-in-out;
-  width: 60px;
+  transition: right var(--expand-transition), bottom var(--expand-transition);
+  width: var(--flag-width);
+}
+
+/* 1px marker on the block's bottom edge, watched to expand/compress the block
+   (see decorate). */
+.highlight .highlight-bottom-sentinel {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+/* No expand/compress animation for users who ask for reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  .highlight picture,
+  .highlight picture img,
+  .highlight .highlight-controls,
+  .highlight.block .flag-wrapper {
+    transition: none;
+  }
 }
 
 .highlight.block .flag-wrapper svg {
@@ -189,9 +254,12 @@
   height: auto;
 }
 
-.highlight.block.active .flag-wrapper {
-  right: calc(var(--section-x-padding) * -1 + 30px);
-  bottom: 0;
+/* Mobile: controls left-aligned with the copy (Figma XS). */
+@media (width < 768px) {
+  .highlight-controls {
+    right: auto;
+    left: 20px;
+  }
 }
 
 @media (width >= 768px) {
@@ -200,41 +268,36 @@
   }
 
   .highlight .highlight-slide {
-    padding: 0 30px;
-    align-items: center;
+    padding: 84px 30px;
     max-width: 507px;
   }
 }
 
 @media (width >= 1025px) {
-  /* Top-align the content and keep the top offset small so the title + body
-     start near the top of the block — long copy then has room to run down
-     without being clipped at the bottom edge. */
-  .highlight .highlight-slide {
-    padding: 64px 30px 0;
-    align-items: flex-start;
-  }
-
   .highlight .highlight-slide div {
     gap: 20px;
   }
 
-  .highlight.block .flag-wrapper {
-    width: 80px;
+  .highlight.block {
+    --flag-width: 80px;
+  }
+
+  .highlight .highlight-slide-body {
+    font-size: 1.25rem;
   }
 }
 
 @media (width >= 1440px) {
-  .highlight .highlight-slide {
-    padding: 88px 30px 0;
-  }
-
   .highlight .highlight-slide div {
     gap: 24px;
   }
 
-  .highlight.block .flag-wrapper {
-    right: 30px;
-    width: 100px;
+  .highlight.block {
+    --flag-width: 100px;
+    --flag-right: 30px;
+  }
+
+  .highlight.block.active {
+    --flag-right: calc((100% - 100vw) / 2 + 30px);
   }
 }

@@ -26,28 +26,32 @@ const setScaleForPicture = (block, picture, onSetScale) => {
     const maxHeight = maxWidth / aspectRatio;
 
     const initialWidth = block.clientWidth;
+    if (!initialWidth || !maxWidth) return false;
     block.style.height = maxHeight;
 
     const initScale = initialWidth / maxWidth;
 
     picture.style.transform = `scale(${initScale})`;
     onSetScale(initScale);
+    return true;
   };
 
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.intersectionRatio > 0) {
-        setScale(block, picture);
-        observer.disconnect();
-      }
-    });
-  }, { threshold: [0.1], rootMargin: '100px' });
-
-  observer.observe(block);
-
-  window.addEventListener('resize', throttle(() => {
-    setScale(block, picture);
-  }, 250));
+  // Apply the compressed scale as soon as the block has a size (the section is
+  // hidden while decorating), so the image is already small when it is first
+  // painted, and re-apply it whenever the block's width changes. The first
+  // application skips the transition so the image never visibly shrinks into
+  // place on page load.
+  let scaled = false;
+  new ResizeObserver(() => {
+    if (scaled) {
+      setScale();
+      return;
+    }
+    picture.style.transition = 'none';
+    scaled = setScale();
+    picture.getBoundingClientRect();
+    picture.style.transition = '';
+  }).observe(block);
 };
 
 /**
@@ -97,10 +101,11 @@ const addFlag = (block) => {
 
 /**
  * Normalise an authored slide's content into a fixed, accessible structure:
- * a semantic <h3> title (visually sized as H1) followed by the body copy as
- * <p class="h6">. Authors write the title as the first bold/underlined run
+ * a semantic <h3> title (visually sized as H1) followed by the body copy in
+ * <div class="highlight-slide-body">, styled at the H6 scale by the block CSS.
+ * Authors write the title as the first bold/underlined run
  * (…<strong><u>Title</u></strong>…) or as any heading; the split point is the
- * first <br>. The semantic level and visual class are enforced here so authors
+ * first <br>. The semantic level and visual style are enforced here so authors
  * cannot change them (requirement 2).
  * @param {HTMLElement} slide the authored slide wrapper
  */
@@ -111,13 +116,19 @@ const normaliseSlideContent = (slide) => {
   const authoredHeading = contentEl.querySelector('h1, h2, h3, h4, h5, h6');
 
   const title = createElement('h3', { classes: 'h1' });
-  const body = createElement('div', { classes: ['highlight-slide-body', 'h6'] });
+  const body = createElement('div', { classes: 'highlight-slide-body' });
 
   if (authoredHeading) {
     title.innerHTML = authoredHeading.innerHTML;
     authoredHeading.remove();
-    // Everything else becomes the body copy.
+    // Everything else becomes the body copy. Any further authored heading is
+    // turned into a paragraph so the body keeps its fixed H6 style.
     body.append(...contentEl.childNodes);
+    body.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach((heading) => {
+      const p = createElement('p');
+      p.append(...heading.childNodes);
+      heading.replaceWith(p);
+    });
   } else {
     // Authored as "<strong><u>Title</u></strong><br><br>body" inside a <p>.
     const paragraph = contentEl.querySelector('p') || contentEl;
@@ -166,9 +177,12 @@ const buildControls = (labels) => {
   });
   prevBtn.innerHTML = prevIcon;
 
+  // The rotation button changes its label (Pause / Start) to convey state, so it
+  // must not also use aria-pressed: VoiceOver then announces "selected" instead
+  // of the label (APG carousel: use one or the other, never both).
   const playBtn = createElement('button', {
     classes: ['highlight-control', 'highlight-control--play'],
-    props: { type: 'button', 'aria-label': labels.pauseRotation, 'aria-pressed': 'false' },
+    props: { type: 'button', 'aria-label': labels.pauseRotation },
   });
   playBtn.innerHTML = pauseIcon;
 
@@ -251,8 +265,19 @@ export default async function decorate(block) {
   // off even after hover/focus leaves; hover/focus only pause transiently.
   let userPaused = false;
 
-  const render = (announce) => {
-    slidesContainer.style.transform = `translateY(-${activeIndex * 100}%)`;
+  // Pending clean-up of a wrap-around move (see goTo).
+  let finishWrapCleanup = null;
+  const finishWrap = () => {
+    if (!finishWrapCleanup) return;
+    const cleanup = finishWrapCleanup;
+    finishWrapCleanup = null;
+    cleanup();
+  };
+
+  // `offset` is the slide position the container scrolls to; it only differs
+  // from activeIndex while a wrap-around move is animating.
+  const render = (announce, offset = activeIndex) => {
+    slidesContainer.style.transform = `translateY(${-offset * 100}%)`;
     slides.forEach((slide, i) => {
       const isActive = i === activeIndex;
       slide.classList.toggle('active', isActive);
@@ -269,18 +294,59 @@ export default async function decorate(block) {
   };
 
   const goTo = (index, announce = false) => {
+    finishWrap();
     activeIndex = (index + totalSlides) % totalSlides;
-    render(announce);
+    if (index === activeIndex) {
+      render(announce);
+      return;
+    }
+
+    // Wrap-around: keep the loop moving in the same direction (last -> first
+    // keeps scrolling bottom to top, first -> last top to bottom) instead of
+    // rewinding across every slide. The destination slide is moved next to the
+    // current one, the container scrolls to it, then both jump back to their
+    // real positions with no transition (visually identical).
+    const forward = index >= totalSlides;
+    const slide = slides[activeIndex];
+    slide.style.transform = `translateY(${(forward ? totalSlides : -totalSlides) * 100}%)`;
+    render(announce, forward ? totalSlides : -1);
+
+    const onTransitionEnd = (event) => {
+      if (event.target === slidesContainer && event.propertyName === 'transform') finishWrap();
+    };
+    // Fallback in case transitionend never fires (e.g. the block is hidden).
+    const fallback = setTimeout(finishWrap, 2000);
+    finishWrapCleanup = () => {
+      clearTimeout(fallback);
+      slidesContainer.removeEventListener('transitionend', onTransitionEnd);
+      slidesContainer.style.transition = 'none';
+      slide.style.transform = '';
+      slidesContainer.style.transform = `translateY(${-activeIndex * 100}%)`;
+      // Flush the jump before restoring the transition so it is not animated.
+      slidesContainer.getBoundingClientRect();
+      slidesContainer.style.transition = '';
+    };
+    slidesContainer.addEventListener('transitionend', onTransitionEnd);
+  };
+
+  // APG carousel: the slides are a polite live region whenever they are not
+  // auto-rotating (paused by the user, or while hovered/focused), so a slide
+  // changed with Previous/Next is announced; "off" during auto-rotation so
+  // screen readers are not interrupted every few seconds.
+  const updateLive = () => {
+    slidesContainer.setAttribute('aria-live', timer ? 'off' : 'polite');
   };
 
   const stopTimer = () => {
     clearInterval(timer);
     timer = null;
+    updateLive();
   };
 
   const startTimer = () => {
     if (timer || userPaused || totalSlides <= 1 || !isInViewport(block)) return;
     timer = setInterval(() => goTo(activeIndex + 1), rotationMs);
+    updateLive();
   };
 
   const {
@@ -290,7 +356,11 @@ export default async function decorate(block) {
     // A single slide is not a carousel: drop the controls and roledescription.
     block.removeAttribute('aria-roledescription');
   } else {
-    slidesWrapper.append(controls);
+    // Directly in the block (not in the slides wrapper, which clips with
+    // overflow:hidden to the block's width) so the controls stay visible when
+    // the image is full-bleed and wider than the block. Placed right after the
+    // slides to keep the same Tab order.
+    slidesWrapper.after(controls);
   }
   block.append(liveRegion);
 
@@ -299,7 +369,6 @@ export default async function decorate(block) {
 
   const setPlayState = (playing) => {
     userPaused = !playing;
-    playBtn.setAttribute('aria-pressed', playing ? 'false' : 'true');
     playBtn.setAttribute('aria-label', playing ? labels.pauseRotation : labels.startRotation);
     playBtn.innerHTML = playing ? pauseIcon : playIcon;
     if (playing) {
@@ -325,25 +394,51 @@ export default async function decorate(block) {
   // Only rotate while the carousel is on screen; keeps it idle off-screen.
   window.addEventListener('scroll', throttle(() => {
     if (isInViewport(block)) {
-      block.classList.add('active');
       startTimer();
     } else {
-      block.classList.remove('active');
       stopTimer();
     }
   }, 200));
 
+  // Expanded (full-size, full-bleed image) from the moment the block's bottom
+  // edge comes into view while scrolling down, and it stays expanded while the
+  // page keeps scrolling down past it. It compresses again only when scrolling
+  // back up moves the bottom edge below the viewport. A 1px sentinel on the
+  // bottom edge is watched with an IntersectionObserver, so the state follows
+  // the scroll immediately (no throttled scroll handler, no flicker). On page
+  // load the block always starts compressed: it only expands once the user has
+  // scrolled, even if the page opens with the block already in view.
+  const bottomSentinel = createElement('div', {
+    classes: 'highlight-bottom-sentinel',
+    props: { 'aria-hidden': 'true' },
+  });
+  block.append(bottomSentinel);
+  let bottomReached = false;
+  let userScrolled = false;
+  const updateExpanded = () => {
+    block.classList.toggle('active', userScrolled && bottomReached);
+  };
+  window.addEventListener('scroll', () => {
+    userScrolled = true;
+    updateExpanded();
+  }, { once: true, passive: true });
+  new IntersectionObserver(([entry]) => {
+    const rootTop = entry.rootBounds ? entry.rootBounds.top : 0;
+    bottomReached = entry.isIntersecting || entry.boundingClientRect.bottom <= rootTop;
+    updateExpanded();
+  }).observe(bottomSentinel);
+
   render(false);
+  updateLive();
 
-  // Size the block to the tallest slide so no copy is clipped, then keep it in
-  // sync on resize (text reflows at different widths). Runs after render and
-  // once fonts settle.
+  // Size the block to the tallest slide so no copy is clipped or runs under the
+  // controls. A ResizeObserver on the slide copy re-fits whenever the copy gets
+  // its real size: when the section is first shown (it is hidden while
+  // decorating, so an immediate measurement reads 0), once fonts settle, and
+  // when text reflows on resize.
   fitBlockHeight(block);
-  if (document.fonts?.ready) document.fonts.ready.then(() => fitBlockHeight(block));
-  window.addEventListener('resize', throttle(() => fitBlockHeight(block), 250));
+  const fitObserver = new ResizeObserver(() => fitBlockHeight(block));
+  slides.forEach((slide) => fitObserver.observe(slide.querySelector(':scope > div') || slide));
 
-  if (isInViewport(block)) {
-    block.classList.add('active');
-    startTimer();
-  }
+  if (isInViewport(block)) startTimer();
 }
