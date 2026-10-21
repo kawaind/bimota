@@ -25,7 +25,10 @@ import { isReservedHash, forceHeadingLevel } from './helpers.js';
  * first heading in `main` to <h1> AND shift every other heading up by the same
  * amount, so the document outline keeps its relative structure and no
  * heading-order jump is introduced. Visual sizes are preserved via a matching
- * class, so there is no visual change. No-op when an <h1> already exists.
+ * class, so there is no visual change: a heading that already carries a visual
+ * heading class (h1-h6, set by a block or the author, e.g. the Highlight title
+ * <h3 class="h1">) keeps it, and only plain headings get their old tag as the
+ * visual class. No-op when an <h1> already exists.
  * @param {Element} main the page's main element
  */
 function ensurePageHeadingOne(main) {
@@ -42,7 +45,10 @@ function ensurePageHeadingOne(main) {
 
   headings.forEach((h) => {
     const newLevel = Math.max(1, Number(h.tagName[1]) - delta);
-    const visualClass = h.tagName.toLowerCase(); // keep current visual size
+    // Keep the current visual size: an existing h1-h6 class already sets it
+    // (adding the old tag too would override it); otherwise use the old tag.
+    const hasVisualClass = [...h.classList].some((c) => /^h[1-6]$/.test(c));
+    const visualClass = hasVisualClass ? undefined : h.tagName.toLowerCase();
     forceHeadingLevel(h, `h${newLevel}`, visualClass);
   });
 }
@@ -349,7 +355,10 @@ function applyBrandSuffix() {
  */
 async function loadEager(doc) {
   const pathTokens = window.location.pathname.split('/');
-  const lang = pathTokens.length >= 3 ? pathTokens[2].split('-')[0] : 'en';
+  const pathLang = pathTokens.length >= 3 ? pathTokens[2].split('-')[0] : '';
+  // Only a real language code (2-3 letters) is a valid <html lang>; other paths
+  // (e.g. /drafts/<author>/...) fall back to English (WCAG 3.1.1).
+  const lang = /^[a-z]{2,3}$/i.test(pathLang) ? pathLang : 'en';
   document.documentElement.lang = lang;
 
   if (pathTokens[1] === 'us' && pathTokens[2] === 'en-us') {
