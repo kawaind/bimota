@@ -355,7 +355,10 @@ function applyBrandSuffix() {
  */
 async function loadEager(doc) {
   const pathTokens = window.location.pathname.split('/');
-  const lang = pathTokens.length >= 3 ? pathTokens[2].split('-')[0] : 'en';
+  const pathLang = pathTokens.length >= 3 ? pathTokens[2].split('-')[0] : '';
+  // Only a real language code (2-3 letters) is a valid <html lang>; other paths
+  // (e.g. /drafts/<author>/...) fall back to English (WCAG 3.1.1).
+  const lang = /^[a-z]{2,3}$/i.test(pathLang) ? pathLang : 'en';
   document.documentElement.lang = lang;
 
   if (pathTokens[1] === 'us' && pathTokens[2] === 'en-us') {
