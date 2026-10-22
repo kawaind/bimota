@@ -139,6 +139,69 @@ const fadeTransitionTime = 300;
 // unique id counter so each subnav trigger's aria-controls target is unique
 let subNavId = 0;
 
+/**
+ * While the mobile menu panel is open it covers the page (backdrop + locked
+ * scroll), so keyboard and screen-reader focus must stay inside it (WCAG
+ * 2.4.3): everything else on the page is made `inert`, and removed again when
+ * the panel closes. Kept out: the panel and its backdrop, and any modal dialog
+ * (e.g. the country selector opened from inside the panel).
+ * @param {Element} nav the <nav> element
+ * @param {boolean} contain whether to contain focus in the panel
+ */
+function containFocusInMenu(nav, contain) {
+  const header = nav.closest('header');
+  const pageParts = [...document.body.children]
+    .filter((el) => el !== header && el.tagName !== 'SCRIPT' && !el.classList.contains('modal'));
+  const headerParts = [...(nav.parentElement?.children || [])].filter((el) => el !== nav);
+  const navParts = [...nav.children]
+    .filter((el) => !el.classList.contains('nav-link-section') && !el.classList.contains('nav-backdrop'));
+  [...pageParts, ...headerParts, ...navParts].forEach((el) => el.toggleAttribute('inert', contain));
+}
+
+/**
+ * APG Disclosure Navigation (optional arrow keys). Top-level items (subnav
+ * buttons and plain links) and the links of an open subnav form two linear
+ * groups:
+ * - on a top-level item: Right/Down = next item, or the first subnav link when
+ *   that item's subnav is open; Left/Up = previous item; Home/End = first/last;
+ * - on a subnav link: Right/Down = next link, Left/Up = previous link,
+ *   Home/End = first/last link.
+ * No wrap-around (APG). Tab/Shift+Tab keep the native order.
+ * @param {Element} navSections the .nav-sections container
+ */
+function addNavArrowKeys(navSections) {
+  const KEYS = ['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp', 'Home', 'End'];
+  const topItems = () => [...navSections.querySelectorAll(
+    '.default-content-wrapper > ul > li > .nav-drop-text, .default-content-wrapper > ul > li > a',
+  )];
+
+  navSections.addEventListener('keydown', (event) => {
+    if (!KEYS.includes(event.key) || event.altKey || event.ctrlKey || event.metaKey) return;
+    const { target } = event;
+    const forward = event.key === 'ArrowRight' || event.key === 'ArrowDown';
+    const back = event.key === 'ArrowLeft' || event.key === 'ArrowUp';
+
+    const sublist = target.closest('.nav-sublist');
+    const group = sublist ? [...sublist.querySelectorAll('a[href]')] : topItems();
+    const index = group.indexOf(target);
+    if (index === -1) return;
+
+    let next;
+    if (event.key === 'Home') [next] = group;
+    else if (event.key === 'End') next = group[group.length - 1];
+    else if (forward && !sublist && target.getAttribute('aria-expanded') === 'true') {
+      // Down/Right on an open subnav button enters its subnav.
+      next = target.closest('.nav-drop')?.querySelector('.nav-sublist a[href]');
+    } else if (forward) next = group[index + 1];
+    else if (back) next = group[index - 1];
+
+    if (next) {
+      event.preventDefault();
+      next.focus();
+    }
+  });
+}
+
 function closeOnEscape(e) {
   if (e.code === 'Escape') {
     const nav = document.getElementById('nav');
@@ -209,6 +272,23 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
     };
     const animateInOut = addAnimateInOut(animateTarget, animationConfig);
     animateInOut(!expanded);
+  }
+
+  // Mobile panel: keep focus inside it while open. When the user opens it, move
+  // focus to its first menu item (the next Tab used to land on the page behind
+  // the panel); when the user closes it, return focus to the hamburger. Forced
+  // state changes (initial render, breakpoint change) don't move focus.
+  const mobilePanelOpen = !expanded && !isDesktop.matches;
+  containFocusInMenu(nav, mobilePanelOpen);
+  if (forceExpanded === null && !isDesktop.matches) {
+    if (mobilePanelOpen) {
+      const firstItem = navSections.querySelector(
+        '.default-content-wrapper > ul > li > .nav-drop-text, .default-content-wrapper > ul > li > a',
+      );
+      setTimeout(() => firstItem?.focus(), 0);
+    } else if (nav.querySelector('.nav-link-section')?.contains(document.activeElement)) {
+      button?.focus();
+    }
   }
 
   // enable menu collapse on escape keypress
@@ -502,6 +582,17 @@ export default async function decorate(block) {
       // handled explicitly to activate it (WCAG 2.1.1). Space is prevented from
       // scrolling the page.
       const trigger = navSection.querySelector(':scope > .nav-drop-text');
+      // Desktop: close the open subnav when keyboard focus moves to an element
+      // outside it (APG Disclosure Navigation). It is a full-width overlay that
+      // locks page scroll, so it must not stay open behind the next focused
+      // link. relatedTarget is null for clicks on non-focusable areas; those are
+      // left to the existing click handling.
+      navSection.addEventListener('focusout', (event) => {
+        const next = event.relatedTarget;
+        if (!isDesktop.matches || !next || navSection.contains(next)) return;
+        if (navSection.classList.contains('is-open')) toggleSubNav(navSection, navSections);
+      });
+
       trigger?.addEventListener('keydown', (event) => {
         if (event.key === 'Enter' || event.key === ' ' || event.code === 'Space') {
           event.preventDefault();
@@ -509,6 +600,8 @@ export default async function decorate(block) {
         }
       });
     });
+
+    addNavArrowKeys(navSections);
   }
 
   const navTools = nav.querySelector('.nav-tools');
@@ -560,7 +653,11 @@ export default async function decorate(block) {
     flagEl.innerHTML = '<span class="icon icon-logo-flag-black"></span>';
     const closeEl = document.createElement('button');
     closeEl.classList.add('nav-close-button');
-    closeEl.innerHTML = '<span class="icon icon-close"></span>';
+    closeEl.type = 'button';
+    // Icon-only button: give it the same accessible name as the hamburger in
+    // its open state (WCAG 4.1.2); the icon itself is decorative.
+    closeEl.setAttribute('aria-label', 'Close navigation');
+    closeEl.innerHTML = '<span class="icon icon-close" aria-hidden="true"></span>';
     closeEl.addEventListener('click', () => toggleMenu(nav, navSections));
     navLinksWrapper.append(closeEl, navSections, navTools, flagEl);
     nav.append(navLinksWrapper);
