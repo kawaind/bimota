@@ -24,7 +24,10 @@ const DICTIONARY = {
     carouselRoleDescription: 'carousel',
     slideRoleDescription: 'slide',
     slidePosition: '{x} of {y}',
-    imageAlt: 'Image of {model}',
+    // Fallback alt is just the model name in every language: the <img> already
+    // tells assistive tech it is an image, so "Image of …" adds nothing
+    // (KAW-11192). Used only when the author left the alt empty.
+    imageAlt: '{model}',
     slideStatus: '{model}, {position}',
     separator: ',',
   },
@@ -36,7 +39,7 @@ const DICTIONARY = {
     carouselRoleDescription: 'carosello',
     slideRoleDescription: 'diapositiva',
     slidePosition: '{x} di {y}',
-    imageAlt: 'Immagine di {model}',
+    imageAlt: '{model}',
   },
   fr: {
     regionLabel: 'Sélecteur de modèle de véhicule',
@@ -46,7 +49,7 @@ const DICTIONARY = {
     carouselRoleDescription: 'carrousel',
     slideRoleDescription: 'diapositive',
     slidePosition: '{x} sur {y}',
-    imageAlt: 'Image de {model}',
+    imageAlt: '{model}',
   },
   de: {
     regionLabel: 'Fahrzeugmodell-Auswahl',
@@ -56,7 +59,7 @@ const DICTIONARY = {
     carouselRoleDescription: 'Karussell',
     slideRoleDescription: 'Folie',
     slidePosition: '{x} von {y}',
-    imageAlt: 'Bild von {model}',
+    imageAlt: '{model}',
   },
   nl: {
     regionLabel: 'Voertuigmodelkiezer',
@@ -66,7 +69,7 @@ const DICTIONARY = {
     carouselRoleDescription: 'carrousel',
     slideRoleDescription: 'dia',
     slidePosition: '{x} van {y}',
-    imageAlt: 'Afbeelding van {model}',
+    imageAlt: '{model}',
   },
   es: {
     regionLabel: 'Selector de modelo de vehículo',
@@ -76,7 +79,7 @@ const DICTIONARY = {
     carouselRoleDescription: 'carrusel',
     slideRoleDescription: 'diapositiva',
     slidePosition: '{x} de {y}',
-    imageAlt: 'Imagen de {model}',
+    imageAlt: '{model}',
   },
   ja: {
     regionLabel: '車両モデルセレクター',
@@ -86,7 +89,7 @@ const DICTIONARY = {
     carouselRoleDescription: 'カルーセル',
     slideRoleDescription: 'スライド',
     slidePosition: '{y} 枚中 {x} 枚目',
-    imageAlt: '{model}の画像',
+    imageAlt: '{model}',
     slideStatus: '{model}、{position}',
     separator: '、',
   },
@@ -98,7 +101,7 @@ const DICTIONARY = {
     carouselRoleDescription: 'Karussell',
     slideRoleDescription: 'Folie',
     slidePosition: '{x} vun {y}',
-    imageAlt: 'Bild vum {model}',
+    imageAlt: '{model}',
   },
 };
 
