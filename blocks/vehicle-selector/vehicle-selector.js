@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { createElement, stripEmptyTags, describeButton } from '../../scripts/helpers.js';
+import { createElement, stripEmptyTags, labelWithContext } from '../../scripts/helpers.js';
 import { getTextLabel } from '../../scripts/scripts.js';
 
 const blockName = 'vehicle-selector';
@@ -114,9 +114,16 @@ const activate = (block, index, { moveFocus = false, announce = false } = {}) =>
   panels.forEach((panel, i) => {
     const selected = i === index;
     panel.hidden = !selected;
-    // Active panel is focusable so Tab can move from the arrow into it; hidden
-    // panels are inert regardless, but keep the sequence explicit.
-    panel.setAttribute('tabindex', selected ? '0' : '-1');
+    // APG Tabs: a tabpanel is only a tab stop when it has no focusable content.
+    // Panels with the "Descubre más" link must not be focusable themselves,
+    // otherwise screen readers stop on the panel (announcing its name, the tab
+    // title) and then again on the link, reading the title twice (KAW-11082).
+    // Hidden panels are out of the tab order through `hidden`.
+    const hasFocusable = panel.querySelector(
+      'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    );
+    if (selected && !hasFocusable) panel.setAttribute('tabindex', '0');
+    else panel.removeAttribute('tabindex');
   });
 
   // Visual cross-slide (appearance only; the a11y state above is already the
@@ -235,7 +242,6 @@ const buildPanels = (vehicles, instanceId, tabs) => {
     const panel = createElement('div', { classes: `${blockName}__panel` });
     panel.setAttribute('role', 'tabpanel');
     panel.id = `${instanceId}-panel-${i}`;
-    panel.setAttribute('aria-labelledby', `${instanceId}-tab-${i}`);
 
     // Image first so it is read before the specifications.
     if (vehicle.picture) {
@@ -257,13 +263,31 @@ const buildPanels = (vehicles, instanceId, tabs) => {
       specs.classList.add(`${blockName}__panel-specs`);
       decorateSpecifications(specs);
 
-      // Describe the CTA by its own text + the vehicle name (WCAG 2.4.6, 4.1.2).
-      const ctaButton = specs.querySelector('a.button');
-      if (ctaButton && tabs[i]) {
-        describeButton(ctaButton, tabs[i]);
+      // Name the CTA by its own text + the vehicle name, e.g. "Descubre más,
+      // KB998 Rimini" (WCAG 2.4.4, 2.4.6). The visible text comes first, so the
+      // name still satisfies Label in Name (2.5.3). It navigates to the model
+      // page, so it keeps its native link role (no role="button").
+      const ctaLink = specs.querySelector('a.button');
+      if (ctaLink && tabs[i]) {
+        // A title that only repeats the visible text becomes an extra
+        // description once the name differs from it, and VoiceOver reads it
+        // again after the name ("Discover More, KB4 … Discover More").
+        if (ctaLink.title.trim() === ctaLink.textContent.trim()) {
+          ctaLink.removeAttribute('title');
+        }
+        labelWithContext(ctaLink, tabs[i]);
       }
 
       panel.appendChild(specs);
+    }
+
+    // Only a panel without the CTA is named after its tab: it is then the tab
+    // stop itself and needs a name. When the CTA is there, the link already
+    // carries the vehicle name, and naming the panel too made screen readers
+    // read it twice ("Discover More, KB4, KB4, tab panel"; KAW-11081/11082).
+    // The tab still points to the panel through aria-controls.
+    if (!panel.querySelector('a[href]')) {
+      panel.setAttribute('aria-labelledby', `${instanceId}-tab-${i}`);
     }
 
     panelsContainer.appendChild(panel);
@@ -275,7 +299,8 @@ const buildPanels = (vehicles, instanceId, tabs) => {
 /**
  * Create the previous / next arrow controls. Unlike a decorative carousel, the
  * arrows are real, keyboard-operable controls placed in the tab sequence
- * (Tab: first tab -> previous arrow -> panel -> CTA -> next arrow -> out), so
+ * (Tab: selected tab -> previous arrow -> CTA (or the panel itself when it has
+ * no CTA) -> next arrow -> out), so
  * they are NOT hidden from assistive tech. They are split around the panels in
  * the DOM to produce that focus order, and positioned visually with CSS.
  */
@@ -364,7 +389,8 @@ export default function decorate(block) {
   // Wrapper that positions the arrows over the panel media.
   const sliderWrapper = createElement('div', { classes: `${blockName}__slider-wrapper` });
   // DOM order produces the required focus order:
-  // tab -> previous arrow -> panel -> CTA -> next arrow -> out.
+  // tab -> previous arrow -> CTA (or the panel when it has none) -> next arrow
+  // -> out.
   sliderWrapper.append(prev, panelsContainer, next);
 
   // Replace the original authored rows with the refactored structure.
