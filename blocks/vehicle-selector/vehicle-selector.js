@@ -242,7 +242,6 @@ const buildPanels = (vehicles, instanceId, tabs) => {
     const panel = createElement('div', { classes: `${blockName}__panel` });
     panel.setAttribute('role', 'tabpanel');
     panel.id = `${instanceId}-panel-${i}`;
-    panel.setAttribute('aria-labelledby', `${instanceId}-tab-${i}`);
 
     // Image first so it is read before the specifications.
     if (vehicle.picture) {
@@ -270,10 +269,25 @@ const buildPanels = (vehicles, instanceId, tabs) => {
       // page, so it keeps its native link role (no role="button").
       const ctaLink = specs.querySelector('a.button');
       if (ctaLink && tabs[i]) {
+        // A title that only repeats the visible text becomes an extra
+        // description once the name differs from it, and VoiceOver reads it
+        // again after the name ("Discover More, KB4 … Discover More").
+        if (ctaLink.title.trim() === ctaLink.textContent.trim()) {
+          ctaLink.removeAttribute('title');
+        }
         labelWithContext(ctaLink, tabs[i]);
       }
 
       panel.appendChild(specs);
+    }
+
+    // Only a panel without the CTA is named after its tab: it is then the tab
+    // stop itself and needs a name. When the CTA is there, the link already
+    // carries the vehicle name, and naming the panel too made screen readers
+    // read it twice ("Discover More, KB4, KB4, tab panel"; KAW-11081/11082).
+    // The tab still points to the panel through aria-controls.
+    if (!panel.querySelector('a[href]')) {
+      panel.setAttribute('aria-labelledby', `${instanceId}-tab-${i}`);
     }
 
     panelsContainer.appendChild(panel);
