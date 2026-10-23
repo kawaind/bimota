@@ -10,8 +10,18 @@ export function addAnimateInOut(animateTarget, {
   initStyles = {}, startStyles = {}, endStyles = {}, time = 300,
 }) {
   const fadeTransitionTime = time;
+  // End-of-fade-out handler still waiting for its transition, if any.
+  let pendingHideEnd = null;
 
   const animateInOut = (isFadeIn, { afterOut } = {}) => {
+    // A new fade (in or out) supersedes a fade-out still in progress: drop its
+    // end handler so it can't run later (e.g. on the fade-in's transitionend)
+    // and hide/empty a modal that was just reopened, which left the page
+    // blurred behind an invisible modal (KAW-11087).
+    if (pendingHideEnd) {
+      animateTarget.removeEventListener('transitionend', pendingHideEnd);
+      pendingHideEnd = null;
+    }
     animateTarget.style.transition = `all ${fadeTransitionTime}ms ease-in-out`;
 
     const setStyles = (targetEl, stylesObject) => {
@@ -28,14 +38,19 @@ export function addAnimateInOut(animateTarget, {
     };
 
     const restoreDisplayPropAfterHide = () => {
-      const transitionEndEvent = () => {
+      const transitionEndEvent = (event) => {
+        // Ignore transitions bubbling up from children; only the target's own
+        // fade-out marks the end of the hide.
+        if (event.target !== animateTarget) return;
         animateTarget.style.display = '';
         animateTarget.removeEventListener('transitionend', transitionEndEvent);
+        pendingHideEnd = null;
         if (afterOut) {
           afterOut();
         }
       };
 
+      pendingHideEnd = transitionEndEvent;
       animateTarget.addEventListener('transitionend', transitionEndEvent);
     };
 
@@ -70,11 +85,13 @@ const FOCUSABLE_SELECTOR = [
 let modalTitleIdCounter = 0;
 
 export function addModalHandling() {
-  const modalLinks = document.querySelectorAll('a[href^="/#modal-"]');
+  // Triggers: authored "/#modal-<name>" links, and native buttons that blocks
+  // create for a dialog trigger (<button data-modal="modal-<name>">, KAW-11088).
+  const modalLinks = document.querySelectorAll('a[href^="/#modal-"], button[data-modal^="modal-"]');
   const modalContentMap = new Map();
 
   modalLinks.forEach((mLink) => {
-    const modalContentName = mLink.getAttribute('href').split('/#')[1];
+    const modalContentName = mLink.dataset.modal || mLink.getAttribute('href').split('/#')[1];
     const modalContentEl = document.querySelector(`.${modalContentName}`);
 
     if (modalContentEl) {
@@ -204,7 +221,13 @@ export function addModalHandling() {
       modalContentMap.set(elId, content);
     }
 
-    modalContent.append(content);
+    // Replace (not append): if this open interrupts a fade-out, the previous
+    // content was not cleared yet.
+    modalContent.replaceChildren(content);
+
+    // Dialog triggers that expose their state (aria-haspopup="dialog" buttons)
+    // report it as expanded while the dialog is open (KAW-11088).
+    if (lastTrigger?.hasAttribute?.('aria-expanded')) lastTrigger.setAttribute('aria-expanded', 'true');
 
     // Give the dialog an accessible name so screen readers announce what
     // opened (WCAG 4.1.2). Prefer the bike title (specification modal); fall
@@ -258,6 +281,8 @@ export function addModalHandling() {
       },
     });
     closeButtonAnimation(false);
+
+    if (lastTrigger?.hasAttribute?.('aria-expanded')) lastTrigger.setAttribute('aria-expanded', 'false');
 
     // Restore focus to the element that opened the modal (WCAG 2.4.3).
     if (lastTrigger && typeof lastTrigger.focus === 'function') {
