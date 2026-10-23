@@ -252,6 +252,20 @@ export function addModalHandling() {
     modal.classList.remove('modal-hidden');
     document.body.classList.add('modal-visible');
 
+    // Scrollable content with nothing focusable inside (e.g. the specification
+    // table) is made a focusable, named region so keyboard users can reach it
+    // and scroll it with the arrow keys (WCAG 2.1.1). Content with its own
+    // links (e.g. the country selector) is left out of the tab order.
+    const needsScrollFocus = !content.querySelector(FOCUSABLE_SELECTOR)
+      && modalContent.scrollHeight > modalContent.clientHeight;
+    if (needsScrollFocus) {
+      modalContent.tabIndex = 0;
+      modalContent.setAttribute('role', 'region');
+      if (title) modalContent.setAttribute('aria-labelledby', title.id);
+    } else {
+      ['tabindex', 'role', 'aria-labelledby'].forEach((attr) => modalContent.removeAttribute(attr));
+    }
+
     modalContentAnimation(true);
     closeButtonAnimation(true);
 
@@ -278,6 +292,7 @@ export function addModalHandling() {
       afterOut: () => {
         modal.classList.add('modal-hidden');
         modalContent.innerHTML = '';
+        ['tabindex', 'role', 'aria-labelledby'].forEach((attr) => modalContent.removeAttribute(attr));
       },
     });
     closeButtonAnimation(false);
