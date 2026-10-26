@@ -146,8 +146,23 @@ export function addModalHandling() {
     closeButton.setAttribute('aria-label', labels.closeModal);
   });
 
-  // Background regions hidden from AT while the modal is open, restored on close.
-  const backgroundRegions = ['.skip-link-wrapper', 'header', 'main', 'footer'];
+  // While the modal is open every other top-level element of the page is hidden
+  // from AT, including ones injected by third-party scripts (e.g. the cookie
+  // consent widget), not just a fixed list of regions. Only the elements hidden
+  // here are revealed again on close; anything already aria-hidden is left alone.
+  const hiddenBackground = new Set();
+  const hideBackground = () => {
+    [...document.body.children].forEach((el) => {
+      if (el === modal || el.matches('script, style, link, template, noscript')) return;
+      if (el.getAttribute('aria-hidden') === 'true') return;
+      el.setAttribute('aria-hidden', 'true');
+      hiddenBackground.add(el);
+    });
+  };
+  const revealBackground = () => {
+    hiddenBackground.forEach((el) => el.removeAttribute('aria-hidden'));
+    hiddenBackground.clear();
+  };
   // The element that opened the modal, so focus can return to it on close.
   let lastTrigger = null;
 
@@ -245,9 +260,7 @@ export function addModalHandling() {
     }
 
     // Hide the rest of the page from assistive technology.
-    backgroundRegions.forEach((sel) => {
-      document.querySelectorAll(sel).forEach((el) => el.setAttribute('aria-hidden', 'true'));
-    });
+    hideBackground();
 
     modal.classList.remove('modal-hidden');
     document.body.classList.add('modal-visible');
@@ -283,9 +296,7 @@ export function addModalHandling() {
     document.removeEventListener('keydown', onKeydown);
 
     // Reveal the background page again.
-    backgroundRegions.forEach((sel) => {
-      document.querySelectorAll(sel).forEach((el) => el.removeAttribute('aria-hidden'));
-    });
+    revealBackground();
 
     // removing the modal content after the fade out
     modalContentAnimation(false, {
