@@ -631,6 +631,10 @@ export default async function decorate(block) {
       csButton.type = 'button';
       csButton.className = `nav-tools-cs-button ${csTrigger.className}`.trim();
       csButton.setAttribute('aria-label', CHOOSE_COUNTRY_FALLBACK);
+      // Announce the dialog it opens and its open/closed state (WCAG 4.1.2);
+      // the modal helper keeps aria-expanded in sync for the trigger below.
+      csButton.setAttribute('aria-haspopup', 'dialog');
+      csButton.setAttribute('aria-expanded', 'false');
       csButton.append(...csTrigger.childNodes);
       csTrigger.replaceWith(csButton);
 
@@ -638,7 +642,9 @@ export default async function decorate(block) {
         .then((labels) => csButton.setAttribute('aria-label', labels.chooseCountry));
 
       csButton.addEventListener('click', () => {
-        const modalEvent = new CustomEvent('show-modal', { detail: 'modal-country-selector' });
+        const modalEvent = new CustomEvent('show-modal', {
+          detail: { name: 'modal-country-selector', trigger: csButton },
+        });
         window.dispatchEvent(modalEvent);
       });
       loadCountrySelectorBlock();
