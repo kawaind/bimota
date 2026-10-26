@@ -778,6 +778,47 @@ header.transparent nav.nav-expanded .nav-link-section a.nav-drop-text:hover {
     a:hover {
     color: var(--action-focus);
   }
+
+  /* Over the transparent header the hero image sits behind the bar, where the
+     darker-red hover/focus colour drops to ~1.3-2.8:1. The top-level items and
+     the globe keep their white text there; the underline (and the focus ring)
+     stay as the state indicators (KAW-10926, WCAG 1.4.3 / 1.4.1). Opening
+     Models makes the header solid, so the open-menu states are unaffected. */
+  header.transparent
+    nav.nav-expanded
+    .nav-link-section
+    .default-content-wrapper
+    > ul
+    > li
+    > a:is(:hover, :focus),
+  header.transparent nav.nav-expanded .nav-tools .nav-tools-cs-button:is(:hover, :focus) {
+    color: var(--white);
+  }
+
+  /* Scrim behind the transparent header: the white menu text sits on the hero
+     image, which can be bright (e.g. ~3.4:1 on Tesi H2 TERA). At least 55%
+     black behind the text band keeps white text >= 4.5:1 even over a white
+     image; it then fades out below the bar (KAW-10926, WCAG 1.4.3). It goes
+     with the transparent class, so the solid header is unaffected. */
+  header.transparent .nav-wrapper {
+    position: relative;
+  }
+
+  header.transparent .nav-wrapper::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: calc(var(--nav-height) + 40px);
+    background: linear-gradient(rgb(0 0 0 / 60%), rgb(0 0 0 / 55%) var(--nav-height), rgb(0 0 0 / 0%));
+    pointer-events: none;
+  }
+
+  /* Keep the bar's content painted above the scrim. */
+  header.transparent nav {
+    position: relative;
+  }
 }
 
 @media (width >= 1440px) {
