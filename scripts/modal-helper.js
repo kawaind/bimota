@@ -150,10 +150,18 @@ export function addModalHandling() {
   // from AT, including ones injected by third-party scripts (e.g. the cookie
   // consent widget), not just a fixed list of regions. Only the elements hidden
   // here are revealed again on close; anything already aria-hidden is left alone.
+  // A dialog showing on top of the modal (e.g. the cookie consent banner, which
+  // has its own focus handling) stays reachable while it is visible.
   const hiddenBackground = new Set();
+  const hasVisibleDialog = (el) => [...el.querySelectorAll('[role="dialog"], [aria-modal="true"], dialog[open]')]
+    .some((dialog) => dialog.getBoundingClientRect().width > 0);
   const hideBackground = () => {
     [...document.body.children].forEach((el) => {
       if (el === modal || el.matches('script, style, link, template, noscript')) return;
+      if (hasVisibleDialog(el)) {
+        if (hiddenBackground.delete(el)) el.removeAttribute('aria-hidden');
+        return;
+      }
       if (el.getAttribute('aria-hidden') === 'true') return;
       el.setAttribute('aria-hidden', 'true');
       hiddenBackground.add(el);
@@ -163,6 +171,9 @@ export function addModalHandling() {
     hiddenBackground.forEach((el) => el.removeAttribute('aria-hidden'));
     hiddenBackground.clear();
   };
+  // Third-party scripts can inject elements (or show their dialog) while the
+  // modal is open; re-apply the rule above whenever the page changes.
+  const backgroundObserver = new MutationObserver(hideBackground);
   // The element that opened the modal, so focus can return to it on close.
   let lastTrigger = null;
 
@@ -261,6 +272,9 @@ export function addModalHandling() {
 
     // Hide the rest of the page from assistive technology.
     hideBackground();
+    backgroundObserver.observe(document.body, {
+      childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style'],
+    });
 
     modal.classList.remove('modal-hidden');
     document.body.classList.add('modal-visible');
@@ -296,6 +310,7 @@ export function addModalHandling() {
     document.removeEventListener('keydown', onKeydown);
 
     // Reveal the background page again.
+    backgroundObserver.disconnect();
     revealBackground();
 
     // removing the modal content after the fade out
