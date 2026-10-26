@@ -72,7 +72,25 @@ export default function decorate(block) {
   // Describe the CTA (e.g. "Mostra tutto") by its own text + the page title so
   // screen readers get context about which vehicle it relates to (WCAG 2.4.6).
   const pageTitle = document.querySelector('main h1');
-  const ctaButton = block.querySelector('.button-container a.button');
+  let ctaButton = block.querySelector('.button-container a.button');
+
+  // The CTA opens the specification dialog rather than navigating, so it is a
+  // native <button> (not a link) that announces the dialog it opens and its
+  // open/closed state (KAW-11088, WCAG 4.1.2). The shared modal helper opens it
+  // via data-modal and keeps aria-expanded in sync with the dialog.
+  const modalName = ctaButton?.getAttribute('href')?.split('#')[1];
+  if (ctaButton && modalName?.startsWith('modal-')) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = ctaButton.className;
+    button.dataset.modal = modalName;
+    button.setAttribute('aria-haspopup', 'dialog');
+    button.setAttribute('aria-expanded', 'false');
+    button.append(...ctaButton.childNodes);
+    ctaButton.replaceWith(button);
+    ctaButton = button;
+  }
+
   if (pageTitle && ctaButton) {
     describeButton(ctaButton, pageTitle);
   }

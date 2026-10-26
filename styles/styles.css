@@ -1003,6 +1003,13 @@ body.modal-visible > *:not(.modal) {
   outline: none;
 }
 
+/* Scrollable content made keyboard-focusable (no focusable children): the ring
+   is drawn inside, as the region fills the viewport edge to edge. */
+.modal .modal-content:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: calc(-1 * var(--focus-ring-width));
+}
+
 .modal .modal-close-button {
   position: fixed;
   bottom: 40px;
