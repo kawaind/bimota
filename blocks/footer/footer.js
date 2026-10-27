@@ -600,18 +600,32 @@ export default async function decorate(block) {
   getBackToTopLabel().then((label) => {
     backToTopButton.setAttribute('aria-label', label);
   });
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        backToTopButton.style.position = 'absolute';
-        backToTopButton.style.bottom = `${entry.boundingClientRect.height + 40}px`;
-      } else {
-        backToTopButton.style.position = 'fixed';
-        backToTopButton.style.bottom = '40px';
-      }
-    });
-  });
-  observer.observe(footer);
+  // The button floats 40px above the bottom of the viewport. Once the footer
+  // scrolls up to it, it docks inside the footer, just below the flag bars at
+  // its top-right, instead of resting over the last section of the page (on
+  // mobile that is the full-width "Find a dealer" button, KAW-10986). It docks
+  // at the moment the docked spot reaches the floating spot, so it never jumps
+  // or drops out of view.
+  const FLOATING_BOTTOM = 40;
+  const DOCK_GAP = 12;
+  const updateBackToTopPosition = () => {
+    const container = block.closest('footer') || block;
+    const containerTop = container.getBoundingClientRect().top;
+    const flag = footer.querySelector('.icon-logo-flag');
+    const dockTop = (flag ? flag.getBoundingClientRect().bottom - containerTop : 0) + DOCK_GAP;
+    const floatingTop = window.innerHeight - FLOATING_BOTTOM - backToTopButton.offsetHeight;
+
+    if (containerTop + dockTop <= floatingTop) {
+      backToTopButton.style.position = 'absolute';
+      backToTopButton.style.top = `${dockTop}px`;
+      backToTopButton.style.bottom = 'auto';
+    } else {
+      backToTopButton.style.position = 'fixed';
+      backToTopButton.style.top = 'auto';
+      backToTopButton.style.bottom = `${FLOATING_BOTTOM}px`;
+    }
+  };
+  window.addEventListener('resize', updateBackToTopPosition);
 
   window.addEventListener('scroll', () => {
     const scrollPosition = window.scrollY + window.innerHeight;
@@ -623,6 +637,7 @@ export default async function decorate(block) {
     } else {
       backToTopButton.style.display = 'none';
     }
+    updateBackToTopPosition();
   });
 
   footer.querySelector('.back-to-top').addEventListener('click', () => {
