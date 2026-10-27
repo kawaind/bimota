@@ -411,31 +411,49 @@ export default async function decorate(block) {
       flagWrapper.append(countryTextEle);
     }
 
-    csIcon.classList.add('footer-cs-button');
+    // The "Change" control opens the country selector dialog rather than
+    // navigating, so it is a native <button> (not the authored link) that
+    // announces the dialog it opens and its open/closed state (WCAG 4.1.2).
+    // It opens the modal itself, passing itself as the trigger so the modal
+    // helper keeps aria-expanded in sync and returns focus to it on close.
+    const csButton = document.createElement('button');
+    csButton.type = 'button';
+    csButton.className = csIcon.className;
+    csButton.classList.add('footer-cs-button');
+    if (csIcon.title) csButton.title = csIcon.title;
+    csButton.setAttribute('aria-haspopup', 'dialog');
+    csButton.setAttribute('aria-expanded', 'false');
+    csButton.append(...csIcon.childNodes);
+    csIcon.replaceWith(csButton);
+    csButton.addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('show-modal', {
+        detail: { name: 'modal-country-selector', trigger: csButton },
+      }));
+    });
 
-    const arrowIcon = csIcon.querySelector('.icon-arrow-right');
+    const arrowIcon = csButton.querySelector('.icon-arrow-right');
     if (arrowIcon) {
       arrowIcon.classList.add('footer-cs-arrow-icon');
-      // The arrow glyph is decorative; hide it from assistive tech so the link
+      // The arrow glyph is decorative; hide it from assistive tech so the button
       // is not announced with a stray "arrow" (WCAG 1.1.1).
       arrowIcon.setAttribute('aria-hidden', 'true');
     }
 
     // The visible "Change" text alone doesn't convey purpose or current
-    // selection. Give the link a descriptive, localized accessible name that
+    // selection. Give the button a descriptive, localized accessible name that
     // includes the current country/language (WCAG 2.4.4, 4.1.2). The visible
     // text is unchanged. Applied synchronously with the English fallback, then
     // swapped for the localized value once the dictionary resolves.
     const setChangeLabel = (template) => {
       const current = countryName || selectorLabel;
       const label = current ? template.replace('{current}', current) : template.replace(' (current: {current})', '');
-      csIcon.setAttribute('aria-label', label);
+      csButton.setAttribute('aria-label', label);
     };
     setChangeLabel(A11Y_FALLBACKS.changeCountryLanguage);
     getLanguageLabels('footer', { changeCountryLanguage: A11Y_FALLBACKS.changeCountryLanguage })
       .then((labels) => setChangeLabel(labels.changeCountryLanguage));
 
-    flagWrapper.append(csIcon);
+    flagWrapper.append(csButton);
 
     csContainer.append(textEle);
     csContainer.append(flagWrapper);

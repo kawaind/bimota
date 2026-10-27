@@ -208,7 +208,9 @@ footer {
   line-height: 150%;
 }
 
-.footer-cs-button:any-link {
+/* Native <button> (it opens the country selector dialog); the selector keeps
+   the specificity the authored link had, so hover/focus stay white. */
+.footer-cs-button:is(:any-link, button) {
   padding-left: 0;
   color: var(--c-primary-white);
   display: inline-flex;
