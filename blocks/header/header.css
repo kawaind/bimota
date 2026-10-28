@@ -849,3 +849,16 @@ header.transparent nav.nav-expanded .nav-link-section a.nav-drop-text:hover {
   height: 24px;
   width: 24px;
 }
+
+/* Over the transparent header the focus ring sits on the hero photo, where the
+   single blue ring can fall below 3:1 against mid-tone areas (on mobile there
+   is no scrim). A white band fills the gap inside the blue ring and a black
+   band edges it outside: white and black are 21:1 apart, so one of them always
+   has at least 3:1 against any photo (WCAG 1.4.11, technique C40). The blue
+   outline itself is unchanged and paints over the shadows; the solid header
+   keeps the plain blue ring. */
+header.transparent :is(a, button, [tabindex="0"]):focus-visible {
+  box-shadow:
+    0 0 0 var(--focus-ring-offset) var(--white),
+    0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width) + 2px) var(--black);
+}
