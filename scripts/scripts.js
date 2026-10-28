@@ -323,36 +323,42 @@ const BRAND_SUFFIX = ' | bimota';
 const HOME_TITLE = 'Home';
 
 /**
- * Append the brand suffix ("<title> | bimota") to the document title and the
- * social title meta (og:title, twitter:title), so authors type only the page
- * name in the metadata table. Idempotent: a value already ending in the brand
- * suffix (any casing, e.g. " | Bimota") is normalised rather than suffixed
- * again. Empty/brand-only titles are left as-is, except on a locale home page
- * (e.g. /it/en/), where they become "Home | bimota".
+ * Return a title with the brand suffix ("<title> | bimota"). Idempotent: a
+ * value already ending in the brand suffix (any casing, e.g. " | Bimota") is
+ * normalised rather than suffixed again. Empty/brand-only titles are left
+ * as-is, except on a locale home page (e.g. /it/en/), where they become
+ * "Home | bimota". Blocks that replace document.title (e.g. woosmapdealers)
+ * must pass their title through this so the suffix is kept.
+ * @param {string} value The page title
+ * @returns {string} The branded title
  */
-function applyBrandSuffix() {
+export function withBrandSuffix(value) {
   const brandOnly = BRAND_SUFFIX.replace(/^\s*\|\s*/, ''); // "bimota"
   const suffixPattern = new RegExp(`\\s*\\|\\s*${brandOnly}$`, 'i');
-  const rootPath = getRootPath();
-  const pagePath = window.location.pathname.replace(/\/(index)?$/, '');
-  const isHomePage = !!rootPath && pagePath === rootPath;
+  let base = (value || '').trim().replace(suffixPattern, '').trim();
+  // Nothing to brand, or the author typed only the brand as the title.
+  if (!base || base.toLowerCase() === brandOnly) {
+    const rootPath = getRootPath();
+    const pagePath = window.location.pathname.replace(/\/(index)?$/, '');
+    const isHomePage = !!rootPath && pagePath === rootPath;
+    if (!isHomePage) return base;
+    base = HOME_TITLE;
+  }
+  return `${base}${BRAND_SUFFIX}`;
+}
 
-  const withSuffix = (value) => {
-    let base = (value || '').trim().replace(suffixPattern, '').trim();
-    // Nothing to brand, or the author typed only the brand as the title.
-    if (!base || base.toLowerCase() === brandOnly) {
-      if (!isHomePage) return base;
-      base = HOME_TITLE;
-    }
-    return `${base}${BRAND_SUFFIX}`;
-  };
-
-  document.title = withSuffix(document.title);
+/**
+ * Append the brand suffix to the document title and the social title meta
+ * (og:title, twitter:title), so authors type only the page name in the
+ * metadata table.
+ */
+function applyBrandSuffix() {
+  document.title = withBrandSuffix(document.title);
 
   ['og:title', 'twitter:title'].forEach((name) => {
     const attr = name.startsWith('og:') ? 'property' : 'name';
     const meta = document.head.querySelector(`meta[${attr}="${name}"]`);
-    if (meta) meta.setAttribute('content', withSuffix(meta.getAttribute('content')));
+    if (meta) meta.setAttribute('content', withBrandSuffix(meta.getAttribute('content')));
   });
 }
 
