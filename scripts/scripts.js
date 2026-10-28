@@ -317,16 +317,16 @@ function setMainPosition(main) {
 }
 
 // Brand suffix appended to every page title so authors only type the page
-// name (e.g. "Home") in the metadata table and the "<name> | Bimota" form is
+// name (e.g. "Home") in the metadata table and the "<name> | bimota" form is
 // produced automatically.
-const BRAND_SUFFIX = ' | Bimota';
+const BRAND_SUFFIX = ' | bimota';
 
 /**
- * Append the brand suffix ("<title> | Bimota") to the document title and the
+ * Append the brand suffix ("<title> | bimota") to the document title and the
  * social title meta (og:title, twitter:title), so authors type only the page
  * name in the metadata table. Idempotent: skips any value that already ends
  * with the suffix, and skips empty/brand-only titles so we never produce a
- * bare " | Bimota".
+ * bare " | bimota".
  */
 function applyBrandSuffix() {
   const brandOnly = BRAND_SUFFIX.replace(/^\s*\|\s*/, ''); // "Bimota"
