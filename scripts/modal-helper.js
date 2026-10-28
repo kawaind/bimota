@@ -148,28 +148,44 @@ export function addModalHandling() {
 
   // While the modal is open every other top-level element of the page is hidden
   // from AT, including ones injected by third-party scripts (e.g. the cookie
-  // consent widget), not just a fixed list of regions. Only the elements hidden
-  // here are revealed again on close; anything already aria-hidden is left alone.
+  // consent widget), not just a fixed list of regions. It is also made inert:
+  // aria-hidden alone leaves its links and buttons focusable and clickable, so
+  // the content behind the modal was still reachable (KAW-11278, WCAG 2.4.3,
+  // 4.1.2). Only what is set here is undone on close; an element that was
+  // already aria-hidden or inert (e.g. by the open mobile menu) keeps it.
   // A dialog showing on top of the modal (e.g. the cookie consent banner, which
   // has its own focus handling) stays reachable while it is visible.
-  const hiddenBackground = new Set();
+  const hiddenBackground = new Map();
   const hasVisibleDialog = (el) => [...el.querySelectorAll('[role="dialog"], [aria-modal="true"], dialog[open]')]
     .some((dialog) => dialog.getBoundingClientRect().width > 0);
+  const revealElement = (el) => {
+    const set = hiddenBackground.get(el);
+    if (!set) return;
+    if (set.ariaHidden) el.removeAttribute('aria-hidden');
+    if (set.inert) el.inert = false;
+    hiddenBackground.delete(el);
+  };
   const hideBackground = () => {
     [...document.body.children].forEach((el) => {
       if (el === modal || el.matches('script, style, link, template, noscript')) return;
       if (hasVisibleDialog(el)) {
-        if (hiddenBackground.delete(el)) el.removeAttribute('aria-hidden');
+        revealElement(el);
         return;
       }
-      if (el.getAttribute('aria-hidden') === 'true') return;
-      el.setAttribute('aria-hidden', 'true');
-      hiddenBackground.add(el);
+      const set = hiddenBackground.get(el) || { ariaHidden: false, inert: false };
+      if (el.getAttribute('aria-hidden') !== 'true') {
+        el.setAttribute('aria-hidden', 'true');
+        set.ariaHidden = true;
+      }
+      if (!el.inert) {
+        el.inert = true;
+        set.inert = true;
+      }
+      if (set.ariaHidden || set.inert) hiddenBackground.set(el, set);
     });
   };
   const revealBackground = () => {
-    hiddenBackground.forEach((el) => el.removeAttribute('aria-hidden'));
-    hiddenBackground.clear();
+    [...hiddenBackground.keys()].forEach(revealElement);
   };
   // Third-party scripts can inject elements (or show their dialog) while the
   // modal is open; re-apply the rule above whenever the page changes.
