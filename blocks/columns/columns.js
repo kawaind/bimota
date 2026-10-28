@@ -2,9 +2,22 @@ import { createOptimizedPicture } from '../../scripts/aem.js';
 
 const borderClassName = 'border-top';
 
+// Timeline option (e.g. Heritage): headings are authored at their semantic
+// level so the page outline is sequential (WCAG 1.3.1) - entry h3, its
+// technology label h4, technology items h5 - while keeping the compact sizes
+// the timeline was designed with, via the visual heading classes.
+const TIMELINE_HEADING_SIZES = { H3: 'h5', H4: 'h5', H5: 'h6' };
+
 export default function decorate(block) {
   const cols = [...block.firstElementChild.children];
   block.classList.add(`columns-${cols.length}-cols`);
+
+  if (block.classList.contains('timeline')) {
+    block.querySelectorAll('h3, h4, h5').forEach((heading) => {
+      const hasVisualClass = [...heading.classList].some((c) => /^h[1-6]$/.test(c));
+      if (!hasVisualClass) heading.classList.add(TIMELINE_HEADING_SIZES[heading.tagName]);
+    });
+  }
 
   // handle boder top in download pages
   const borderClass = block.classList.contains(borderClassName);
