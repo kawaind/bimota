@@ -1,4 +1,5 @@
 import { createElement, getLanguageFromPath } from '../../scripts/helpers.js';
+import { withBrandSuffix } from '../../scripts/scripts.js';
 
 let uidCounter = 0;
 // Unique id suffix so multiple instances / repeated regions don't collide.
@@ -372,7 +373,7 @@ function updatePageTitle(langCode) {
   const lang = langCode.toLowerCase();
   const translated = TRANSLATIONS.dealers?.[lang];
   if (translated) {
-    document.title = translated;
+    document.title = withBrandSuffix(translated);
   }
 }
 
