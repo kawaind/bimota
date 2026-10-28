@@ -486,22 +486,25 @@ export default async function decorate(block) {
     const buttonContainer = brandLink.closest('.button-container');
     if (buttonContainer) buttonContainer.removeAttribute('class');
 
+    // The link carries the accessible name (below), so the logo graphic itself
+    // is decorative and must be hidden from assistive tech (WCAG 1.1.1). Mark
+    // the icon span aria-hidden; customDecoreateIcons propagates that onto the
+    // inlined <svg> when it is inlined later. The SVG is fetched asynchronously
+    // and may already be inlined at this point, so it is also marked directly.
+    // This runs before the label fetch below so the two cannot race. Match the
+    // logo icon span by its `icon-` class rather than `span.icon`, because
+    // customDecoreateIcons may have already stripped the generic `icon` class.
+    brandLink.querySelectorAll('span[class*="icon-"]').forEach((iconEl) => {
+      iconEl.setAttribute('aria-hidden', 'true');
+      iconEl.querySelector('svg')?.setAttribute('aria-hidden', 'true');
+    });
+
     // Give the logo link an accessible name (the logo is an inline SVG with no
     // text), translated per language via the global logoconfig.json sheet.
     // Falls back to a sensible default so the link is never unlabelled.
     // (WCAG 1.1.1, 2.4.4)
     const logoLabel = await getLogoAlt();
     brandLink.setAttribute('aria-label', logoLabel);
-
-    // The link already carries the accessible name, so the logo graphic itself
-    // is decorative and must be hidden from assistive tech (WCAG 1.1.1). Mark
-    // the icon span aria-hidden; customDecoreateIcons then propagates that onto
-    // the inlined <svg>. Match the logo icon span by its `icon-` class rather
-    // than `span.icon`, because customDecoreateIcons may have already stripped
-    // the generic `icon` class by the time this runs.
-    brandLink.querySelectorAll('span[class*="icon-"]').forEach((iconEl) => {
-      iconEl.setAttribute('aria-hidden', 'true');
-    });
   }
 
   const navSections = nav.querySelector('.nav-sections');
