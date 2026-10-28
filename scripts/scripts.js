@@ -320,23 +320,30 @@ function setMainPosition(main) {
 // name (e.g. "Home") in the metadata table and the "<name> | bimota" form is
 // produced automatically.
 const BRAND_SUFFIX = ' | bimota';
+const HOME_TITLE = 'Home';
 
 /**
  * Append the brand suffix ("<title> | bimota") to the document title and the
  * social title meta (og:title, twitter:title), so authors type only the page
- * name in the metadata table. Idempotent: skips any value that already ends
- * with the suffix, and skips empty/brand-only titles so we never produce a
- * bare " | bimota".
+ * name in the metadata table. Idempotent: a value already ending in the brand
+ * suffix (any casing, e.g. " | Bimota") is normalised rather than suffixed
+ * again. Empty/brand-only titles are left as-is, except on a locale home page
+ * (e.g. /it/en/), where they become "Home | bimota".
  */
 function applyBrandSuffix() {
-  const brandOnly = BRAND_SUFFIX.replace(/^\s*\|\s*/, ''); // "Bimota"
+  const brandOnly = BRAND_SUFFIX.replace(/^\s*\|\s*/, ''); // "bimota"
+  const suffixPattern = new RegExp(`\\s*\\|\\s*${brandOnly}$`, 'i');
+  const rootPath = getRootPath();
+  const pagePath = window.location.pathname.replace(/\/(index)?$/, '');
+  const isHomePage = !!rootPath && pagePath === rootPath;
 
   const withSuffix = (value) => {
-    const base = (value || '').trim();
-    // Nothing to brand, or the author already typed the brand as the title.
-    if (!base || base === brandOnly) return base;
-    // Already suffixed (e.g. author typed it, or a re-run) — leave as-is.
-    if (base.endsWith(BRAND_SUFFIX)) return base;
+    let base = (value || '').trim().replace(suffixPattern, '').trim();
+    // Nothing to brand, or the author typed only the brand as the title.
+    if (!base || base.toLowerCase() === brandOnly) {
+      if (!isHomePage) return base;
+      base = HOME_TITLE;
+    }
     return `${base}${BRAND_SUFFIX}`;
   };
 
