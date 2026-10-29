@@ -7,6 +7,15 @@
     margin-bottom: 40px;
 }
 
+/* The title is an <h2> (it used to be an <h1>, which set letter-spacing: 0).
+   Below 1440px the global h2 / .h2 letter-spacing has no unit and is ignored,
+   so keep the title's original 0 here; from 1440px the global -0.5px applies. */
+@media (width < 1440px) {
+    .country-selector-heading-wrapper .h2 {
+        letter-spacing: 0;
+    }
+}
+
 /* DESKTOP IMAGE DISPLAY ##################### */
 .country-selector-bike-image {
     display: block;
