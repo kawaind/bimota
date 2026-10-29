@@ -138,23 +138,26 @@ function getLocalizedCountryName(countryCode, langCode) {
 }
 
 /**
- * Build a single dealer as a semantic list item containing an <address>
- * element (WCAG 1.3.1). The dealer name is the item's accessible heading text;
- * interactive links (website, phone, email) carry visually-hidden context so
- * their purpose is clear out of context to a screen reader (WCAG 2.4.4).
+ * Build a single dealer as a semantic list item: the dealer name as a heading
+ * one level below its list's heading (WCAG 1.3.1), followed by an <address>
+ * element with the contact details (the name sits outside it, as <address>
+ * may not contain headings). Interactive links (website, phone, email) carry
+ * visually-hidden context so their purpose is clear out of context to a
+ * screen reader (WCAG 2.4.4).
  * @param {Object} store the Woosmap store feature
+ * @param {string} [nameTag='p'] tag for the dealer name (h3 / h4 in a list)
  * @returns {HTMLLIElement} the dealer list item
  */
-function buildDealerCard(store) {
+function buildDealerCard(store, nameTag = 'p') {
   const { properties } = store;
   const { name, address, contact } = properties;
   const item = createElement('li', { classes: 'dealer-card' });
   const addressEl = createElement('address', { classes: 'dealer-address' });
 
   if (name) {
-    const nameEl = createElement('p', { classes: 'dealer-name' });
+    const nameEl = createElement(nameTag, { classes: 'dealer-name' });
     nameEl.textContent = name;
-    addressEl.append(nameEl);
+    item.append(nameEl);
   }
 
   const lines = address?.lines;
@@ -450,10 +453,12 @@ function selectTab(tabs, panels, index, focusTab = false) {
  * aria-labelledby (WCAG 1.3.1, 4.1.2).
  * @param {string} countryName the localized country name
  * @param {Object[]} dealers the stores in this country
- * @param {string} headingTag semantic heading level for the trigger
+ * @param {string} headingTag semantic heading level for the trigger; dealer
+ * names inside the panel are headings one level below it
  * @returns {HTMLElement} the accordion wrapper
  */
 function buildCountryAccordion(countryName, dealers, headingTag) {
+  const dealerNameTag = `h${Number(headingTag[1]) + 1}`;
   const instanceId = uid();
   const buttonId = `${instanceId}-btn`;
   const panelId = `${instanceId}-panel`;
@@ -491,7 +496,7 @@ function buildCountryAccordion(countryName, dealers, headingTag) {
   });
   panel.hidden = true;
   const list = createElement('ul', { classes: 'dealers-grid' });
-  sortedDealers.forEach((store) => list.append(buildDealerCard(store)));
+  sortedDealers.forEach((store) => list.append(buildDealerCard(store, dealerNameTag)));
   panel.append(list);
   accordion.append(panel);
 
@@ -512,10 +517,16 @@ function buildRegionTabs(regionMap, langCode, container, userCountryIso) {
     ? [userRegion, ...sorted.filter((r) => r !== userRegion)]
     : sorted;
 
+  // Visually-hidden section heading for the region tabs (WCAG 1.3.1): it
+  // groups the countries below as their own h2 section and names the tablist.
+  const headingId = `${uid()}-heading`;
+  const sectionHeading = createElement('h2', { classes: 'sr-only', props: { id: headingId } });
+  sectionHeading.textContent = t('dealerLocationsByRegion', 'Dealer locations by region');
+
   // Tablist (ARIA Tabs pattern, automatic activation).
   const tabNav = createElement('ul', {
     classes: 'dealers-tabs',
-    props: { role: 'tablist', 'aria-label': t('dealerLocationsByRegion', 'Dealer locations by region') },
+    props: { role: 'tablist', 'aria-labelledby': headingId },
   });
   const tabContent = createElement('div', { classes: 'dealers-tab-content' });
 
@@ -602,8 +613,26 @@ function buildRegionTabs(regionMap, langCode, container, userCountryIso) {
     selectTab(tabs, panels, next, true);
   });
 
+  container.append(sectionHeading);
   container.append(tabNav);
   container.append(tabContent);
+}
+
+/**
+ * Give the page its h1 (WCAG 1.3.1) when nothing else does: a visually-hidden
+ * "Dealers" heading (localized, as the document title) at the start of the
+ * first dealer list, so the country list and the region tabs are its h2
+ * sections. Skipped when the page already has an h1 or a block that renders
+ * one (hero, global-title), so there is never a second h1.
+ * @param {HTMLElement} container the block's container, already in <main>
+ * @param {string} langCode the URL language code
+ */
+function addPageHeading(container, langCode) {
+  const main = container.closest('main');
+  if (!main || main.querySelector('h1, .hero, .woosmapdealers.global-title')) return;
+  const heading = createElement('h1', { classes: 'sr-only' });
+  heading.textContent = TRANSLATIONS.dealers[langCode.toLowerCase()] || TRANSLATIONS.dealers.en;
+  container.append(heading);
 }
 
 async function decoratePriorityDealers(block) {
@@ -676,8 +705,9 @@ export default async function decorate(block) {
   const container = createElement('div', { classes: 'dealers-container' });
   const loading = createElement('div', { classes: 'dealers-loading' });
   loading.textContent = '...';
-  container.append(loading);
   block.append(container);
+  addPageHeading(container, langCode);
+  container.append(loading);
 
   let stores;
 
@@ -705,10 +735,12 @@ export default async function decorate(block) {
       container.append(heading);
     }
 
+    // Dealer names sit one level below the country heading (h2).
+    const dealerNameTag = countryName ? 'h3' : 'h2';
     const sorted = sortStores(stores, true, langCode);
     const grid = createElement('ul', { classes: 'dealers-grid' });
     sorted.forEach((store) => {
-      grid.append(buildDealerCard(store));
+      grid.append(buildDealerCard(store, dealerNameTag));
     });
     container.append(grid);
   }
