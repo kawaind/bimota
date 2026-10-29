@@ -200,10 +200,12 @@ function renderCountrySelector(block) {
       const blockHeading = dataRow.querySelector('h1, h2, h3, h4, h5, h6');
 
       if (blockHeading) {
-        // The selector title is the page's main heading: enforce a semantic
-        // <h1> while keeping the .h2 visual size (WCAG 1.3.1, 2.4.6).
+        // The selector title heads the country-selector dialog, which every
+        // page carries next to its own h1: enforce a semantic <h2> (so a page
+        // never has two h1s) while keeping the .h2 visual size (WCAG 1.3.1,
+        // 2.4.6). The modal is labelled by this heading.
         blockHeadingWrapper = blockHeading.parentElement;
-        forceHeadingLevel(blockHeading, 'h1', 'h2');
+        forceHeadingLevel(blockHeading, 'h2', 'h2');
         blockHeadingWrapper.classList.add('country-selector-heading-wrapper');
       }
 
@@ -221,8 +223,8 @@ function renderCountrySelector(block) {
 
       if (region?.textContent.trim()) {
         // Region headings sit one level below the selector title: enforce a
-        // semantic <h2> while keeping the .h5 visual size (WCAG 1.3.1).
-        const regionHeading = forceHeadingLevel(region, 'h2', 'h5');
+        // semantic <h3> while keeping the .h5 visual size (WCAG 1.3.1).
+        const regionHeading = forceHeadingLevel(region, 'h3', 'h5');
         data.push({
           region: regionHeading,
           regionData: [],
