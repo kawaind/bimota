@@ -68,6 +68,19 @@ function getCurrentPagePath() {
 }
 
 /**
+ * Returns the locale prefix ("/{country}/{lang}/", lower-cased) of a path or
+ * URL, e.g. "/es/es/heritage" -> "/es/es/", or '' when there is none (e.g. "/").
+ * Used to match a country/language option against any page of that locale.
+ * @param {string} path a path or URL
+ * @returns {string} the locale prefix
+ */
+function getLocalePrefix(path) {
+  const { pathname } = new URL(path, window.location.origin);
+  const match = pathname.match(LOCALE_PREFIX_REGEX);
+  return match ? `/${match[1]}/${match[2]}/`.toLowerCase() : '';
+}
+
+/**
  * Builds the target URL preserving the current page under the new locale prefix.
  * Falls back to the locale home page if the page doesn't exist there.
  */
@@ -299,13 +312,18 @@ function renderCountrySelector(block) {
 
           countryButton.classList.add('cs-button');
 
-          if (countryButton.getAttribute('href') === window.location.pathname) {
+          // The option whose locale ("/es/es/") is the current page's locale is
+          // the active one on every page of that locale, not only on its home
+          // page (e.g. "/es/es/heritage" too, KAW-11306).
+          const href = countryButton.getAttribute('href');
+          const currentLocale = getLocalePrefix(window.location.pathname);
+          if (href && currentLocale && getLocalePrefix(href) === currentLocale) {
             countryButton.classList.add('active');
             // Expose the selected country/language as the current selection so
             // screen readers announce it as "current" instead of just "same
             // page link" (WCAG 1.3.1). This is a selection within the dialog
             // group, so aria-current="true" is used (per the task's technical
-            // note); the href match is unique, so only one option is flagged.
+            // note); each locale has one option, so only one is flagged.
             countryButton.setAttribute('aria-current', 'true');
           }
 
