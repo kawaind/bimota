@@ -114,11 +114,13 @@ export function addModalHandling() {
   // surface (WCAG 4.1.2). tabindex=-1 keeps the container programmatically
   // focusable as a trap fallback. The close button is placed as the very first
   // element inside the modal and receives focus on open, so keyboard users can
-  // dismiss it immediately without tabbing through the entire tables.
+  // dismiss it immediately without tabbing through the entire tables. The X
+  // icon is decorative (the button is named by its aria-label), so it is
+  // hidden from assistive technology.
   const modalEl = document.createRange().createContextualFragment(`
     <div class="modal modal-hidden" role="dialog" aria-modal="true" tabindex="-1">
       <button class="modal-close-button" type="button" aria-label="${CLOSE_LABEL_FALLBACK}">
-        <span class="icon icon-close"></span>
+        <span class="icon icon-close" aria-hidden="true"></span>
       </button>
       <div class="modal-background"></div>
       <div class="modal-content"></div>

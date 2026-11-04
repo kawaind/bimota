@@ -400,7 +400,10 @@ export default async function decorate(block) {
 
     if (flagIcon) {
       flagIcon.classList.add('footer-cs-flag-icon');
-      decorateFooterIcon(flagIcon, countryName ? `${countryName} flag` : '');
+      // The flag is decorative: the country name is shown as text right next
+      // to it, so a text alternative would only repeat it ("Spain (en) flag,
+      // Spain (en)") for screen readers (WCAG 1.1.1, technique H2).
+      decorateFooterIcon(flagIcon);
       flagWrapper.append(flagIcon);
     }
 
