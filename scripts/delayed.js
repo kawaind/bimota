@@ -212,8 +212,30 @@ if (!window.location.pathname.includes('srcdoc')
     requestAnimationFrame(attempt);
   };
 
+  // CCM19 makes the text block of its dialogs (".ccm-inner-overflow",
+  // role="document") a Tab stop, so Tab lands on plain informational text
+  // between the dialog's controls (KAW-11070, WCAG 2.4.3). Take such
+  // non-interactive elements out of the Tab order: tabindex="-1" keeps them
+  // focusable from script (CCM19 may still put the initial focus there) and
+  // their text readable. A shown text block that scrolls and contains no
+  // control of its own keeps its Tab stop, so keyboard users can still scroll
+  // it (WCAG 2.1.1).
+  const INTERACTIVE_SELECTOR = 'a[href], button, input, select, textarea, summary, [contenteditable="true"], '
+    + '[role="button"], [role="link"], [role="checkbox"], [role="switch"], [role="radio"], [role="tab"], '
+    + '[role="combobox"], [role="option"], [role="menuitem"], [role="slider"], [role="textbox"]';
+  const removeTextTabStops = () => {
+    document.querySelectorAll('.ccm-root [tabindex="0"]').forEach((el) => {
+      if (el.matches(INTERACTIVE_SELECTOR) || !isRendered(el)) return;
+      const scrolls = el.scrollHeight > el.clientHeight + 1;
+      const hasControls = !!el.querySelector(`${INTERACTIVE_SELECTOR}, [tabindex="0"]`);
+      if (scrolls && !hasControls) return;
+      el.setAttribute('tabindex', '-1');
+    });
+  };
+
   const onCookieDialogMutation = () => {
     upgradeCookieTriggers();
+    removeTextTabStops();
     const panel = document.querySelector('.ccm-control-panel');
     const panelNowShown = !!panel && isRendered(panel);
     if (panelNowShown && !panelShown) {
@@ -248,7 +270,7 @@ if (!window.location.pathname.includes('srcdoc')
       childList: true,
       subtree: true,
       attributes: true,
-      attributeFilter: ['class', 'style', 'hidden'],
+      attributeFilter: ['class', 'style', 'hidden', 'tabindex'],
     });
     onCookieDialogMutation();
   };
