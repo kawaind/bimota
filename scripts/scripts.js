@@ -353,7 +353,22 @@ export function withBrandSuffix(value) {
  * metadata table.
  */
 function applyBrandSuffix() {
+<<<<<<< Updated upstream
   document.title = withBrandSuffix(document.title);
+=======
+  const brandOnly = BRAND_SUFFIX.replace(/^\s*\|\s*/, ''); // "bimota"
+
+  const withSuffix = (value) => {
+    const base = (value || '').trim();
+    // Nothing to brand, or the author already typed the brand as the title.
+    if (!base || base === brandOnly) return base;
+    // Already suffixed (e.g. author typed it, or a re-run) — leave as-is.
+    if (base.endsWith(BRAND_SUFFIX)) return base;
+    return `${base}${BRAND_SUFFIX}`;
+  };
+
+  document.title = withSuffix(document.title);
+>>>>>>> Stashed changes
 
   ['og:title', 'twitter:title'].forEach((name) => {
     const attr = name.startsWith('og:') ? 'property' : 'name';
