@@ -353,9 +353,7 @@ export function withBrandSuffix(value) {
  * metadata table.
  */
 function applyBrandSuffix() {
-<<<<<<< Updated upstream
   document.title = withBrandSuffix(document.title);
-=======
   const brandOnly = BRAND_SUFFIX.replace(/^\s*\|\s*/, ''); // "bimota"
 
   const withSuffix = (value) => {
@@ -368,7 +366,6 @@ function applyBrandSuffix() {
   };
 
   document.title = withSuffix(document.title);
->>>>>>> Stashed changes
 
   ['og:title', 'twitter:title'].forEach((name) => {
     const attr = name.startsWith('og:') ? 'property' : 'name';
