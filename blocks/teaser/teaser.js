@@ -1,5 +1,5 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
-import { forceHeadingLevel, labelWithContext } from '../../scripts/helpers.js';
+import { forceHeadingLevel } from '../../scripts/helpers.js';
 
 export default function decorate(block) {
   /* change to ul, li */
@@ -13,12 +13,8 @@ export default function decorate(block) {
     });
     ul.append(li);
     // Title: always semantic H2, visually sized as H4 (accessible outline).
-    const [titleEl] = [...li.querySelectorAll('h1, h2, h3, h4, h5, h6')]
-      .map((heading) => forceHeadingLevel(heading, 'h2', 'h4'));
-    // Describe each card's CTA by its own text + the card title (WCAG 2.4.6).
-    if (titleEl) {
-      li.querySelectorAll('a.button').forEach((button) => labelWithContext(button, titleEl));
-    }
+    li.querySelectorAll('h1, h2, h3, h4, h5, h6')
+      .forEach((heading) => forceHeadingLevel(heading, 'h2', 'h4'));
   });
   ul.querySelectorAll('picture > img').forEach((img) => img.closest('picture').replaceWith(createOptimizedPicture(img.src, img.alt, false, [{ width: '750' }])));
   block.textContent = '';
