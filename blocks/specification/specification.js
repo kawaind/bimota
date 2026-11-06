@@ -1,4 +1,4 @@
-import { autoScrollSlidesWhenInView, describeButton } from '../../scripts/helpers.js';
+import { autoScrollSlidesWhenInView } from '../../scripts/helpers.js';
 
 export default function decorate(block) {
   const animationTime = [...block.classList]
@@ -69,10 +69,7 @@ export default function decorate(block) {
 
   scrollToSlide(block, 0);
 
-  // Describe the CTA (e.g. "Mostra tutto") by its own text + the page title so
-  // screen readers get context about which vehicle it relates to (WCAG 2.4.6).
-  const pageTitle = document.querySelector('main h1');
-  let ctaButton = block.querySelector('.button-container a.button');
+  const ctaButton = block.querySelector('.button-container a.button');
 
   // The CTA opens the specification dialog rather than navigating, so it is a
   // native <button> (not a link) that announces the dialog it opens and its
@@ -93,11 +90,6 @@ export default function decorate(block) {
     if (title && title.trim() !== ctaButton.textContent.trim()) button.title = title;
     button.append(...ctaButton.childNodes);
     ctaButton.replaceWith(button);
-    ctaButton = button;
-  }
-
-  if (pageTitle && ctaButton) {
-    describeButton(ctaButton, pageTitle);
   }
 
   const slideCount = block.querySelectorAll('.specification-images > *').length;

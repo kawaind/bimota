@@ -1,4 +1,4 @@
-import { unwrapDivs, forceHeadingLevel, labelWithContext } from '../../scripts/helpers.js';
+import { unwrapDivs, forceHeadingLevel } from '../../scripts/helpers.js';
 
 export default async function decorate(block) {
   const textWrapper = document.createElement('div');
@@ -10,10 +10,8 @@ export default async function decorate(block) {
   const [title, secondary] = textNodes;
 
   // Force the title to always render as an <h2> styled as .h3.
-  let titleEl;
   if (title) {
-    titleEl = forceHeadingLevel(title, 'h2', 'h3');
-    textWrapper.append(titleEl);
+    textWrapper.append(forceHeadingLevel(title, 'h2', 'h3'));
   }
 
   // Force the secondary text to always render as a body copy <p> styled as .h6.
@@ -30,10 +28,6 @@ export default async function decorate(block) {
     button.classList.add('button', buttonClass);
     if (button.parentElement.classList.contains('button-container')) {
       button.parentElement.removeAttribute('class');
-    }
-    // Describe the button by its own text + the NBA title (WCAG 2.4.6).
-    if (titleEl) {
-      labelWithContext(button, titleEl);
     }
     buttonWrapper.append(button);
   });
