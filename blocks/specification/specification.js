@@ -86,6 +86,11 @@ export default function decorate(block) {
     button.dataset.modal = modalName;
     button.setAttribute('aria-haspopup', 'dialog');
     button.setAttribute('aria-expanded', 'false');
+    // Keep an authored title (e.g. "Click to open the specification of the
+    // KB4"); decorateButtons fills a missing one with the link text, which
+    // would only repeat the visible label, so that one is not copied.
+    const { title } = ctaButton;
+    if (title && title.trim() !== ctaButton.textContent.trim()) button.title = title;
     button.append(...ctaButton.childNodes);
     ctaButton.replaceWith(button);
     ctaButton = button;
