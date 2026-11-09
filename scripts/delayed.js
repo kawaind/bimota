@@ -325,12 +325,9 @@ if (!window.location.pathname.includes('srcdoc')
       next = order[(index + (e.shiftKey ? -1 : 1) + order.length) % order.length];
     } else {
       // Focus is on an element that is not a Tab stop (e.g. the text block
-      // CCM19 focuses on open): go to the nearest control in reading order.
-      const flow = order.filter((el) => !el.matches(BANNER_CLOSE_SELECTOR));
-      const domOrder = [...banner.querySelectorAll('*')];
-      const follows = (el) => domOrder.indexOf(el) > domOrder.indexOf(active);
-      next = e.shiftKey ? [...flow].reverse().find((el) => !follows(el)) : flow.find(follows);
-      next = next || (e.shiftKey ? order[order.length - 1] : order[0]);
+      // CCM19 focuses on open): start the sequence from its beginning, so the
+      // first Tab reaches the language selector (and Shift+Tab the close button).
+      next = e.shiftKey ? order[order.length - 1] : order[0];
     }
     e.preventDefault();
     next.focus();
