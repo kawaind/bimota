@@ -233,9 +233,113 @@ if (!window.location.pathname.includes('srcdoc')
     });
   };
 
+  // --- First-visit banner: focus order and containment (KAW-11326) ---
+  // CCM19 renders its cookie banner (#ccm-widget) as a non-modal dialog whose
+  // close (X) button comes right after the language selector in the DOM, so
+  // Tab reached the X before the text links and buttons, and Tab / Shift+Tab
+  // and the screen reader's reading cursor left the banner for the page behind
+  // it. While the banner is shown and has focus:
+  // - Tab / Shift+Tab follow the visual reading order (language selector, the
+  //   links in the text, the action buttons, the close button last) and wrap
+  //   around inside the banner (WCAG 2.4.3);
+  // - it is exposed as a modal dialog and the rest of the page is hidden from
+  //   assistive technology (aria-modal + aria-hidden, WCAG 1.3.2 / 4.1.2).
+  // The page stays usable with the mouse: when focus moves into the page, it
+  // is revealed again (and hidden again once focus returns to the banner).
+  const BANNER_SELECTOR = '#ccm-widget.ccm-widget';
+  const BANNER_CLOSE_SELECTOR = '.ccm-dismiss-button';
+  const TABBABLE_SELECTOR = 'a[href], button, input, select, textarea, [tabindex]';
+  const hiddenBehindBanner = new Set();
+  let bannerModal = false;
+
+  const hideBehindBanner = () => {
+    [...document.body.children].forEach((el) => {
+      if (el.matches('.ccm-root, script, style, link, noscript')
+        || el.getAttribute('aria-hidden') === 'true') return;
+      el.setAttribute('aria-hidden', 'true');
+      hiddenBehindBanner.add(el);
+    });
+  };
+
+  const revealBehindBanner = () => {
+    hiddenBehindBanner.forEach((el) => el.removeAttribute('aria-hidden'));
+    hiddenBehindBanner.clear();
+  };
+
+  const setBannerModal = (on) => {
+    if (on === bannerModal) return;
+    bannerModal = on;
+    const banner = document.querySelector(BANNER_SELECTOR);
+    if (on) {
+      banner?.setAttribute('aria-modal', 'true');
+      hideBehindBanner();
+    } else {
+      banner?.removeAttribute('aria-modal');
+      revealBehindBanner();
+    }
+  };
+
+  const updateBannerModal = () => {
+    const banner = document.querySelector(BANNER_SELECTOR);
+    if (!banner || !isRendered(banner)) {
+      setBannerModal(false);
+      return;
+    }
+    const active = document.activeElement;
+    if (!active || active === document.body || banner.contains(active)) setBannerModal(true);
+  };
+
+  document.addEventListener('focusin', (e) => {
+    const banner = document.querySelector(BANNER_SELECTOR);
+    if (!banner || !isRendered(banner)) return;
+    if (banner.contains(e.target)) setBannerModal(true);
+    else if (!e.target.closest?.('.ccm-root')) setBannerModal(false);
+  });
+
+  // Visual reading order of the banner's controls: DOM order with the close
+  // button moved to the end.
+  const bannerTabOrder = (banner) => {
+    const tabbables = [...banner.querySelectorAll(TABBABLE_SELECTOR)].filter((el) => (
+      el.tabIndex >= 0
+      && !el.disabled
+      && !el.closest('[hidden], [inert]')
+      && el.getClientRects().length > 0
+      && isRendered(el)
+    ));
+    return [
+      ...tabbables.filter((el) => !el.matches(BANNER_CLOSE_SELECTOR)),
+      ...tabbables.filter((el) => el.matches(BANNER_CLOSE_SELECTOR)),
+    ];
+  };
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Tab' || e.altKey || e.ctrlKey || e.metaKey) return;
+    const banner = document.querySelector(BANNER_SELECTOR);
+    const active = document.activeElement;
+    if (!banner || !isRendered(banner) || banner.closest('[inert]') || !banner.contains(active)) return;
+    const order = bannerTabOrder(banner);
+    if (!order.length) return;
+    let next;
+    const index = order.indexOf(active);
+    if (index >= 0) {
+      next = order[(index + (e.shiftKey ? -1 : 1) + order.length) % order.length];
+    } else {
+      // Focus is on an element that is not a Tab stop (e.g. the text block
+      // CCM19 focuses on open): go to the nearest control in reading order.
+      const flow = order.filter((el) => !el.matches(BANNER_CLOSE_SELECTOR));
+      const domOrder = [...banner.querySelectorAll('*')];
+      const follows = (el) => domOrder.indexOf(el) > domOrder.indexOf(active);
+      next = e.shiftKey ? [...flow].reverse().find((el) => !follows(el)) : flow.find(follows);
+      next = next || (e.shiftKey ? order[order.length - 1] : order[0]);
+    }
+    e.preventDefault();
+    next.focus();
+  }, true);
+
   const onCookieDialogMutation = () => {
     upgradeCookieTriggers();
     removeTextTabStops();
+    updateBannerModal();
     const panel = document.querySelector('.ccm-control-panel');
     const panelNowShown = !!panel && isRendered(panel);
     if (panelNowShown && !panelShown) {
@@ -274,7 +378,11 @@ if (!window.location.pathname.includes('srcdoc')
     });
     onCookieDialogMutation();
   };
-  new MutationObserver(observeCookieRoot).observe(document.body, { childList: true });
+  new MutationObserver(() => {
+    observeCookieRoot();
+    // content added to <body> while the banner is modal is hidden too
+    if (bannerModal) hideBehindBanner();
+  }).observe(document.body, { childList: true });
   observeCookieRoot();
 
   document.addEventListener('click', (e) => {
