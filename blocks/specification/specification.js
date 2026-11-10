@@ -1,4 +1,25 @@
-import { autoScrollSlidesWhenInView } from '../../scripts/helpers.js';
+import { autoScrollSlidesWhenInView, labelCtaWithTitle } from '../../scripts/helpers.js';
+
+const HEADINGS = 'h1, h2, h3, h4, h5, h6';
+
+/**
+ * The specification block has no heading of its own: its title is the Title
+ * block authored right above it in the same section ("Technical Information").
+ * Use the nearest heading before the block in its section, else the page h1.
+ * @param {Element} block the specification block
+ * @returns {Element|null} the component title
+ */
+const findComponentTitle = (block) => {
+  const own = block.querySelector(HEADINGS);
+  if (own) return own;
+  let prev = block.closest('.specification-wrapper')?.previousElementSibling;
+  while (prev) {
+    const headings = prev.matches(HEADINGS) ? [prev] : [...prev.querySelectorAll(HEADINGS)];
+    if (headings.length) return headings[headings.length - 1];
+    prev = prev.previousElementSibling;
+  }
+  return document.querySelector('main h1');
+};
 
 export default function decorate(block) {
   const animationTime = [...block.classList]
@@ -69,7 +90,7 @@ export default function decorate(block) {
 
   scrollToSlide(block, 0);
 
-  const ctaButton = block.querySelector('.button-container a.button');
+  let ctaButton = block.querySelector('.button-container a.button');
 
   // The CTA opens the specification dialog rather than navigating, so it is a
   // native <button> (not a link) that announces the dialog it opens and its
@@ -90,7 +111,12 @@ export default function decorate(block) {
     if (title && title.trim() !== ctaButton.textContent.trim()) button.title = title;
     button.append(...ctaButton.childNodes);
     ctaButton.replaceWith(button);
+    ctaButton = button;
   }
+
+  // The CTA is announced as its own text, a pause, then the component title,
+  // e.g. "Show All Specifications, Technical Information" (WCAG 2.4.4, 2.4.6).
+  labelCtaWithTitle(ctaButton, findComponentTitle(block));
 
   const slideCount = block.querySelectorAll('.specification-images > *').length;
 
