@@ -28,6 +28,8 @@ export default async function decorate(block) {
   const isGroup = buttons.length > 1;
   const buttonWrapper = document.createElement(isGroup ? 'ul' : 'div');
   buttonWrapper.classList.add('nba-button-wrapper');
+  // Explicit role: Safari/VoiceOver drops list semantics with list-style: none.
+  if (isGroup) buttonWrapper.setAttribute('role', 'list');
   buttons.forEach((button, index) => {
     const buttonClass = index < 1 ? 'primary' : 'secondary';
     button.classList.add('button', buttonClass);
