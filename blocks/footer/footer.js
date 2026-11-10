@@ -628,7 +628,27 @@ export default async function decorate(block) {
     }
   });
 
+  // Move keyboard focus to the top as well, not only the scroll position
+  // (KAW-11340, WCAG 2.4.3): to the page's main heading (<h1>), else to <main>
+  // (the skip-link target), so Tab and screen readers continue from the start
+  // of the page instead of the footer. The country-selector dialog's own h1
+  // (hidden in <main>) is skipped. A heading is made focusable from script only
+  // (tabindex="-1", removed again on blur) and is focused without scrolling, so
+  // the smooth scroll below still runs.
+  const focusTopOfPage = () => {
+    const heading = [...document.querySelectorAll('main h1')]
+      .find((h) => !h.closest('.country-selector, .modal') && h.getClientRects().length > 0);
+    const target = heading || document.querySelector('main');
+    if (!target) return;
+    if (!target.hasAttribute('tabindex')) {
+      target.setAttribute('tabindex', '-1');
+      target.addEventListener('blur', () => target.removeAttribute('tabindex'), { once: true });
+    }
+    target.focus({ preventScroll: true });
+  };
+
   footer.querySelector('.back-to-top').addEventListener('click', () => {
+    focusTopOfPage();
     window.scrollTo({
       top: 0,
       behavior: 'smooth',

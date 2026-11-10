@@ -789,10 +789,13 @@ main {
   margin-top: var(--nav-height);
 }
 
-/* Remove the default focus outline when <main> is programmatically focused via
-   the skip link: the visible focus belongs on the content, not an outline box. */
+/* Remove the default focus outline when <main> (skip link) or the page's h1
+   (back-to-top button, KAW-11340) is programmatically focused: they are focus
+   starting points, not controls, so no outline box is drawn around them. */
 main:focus,
-main:focus-visible {
+main:focus-visible,
+main h1[tabindex="-1"]:focus,
+main h1[tabindex="-1"]:focus-visible {
   outline: none;
 }
 
