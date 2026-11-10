@@ -159,8 +159,14 @@ export default function decorate(block) {
       block.classList.add('hero-multiple-images');
     }
 
-    if (i === (picturesArr.length - 1) && picture.parentElement.tagName === 'P') {
-      picture.parentElement.remove();
+    // Remove the authored picture now that its optimized copy is in place, and
+    // its paragraph if that is left empty. Pictures can each sit in their own
+    // <p>; removing only the last one left a duplicate copy of the first image
+    // in the text wrapper, announced twice by screen readers now it has an alt.
+    const parent = picture.parentElement;
+    picture.remove();
+    if (parent.tagName === 'P' && !parent.children.length && !parent.textContent.trim()) {
+      parent.remove();
     }
   });
 
