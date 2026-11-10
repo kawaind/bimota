@@ -6,6 +6,11 @@ import {
 
 const ICON_TOKEN_REGEX = /:([A-Za-z0-9][A-Za-z0-9-]*):/g;
 const YEAR_TOKEN_REGEX = /\{\s*year\s*\}/gi;
+const HEADING_SELECTOR = 'h1, h2, h3, h4, h5, h6';
+
+// Alt text for the app logo under a column heading (WCAG 1.1.1), used when the
+// author left the image alt empty.
+const APP_LOGO_ALT_FALLBACK = 'Bimota App';
 
 // English fallback used until the translated label resolves (or if the sheet is
 // unavailable), so the back-to-top button always has an accessible name.

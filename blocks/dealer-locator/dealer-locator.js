@@ -130,7 +130,7 @@ export default async function decorate(block) {
     breakPoint: 10,
     baseMapStyle: colorsConfig,
     tileStyle: {
-      color: '#ed1d24',
+      color: '#ED1C24',
       size: 13,
       minSize: 7,
     },
@@ -175,6 +175,10 @@ export default async function decorate(block) {
       lat: 36.204824,
       lng: 138.252924,
     },
+    china: {
+      lat: 30.834894900629152,
+      lng: 114.2391845355548,
+    },
   };
 
   const CENTER_BY_PATH = {
@@ -186,6 +190,7 @@ export default async function decorate(block) {
     'au/en': LOCATION_CENTERS.australia,
     'ph/en': LOCATION_CENTERS.philippines,
     'jp/ja': LOCATION_CENTERS.japan,
+    'cn/en': LOCATION_CENTERS.china,
   };
 
   const ZOOM_BY_PATH = {
@@ -225,7 +230,7 @@ export default async function decorate(block) {
     initialZoom: getInitialZoom(),
     fitBounds: shouldFitBounds(),
     tileStyle: {
-      color: '#ed1d24',
+      color: '#ED1C24',
       size: 12,
       minSize: 10,
     },
@@ -270,7 +275,7 @@ export default async function decorate(block) {
                 },
               },
               theme: {
-                primaryColor: '#ed1d24',
+                primaryColor: '#ED1C24',
               },
               datasource: {
                 maxResponses: 5,
