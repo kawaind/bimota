@@ -149,7 +149,10 @@ export default function decorate(block) {
 
   picturesArr.forEach((picture, i) => {
     const img = picture.querySelector('img');
-    const pictureEl = createOptimizedPicture(img.src, '', false, [{ width: window.innerWidth }]);
+    // Keep the authored alt text (WCAG 1.1.1); an empty alt stays empty, so
+    // decorative images (e.g. the mobile copy of the hero) remain decorative.
+    const alt = img.getAttribute('alt') || '';
+    const pictureEl = createOptimizedPicture(img.src, alt, false, [{ width: window.innerWidth }]);
     firstCell.append(pictureEl);
 
     if (i > 0) {
