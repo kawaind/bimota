@@ -21,15 +21,30 @@ export default async function decorate(block) {
 
   block.prepend(textWrapper);
 
-  const buttonWrapper = document.createElement('div');
+  const buttons = [...block.querySelectorAll('a')];
+  // Several buttons (e.g. the owner's manual in different languages) are
+  // related links: group them in a list so screen readers announce them
+  // together ("list, 2 items") instead of as isolated links (WCAG 1.3.1).
+  const isGroup = buttons.length > 1;
+  const buttonWrapper = document.createElement(isGroup ? 'ul' : 'div');
   buttonWrapper.classList.add('nba-button-wrapper');
-  block.querySelectorAll('a').forEach((button, index) => {
+  // Explicit role: Safari/VoiceOver drops list semantics with list-style: none.
+  if (isGroup) buttonWrapper.setAttribute('role', 'list');
+  buttons.forEach((button, index) => {
     const buttonClass = index < 1 ? 'primary' : 'secondary';
     button.classList.add('button', buttonClass);
     if (button.parentElement.classList.contains('button-container')) {
       button.parentElement.removeAttribute('class');
     }
-    buttonWrapper.append(button);
+    if (isGroup) {
+      const item = document.createElement('li');
+      // The class also keeps unwrapDivs() (which removes bare elements) off the <li>.
+      item.className = 'nba-button-item';
+      item.append(button);
+      buttonWrapper.append(item);
+    } else {
+      buttonWrapper.append(button);
+    }
   });
   block.append(buttonWrapper);
 
