@@ -20,6 +20,19 @@
   width: 100%;
 }
 
+/* Several buttons are a list (a11y grouping): drop the list look so the
+   layout stays the same as the single-button <div>. */
+ul.nba-button-wrapper {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+ul.nba-button-wrapper > li {
+  display: flex;
+  flex-direction: column;
+}
+
 .nba .nba-button-wrapper:not(:first-child) {
   padding-top: 0;
 }
