@@ -1,5 +1,5 @@
 import {
-  throttle, gatherButtons, forceHeadingLevel,
+  throttle, gatherButtons, forceHeadingLevel, labelCtaWithTitle,
 } from '../../scripts/helpers.js';
 
 const moveImageOnScroll = (block, settings = {}) => {
@@ -64,9 +64,13 @@ export default async function decorate(block) {
   const headings = block.querySelectorAll('h1, h2, h3, h4, h5, h6');
 
   // Title: always semantic H2, visually sized as H3 (accessible outline).
-  headings.forEach((heading) => forceHeadingLevel(heading, 'h2', 'h3'));
+  const [titleEl] = [...headings].map((heading) => forceHeadingLevel(heading, 'h2', 'h3'));
 
   gatherButtons(block.querySelectorAll('.button-container'));
+
+  // Each CTA is announced as its own text, a pause, then the block title.
+  block.querySelectorAll('.button-container a.button')
+    .forEach((button) => labelCtaWithTitle(button, titleEl));
 
   if (block.classList.contains('stacked-images') || block.classList.contains('wide-stacked-images')) {
     moveImageOnScroll(block, { startOverlap: -1, endOverlap: 0.3, durationRatio: 0.33 });

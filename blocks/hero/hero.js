@@ -1,7 +1,7 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { customDecoreateIcons } from '../../scripts/decorate-icon-helper.js';
 import { getTextLabel } from '../../scripts/scripts.js';
-import { forceHeadingLevel } from '../../scripts/helpers.js';
+import { forceHeadingLevel, labelCtaWithTitle } from '../../scripts/helpers.js';
 
 const addPauseButton = (block) => {
   const pauseButton = document.createElement('button');
@@ -172,7 +172,7 @@ export default function decorate(block) {
 
   firstCell.append(textWrapper);
   // Title: always semantic H1, visually sized as H1 (accessible outline).
-  headings.forEach((h) => { forceHeadingLevel(h, 'h1', 'h1'); });
+  const [heroTitle] = [...headings].map((h) => forceHeadingLevel(h, 'h1', 'h1'));
   // Secondary text: body copy paragraphs (excluding button links and the
   // %TIME% countdown mount) visually sized as H6.
   textWrapper.querySelectorAll(':scope > p').forEach((p) => {
@@ -181,6 +181,9 @@ export default function decorate(block) {
     }
   });
   links.forEach((link, index) => { link.classList.add(index ? 'secondary' : 'primary'); });
+  // Each CTA is announced as its own text, a pause, then the stage title,
+  // e.g. "Discover, KB998 Rimini" (WCAG 2.4.4, 2.4.6).
+  links.forEach((link) => labelCtaWithTitle(link, heroTitle));
 
   addScrollIcon(block);
   addLogoFlag(block);
