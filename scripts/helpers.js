@@ -404,14 +404,19 @@ let ctaLangObserver;
 export function labelCtaWithTitle(cta, title) {
   if (!cta || !title) return;
   labelWithContext(cta, title, { selfReference: true });
-  cta.querySelector(':scope > [data-label-own] > [data-label-separator]')
-    ?.setAttribute('data-label-separator', 'auto');
+  const sep = cta.querySelector(':scope > [data-label-own] > [data-label-separator]');
+  if (sep) {
+    sep.setAttribute('data-label-separator', 'auto');
+    // The button's letter-spacing would still add width after the zero-size
+    // comma (about 1px); keep the CTA exactly as wide as before.
+    sep.style.letterSpacing = '0';
+  }
 
   if (!ctaLangObserver) {
     ctaLangObserver = new MutationObserver(() => {
       const separator = pageSeparator();
-      document.querySelectorAll('[data-label-separator="auto"]').forEach((sep) => {
-        if (sep.textContent !== separator) sep.textContent = separator;
+      document.querySelectorAll('[data-label-separator="auto"]').forEach((autoSep) => {
+        if (autoSep.textContent !== separator) autoSep.textContent = separator;
       });
     });
     ctaLangObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
