@@ -149,15 +149,24 @@ export default function decorate(block) {
 
   picturesArr.forEach((picture, i) => {
     const img = picture.querySelector('img');
-    const pictureEl = createOptimizedPicture(img.src, '', false, [{ width: window.innerWidth }]);
+    // Keep the authored alt text (WCAG 1.1.1); an empty alt stays empty, so
+    // decorative images (e.g. the mobile copy of the hero) remain decorative.
+    const alt = img.getAttribute('alt') || '';
+    const pictureEl = createOptimizedPicture(img.src, alt, false, [{ width: window.innerWidth }]);
     firstCell.append(pictureEl);
 
     if (i > 0) {
       block.classList.add('hero-multiple-images');
     }
 
-    if (i === (picturesArr.length - 1) && picture.parentElement.tagName === 'P') {
-      picture.parentElement.remove();
+    // Remove the authored picture now that its optimized copy is in place, and
+    // its paragraph if that is left empty. Pictures can each sit in their own
+    // <p>; removing only the last one left a duplicate copy of the first image
+    // in the text wrapper, announced twice by screen readers now it has an alt.
+    const parent = picture.parentElement;
+    picture.remove();
+    if (parent.tagName === 'P' && !parent.children.length && !parent.textContent.trim()) {
+      parent.remove();
     }
   });
 
