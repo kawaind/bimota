@@ -224,6 +224,37 @@ export const ensureId = (el, prefix = 'lbl') => {
   return el.id;
 };
 
+// ids handed out by ensureUniqueId(), so two not-yet-attached elements (e.g.
+// cards built in a detached list) can't end up with the same id either.
+const claimedIds = new Map();
+
+/**
+ * Like ensureId(), but also replaces an existing id that is already used by
+ * another element (e.g. two identical blocks whose headings got the same
+ * authored id), so an aria-labelledby reference always points at this exact
+ * element. The first element keeps its id, so in-page anchors still work.
+ * @param {HTMLElement} el the element
+ * @param {string} prefix id prefix used when generating
+ * @returns {string} the element's (unique) id
+ */
+export const ensureUniqueId = (el, prefix) => {
+  const { id } = el;
+  const clash = id && (
+    (document.getElementById(id) || el) !== el
+    || (claimedIds.has(id) && claimedIds.get(id) !== el)
+  );
+  if (!id || clash) {
+    let newId;
+    do {
+      describedButtonId += 1;
+      newId = `${prefix}-${describedButtonId}`;
+    } while (document.getElementById(newId) || claimedIds.has(newId));
+    el.id = newId;
+  }
+  claimedIds.set(el.id, el);
+  return el.id;
+};
+
 /**
  * Give a button a descriptive accessible name for screen readers: its own text,
  * a comma, then a contextual title (e.g. the heading above it), so a generic
@@ -297,10 +328,15 @@ export function createElement(tagName, options = {}) {
  *   the control's visible text
  * @param {string} [options.separator] separator glued to the first part;
  *   defaults to the page language's comma (',' — or '、' for Japanese)
+ * @param {boolean} [options.selfReference] reference the control's own id
+ *   (aria-labelledby="<control-id> <context-id>") instead of the inner label
+ *   span; the browser then names that part from the control's content, which
+ *   includes the zero-size comma. Context ids are made unique on the page.
  */
 export function labelWithContext(control, context, {
   label,
   separator = (document.documentElement.lang || '').toLowerCase().startsWith('ja') ? '、' : ',',
+  selfReference = false,
 } = {}) {
   let first = control.querySelector(':scope > [data-label-own]');
 
@@ -345,8 +381,46 @@ export function labelWithContext(control, context, {
 
   const contextIds = (Array.isArray(context) ? context : [context])
     .filter(Boolean)
-    .map((el) => ensureId(el));
-  control.setAttribute('aria-labelledby', [ensureId(first), ...contextIds].join(' '));
+    .map((el) => (selfReference ? ensureUniqueId(el, 'cta-title') : ensureId(el)));
+  const ownId = selfReference ? ensureUniqueId(control, 'cta') : ensureId(first);
+  control.setAttribute('aria-labelledby', [ownId, ...contextIds].join(' '));
+}
+
+const pageSeparator = () => ((document.documentElement.lang || '').toLowerCase().startsWith('ja') ? '、' : ',');
+let ctaLangObserver;
+
+/**
+ * Name a block CTA (link or button) by its own text, a short pause, then the
+ * block's title: aria-labelledby="<cta-id> <title-id>", e.g. "Discover, KB998
+ * Rimini" (WCAG 2.4.4, 2.4.6; the visible text comes first, so Label in Name,
+ * 2.5.3, still passes). Same multi-id pattern as the vehicle selector, with a
+ * unique id per CTA and per title, so identical blocks on one page never share
+ * ids. No visual change. The ids don't depend on the language; if <html lang>
+ * changes later, the pause comma is switched (',' or '、' for Japanese).
+ * Idempotent: calling it again re-uses the same ids.
+ * @param {Element} cta the CTA link or button
+ * @param {Element} title the block's main heading / component title
+ */
+export function labelCtaWithTitle(cta, title) {
+  if (!cta || !title) return;
+  labelWithContext(cta, title, { selfReference: true });
+  const sep = cta.querySelector(':scope > [data-label-own] > [data-label-separator]');
+  if (sep) {
+    sep.setAttribute('data-label-separator', 'auto');
+    // The button's letter-spacing would still add width after the zero-size
+    // comma (about 1px); keep the CTA exactly as wide as before.
+    sep.style.letterSpacing = '0';
+  }
+
+  if (!ctaLangObserver) {
+    ctaLangObserver = new MutationObserver(() => {
+      const separator = pageSeparator();
+      document.querySelectorAll('[data-label-separator="auto"]').forEach((autoSep) => {
+        if (autoSep.textContent !== separator) autoSep.textContent = separator;
+      });
+    });
+    ctaLangObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+  }
 }
 
 export const isInViewport = (element) => {

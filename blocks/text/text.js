@@ -1,11 +1,11 @@
-import { gatherButtons, forceHeadingLevel } from '../../scripts/helpers.js';
+import { gatherButtons, forceHeadingLevel, labelCtaWithTitle } from '../../scripts/helpers.js';
 
 export default async function decorate(block) {
   const textContainer = block.querySelector(':scope > div > div');
   const headings = block.querySelectorAll('h1, h2, h3, h4, h5, h6');
   // Title: always semantic H2, visually sized as H3 (accessible outline).
   // forceHeadingLevel preserves inline markup like sup/sub.
-  headings.forEach((heading) => forceHeadingLevel(heading, 'h2', 'h3'));
+  const [titleEl] = [...headings].map((heading) => forceHeadingLevel(heading, 'h2', 'h3'));
 
   const textElements = block.querySelectorAll('p');
   [...textElements].forEach((heading) => {
@@ -16,6 +16,10 @@ export default async function decorate(block) {
 
   const buttonContainer = block.querySelector('.button-container');
   buttonContainer?.classList.remove('text-content');
+
+  // Each CTA is announced as its own text, a pause, then the block title.
+  block.querySelectorAll('.button-container a.button')
+    .forEach((button) => labelCtaWithTitle(button, titleEl));
 
   let quoteWrapper;
   const quotedText = block.querySelector('.text-content strong');
