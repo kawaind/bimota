@@ -69,6 +69,29 @@ export default function decorate(block) {
 
   scrollToSlide(block, 0);
 
+  const ctaButton = block.querySelector('.button-container a.button');
+
+  // The CTA opens the specification dialog rather than navigating, so it is a
+  // native <button> (not a link) that announces the dialog it opens and its
+  // open/closed state (KAW-11088, WCAG 4.1.2). The shared modal helper opens it
+  // via data-modal and keeps aria-expanded in sync with the dialog.
+  const modalName = ctaButton?.getAttribute('href')?.split('#')[1];
+  if (ctaButton && modalName?.startsWith('modal-')) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = ctaButton.className;
+    button.dataset.modal = modalName;
+    button.setAttribute('aria-haspopup', 'dialog');
+    button.setAttribute('aria-expanded', 'false');
+    // Keep an authored title (e.g. "Click to open the specification of the
+    // KB4"); decorateButtons fills a missing one with the link text, which
+    // would only repeat the visible label, so that one is not copied.
+    const { title } = ctaButton;
+    if (title && title.trim() !== ctaButton.textContent.trim()) button.title = title;
+    button.append(...ctaButton.childNodes);
+    ctaButton.replaceWith(button);
+  }
+
   const slideCount = block.querySelectorAll('.specification-images > *').length;
 
   autoScrollSlidesWhenInView(block, {

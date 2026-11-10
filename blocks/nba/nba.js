@@ -1,25 +1,50 @@
-import { unwrapDivs } from '../../scripts/helpers.js';
+import { unwrapDivs, forceHeadingLevel } from '../../scripts/helpers.js';
 
 export default async function decorate(block) {
   const textWrapper = document.createElement('div');
   textWrapper.classList.add('nba-text-wrapper');
 
-  const headings = block.querySelectorAll('h1, h2, h3, h4, h5, h6');
-  [...headings].forEach((heading) => {
-    textWrapper.append(heading);
-  });
+  // Text pieces are headings/paragraphs without links (links are the buttons).
+  const textNodes = [...block.querySelectorAll('h1, h2, h3, h4, h5, h6, p')]
+    .filter((el) => !el.querySelector('a'));
+  const [title, secondary] = textNodes;
+
+  // Force the title to always render as an <h2> styled as .h3.
+  if (title) {
+    textWrapper.append(forceHeadingLevel(title, 'h2', 'h3'));
+  }
+
+  // Force the secondary text to always render as a body copy <p> styled as .h6.
+  if (secondary) {
+    textWrapper.append(forceHeadingLevel(secondary, 'p', 'h6'));
+  }
 
   block.prepend(textWrapper);
 
-  const buttonWrapper = document.createElement('div');
+  const buttons = [...block.querySelectorAll('a')];
+  // Several buttons (e.g. the owner's manual in different languages) are
+  // related links: group them in a list so screen readers announce them
+  // together ("list, 2 items") instead of as isolated links (WCAG 1.3.1).
+  const isGroup = buttons.length > 1;
+  const buttonWrapper = document.createElement(isGroup ? 'ul' : 'div');
   buttonWrapper.classList.add('nba-button-wrapper');
-  block.querySelectorAll('a').forEach((button, index) => {
+  // Explicit role: Safari/VoiceOver drops list semantics with list-style: none.
+  if (isGroup) buttonWrapper.setAttribute('role', 'list');
+  buttons.forEach((button, index) => {
     const buttonClass = index < 1 ? 'primary' : 'secondary';
     button.classList.add('button', buttonClass);
     if (button.parentElement.classList.contains('button-container')) {
       button.parentElement.removeAttribute('class');
     }
-    buttonWrapper.append(button);
+    if (isGroup) {
+      const item = document.createElement('li');
+      // The class also keeps unwrapDivs() (which removes bare elements) off the <li>.
+      item.className = 'nba-button-item';
+      item.append(button);
+      buttonWrapper.append(item);
+    } else {
+      buttonWrapper.append(button);
+    }
   });
   block.append(buttonWrapper);
 

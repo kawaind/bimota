@@ -15,7 +15,43 @@ import {
   toClassName,
 } from './aem.js';
 import { customDecoreateIcons } from './decorate-icon-helper.js';
-import { isReservedHash } from './helpers.js';
+import { isReservedHash, forceHeadingLevel } from './helpers.js';
+
+/**
+ * Ensure the page exposes exactly one top-level <h1> (WCAG 1.3.1 / 2.4.6; the
+ * "page has a level-one heading" check AudioEye/axe run). Some pages (e.g. the
+ * legal/text pages) author their top heading as <h2> and have no hero to
+ * promote one, so `main` ends up with no <h1>. When that happens, promote the
+ * first heading in `main` to <h1> AND shift every other heading up by the same
+ * amount, so the document outline keeps its relative structure and no
+ * heading-order jump is introduced. Visual sizes are preserved via a matching
+ * class, so there is no visual change: a heading that already carries a visual
+ * heading class (h1-h6, set by a block or the author, e.g. the Highlight title
+ * <h3 class="h1">) keeps it, and only plain headings get their old tag as the
+ * visual class. No-op when an <h1> already exists.
+ * @param {Element} main the page's main element
+ */
+function ensurePageHeadingOne(main) {
+  if (!main || main.querySelector('h1')) return;
+  const headings = [...main.querySelectorAll('h2, h3, h4, h5, h6')];
+  if (!headings.length) return;
+
+  // The shallowest heading currently present becomes the new h1 baseline; every
+  // heading shifts up by that delta so relative nesting (and order) is kept.
+  const levels = headings.map((h) => Number(h.tagName[1]));
+  const minLevel = Math.min(...levels);
+  const delta = minLevel - 1;
+  if (delta <= 0) return;
+
+  headings.forEach((h) => {
+    const newLevel = Math.max(1, Number(h.tagName[1]) - delta);
+    // Keep the current visual size: an existing h1-h6 class already sets it
+    // (adding the old tag too would override it); otherwise use the old tag.
+    const hasVisualClass = [...h.classList].some((c) => /^h[1-6]$/.test(c));
+    const visualClass = hasVisualClass ? undefined : h.tagName.toLowerCase();
+    forceHeadingLevel(h, `h${newLevel}`, visualClass);
+  });
+}
 
 function buildVideoBlock(main) {
   const videoLinks = [...main.querySelectorAll('a[href$=".mp4"]')];
@@ -100,13 +136,32 @@ function decorateAnchors(main) {
   //    slug becomes the element id (e.g. "5. Long Header {#tech-notes}").
   main.querySelectorAll('h1, h2, h3, h4, h5, h6, p').forEach((el) => {
     const match = el.textContent.match(customSlugRegex);
-    if (match) {
-      const slug = match[1].toLowerCase();
-      el.innerHTML = el.innerHTML.replace(/\s*\{#[a-z0-9-]+\}/i, '');
-      if (!isReservedHash(slug) && !el.id) {
-        el.id = registerId(slug);
-        el.classList.add('anchor-target');
+    if (!match) return;
+
+    const slug = match[1].toLowerCase();
+
+    // A paragraph whose entire text is just the marker (e.g. <p>{#function}</p>)
+    // is an author's standalone anchor point, not visible copy. Replace it with
+    // an invisible anchor span carrying the id, so no empty/leftover paragraph
+    // (or a flash of the raw "{#slug}" text) is left in the layout.
+    if (el.tagName === 'P' && el.textContent.trim() === match[0]) {
+      if (!isReservedHash(slug) && !document.getElementById(slug)) {
+        const anchor = document.createElement('span');
+        anchor.id = registerId(slug);
+        anchor.className = 'anchor-point';
+        el.replaceWith(anchor);
+      } else {
+        el.remove();
       }
+      return;
+    }
+
+    // Otherwise strip the marker from the visible text and put the id on the
+    // element itself (heading or paragraph that also carries real content).
+    el.innerHTML = el.innerHTML.replace(/\s*\{#[a-z0-9-]+\}/i, '');
+    if (!isReservedHash(slug) && !el.id) {
+      el.id = registerId(slug);
+      el.classList.add('anchor-target');
     }
   });
 
@@ -177,6 +232,54 @@ function swappingPlacesBlock(main) {
 }
 
 /**
+ * Inline button/new-tab authoring shortcut for links written in open text.
+ *
+ * Authors can turn a plain inline link into a secondary button by prefixing its
+ * text with `$`, and make it open in a new tab by suffixing the text with `+`:
+ *   - `$Discover`   -> secondary button, same tab
+ *   - `$Discover+`  -> secondary button, opens in a new tab
+ *   - `Read more+`  -> plain inline link that opens in a new tab
+ *
+ * The marker characters are stripped from the visible/accessible label. Links
+ * opening in a new tab get rel="noopener noreferrer" (security) and a
+ * visually-hidden "(opens in a new tab)" hint so screen-reader users are warned
+ * (WCAG 3.2.5). Runs after decorateButtons so it does not fight the existing
+ * paragraph-wrapping button convention.
+ * @param {Element} main The container element
+ */
+function decorateInlineButtons(main) {
+  main.querySelectorAll('a:any-link').forEach((a) => {
+    // Only act on text links (skip image links) and use the trimmed label.
+    if (a.querySelector('img')) return;
+    const label = a.textContent.trim();
+    if (!label) return;
+
+    const isButton = label.startsWith('$');
+    const newTab = label.endsWith('+');
+    if (!isButton && !newTab) return;
+
+    // Strip the markers from the visible text.
+    const cleanLabel = label.replace(/^\$/, '').replace(/\+$/, '').trim();
+    a.textContent = cleanLabel;
+    if (a.title === label) a.title = cleanLabel;
+
+    if (isButton && !a.classList.contains('button')) {
+      a.classList.add('button', 'secondary');
+    }
+
+    if (newTab) {
+      a.setAttribute('target', '_blank');
+      a.setAttribute('rel', 'noopener noreferrer');
+      // Warn AT users the link opens in a new tab (WCAG 3.2.5).
+      const hint = document.createElement('span');
+      hint.className = 'sr-only';
+      hint.textContent = ' (opens in a new tab)';
+      a.append(hint);
+    }
+  });
+}
+
+/**
  * Decorates the main element.
  * @param {Element} main The main element
  */
@@ -184,6 +287,7 @@ function swappingPlacesBlock(main) {
 export function decorateMain(main) {
   // hopefully forward compatible button decoration
   decorateButtons(main);
+  decorateInlineButtons(main);
   customDecoreateIcons(main);
   buildAutoBlocks(main);
   decorateSections(main);
@@ -193,10 +297,81 @@ export function decorateMain(main) {
   swappingPlacesBlock(main);
 }
 
+/**
+ * Wait for the first image of the first section before showing it (as
+ * aem.js waitForFirstImage does), unless that image is hidden at the current
+ * viewport, e.g. the desktop picture of a hero with separate mobile/desktop
+ * images. The first paint then never waits for an image that isn't shown.
+ * @param {Element} section The first section
+ */
+function waitForFirstVisibleImage(section) {
+  const first = section.querySelector('img');
+  const hidden = first && window.getComputedStyle(first.closest('picture') || first).display === 'none';
+  return hidden ? Promise.resolve() : waitForFirstImage(section);
+}
+
 function setMainPosition(main) {
   if (main.querySelector(':scope > .section:first-child > .hero-wrapper:first-child')) {
     main.classList.add('no-top-margin');
   }
+}
+
+// Brand suffix appended to every page title so authors only type the page
+// name (e.g. "Home") in the metadata table and the "<name> | bimota" form is
+// produced automatically.
+const BRAND_SUFFIX = ' | bimota';
+const HOME_TITLE = 'Home';
+
+/**
+ * Return a title with the brand suffix ("<title> | bimota"). Idempotent: a
+ * value already ending in the brand suffix (any casing, e.g. " | Bimota") is
+ * normalised rather than suffixed again. Empty/brand-only titles are left
+ * as-is, except on a locale home page (e.g. /it/en/), where they become
+ * "Home | bimota". Blocks that replace document.title (e.g. woosmapdealers)
+ * must pass their title through this so the suffix is kept.
+ * @param {string} value The page title
+ * @returns {string} The branded title
+ */
+export function withBrandSuffix(value) {
+  const brandOnly = BRAND_SUFFIX.replace(/^\s*\|\s*/, ''); // "bimota"
+  const suffixPattern = new RegExp(`\\s*\\|\\s*${brandOnly}$`, 'i');
+  let base = (value || '').trim().replace(suffixPattern, '').trim();
+  // Nothing to brand, or the author typed only the brand as the title.
+  if (!base || base.toLowerCase() === brandOnly) {
+    const rootPath = getRootPath();
+    const pagePath = window.location.pathname.replace(/\/(index)?$/, '');
+    const isHomePage = !!rootPath && pagePath === rootPath;
+    if (!isHomePage) return base;
+    base = HOME_TITLE;
+  }
+  return `${base}${BRAND_SUFFIX}`;
+}
+
+/**
+ * Append the brand suffix to the document title and the social title meta
+ * (og:title, twitter:title), so authors type only the page name in the
+ * metadata table.
+ */
+function applyBrandSuffix() {
+  document.title = withBrandSuffix(document.title);
+  const brandOnly = BRAND_SUFFIX.replace(/^\s*\|\s*/, ''); // "bimota"
+
+  const withSuffix = (value) => {
+    const base = (value || '').trim();
+    // Nothing to brand, or the author already typed the brand as the title.
+    if (!base || base === brandOnly) return base;
+    // Already suffixed (e.g. author typed it, or a re-run) — leave as-is.
+    if (base.endsWith(BRAND_SUFFIX)) return base;
+    return `${base}${BRAND_SUFFIX}`;
+  };
+
+  document.title = withSuffix(document.title);
+
+  ['og:title', 'twitter:title'].forEach((name) => {
+    const attr = name.startsWith('og:') ? 'property' : 'name';
+    const meta = document.head.querySelector(`meta[${attr}="${name}"]`);
+    if (meta) meta.setAttribute('content', withBrandSuffix(meta.getAttribute('content')));
+  });
 }
 
 /**
@@ -205,12 +380,17 @@ function setMainPosition(main) {
  */
 async function loadEager(doc) {
   const pathTokens = window.location.pathname.split('/');
-  const lang = pathTokens.length >= 3 ? pathTokens[2].split('-')[0] : 'en';
+  const pathLang = pathTokens.length >= 3 ? pathTokens[2].split('-')[0] : '';
+  // Only a real language code (2-3 letters) is a valid <html lang>; other paths
+  // (e.g. /drafts/<author>/...) fall back to English (WCAG 3.1.1).
+  const lang = /^[a-z]{2,3}$/i.test(pathLang) ? pathLang : 'en';
   document.documentElement.lang = lang;
 
   if (pathTokens[1] === 'us' && pathTokens[2] === 'en-us') {
     document.body.classList.add('locale-us');
   }
+
+  applyBrandSuffix();
 
   decorateTemplateAndTheme();
   const main = doc.querySelector('main');
@@ -218,7 +398,7 @@ async function loadEager(doc) {
     decorateMain(main);
     setMainPosition(main);
     document.body.classList.add('appear');
-    await loadSection(main.querySelector('.section'), waitForFirstImage);
+    await loadSection(main.querySelector('.section'), waitForFirstVisibleImage);
   }
 
   sampleRUM.enhance();
@@ -242,6 +422,7 @@ async function loadLazy(doc) {
   await loadSections(main);
 
   decorateAnchors(main);
+  ensurePageHeadingOne(main);
 
   const { hash } = window.location;
   const element = hash ? doc.getElementById(hash.substring(1)) : false;

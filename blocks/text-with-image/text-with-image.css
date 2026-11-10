@@ -114,6 +114,20 @@
   transform: translateY(calc(var(--text-image-distance) * -1));
   transition: transform var(--animation-time) linear;
   margin-top: calc((var(--text-image-2nd-image-height) + 40px));
+
+  /* The text column is translated up toward the full-bleed image above it,
+     creating an overlap region where automated contrast checkers sample the
+     image (treated as dark) instead of the page background behind the text.
+     Give the text its own page-matching background so its contrast is measured
+     against a solid colour (WCAG 1.4.3). Uses the theme background token so the
+     dark-section variant (white text on black) stays correct. No visual change
+     — the text already renders on this colour. */
+  background-color: var(--c-primary-white);
+  position: relative;
+}
+
+.dark .text-with-image.wide-stacked-images .column-with-text {
+  background-color: var(--black);
 }
 
 .text-with-image.wide-stacked-images .column-with-images p:nth-child(1) img {

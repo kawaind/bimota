@@ -104,6 +104,15 @@
     color: var(--action-hover);
 }
 
+/* The list items sit only 3px apart, so a focused option's outline (3px + 2px
+   offset) would otherwise be painted over by the opaque grey background of the
+   item below/beside it. Lift the focused option onto its own stacking context
+   so its full focus ring stays visible on every side (WCAG 2.4.7, 2.4.11). */
+.country-selector-language-list li a:focus-visible {
+    position: relative;
+    z-index: 1;
+}
+
 .country-selector-flag {
   display: inline-flex;
   align-items: center;

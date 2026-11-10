@@ -1,95 +1,233 @@
 /* stylelint-disable no-descending-specificity */
 /* stylelint-disable selector-class-pattern */
-@keyframes vehicle-entry {
+
+/* Visually-hidden live region: announced by screen readers but removed from
+   the visual layout. */
+.vehicle-selector__live-region {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Incoming vehicle slides in from the right (moving forward). */
+@keyframes vehicle-slide-in-right {
   0% {
     transform: translateX(100%);
     opacity: 0;
   }
 
-  25% {
+  100% {
+    transform: translateX(0);
     opacity: 1;
+  }
+}
+
+/* Incoming vehicle slides in from the left (moving backward). */
+@keyframes vehicle-slide-in-left {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
   }
 
   100% {
     transform: translateX(0);
+    opacity: 1;
   }
 }
 
-.vehicle-selector__images-container,
-.vehicle-selector__description-container {
-  display: flex;
-  flex-flow: row nowrap;
-  margin: 0;
-  padding-left: 0;
+/* Outgoing vehicle slides off to the left (moving forward). */
+@keyframes vehicle-slide-out-left {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
 }
 
-.vehicle-selector__description-container {
-  order: 2;
-  overflow: hidden;
+/* Outgoing vehicle slides off to the right (moving backward). */
+@keyframes vehicle-slide-out-right {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
 }
 
-.vehicle-selector__images-container {
-  align-items: flex-end;
-  gap: 24px;
-  overflow: scroll hidden;
-  scroll-behavior: smooth;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
-}
-
-.vehicle-selector__images-container::-webkit-scrollbar {
+/* Tablist: motorbike-name selectors. Horizontally scrollable on small screens
+   with the active tab auto-centered. */
+.vehicle-selector__navigation::-webkit-scrollbar {
   display: none;
 }
 
-.vehicle-selector__image-item {
-  flex: none;
-  max-width: var(--vehicle-lineup-img-width);
-  scroll-snap-align: center;
+ul.vehicle-selector__navigation {
+  display: flex;
+  gap: 30px;
+  flex-flow: row nowrap;
+
+  /* `safe center` centres the names when they all fit, but falls back to
+     start-alignment when they overflow — so a short line-up (e.g. a few
+     vehicles) is centred, while a long one still scrolls from the left with
+     no names clipped or made unreachable. The active-tab auto-centering (see
+     activate() in the JS) continues to work in the overflow case. */
+  justify-content: safe center;
+  list-style: none;
+  margin: 0;
+  overflow: auto;
+  padding: 10px 20px 40px;
+  position: relative;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+
+/* Default grey; interaction states pair a distinct colour with an underline so
+   state is never conveyed by colour alone (WCAG 1.4.1 Use of Color, Level A).
+   Colour follows the spec: active = dark-red, hover and focus = darker-red. */
+.vehicle-selector__navigation button {
+  color: var(--grey-60);
+  line-height: 100%;
+  margin: 0;
+  white-space: nowrap;
+  text-underline-offset: 4px;
+}
+
+.vehicle-selector__navigation button:hover {
+  color: var(--action-focus);
+  text-decoration: underline;
+}
+
+.vehicle-selector__navigation button:focus-visible {
+  color: var(--action-focus);
+  text-decoration: underline;
+}
+
+.vehicle-selector__navigation-item.active button {
+  color: var(--action-hover);
+  text-decoration: underline;
+}
+
+/* Slider wrapper: positions the arrow controls over the panel media. */
+.vehicle-selector__slider-wrapper {
+  position: relative;
+}
+
+.vehicle-selector-wrapper .vehicle-selector .vehicle-selector__slider-wrapper {
+  padding-top: 0;
+}
+
+/* Panels: only the active one is shown; each panel stacks the vehicle image
+   over its specifications. The container is the positioning context and clips
+   the panels as they slide horizontally in/out. */
+.vehicle-selector__panels {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+}
+
+.vehicle-selector__panel {
+  display: grid;
+  gap: 24px;
+  margin: 0;
+}
+
+/* Inactive panels use the native `hidden` attribute (not aria-hidden) because
+   they contain a focusable CTA. `display: grid` above would override the UA
+   `hidden { display: none }`, so re-assert it here. */
+.vehicle-selector__panel[hidden] {
+  display: none;
+}
+
+/* The incoming (now active) panel slides in — from the right when moving
+   forward, from the left when moving backward. */
+.vehicle-selector__panel.is-entering.from-right {
+  animation: vehicle-slide-in-right var(--duration-medium) var(--easing-entrance);
+}
+
+.vehicle-selector__panel.is-entering.from-left {
+  animation: vehicle-slide-in-left var(--duration-medium) var(--easing-entrance);
+}
+
+/* The outgoing panel slides off — to the left when moving forward, to the right
+   when moving backward. It is still `hidden` (so it is out of the a11y tree and
+   the JS marks it `inert`), so re-assert display and pull it out of flow,
+   overlaying the incoming panel for the duration of the slide. `[hidden]` +
+   this class must win over the plain `[hidden] { display:none }` rule above, so
+   it is intentionally more specific. */
+.vehicle-selector__panel[hidden].is-leaving {
+  display: grid;
+  position: absolute;
+  inset: 0;
+}
+
+.vehicle-selector__panel[hidden].is-leaving.to-left {
+  animation: vehicle-slide-out-left var(--duration-medium) var(--easing-exit);
+}
+
+.vehicle-selector__panel[hidden].is-leaving.to-right {
+  animation: vehicle-slide-out-right var(--duration-medium) var(--easing-exit);
+}
+
+/* Visible focus indicator for the tabpanel, which is keyboard-focusable so Tab
+   can move into the panel content (WCAG 2.4.7). */
+.vehicle-selector__panel:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: 2px;
+}
+
+/* Reserve the media box up front from its aspect ratio so the block never
+   collapses while the image is still loading (no layout shift / CLS). The box
+   is capped so its height never exceeds 70vh (matching the previous sizing),
+   and is centered within the panel. */
+.vehicle-selector__panel-media {
+  width: 100%;
+  max-width: calc(70vh * 16 / 9);
+  margin-inline: auto;
+  aspect-ratio: 16 / 9;
   text-align: center;
 }
 
-.vehicle-selector__image-item picture {
+.vehicle-selector__panel-media picture {
   display: block;
-  animation-duration: 1s;
-  animation-delay: 0.5s;
-  animation-name: vehicle-entry;
-  animation-timing-function: ease-in;
+  height: 100%;
 }
 
-.vehicle-selector__image-item:first-child {
-  margin-left: 20vw;
+/* Respect users who prefer reduced motion: no sliding, just an instant swap
+   (the JS also skips the animation classes in this case). */
+@media (prefers-reduced-motion: reduce) {
+  .vehicle-selector__panel.is-entering,
+  .vehicle-selector__panel[hidden].is-leaving,
+  .vehicle-selector__panel[hidden].is-leaving.to-left,
+  .vehicle-selector__panel[hidden].is-leaving.to-right {
+    animation: none;
+  }
 }
 
-.vehicle-selector__images-container::after {
-  content: '';
-  display: block;
-  flex: 0 0 20vw;
-  min-height: 1px; /* In this case, Safari doesn't render element properly without height */
+.vehicle-selector__panel-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
-.vehicle-selector__image-item img {
-  aspect-ratio: 16/9;
-  max-height: 80vh;
-  width: auto;
-}
-
-.vehicle-selector__desc-item {
+.vehicle-selector__panel-specs {
   display: grid;
   gap: 24px;
-  flex: none;
-  opacity: 0;
   width: 100%;
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: auto;
   padding-inline: 20px;
-
-  /* fadeout */
-  transition: opacity var(--duration-medium) var(--easing-exit);
-}
-
-.vehicle-selector__desc-item.active {
-  opacity: 1;
-  transition: opacity 0.5s var(--easing-entrance) var(--duration-medium);
 }
 
 .description-label {
@@ -110,121 +248,82 @@
   margin: auto 0 0;
 }
 
-/* Navigation */
-.vehicle-selector__navigation::-webkit-scrollbar {
+/* Arrow controls: real keyboard-operable buttons in the tab sequence, so they
+   are always reachable (not hidden from AT). Positioned over the media.
+   Colour follows the spec red-on-white -> dark-red (hover) -> darker-red
+   (focus). */
+.vehicle-selector__arrow {
   display: none;
-}
-
-ul.vehicle-selector__navigation {
-  display: flex;
-  gap: 30px;
-  flex-flow: row nowrap;
-  list-style: none;
-  margin: 0;
-  order: 1;
-  overflow: auto;
-  padding: 10px 32px 40px;
-  position: relative;
-  scrollbar-width: none;
-}
-
-.vehicle-selector__navigation::before,
-.vehicle-selector__navigation::after {
-  content: '';
-  margin: auto;
-}
-
-.vehicle-selector__navigation button {
-  color: var(--grey-60);
-  line-height: 100%;
-  margin: 0;
-}
-
-
-.vehicle-selector__navigation button:hover {
-  color: var(--action-hover);
-}
-
-.vehicle-selector__navigation button:focus-visible {
-  color: var(--action-default);
-}
-
-.vehicle-selector__navigation-item.active button {
-  color: var(--action-default);
-}
-
-.vehicle-selector-wrapper .vehicle-selector .vehicle-selector__slider-wrapper {
-  padding-top: 0;
-}
-
-/* Arrow controls */
-.vehicle-selector__slider-wrapper {
-  position: relative;
-}
-
-.vehicle-selector__arrow-controls {
-  display: none;
-  margin: 0;
-}
-
-.vehicle-selector__arrow-controls li {
   align-items: center;
-  display: flex;
-  height: 100%;
-  left: 10%;
+  justify-content: center;
   position: absolute;
-  top: 0;
-}
-
-.vehicle-selector__arrow-controls li:last-child {
-  left: auto;
-  right: 10%;
-}
-
-.vehicle-selector__arrow-controls button {
+  top: 25%;
+  z-index: 1;
   background-color: var(--white);
   border-radius: 50%;
-  border: 1px solid var(--action-default);
+  color: var(--red-on-white);
+  border: 1px solid var(--red-on-white);
   font-size: 0;
   line-height: 0;
   margin: 0;
   padding: 7px;
-  position: relative;
   opacity: 0;
   transition: opacity var(--duration-small) var(--easing-standard);
 }
 
-.vehicle-selector__arrow-controls button:hover {
+.vehicle-selector__arrow--prev {
+  left: 10%;
+}
+
+.vehicle-selector__arrow--next {
+  right: 10%;
+}
+
+.vehicle-selector__arrow:hover {
+  color: var(--action-hover);
+  border-color: var(--action-hover);
   box-shadow: 0 0 12px 2px rgb(77 77 77 / 20%);
 }
 
-.vehicle-selector__arrow-controls button:active {
+.vehicle-selector__arrow:active {
   box-shadow: 0 0 12px 2px rgb(77 77 77 / 20%);
 }
 
-.vehicle-selector__arrow-controls button:focus-visible {
-  outline: 2px solid var(--action-focus);
-  outline-offset: 1px;
+.vehicle-selector__arrow:focus-visible {
+  color: var(--action-focus);
+  border-color: var(--action-focus);
+
+  /* Use the site-wide high-contrast focus ring (WCAG 2.4.7, 2.4.11) instead of
+     a thinner dark-red outline, for a consistent, clearly visible indicator.
+     Keep the round shape: the global `button:focus-visible` rule forces
+     border-radius:2px, which would square off this round arrow and its outline,
+     so re-assert 50% here (higher specificity wins). The outline then follows
+     the circle, giving a round ring on the round button — no squared overlay. */
+  border-radius: 50%;
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
 }
 
-.vehicle-selector__slider-wrapper:hover .vehicle-selector__arrow-controls button,
-.vehicle-selector__arrow-controls button:focus-visible, /* stylelint-disable-line no-descending-specificity */
-.vehicle-selector__arrow-controls:focus-within button {
+/* Reveal the arrows on hover, or whenever one has keyboard focus (WCAG 2.4.7
+   — a focused control must be visible). */
+.vehicle-selector__slider-wrapper:hover .vehicle-selector__arrow,
+.vehicle-selector__arrow:focus-visible {
   opacity: 1;
 }
 
 @media screen and (width >= 768px) {
-  .vehicle-selector__arrow-controls {
-    display: block;
+  .vehicle-selector__arrow {
+    display: flex;
   }
 
-  .vehicle-selector__desc-item {
+  .vehicle-selector__panel-specs {
     grid-template-columns: repeat(4, 1fr);
     padding-inline: 30px;
   }
 
   ul.vehicle-selector__navigation {
     gap: 60px;
+    padding-inline: 32px;
   }
 
   .vehicle-selector .button-container {
@@ -234,18 +333,18 @@ ul.vehicle-selector__navigation {
 }
 
 @media screen and (width >= 1025px) {
-  .vehicle-selector__desc-item {
+  .vehicle-selector__panel-specs {
     padding-inline: 100px;
   }
 
   .vehicle-selector__slider-wrapper {
     width: 100vw;
-    margin-left: calc((100vw - 100%)* -1 / 2);
+    margin-left: calc((100vw - 100%) * -1 / 2);
   }
 }
 
 @media screen and (width >= 1440px) {
-  .vehicle-selector__desc-item {
+  .vehicle-selector__panel-specs {
     padding-left: 200px;
   }
 }

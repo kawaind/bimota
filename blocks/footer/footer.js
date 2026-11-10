@@ -1,6 +1,8 @@
 import { getMetadata, getRootPath } from '../../scripts/aem.js';
 import { loadFragment } from '../fragment/fragment.js';
-import { addTitleAttributeToIconLink } from '../../scripts/helpers.js';
+import {
+  addTitleAttributeToIconLink, forceHeadingLevel, getLanguageFromPath, getLanguageLabels,
+} from '../../scripts/helpers.js';
 
 const ICON_TOKEN_REGEX = /:([A-Za-z0-9][A-Za-z0-9-]*):/g;
 const YEAR_TOKEN_REGEX = /\{\s*year\s*\}/gi;
@@ -9,6 +11,70 @@ const HEADING_SELECTOR = 'h1, h2, h3, h4, h5, h6';
 // Alt text for the app logo under a column heading (WCAG 1.1.1), used when the
 // author left the image alt empty.
 const APP_LOGO_ALT_FALLBACK = 'Bimota App';
+
+// English fallback used until the translated label resolves (or if the sheet is
+// unavailable), so the back-to-top button always has an accessible name.
+const BACK_TO_TOP_FALLBACK = 'Back to top';
+
+// Accessible-name templates + defaults for the footer's icon-only controls,
+// localized via the `footer` sheet in lanconfig.json (one column per language),
+// with these English strings as the fallback so names are never missing.
+// {network}/{current} are substituted at runtime. Adding a language or a new
+// network is a pure authoring change (add a column / a networkName-* row).
+const A11Y_FALLBACKS = {
+  // Country/language selector "Change" link (WCAG 2.4.4, 4.1.2).
+  changeCountryLanguage: 'Change country and language (current: {current})',
+  // Social icon links (WCAG 1.1.1, 2.4.4): "Bimota on X" etc.
+  socialLink: 'Bimota on {network}',
+  opensInNewTab: '(opens in a new tab)',
+  // Proper display names per network icon token (fallbacks; localizable).
+  'networkName-x': 'X',
+  'networkName-twitter': 'X',
+  'networkName-facebook': 'Facebook',
+  'networkName-instagram': 'Instagram',
+  'networkName-youtube': 'YouTube',
+  'networkName-tiktok': 'TikTok',
+  'networkName-linkedin': 'LinkedIn',
+  // Alt text for the app logo under a column heading (WCAG 1.1.1), used when
+  // the author left the image alt empty.
+  appLogoAlt: 'Bimota App',
+};
+
+const HEADING_SELECTOR = 'h1, h2, h3, h4, h5, h6';
+
+// Which footer column is the social row: its links are icon-only and each needs
+// a descriptive, network-identifying accessible name.
+const SOCIAL_HOST_TO_TOKEN = [
+  { match: /(twitter|x\.com)/i, token: 'x' },
+  { match: /facebook/i, token: 'facebook' },
+  { match: /instagram/i, token: 'instagram' },
+  { match: /youtube/i, token: 'youtube' },
+  { match: /tiktok/i, token: 'tiktok' },
+  { match: /linkedin/i, token: 'linkedin' },
+];
+
+/**
+ * Resolves the translated "Back to top" label from the global lanconfig.json
+ * multi-sheet. The `sr-topbutton` sheet has a `backToTop` row with one column
+ * per language code (en, it, fr, de, nl, es, ja, lu); the column matching the
+ * current URL's language wins, else `en`. Adding a language is an authoring
+ * change: add a column. Falls back to the English default on any error.
+ * @returns {Promise<string>} the language-appropriate back-to-top label
+ */
+async function getBackToTopLabel() {
+  try {
+    const resp = await fetch('/lanconfig.json?sheet=sr-topbutton');
+    if (!resp.ok) return BACK_TO_TOP_FALLBACK;
+    const json = await resp.json();
+    const data = json['sr-topbutton']?.data || json.data || [];
+    const row = data.find((r) => r.Key === 'backToTop');
+    if (!row) return BACK_TO_TOP_FALLBACK;
+    const lang = getLanguageFromPath();
+    return row[lang] || row.en || BACK_TO_TOP_FALLBACK;
+  } catch (e) {
+    return BACK_TO_TOP_FALLBACK;
+  }
+}
 
 function replaceYearTokens(container) {
   const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
@@ -248,31 +314,46 @@ function extractAppLogos(columns) {
 }
 
 /**
- * Gives each app logo image a meaningful alt (the authored alt, else
- * "Bimota App"), so a linked logo is named by its image (WCAG 1.1.1, 2.4.4,
- * 4.1.2). Clears the whitespace-only title decorateButtons copies from the
- * link's text, which would otherwise surface as an empty tooltip.
+ * Gives each app logo image a meaningful alt (the authored alt, else the
+ * localized "Bimota App"), so a linked logo is named by its image (WCAG 1.1.1,
+ * 2.4.4, 4.1.2). Clears the whitespace-only title decorateButtons copies from
+ * the link's text, which would otherwise surface as an empty tooltip.
  * @param {Element[]} logos the logo paragraphs
  */
 function decorateAppLogos(logos) {
+  if (!logos.length) return;
+
+  const images = logos.flatMap((logo) => [...logo.querySelectorAll('img')])
+    .map((img) => ({ img, authoredAlt: img.getAttribute('alt')?.trim() }));
+
+  // Expose the image's intrinsic width to footer.css, which caps it (300px /
+  // column width) and scales the height proportionally. Sizing from the width
+  // attribute reserves the space before the lazy image loads (no layout shift)
+  // and never stretches a logo smaller than the cap.
+  images.forEach(({ img }) => {
+    const width = parseInt(img.getAttribute('width'), 10);
+    if (width > 0) img.style.setProperty('--footer-logo-width', `${width}px`);
+  });
+
   logos.forEach((logo) => {
     logo.querySelectorAll('a').forEach((anchor) => {
       anchor.removeAttribute('aria-label');
       if (!anchor.getAttribute('title')?.trim()) anchor.removeAttribute('title');
     });
-
-    logo.querySelectorAll('img').forEach((img) => {
-      img.alt = img.getAttribute('alt')?.trim() || APP_LOGO_ALT_FALLBACK;
-      img.removeAttribute('aria-hidden');
-
-      // Expose the image's intrinsic width to footer.css, which caps it (300px /
-      // column width) and scales the height proportionally. Sizing from the
-      // width attribute reserves the space before the lazy image loads (no
-      // layout shift) and never stretches a logo smaller than the cap.
-      const width = parseInt(img.getAttribute('width'), 10);
-      if (width > 0) img.style.setProperty('--footer-logo-width', `${width}px`);
-    });
   });
+
+  const setAlt = (fallback) => {
+    images.forEach(({ img, authoredAlt }) => {
+      img.alt = authoredAlt || fallback;
+      img.removeAttribute('aria-hidden');
+    });
+  };
+
+  // English fallback applied immediately; localized value swapped in once the
+  // dictionary resolves.
+  setAlt(A11Y_FALLBACKS.appLogoAlt);
+  getLanguageLabels('footer', { appLogoAlt: A11Y_FALLBACKS.appLogoAlt })
+    .then((labels) => setAlt(labels.appLogoAlt));
 }
 
 /**
@@ -324,7 +405,10 @@ export default async function decorate(block) {
 
     if (flagIcon) {
       flagIcon.classList.add('footer-cs-flag-icon');
-      decorateFooterIcon(flagIcon, countryName ? `${countryName} flag` : '');
+      // The flag is decorative: the country name is shown as text right next
+      // to it, so a text alternative would only repeat it ("Spain (en) flag,
+      // Spain (en)") for screen readers (WCAG 1.1.1, technique H2).
+      decorateFooterIcon(flagIcon);
       flagWrapper.append(flagIcon);
     }
 
@@ -335,14 +419,49 @@ export default async function decorate(block) {
       flagWrapper.append(countryTextEle);
     }
 
-    csIcon.classList.add('footer-cs-button');
+    // The "Change" control opens the country selector dialog rather than
+    // navigating, so it is a native <button> (not the authored link) that
+    // announces the dialog it opens and its open/closed state (WCAG 4.1.2).
+    // It opens the modal itself, passing itself as the trigger so the modal
+    // helper keeps aria-expanded in sync and returns focus to it on close.
+    const csButton = document.createElement('button');
+    csButton.type = 'button';
+    csButton.className = csIcon.className;
+    csButton.classList.add('footer-cs-button');
+    if (csIcon.title) csButton.title = csIcon.title;
+    csButton.setAttribute('aria-haspopup', 'dialog');
+    csButton.setAttribute('aria-expanded', 'false');
+    csButton.append(...csIcon.childNodes);
+    csIcon.replaceWith(csButton);
+    csButton.addEventListener('click', () => {
+      window.dispatchEvent(new CustomEvent('show-modal', {
+        detail: { name: 'modal-country-selector', trigger: csButton },
+      }));
+    });
 
-    const arrowIcon = csIcon.querySelector('.icon-arrow-right');
+    const arrowIcon = csButton.querySelector('.icon-arrow-right');
     if (arrowIcon) {
       arrowIcon.classList.add('footer-cs-arrow-icon');
+      // The arrow glyph is decorative; hide it from assistive tech so the button
+      // is not announced with a stray "arrow" (WCAG 1.1.1).
+      arrowIcon.setAttribute('aria-hidden', 'true');
     }
 
-    flagWrapper.append(csIcon);
+    // The visible "Change" text alone doesn't convey purpose or current
+    // selection. Give the button a descriptive, localized accessible name that
+    // includes the current country/language (WCAG 2.4.4, 4.1.2). The visible
+    // text is unchanged. Applied synchronously with the English fallback, then
+    // swapped for the localized value once the dictionary resolves.
+    const setChangeLabel = (template) => {
+      const current = countryName || selectorLabel;
+      const label = current ? template.replace('{current}', current) : template.replace(' (current: {current})', '');
+      csButton.setAttribute('aria-label', label);
+    };
+    setChangeLabel(A11Y_FALLBACKS.changeCountryLanguage);
+    getLanguageLabels('footer', { changeCountryLanguage: A11Y_FALLBACKS.changeCountryLanguage })
+      .then((labels) => setChangeLabel(labels.changeCountryLanguage));
+
+    flagWrapper.append(csButton);
 
     csContainer.append(textEle);
     csContainer.append(flagWrapper);
@@ -353,15 +472,100 @@ export default async function decorate(block) {
   columns.forEach((column) => {
     column.classList.add('footer-column');
 
-    // each heading should be rendered as font-small
-    [...column.querySelectorAll('h1, h2, h3, h4, h5, h6')].forEach((heading) => heading.classList.add('font-small'));
+    // Column titles are forced to a semantic H3 (consistent heading outline
+    // across the site) while keeping the H4 visual size via font-small.
+    [...column.querySelectorAll('h1, h2, h3, h4, h5, h6')].forEach((heading) => {
+      forceHeadingLevel(heading, 'h3', 'font-small');
+    });
   });
 
   decorateAppLogos(extractAppLogos(columns));
 
-  // a11y for social icons
-  const socialIconLinks = footer.querySelectorAll('.footer-column:has(a[title=""]) a[title=""]');
-  socialIconLinks.forEach((anchor) => addTitleAttributeToIconLink(anchor));
+  // a11y for social icons: each is an icon-only link, so it needs a
+  // descriptive, network-identifying accessible name (WCAG 1.1.1, 2.4.4,
+  // 4.1.2). Derive the network from the link href, name it "Bimota on X" (etc)
+  // via the localized `footer` dictionary, hide the decorative icon, and append
+  // a visually-hidden "(opens in a new tab)" when the link opens in a new tab.
+  // Any other icon-only footer link falls back to the icon's name.
+  const socialLinks = [...footer.querySelectorAll('a')].filter((a) => {
+    const href = a.getAttribute('href') || '';
+    return SOCIAL_HOST_TO_TOKEN.some(({ match }) => match.test(href))
+      && !a.textContent.trim();
+  });
+
+  if (socialLinks.length) {
+    const nameSocialLinks = (labels) => {
+      socialLinks.forEach((anchor) => {
+        const href = anchor.getAttribute('href') || '';
+        const entry = SOCIAL_HOST_TO_TOKEN.find(({ match }) => match.test(href));
+        const network = labels[`networkName-${entry.token}`] || entry.token;
+        let label = (labels.socialLink || A11Y_FALLBACKS.socialLink).replace('{network}', network);
+
+        // Warn AT users when the link opens in a new tab (WCAG 3.2.5).
+        if (anchor.getAttribute('target') === '_blank') {
+          label += ` ${labels.opensInNewTab || A11Y_FALLBACKS.opensInNewTab}`;
+        }
+
+        anchor.setAttribute('aria-label', label);
+        anchor.removeAttribute('title');
+
+        // The icon graphic is decorative once the link is named (WCAG 1.1.1).
+        anchor.querySelectorAll('img, svg').forEach((el) => {
+          el.setAttribute('aria-hidden', 'true');
+          if (el.tagName.toLowerCase() === 'img') el.setAttribute('alt', '');
+        });
+      });
+    };
+
+    // English fallback names applied immediately; localized names swapped in
+    // once the dictionary resolves.
+    nameSocialLinks(A11Y_FALLBACKS);
+    getLanguageLabels('footer', A11Y_FALLBACKS).then((labels) => nameSocialLinks(labels));
+  }
+
+  // Any remaining icon-only footer links (non-social) keep the icon-name title
+  // fallback so they are never unnamed.
+  footer.querySelectorAll('.footer-column a[title=""]').forEach((anchor) => {
+    if (!anchor.hasAttribute('aria-label')) addTitleAttributeToIconLink(anchor);
+  });
+
+  // Image-only footer links with no accessible name (e.g. an app-store / app
+  // logo link under a "Mobile Application" heading) fail WCAG 2.4.4/1.1.1.
+  // Name each from the nearest preceding column heading and hide the decorative
+  // image, so the link is announced by its section (e.g. "Mobile Application").
+  // App logo links are named by their image alt (decorateAppLogos).
+  footer.querySelectorAll('.footer-column a').forEach((anchor) => {
+    if (anchor.closest('.footer-app-logo')) return;
+    if (anchor.getAttribute('aria-label') || anchor.textContent.trim()) return;
+    const img = anchor.querySelector('img');
+    if (!img) return;
+
+    // Prefer the image's own alt; else the nearest heading *preceding* the link
+    // in its column (e.g. the "Mobile Application" heading right above it), not
+    // just the column's first heading.
+    let name = img.getAttribute('alt')?.trim();
+    if (!name) {
+      const column = anchor.closest('.footer-column');
+      // Walk the column in document order, remembering the most recent heading
+      // seen before we reach the link.
+      let preceding = null;
+      if (column) {
+        const nodes = [...column.querySelectorAll('h1, h2, h3, h4, h5, h6, a')];
+        for (let i = 0; i < nodes.length; i += 1) {
+          if (nodes[i] === anchor) break;
+          if (/^H[1-6]$/.test(nodes[i].tagName)) preceding = nodes[i];
+        }
+      }
+      name = preceding?.textContent.trim();
+    }
+    if (!name) return;
+
+    anchor.setAttribute('aria-label', name);
+    anchor.querySelectorAll('img').forEach((el) => {
+      el.setAttribute('alt', '');
+      el.setAttribute('aria-hidden', 'true');
+    });
+  });
 
   const lists = [...footer.querySelectorAll('ul')];
   lists.forEach((list) => {
@@ -386,16 +590,24 @@ export default async function decorate(block) {
     });
   });
 
-  // Back to top button
+  // Back to top button. The only content is a decorative chevron icon (alt=""
+  // + aria-hidden), so the button itself carries an aria-label giving screen
+  // readers an accessible name (WCAG 4.1.2, 2.4.4). The label is translated per
+  // language via the lanconfig.json `sr-topbutton` sheet, with an English
+  // fallback set immediately so the name is never missing.
   const backToTopNode = document.createRange().createContextualFragment(`
-    <button class="back-to-top">
-      <img data-icon-name="arrow" src="/icons/chevron-up.svg" alt="" loading="lazy">
+    <button class="back-to-top" type="button" aria-label="${BACK_TO_TOP_FALLBACK}">
+      <img data-icon-name="arrow" src="/icons/chevron-up.svg" alt="" aria-hidden="true" loading="lazy">
     </button>
   `);
 
   footer.prepend(backToTopNode);
 
   const backToTopButton = footer.querySelector('.back-to-top');
+
+  getBackToTopLabel().then((label) => {
+    backToTopButton.setAttribute('aria-label', label);
+  });
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
@@ -421,7 +633,27 @@ export default async function decorate(block) {
     }
   });
 
+  // Move keyboard focus to the top as well, not only the scroll position
+  // (KAW-11340, WCAG 2.4.3): to the page's main heading (<h1>), else to <main>
+  // (the skip-link target), so Tab and screen readers continue from the start
+  // of the page instead of the footer. The country-selector dialog's own h1
+  // (hidden in <main>) is skipped. A heading is made focusable from script only
+  // (tabindex="-1", removed again on blur) and is focused without scrolling, so
+  // the smooth scroll below still runs.
+  const focusTopOfPage = () => {
+    const heading = [...document.querySelectorAll('main h1')]
+      .find((h) => !h.closest('.country-selector, .modal') && h.getClientRects().length > 0);
+    const target = heading || document.querySelector('main');
+    if (!target) return;
+    if (!target.hasAttribute('tabindex')) {
+      target.setAttribute('tabindex', '-1');
+      target.addEventListener('blur', () => target.removeAttribute('tabindex'), { once: true });
+    }
+    target.focus({ preventScroll: true });
+  };
+
   footer.querySelector('.back-to-top').addEventListener('click', () => {
+    focusTopOfPage();
     window.scrollTo({
       top: 0,
       behavior: 'smooth',

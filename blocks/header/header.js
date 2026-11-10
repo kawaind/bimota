@@ -1,53 +1,238 @@
 import { getMetadata, getRootPath } from '../../scripts/aem.js';
 import { addAnimateInOut } from '../../scripts/modal-helper.js';
 import { customDecoreateIcons } from '../../scripts/decorate-icon-helper.js';
-import { isReservedHash, scrollToAnchor } from '../../scripts/helpers.js';
+import {
+  getLanguageFromPath, isReservedHash, scrollToAnchor, getLanguageLabels,
+} from '../../scripts/helpers.js';
 import { loadFragment } from '../fragment/fragment.js';
+
+// English fallback for the country-selector trigger's accessible name, used
+// until the localized label resolves (or if the dictionary lookup fails), so
+// the button always announces "Choose your country, button" (WCAG 4.1.2).
+const CHOOSE_COUNTRY_FALLBACK = 'Choose your country';
+
+/**
+ * Resolves the translated logo alt text from the global logoconfig.json sheet.
+ * The sheet has one row per label: a `key` (e.g. "logoAlt"), a `value` (default
+ * fallback) and one column per language code (en, fr, de, es, ja, nl, it...).
+ * The column matching the current URL's language wins; otherwise `value` is
+ * used. Adding a new language is purely an authoring change: add a column.
+ * @returns {Promise<string>} the resolved, language-appropriate logo alt text
+ */
+async function getLogoAlt() {
+  const fallback = 'Bimota - Home';
+  try {
+    const resp = await fetch('/logoconfig.json');
+    if (!resp.ok) return fallback;
+    const { data = [] } = await resp.json();
+    const row = data.find((r) => r.key === 'logoAlt');
+    if (!row) return fallback;
+    const lang = getLanguageFromPath();
+    return row[lang] || row.value || fallback;
+  } catch (e) {
+    return fallback;
+  }
+}
+
+// "Skip to content" in every language of the site, so the link is labelled in
+// the page's language from the start (WCAG 3.1.2). The `skipToContent` row of
+// the lanconfig.json `sr-skipbutton` sheet (one column per language) overrides
+// these, so wording changes stay an authoring change.
+const SKIP_LINK_LABELS = {
+  en: 'Skip to content',
+  it: 'Vai al contenuto',
+  fr: 'Aller au contenu',
+  de: 'Zum Inhalt springen',
+  nl: 'Naar de inhoud',
+  es: 'Saltar al contenido',
+  ja: 'コンテンツにスキップ',
+  lu: 'Zum Inhalt sprangen',
+  bg: 'Премини към съдържанието',
+};
+
+// the language the page declares (<html lang>, set from the URL in scripts.js)
+const getPageLanguage = () => (document.documentElement.lang || 'en').toLowerCase().split('-')[0];
+
+/**
+ * Resolves the translated "Skip to content" label: the page language's column
+ * of the `sr-skipbutton` sheet, else the built-in translation, else English.
+ * @param {string} lang the page language
+ * @returns {Promise<string>} the label
+ */
+async function getSkipLinkLabel(lang) {
+  const fallback = SKIP_LINK_LABELS[lang] || SKIP_LINK_LABELS.en;
+  try {
+    const resp = await fetch('/lanconfig.json?sheet=sr-skipbutton');
+    if (!resp.ok) return fallback;
+    const json = await resp.json();
+    const data = json['sr-skipbutton']?.data || json.data || [];
+    const row = data.find((r) => r.Key === 'skipToContent');
+    return row?.[lang] || fallback;
+  } catch (e) {
+    return fallback;
+  }
+}
+
+/**
+ * "Skip to content" link (WCAG 2.4.1 Bypass Blocks, KAW-11086): inserted as the
+ * first element of <body>, so it is the first focusable element on the page.
+ * It is hidden until focused; then it shows as a full-width bar at the top that
+ * pushes the whole page (including the fixed header) down. Activating it moves
+ * focus to the content container itself, <main> (tabindex="-1": focusable from
+ * script, not a Tab stop), so screen readers continue from the start of the
+ * content and the next Tab reaches the first control inside it.
+ */
+function decorateSkipLink() {
+  const main = document.querySelector('main');
+  if (!main || document.querySelector('.skip-link')) return;
+
+  main.id = main.id || 'main-content';
+  main.setAttribute('tabindex', '-1');
+
+  const lang = getPageLanguage();
+  const skipLink = document.createElement('a');
+  skipLink.className = 'skip-link';
+  skipLink.href = `#${main.id}`;
+  skipLink.textContent = SKIP_LINK_LABELS[lang] || SKIP_LINK_LABELS.en;
+
+  // the padded wrapper takes the space while the link is shown (padding, unlike
+  // margins, never collapses with the content below)
+  const wrapper = document.createElement('div');
+  wrapper.className = 'skip-link-wrapper';
+  wrapper.append(skipLink);
+
+  // while shown, the fixed header moves down by the same height as the page
+  // (--skip-link-offset, used in styles.css), so nothing is covered
+  const root = document.documentElement;
+  skipLink.addEventListener('focus', () => {
+    root.style.setProperty('--skip-link-offset', `${wrapper.offsetHeight}px`);
+  });
+  // when it hides, the header goes back up at once with the page instead of
+  // through its 500ms transition (which would cover the content meanwhile)
+  skipLink.addEventListener('blur', () => {
+    root.classList.add('skip-link-closing');
+    requestAnimationFrame(() => requestAnimationFrame(() => root.classList.remove('skip-link-closing')));
+  });
+
+  skipLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    main.focus({ preventScroll: true });
+    // the link hides once it loses focus; then show the start of the content
+    // just below the fixed header
+    requestAnimationFrame(() => {
+      const headerHeight = document.querySelector('header')?.offsetHeight || 0;
+      const mainTop = main.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo(0, Math.max(0, mainTop - headerHeight));
+    });
+  });
+
+  document.body.prepend(wrapper);
+
+  getSkipLinkLabel(lang).then((label) => {
+    skipLink.textContent = label;
+  });
+}
 
 // media query match that indicates mobile/tablet width
 const isDesktop = window.matchMedia('(min-width: 1025px)');
 const fadeTransitionTime = 300;
+// unique id counter so each subnav trigger's aria-controls target is unique
+let subNavId = 0;
+
+/**
+ * While the mobile menu panel is open it covers the page (backdrop + locked
+ * scroll), so keyboard and screen-reader focus must stay inside it (WCAG
+ * 2.4.3): everything else on the page is made `inert`, and removed again when
+ * the panel closes. Kept out: the panel and its backdrop, and any modal dialog
+ * (e.g. the country selector opened from inside the panel).
+ * @param {Element} nav the <nav> element
+ * @param {boolean} contain whether to contain focus in the panel
+ */
+function containFocusInMenu(nav, contain) {
+  const header = nav.closest('header');
+  const pageParts = [...document.body.children]
+    .filter((el) => el !== header && el.tagName !== 'SCRIPT' && !el.classList.contains('modal'));
+  const headerParts = [...(nav.parentElement?.children || [])].filter((el) => el !== nav);
+  const navParts = [...nav.children]
+    .filter((el) => !el.classList.contains('nav-link-section') && !el.classList.contains('nav-backdrop'));
+  [...pageParts, ...headerParts, ...navParts].forEach((el) => el.toggleAttribute('inert', contain));
+}
+
+/**
+ * APG Disclosure Navigation (optional arrow keys). Top-level items (subnav
+ * buttons and plain links) and the links of an open subnav form two linear
+ * groups:
+ * - on a top-level item: Right/Down = next item, or the first subnav link when
+ *   that item's subnav is open; Left/Up = previous item; Home/End = first/last;
+ * - on a subnav link: Right/Down = next link, Left/Up = previous link,
+ *   Home/End = first/last link.
+ * No wrap-around (APG). Tab/Shift+Tab keep the native order.
+ * @param {Element} navSections the .nav-sections container
+ */
+function addNavArrowKeys(navSections) {
+  const KEYS = ['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp', 'Home', 'End'];
+  const topItems = () => [...navSections.querySelectorAll(
+    '.default-content-wrapper > ul > li > .nav-drop-text, .default-content-wrapper > ul > li > a',
+  )];
+
+  navSections.addEventListener('keydown', (event) => {
+    if (!KEYS.includes(event.key) || event.altKey || event.ctrlKey || event.metaKey) return;
+    const { target } = event;
+    const forward = event.key === 'ArrowRight' || event.key === 'ArrowDown';
+    const back = event.key === 'ArrowLeft' || event.key === 'ArrowUp';
+
+    const sublist = target.closest('.nav-sublist');
+    const group = sublist ? [...sublist.querySelectorAll('a[href]')] : topItems();
+    const index = group.indexOf(target);
+    if (index === -1) return;
+
+    let next;
+    if (event.key === 'Home') [next] = group;
+    else if (event.key === 'End') next = group[group.length - 1];
+    else if (forward && !sublist && target.getAttribute('aria-expanded') === 'true') {
+      // Down/Right on an open subnav button enters its subnav.
+      next = target.closest('.nav-drop')?.querySelector('.nav-sublist a[href]');
+    } else if (forward) next = group[index + 1];
+    else if (back) next = group[index - 1];
+
+    if (next) {
+      event.preventDefault();
+      next.focus();
+    }
+  });
+}
 
 function closeOnEscape(e) {
   if (e.code === 'Escape') {
     const nav = document.getElementById('nav');
     const navSections = nav.querySelector('.nav-sections');
-    const navSectionExpanded = navSections.querySelector('[aria-expanded="true"]');
-    if (navSectionExpanded && isDesktop.matches) {
+    const openSection = navSections.querySelector('.nav-drop.is-open');
+    if (openSection && isDesktop.matches) {
+      // Route through toggleSubNav so the megamenu fully closes: runs the
+      // fade-out animation and restores body scroll. Then return focus to the
+      // trigger button (WCAG 2.4.3 focus management).
       // eslint-disable-next-line no-use-before-define
-      toggleAllNavSections(navSections);
-      navSectionExpanded.focus();
+      toggleSubNav(openSection, navSections);
+      openSection.querySelector(':scope > .nav-drop-text')?.focus();
     } else if (!isDesktop.matches) {
       // eslint-disable-next-line no-use-before-define
       toggleMenu(nav, navSections);
-      nav.querySelector('button').focus();
+      nav.querySelector('.nav-hamburger button')?.focus();
     }
   }
 }
 
-function openOnKeydown(e) {
-  const focused = document.activeElement;
-  const isNavDrop = focused.className === 'nav-drop';
-  if (isNavDrop && (e.code === 'Enter' || e.code === 'Space')) {
-    const dropExpanded = focused.getAttribute('aria-expanded') === 'true';
-    // eslint-disable-next-line no-use-before-define
-    toggleAllNavSections(focused.closest('.nav-sections'));
-    focused.setAttribute('aria-expanded', dropExpanded ? 'false' : 'true');
-  }
-}
-
-function focusNavSection() {
-  document.activeElement.addEventListener('keydown', openOnKeydown);
-}
-
 /**
- * Toggles all nav sections
+ * Collapse/expand all nav sections. The open state is tracked with an `is-open`
+ * class on the <li> (a listitem cannot host aria-expanded) and mirrored on the
+ * trigger button's aria-expanded (WCAG 4.1.2).
  * @param {Element} sections The container element
- * @param {Boolean} expanded Whether the element should be expanded or collapsed
+ * @param {Boolean} expanded Whether the elements should be expanded
  */
 function toggleAllNavSections(sections, expanded = false) {
   sections.querySelectorAll('.nav-sections .default-content-wrapper > ul > li').forEach((section) => {
-    section.setAttribute('aria-expanded', expanded);
+    section.classList.toggle('is-open', expanded);
+    section.querySelector(':scope > .nav-drop-text')?.setAttribute('aria-expanded', String(expanded));
   });
 }
 
@@ -58,21 +243,17 @@ function toggleAllNavSections(sections, expanded = false) {
  * @param {*} forceExpanded Optional param to force nav expand behavior when not null
  */
 function toggleMenu(nav, navSections, forceExpanded = null) {
-  const expanded = forceExpanded !== null ? !forceExpanded : nav.getAttribute('aria-expanded') === 'true';
+  // The open/closed state of the whole mobile menu lives on the hamburger
+  // button (aria-expanded + aria-controls), not on the <nav> landmark:
+  // aria-expanded is not a valid attribute on role="navigation" (WCAG 4.1.2).
+  // A `nav-expanded` class mirrors the state for CSS hooks.
   const button = nav.querySelector('.nav-hamburger button');
+  const expanded = forceExpanded !== null ? !forceExpanded : nav.classList.contains('nav-expanded');
   document.body.style.overflowY = (expanded || isDesktop.matches) ? '' : 'hidden';
-  nav.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+  nav.classList.toggle('nav-expanded', !expanded);
+  button?.setAttribute('aria-expanded', expanded ? 'false' : 'true');
   toggleAllNavSections(navSections, false);
-  button.setAttribute('aria-label', expanded ? 'Open navigation' : 'Close navigation');
-  // enable nav dropdown keyboard accessibility
-  const navDrops = navSections.querySelectorAll('.nav-drop');
-  navDrops.forEach((drop) => {
-    if (!drop.hasAttribute('tabindex')) {
-      drop.setAttribute('role', 'button');
-      drop.setAttribute('tabindex', 0);
-      drop.addEventListener('focus', focusNavSection);
-    }
-  });
+  button?.setAttribute('aria-label', expanded ? 'Open navigation' : 'Close navigation');
 
   const backdropEl = nav.querySelector('.nav-backdrop');
   if (!expanded) {
@@ -93,6 +274,23 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
     animateInOut(!expanded);
   }
 
+  // Mobile panel: keep focus inside it while open. When the user opens it, move
+  // focus to its first menu item (the next Tab used to land on the page behind
+  // the panel); when the user closes it, return focus to the hamburger. Forced
+  // state changes (initial render, breakpoint change) don't move focus.
+  const mobilePanelOpen = !expanded && !isDesktop.matches;
+  containFocusInMenu(nav, mobilePanelOpen);
+  if (forceExpanded === null && !isDesktop.matches) {
+    if (mobilePanelOpen) {
+      const firstItem = navSections.querySelector(
+        '.default-content-wrapper > ul > li > .nav-drop-text, .default-content-wrapper > ul > li > a',
+      );
+      setTimeout(() => firstItem?.focus(), 0);
+    } else if (nav.querySelector('.nav-link-section')?.contains(document.activeElement)) {
+      button?.focus();
+    }
+  }
+
   // enable menu collapse on escape keypress
   if (!expanded || isDesktop.matches) {
     // collapse menu on escape press
@@ -103,8 +301,9 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
 }
 
 function toggleSubNav(navSection, navSections) {
-  const expanded = navSection.getAttribute('aria-expanded') === 'true';
+  const expanded = navSection.classList.contains('is-open');
   const navSublist = navSection.querySelector('.nav-sublist');
+  const trigger = navSection.querySelector(':scope > .nav-drop-text');
   toggleAllNavSections(navSections);
 
   if (expanded) {
@@ -128,16 +327,32 @@ function toggleSubNav(navSection, navSections) {
   const animateInOut = addAnimateInOut(navSublist, animationConfig);
 
   animateInOut(!expanded);
-  navSection.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+  navSection.classList.toggle('is-open', !expanded);
+  trigger?.setAttribute('aria-expanded', expanded ? 'false' : 'true');
 }
 
 function checkForActiveLink(navSections) {
+  const normalise = (path) => path.replace(/\/+$/, '');
+  const currentPath = normalise(window.location.pathname);
+
   navSections.querySelectorAll(':scope .default-content-wrapper a').forEach((link) => {
     const href = link.getAttribute('href');
-    if (window.location.pathname.includes(href)) {
+    if (!href) return;
+
+    // Compare full path segments, not raw substrings: "/it/it/tesi-h2" must not
+    // match while on "/it/it/tesi-h2-tera" (and kb998/kb998-2027, bx450/
+    // bx450-2026, kb4/kb4rc likewise). Resolve relative hrefs against the
+    // current location so both absolute and relative nav links work.
+    const linkPath = normalise(new URL(href, window.location.href).pathname);
+    if (linkPath && linkPath === currentPath) {
       const navParent = link.closest('.nav-drop');
       navParent?.classList.add('active');
       link.classList.add('active');
+      // Expose the active menu item (top-level link or model dropdown link) as
+      // the current page so screen readers announce "current page" rather than
+      // just "same page link" (WCAG 1.3.1; aria-current="page" per MDN). Path
+      // matching is unique, so exactly one link is flagged per nav.
+      link.setAttribute('aria-current', 'page');
     }
   });
 }
@@ -227,6 +442,10 @@ function decorateNavAnchorLinks(nav) {
  * @param {Element} block The header block element
  */
 export default async function decorate(block) {
+  // first focusable element of the page, before the header (KAW-11086); added
+  // first so it exists even if the nav fragment is missing or slow
+  decorateSkipLink();
+
   // load nav as fragment
   const navMeta = getMetadata('nav');
   const navPath = navMeta ? new URL(navMeta, window.location).pathname : `${getRootPath()}/nav`;
@@ -259,8 +478,30 @@ export default async function decorate(block) {
   const navBrand = nav.querySelector('.nav-brand');
   const brandLink = navBrand.querySelector('.button');
   if (brandLink) {
-    brandLink.className = '';
-    brandLink.closest('.button-container').className = '';
+    // Drop the styling hooks entirely rather than blanking them, so the link
+    // isn't left with empty `class=""`/`title=""` attributes (lint/markup
+    // cleanliness, and no confusing empty tooltip for pointer users).
+    brandLink.removeAttribute('class');
+    brandLink.removeAttribute('title');
+    const buttonContainer = brandLink.closest('.button-container');
+    if (buttonContainer) buttonContainer.removeAttribute('class');
+
+    // Give the logo link an accessible name (the logo is an inline SVG with no
+    // text), translated per language via the global logoconfig.json sheet.
+    // Falls back to a sensible default so the link is never unlabelled.
+    // (WCAG 1.1.1, 2.4.4)
+    const logoLabel = await getLogoAlt();
+    brandLink.setAttribute('aria-label', logoLabel);
+
+    // The link already carries the accessible name, so the logo graphic itself
+    // is decorative and must be hidden from assistive tech (WCAG 1.1.1). Mark
+    // the icon span aria-hidden; customDecoreateIcons then propagates that onto
+    // the inlined <svg>. Match the logo icon span by its `icon-` class rather
+    // than `span.icon`, because customDecoreateIcons may have already stripped
+    // the generic `icon` class by the time this runs.
+    brandLink.querySelectorAll('span[class*="icon-"]').forEach((iconEl) => {
+      iconEl.setAttribute('aria-hidden', 'true');
+    });
   }
 
   const navSections = nav.querySelector('.nav-sections');
@@ -269,8 +510,19 @@ export default async function decorate(block) {
     navSections.querySelectorAll(':scope .default-content-wrapper > ul > li').forEach((navSection) => {
       const sublist = navSection.querySelector('ul');
       if (sublist) {
+        // The subnav trigger toggles a panel rather than navigating, so it is
+        // exposed as a button (role/tabindex) with aria-expanded + aria-controls
+        // pointing at the sublist it discloses (WCAG 4.1.2). A <button> element
+        // would be ideal, but role="button" on the existing anchor preserves the
+        // block's styling hooks while giving correct semantics.
+        subNavId += 1;
+        const sublistId = `nav-sublist-${subNavId}`;
         const textWrapper = document.createElement('a');
         textWrapper.classList.add('nav-drop-text');
+        textWrapper.setAttribute('role', 'button');
+        textWrapper.setAttribute('tabindex', '0');
+        textWrapper.setAttribute('aria-expanded', 'false');
+        textWrapper.setAttribute('aria-controls', sublistId);
         textWrapper.innerHTML += '<span class="icon icon-chevron"></span>';
         textWrapper.prepend(navSection.firstElementChild.innerHTML);
         navSection.firstElementChild.remove();
@@ -300,7 +552,7 @@ export default async function decorate(block) {
         });
 
         const navSublist = document.createRange().createContextualFragment(`
-          <div class="nav-sublist">
+          <div class="nav-sublist" id="${sublistId}">
             <div>
               <span>${textWrapper.textContent}</span>
               ${sublist.outerHTML}
@@ -325,7 +577,31 @@ export default async function decorate(block) {
           toggleSubNav(navSection, navSections);
         }
       });
+
+      // The trigger is a role="button" anchor (no href), so Enter/Space must be
+      // handled explicitly to activate it (WCAG 2.1.1). Space is prevented from
+      // scrolling the page.
+      const trigger = navSection.querySelector(':scope > .nav-drop-text');
+      // Desktop: close the open subnav when keyboard focus moves to an element
+      // outside it (APG Disclosure Navigation). It is a full-width overlay that
+      // locks page scroll, so it must not stay open behind the next focused
+      // link. relatedTarget is null for clicks on non-focusable areas; those are
+      // left to the existing click handling.
+      navSection.addEventListener('focusout', (event) => {
+        const next = event.relatedTarget;
+        if (!isDesktop.matches || !next || navSection.contains(next)) return;
+        if (navSection.classList.contains('is-open')) toggleSubNav(navSection, navSections);
+      });
+
+      trigger?.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ' || event.code === 'Space') {
+          event.preventDefault();
+          toggleSubNav(navSection, navSections);
+        }
+      });
     });
+
+    addNavArrowKeys(navSections);
   }
 
   const navTools = nav.querySelector('.nav-tools');
@@ -343,9 +619,32 @@ export default async function decorate(block) {
       textWrapper.classList.add('nav-tools-text');
       globeIcon.parentElement.append(textWrapper);
 
-      globeIcon.addEventListener('click', (event) => {
-        event.preventDefault();
-        const modalEvent = new CustomEvent('show-modal', { detail: 'modal-country-selector' });
+      // The trigger opens a modal, so it must be a button, not a link (WCAG
+      // 4.1.2): links imply navigation and expose the wrong role/keyboard
+      // contract. Replace the authored <a href="#modal-..."> with a native
+      // <button> — which gives Enter/Space activation for free and removes all
+      // link semantics (no href). The globe icon + label move into it, and a
+      // localized aria-label names it "Choose your country" from the dictionary
+      // (English fallback set immediately so the name is never missing).
+      const csTrigger = globeIcon.closest('a') || globeIcon.parentElement;
+      const csButton = document.createElement('button');
+      csButton.type = 'button';
+      csButton.className = `nav-tools-cs-button ${csTrigger.className}`.trim();
+      csButton.setAttribute('aria-label', CHOOSE_COUNTRY_FALLBACK);
+      // Announce the dialog it opens and its open/closed state (WCAG 4.1.2);
+      // the modal helper keeps aria-expanded in sync for the trigger below.
+      csButton.setAttribute('aria-haspopup', 'dialog');
+      csButton.setAttribute('aria-expanded', 'false');
+      csButton.append(...csTrigger.childNodes);
+      csTrigger.replaceWith(csButton);
+
+      getLanguageLabels('country-selector', { chooseCountry: CHOOSE_COUNTRY_FALLBACK })
+        .then((labels) => csButton.setAttribute('aria-label', labels.chooseCountry));
+
+      csButton.addEventListener('click', () => {
+        const modalEvent = new CustomEvent('show-modal', {
+          detail: { name: 'modal-country-selector', trigger: csButton },
+        });
         window.dispatchEvent(modalEvent);
       });
       loadCountrySelectorBlock();
@@ -360,7 +659,11 @@ export default async function decorate(block) {
     flagEl.innerHTML = '<span class="icon icon-logo-flag-black"></span>';
     const closeEl = document.createElement('button');
     closeEl.classList.add('nav-close-button');
-    closeEl.innerHTML = '<span class="icon icon-close"></span>';
+    closeEl.type = 'button';
+    // Icon-only button: give it the same accessible name as the hamburger in
+    // its open state (WCAG 4.1.2); the icon itself is decorative.
+    closeEl.setAttribute('aria-label', 'Close navigation');
+    closeEl.innerHTML = '<span class="icon icon-close" aria-hidden="true"></span>';
     closeEl.addEventListener('click', () => toggleMenu(nav, navSections));
     navLinksWrapper.append(closeEl, navSections, navTools, flagEl);
     nav.append(navLinksWrapper);
@@ -382,12 +685,11 @@ export default async function decorate(block) {
   if (navSections) {
     const hamburger = document.createElement('div');
     hamburger.classList.add('nav-hamburger');
-    hamburger.innerHTML = `<button type="button" aria-controls="nav" aria-label="Open navigation">
+    hamburger.innerHTML = `<button type="button" aria-controls="nav" aria-expanded="false" aria-label="Open navigation">
         <span class="icon icon-hamburger"></span>
       </button>`;
     hamburger.addEventListener('click', () => toggleMenu(nav, navSections));
     nav.append(hamburger);
-    nav.setAttribute('aria-expanded', 'false');
     // prevent mobile nav behavior on window resize
     toggleMenu(nav, navSections, isDesktop.matches);
     isDesktop.addEventListener('change', () => {

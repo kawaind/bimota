@@ -1,240 +1,421 @@
 /* eslint-disable max-len */
-import { createElement, stripEmptyTags } from '../../scripts/helpers.js';
-import { smoothScrollHorizontal } from '../../scripts/motion-helper.js';
+import { createElement, stripEmptyTags, labelWithContext } from '../../scripts/helpers.js';
+import { getTextLabel } from '../../scripts/scripts.js';
 
 const blockName = 'vehicle-selector';
 
-function buildTabNavigation(tabItems, clickHandler) {
-  const tabNavigation = createElement('ul', { classes: `${blockName}__navigation` });
-  const navigationLine = createElement('li', { classes: `${blockName}__navigation-line` });
+let idCounter = 0;
+// Unique id prefix so multiple instances on a page don't collide.
+const uid = () => {
+  idCounter += 1;
+  return `${blockName}-${idCounter}`;
+};
 
-  tabItems.forEach((tabItem, i) => {
-    const listItem = createElement('li', { classes: `${blockName}__navigation-item` });
-    const button = createElement('button');
-    button.classList.add('h5');
-    button.addEventListener('click', () => clickHandler(i));
-    const tabTitle = tabItem.querySelector('h1,h2,h3,h4,h5,h6');
-    button.innerText = tabTitle.innerText;
-    tabTitle.remove();
+const ARROW_PREV_SVG = `
+  <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 34 34" fill="none" aria-hidden="true" focusable="false">
+    <path d="M20.764 9.65283C20.2223 9.11117 19.3473 9.11117 18.8057 9.65283L12.4307 16.0278C11.889 16.5695 11.889 17.4445 12.4307 17.9862L18.8057 24.3612C19.3473 24.9028 20.2223 24.9028 20.764 24.3612C21.3057 23.8195 21.3057 22.9445 20.764 22.4028L15.3751 17.0001L20.764 11.6112C21.3057 11.0695 21.2918 10.1806 20.764 9.65283Z" fill="currentColor"/>
+  </svg>`;
 
-    listItem.append(button);
-    tabNavigation.append(listItem);
+const ARROW_NEXT_SVG = `
+  <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 34 34" fill="none" aria-hidden="true" focusable="false">
+    <path d="M13.2363 9.65312C12.6947 10.1948 12.6947 11.0698 13.2363 11.6115L18.6252 17.0003L13.2363 22.3892C12.6947 22.9309 12.6947 23.8059 13.2363 24.3476C13.778 24.8892 14.653 24.8892 15.1947 24.3476L21.5697 17.9726C22.1113 17.4309 22.1113 16.5559 21.5697 16.0142L15.1947 9.63923C14.6669 9.11145 13.778 9.11145 13.2363 9.65312Z" fill="currentColor"/>
+  </svg>`;
+
+/**
+ * Apply the selected state for a given tab index (ARIA Tabs pattern):
+ * - the active tab gets aria-selected=true and is the only tab in the tab
+ *   sequence (roving tabindex); the rest are aria-selected=false / tabindex=-1
+ *   and are reachable with Left/Right/Home/End,
+ * - the matching tabpanel is shown and made focusable; every other panel is
+ *   removed from layout, the a11y tree AND the tab order with the native
+ *   `hidden` attribute. `hidden` is used instead of aria-hidden because each
+ *   panel contains a focusable "Discover" CTA — aria-hidden on focusable
+ *   content is a WCAG 4.1.2 failure (a keyboard user could still tab into
+ *   content the AT is told to ignore).
+ *
+ * @param {HTMLElement} block the block root
+ * @param {number} index the tab/panel index to activate
+ * @param {Object} [options]
+ * @param {boolean} [options.moveFocus=false] move DOM focus onto the tab
+ *   (used by the arrow-key / Home / End interactions, which move focus and
+ *   activate together).
+ * @param {boolean} [options.announce=false] mirror the vehicle name into the
+ *   live region (used by the prev/next arrow controls, where focus stays on
+ *   the arrow so the change would otherwise be silent to a screen reader).
+ */
+const getActiveIndex = (block) => {
+  const tabs = [...block.querySelectorAll(`.${blockName}__navigation [role="tab"]`)];
+  const current = tabs.findIndex((tab) => tab.getAttribute('aria-selected') === 'true');
+  return current === -1 ? 0 : current;
+};
+
+const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+const SLIDE_CLASSES = ['is-entering', 'is-leaving', 'from-right', 'from-left', 'to-left', 'to-right'];
+
+/**
+ * Visual-only directional cross-slide between panels. The direction follows the
+ * order of the vehicles: moving forward (to a later vehicle) the incoming panel
+ * slides in from the right while the outgoing one slides off to the left;
+ * moving backward (to an earlier vehicle) the incoming panel slides in from the
+ * left while the outgoing one slides off to the right. This runs purely for
+ * appearance and never changes the accessibility state — `activate` has already
+ * made the incoming panel the only one exposed to assistive tech. During its
+ * exit the outgoing panel is marked `inert` so, even though it stays painted
+ * for the animation, it is removed from the a11y tree and its focusable CTA
+ * cannot be tabbed into. Skipped when the user prefers reduced motion.
+ * @param {HTMLElement[]} panels all panel elements
+ * @param {number} fromIndex the outgoing panel index
+ * @param {number} toIndex the incoming (now active) panel index
+ */
+const slidePanels = (panels, fromIndex, toIndex) => {
+  const incoming = panels[toIndex];
+  const outgoing = panels[fromIndex];
+
+  // Clear any in-flight transition so rapid switches don't leave ghosts.
+  panels.forEach((panel) => {
+    panel.classList.remove(...SLIDE_CLASSES);
+    panel.removeAttribute('inert');
   });
 
-  tabNavigation.append(navigationLine);
+  if (prefersReducedMotion() || fromIndex === toIndex || !incoming || !outgoing) return;
 
-  return tabNavigation;
-}
+  const forward = toIndex > fromIndex;
 
-const updateActiveItem = (index) => {
-  const images = document.querySelector(`.${blockName}__images-container`);
-  const descriptions = document.querySelector(`.${blockName}__description-container`);
-  const navigation = document.querySelector(`.${blockName}__navigation`);
+  incoming.classList.add('is-entering', forward ? 'from-right' : 'from-left');
+  incoming.addEventListener('animationend', () => incoming.classList.remove(...SLIDE_CLASSES), { once: true });
 
-  [images, descriptions, navigation].forEach((c) => c.querySelectorAll('.active').forEach((i) => {
-    i.classList.remove('active');
+  // Keep the outgoing panel painted (overriding its `hidden` display:none) only
+  // for the duration of its slide-out, then let `hidden` take over again.
+  outgoing.classList.add('is-leaving', forward ? 'to-left' : 'to-right');
+  outgoing.setAttribute('inert', '');
+  outgoing.addEventListener('animationend', () => {
+    outgoing.classList.remove(...SLIDE_CLASSES);
+    outgoing.removeAttribute('inert');
+  }, { once: true });
+};
 
-    // Remove tabindex from previously active items
-    i.querySelectorAll('a').forEach((link) => link.setAttribute('tabindex', '-1'));
-  }));
+const activate = (block, index, { moveFocus = false, announce = false } = {}) => {
+  const tabs = [...block.querySelectorAll(`.${blockName}__navigation [role="tab"]`)];
+  const panels = [...block.querySelectorAll(`.${blockName}__panel`)];
+  if (!tabs.length || index < 0 || index >= tabs.length) return;
 
-  images.children[index].classList.add('active');
-  descriptions.children[index].classList.add('active');
-  navigation.children[index].classList.add('active');
+  // Remember which panel is leaving so we can animate the cross-slide after the
+  // accessibility state is updated below.
+  const previousIndex = getActiveIndex(block);
 
-  // Make links of current item are accessible by keyboard
-  descriptions.children[index].setAttribute('aria-hidden', 'false');
-  descriptions.children[index].querySelectorAll('a').forEach((link) => link.setAttribute('tabindex', '0'));
+  tabs.forEach((tab, i) => {
+    const selected = i === index;
+    tab.setAttribute('aria-selected', selected ? 'true' : 'false');
+    tab.setAttribute('tabindex', selected ? '0' : '-1');
+    tab.closest(`.${blockName}__navigation-item`)?.classList.toggle('active', selected);
+  });
 
-  // Center navigation item
-  const navigationActiveItem = navigation.querySelector('.active');
+  panels.forEach((panel, i) => {
+    const selected = i === index;
+    panel.hidden = !selected;
+    // APG Tabs: a tabpanel is only a tab stop when it has no focusable content.
+    // Panels with the "Descubre más" link must not be focusable themselves,
+    // otherwise screen readers stop on the panel (announcing its name, the tab
+    // title) and then again on the link, reading the title twice (KAW-11082).
+    // Hidden panels are out of the tab order through `hidden`.
+    const hasFocusable = panel.querySelector(
+      'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    );
+    if (selected && !hasFocusable) panel.setAttribute('tabindex', '0');
+    else panel.removeAttribute('tabindex');
+  });
 
-  if (navigation && navigationActiveItem) {
-    const { clientWidth: itemWidth, offsetLeft } = navigationActiveItem;
-    // Calculate the scroll position to center the active item
-    const scrollPosition = offsetLeft - (navigation.clientWidth - itemWidth) / 2;
-    navigation.scrollTo({
-      left: scrollPosition,
+  // Visual cross-slide (appearance only; the a11y state above is already the
+  // source of truth). No-op on the initial render and on resize (same index).
+  slidePanels(panels, previousIndex, index);
+
+  // Keep the active name in view within the horizontally-scrollable navigation.
+  // Only scroll when the strip actually overflows, so with a handful of names
+  // they simply stay left-aligned. When there are too many to fit, the strip
+  // slides left as the user moves toward the end, keeping the active name a
+  // little in from the left edge (rather than dead-centre) so it reads as the
+  // names sliding in from the left.
+  const nav = block.querySelector(`.${blockName}__navigation`);
+  const activeItem = nav?.querySelector(`.${blockName}__navigation-item.active`);
+  if (nav && activeItem && nav.scrollWidth > nav.clientWidth) {
+    const { clientWidth: itemWidth, offsetLeft } = activeItem;
+    const inset = Math.min(nav.clientWidth * 0.25, nav.clientWidth - itemWidth);
+    const target = Math.max(0, offsetLeft - inset);
+    nav.scrollTo({
+      left: Math.min(target, nav.scrollWidth - nav.clientWidth),
       behavior: 'smooth',
     });
   }
 
-  // Update description position
-  const descriptionWidth = descriptions.offsetWidth;
-  descriptions.scrollTo({
-    left: descriptionWidth * index,
-    behavior: 'smooth',
-  });
-};
-
-const listenScroll = (carousel) => {
-  const imageLoadPromises = Array.from(carousel.querySelectorAll('picture > img'))
-    .filter((img) => !img.complete)
-    .map((img) => new Promise((resolve) => {
-      img.addEventListener('load', resolve);
-    }));
-
-  Promise.all(imageLoadPromises).then(() => {
-    const elements = carousel.querySelectorAll(':scope > *');
-
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting && entry.intersectionRatio >= 0.9) {
-          const activeItem = entry.target;
-          const currentIndex = Array.from(activeItem.parentNode.children).indexOf(activeItem);
-          updateActiveItem(currentIndex);
-        }
-      });
-    }, {
-      root: carousel,
-      threshold: 0.9,
-    });
-
-    elements.forEach((el) => io.observe(el));
-
-    // Force to go to the first item on load
-    carousel.scrollTo({
-      left: 0,
-      behavior: 'instant',
-    });
-  });
-};
-
-const setCarouselPosition = (carousel, index) => {
-  const scrollOffset = carousel.firstElementChild.getBoundingClientRect().width + 24;
-  const targetX = index * scrollOffset;
-
-  smoothScrollHorizontal(carousel, targetX, 1200);
-};
-
-const navigate = (carousel, direction) => {
-  if (carousel.classList.contains('is-animating')) return;
-
-  const activeItem = carousel.querySelector(`.${blockName}__image-item.active`);
-  let index = [...activeItem.parentNode.children].indexOf(activeItem);
-  if (direction === 'left') {
-    index -= 1;
-    if (index === -1) {
-      index = carousel.childElementCount - 1;
-    }
-  } else {
-    index += 1;
-    if (index > carousel.childElementCount - 1) {
-      index = 0;
-    }
+  if (moveFocus) {
+    tabs[index].focus();
   }
 
-  setCarouselPosition(carousel, index);
+  // When the change is driven by the prev/next arrows, focus stays on the
+  // arrow control, so scrolling a new vehicle into view announces nothing on
+  // its own. Mirror the active vehicle name here so it is announced. Tab
+  // navigation already announces the name via the focused tab, so we avoid
+  // duplicating it there.
+  const liveRegion = block.querySelector(`.${blockName}__live-region`);
+  if (announce && liveRegion) {
+    liveRegion.textContent = tabs[index]?.textContent ?? '';
+  }
 };
 
-const createArrowControls = (carousel) => {
-  const arrowControls = createElement('ul', { classes: [`${blockName}__arrow-controls`] });
-  const arrows = document.createRange().createContextualFragment(`
-    <li>
-      <button aria-label="Previous">
-        <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 34 34" fill="none">
-          <path d="M20.764 9.65283C20.2223 9.11117 19.3473 9.11117 18.8057 9.65283L12.4307 16.0278C11.889 16.5695 11.889 17.4445 12.4307 17.9862L18.8057 24.3612C19.3473 24.9028 20.2223 24.9028 20.764 24.3612C21.3057 23.8195 21.3057 22.9445 20.764 22.4028L15.3751 17.0001L20.764 11.6112C21.3057 11.0695 21.2918 10.1806 20.764 9.65283Z" fill="#ED1C24"/>
-        </svg>
-      </button>
-    </li>
-    <li>
-      <button aria-label="Next">
-        <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 34 34" fill="none">
-          <path d="M13.2363 9.65312C12.6947 10.1948 12.6947 11.0698 13.2363 11.6115L18.6252 17.0003L13.2363 22.3892C12.6947 22.9309 12.6947 23.8059 13.2363 24.3476C13.778 24.8892 14.653 24.8892 15.1947 24.3476L21.5697 17.9726C22.1113 17.4309 22.1113 16.5559 21.5697 16.0142L15.1947 9.63923C14.6669 9.11145 13.778 9.11145 13.2363 9.65312Z" fill="#ED1C24"/>
-        </svg>
-      </button>
-    </li>
-  `);
-  arrowControls.append(...arrows.children);
-  carousel.insertAdjacentElement('beforebegin', arrowControls);
-  const [prevButton, nextButton] = arrowControls.querySelectorAll(':scope button');
-  prevButton.addEventListener('click', () => navigate(carousel, 'left'));
-  nextButton.addEventListener('click', () => navigate(carousel, 'right'));
+/**
+ * Build the tablist (container that holds the tab elements) from the authored
+ * vehicle titles. Returns the tablist element and its tab buttons.
+ */
+const buildTabNavigation = (vehicles, instanceId, onSelect) => {
+  const tabNavigation = createElement('ul', { classes: `${blockName}__navigation` });
+  tabNavigation.setAttribute('role', 'tablist');
+  tabNavigation.setAttribute('aria-label', getTextLabel('Vehicle selector'));
+
+  const tabs = [];
+  vehicles.forEach((vehicle, i) => {
+    const listItem = createElement('li', { classes: `${blockName}__navigation-item` });
+    // The <li> is only a layout wrapper, not part of the tablist semantics.
+    listItem.setAttribute('role', 'presentation');
+
+    const button = createElement('button');
+    button.classList.add('h5');
+    button.setAttribute('type', 'button');
+    button.setAttribute('role', 'tab');
+    button.id = `${instanceId}-tab-${i}`;
+    button.setAttribute('aria-controls', `${instanceId}-panel-${i}`);
+    // Roving tabindex: only the active tab is in the tab sequence; the rest are
+    // reached with Left/Right/Home/End.
+    button.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
+    button.setAttribute('tabindex', i === 0 ? '0' : '-1');
+    button.textContent = vehicle.title ? vehicle.title.textContent.trim() : '';
+    button.addEventListener('click', () => onSelect(i));
+
+    listItem.append(button);
+    tabNavigation.append(listItem);
+    tabs.push(button);
+  });
+
+  return { tabNavigation, tabs };
+};
+
+/**
+ * Group the authored specification paragraphs into label/value stat blocks,
+ * matching the visual treatment of the specification component.
+ */
+const decorateSpecifications = (description) => {
+  description.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach((heading) => {
+    heading.classList.add('h6');
+  });
+
+  description.querySelectorAll('p').forEach((paragraph) => {
+    const strongEls = paragraph.querySelectorAll('strong');
+    const hasButton = paragraph.classList.contains('button-container');
+
+    if (strongEls.length > 0) {
+      paragraph.classList.add('font-small', 'description-value');
+      strongEls.forEach((el) => el.classList.add('h6'));
+    } else if (!hasButton) {
+      paragraph.classList.add('font-small', 'description-label');
+    }
+  });
+
+  [...description.querySelectorAll('.description-label')].reverse().forEach((label) => {
+    const stat = createElement('div', { classes: 'description-stat' });
+    const valueEl = label.nextElementSibling;
+    stat.append(label);
+    if (valueEl) stat.append(valueEl);
+    description.prepend(stat);
+  });
+};
+
+/**
+ * Build one tabpanel per vehicle. Each panel groups the vehicle image, its
+ * technical specifications and the "Discover more" CTA (in that reading order)
+ * so a screen reader reads them sequentially once focus lands on the panel
+ * (WCAG 1.3.1, 2.4.3).
+ */
+const buildPanels = (vehicles, instanceId, tabs) => {
+  const panelsContainer = createElement('div', { classes: `${blockName}__panels` });
+
+  vehicles.forEach((vehicle, i) => {
+    const panel = createElement('div', { classes: `${blockName}__panel` });
+    panel.setAttribute('role', 'tabpanel');
+    panel.id = `${instanceId}-panel-${i}`;
+
+    // Image first so it is read before the specifications.
+    if (vehicle.picture) {
+      const media = createElement('div', { classes: `${blockName}__panel-media` });
+      const img = vehicle.picture.querySelector('img');
+      const vehicleName = tabs[i]?.textContent.trim();
+      // Name the image after its vehicle so the slide is meaningful to AT
+      // (the source images ship with empty/decorative alt text).
+      if (img && vehicleName && !img.getAttribute('alt')) {
+        img.setAttribute('alt', vehicleName);
+      }
+      media.appendChild(vehicle.picture);
+      panel.appendChild(media);
+    }
+
+    // Specifications + CTA.
+    if (vehicle.description) {
+      const specs = vehicle.description;
+      specs.classList.add(`${blockName}__panel-specs`);
+      decorateSpecifications(specs);
+
+      // Name the CTA by its own text + the vehicle name, e.g. "Descubre más,
+      // KB998 Rimini" (WCAG 2.4.4, 2.4.6). The visible text comes first, so the
+      // name still satisfies Label in Name (2.5.3). It navigates to the model
+      // page, so it keeps its native link role (no role="button").
+      const ctaLink = specs.querySelector('a.button');
+      if (ctaLink && tabs[i]) {
+        // A title that only repeats the visible text becomes an extra
+        // description once the name differs from it, and VoiceOver reads it
+        // again after the name ("Discover More, KB4 … Discover More").
+        if (ctaLink.title.trim() === ctaLink.textContent.trim()) {
+          ctaLink.removeAttribute('title');
+        }
+        labelWithContext(ctaLink, tabs[i]);
+      }
+
+      panel.appendChild(specs);
+    }
+
+    // Only a panel without the CTA is named after its tab: it is then the tab
+    // stop itself and needs a name. When the CTA is there, the link already
+    // carries the vehicle name, and naming the panel too made screen readers
+    // read it twice ("Discover More, KB4, KB4, tab panel"; KAW-11081/11082).
+    // The tab still points to the panel through aria-controls.
+    if (!panel.querySelector('a[href]')) {
+      panel.setAttribute('aria-labelledby', `${instanceId}-tab-${i}`);
+    }
+
+    panelsContainer.appendChild(panel);
+  });
+
+  return panelsContainer;
+};
+
+/**
+ * Create the previous / next arrow controls. Unlike a decorative carousel, the
+ * arrows are real, keyboard-operable controls placed in the tab sequence
+ * (Tab: selected tab -> previous arrow -> CTA (or the panel itself when it has
+ * no CTA) -> next arrow -> out), so
+ * they are NOT hidden from assistive tech. They are split around the panels in
+ * the DOM to produce that focus order, and positioned visually with CSS.
+ */
+const buildArrowControls = (block) => {
+  const prev = createElement('button', { classes: `${blockName}__arrow`, props: { type: 'button' } });
+  prev.classList.add(`${blockName}__arrow--prev`);
+  prev.setAttribute('aria-label', getTextLabel('Previous vehicle'));
+  prev.innerHTML = ARROW_PREV_SVG;
+  prev.addEventListener('click', () => {
+    const tabs = block.querySelectorAll(`.${blockName}__navigation [role="tab"]`);
+    const index = getActiveIndex(block);
+    const next = index === 0 ? tabs.length - 1 : index - 1;
+    activate(block, next, { announce: true });
+  });
+
+  const next = createElement('button', { classes: `${blockName}__arrow`, props: { type: 'button' } });
+  next.classList.add(`${blockName}__arrow--next`);
+  next.setAttribute('aria-label', getTextLabel('Next vehicle'));
+  next.innerHTML = ARROW_NEXT_SVG;
+  next.addEventListener('click', () => {
+    const tabs = block.querySelectorAll(`.${blockName}__navigation [role="tab"]`);
+    const index = getActiveIndex(block);
+    const target = index === tabs.length - 1 ? 0 : index + 1;
+    activate(block, target, { announce: true });
+  });
+
+  return { prev, next };
+};
+
+/**
+ * Keyboard interaction for the tablist (ARIA Tabs pattern):
+ * Left/Right wrap around; Home/End jump to the first/last tab. Focus moves to
+ * the newly focused tab and it is activated together.
+ */
+const addTablistKeyboard = (block, tablist) => {
+  const tabs = [...tablist.querySelectorAll('[role="tab"]')];
+
+  tablist.addEventListener('keydown', (e) => {
+    const currentIndex = tabs.indexOf(document.activeElement);
+    if (currentIndex === -1) return;
+
+    let newIndex;
+    switch (e.key) {
+      case 'ArrowRight':
+        newIndex = currentIndex === tabs.length - 1 ? 0 : currentIndex + 1;
+        break;
+      case 'ArrowLeft':
+        newIndex = currentIndex === 0 ? tabs.length - 1 : currentIndex - 1;
+        break;
+      case 'Home':
+        newIndex = 0;
+        break;
+      case 'End':
+        newIndex = tabs.length - 1;
+        break;
+      default:
+        return;
+    }
+
+    e.preventDefault();
+    activate(block, newIndex, { moveFocus: true });
+  });
 };
 
 export default function decorate(block) {
-  const tabItems = block.querySelectorAll(':scope > div > div:nth-child(1)');
+  const instanceId = uid();
 
-  const descriptionContainer = createElement('div', { classes: `${blockName}__description-container` });
-  const descriptionItems = block.querySelectorAll(':scope > div > div:nth-child(3)');
-  descriptionItems.forEach((item) => {
-    item.classList.add(`${blockName}__desc-item`);
-    descriptionContainer.appendChild(item);
+  // Parse the authored rows: each row = [title, image, description].
+  const rows = [...block.querySelectorAll(':scope > div')];
+  const vehicles = rows.map((row) => {
+    const cells = [...row.children];
+    return {
+      title: cells[0]?.querySelector('h1, h2, h3, h4, h5, h6') || null,
+      picture: cells[1]?.querySelector('picture') || null,
+      description: cells[2] || null,
+    };
+  }).filter((vehicle) => vehicle.title || vehicle.picture || vehicle.description);
+
+  // Build the three parts of the ARIA Tabs pattern.
+  const { tabNavigation, tabs } = buildTabNavigation(vehicles, instanceId, (index) => {
+    activate(block, index);
   });
-  block.appendChild(descriptionContainer);
+  const panelsContainer = buildPanels(vehicles, instanceId, tabs);
+  const { prev, next } = buildArrowControls(block);
 
-  const imagesWrapper = createElement('div', { classes: `${blockName}__slider-wrapper` });
-  const imagesContainer = createElement('div', { classes: `${blockName}__images-container` });
-  descriptionContainer.parentNode.prepend(imagesWrapper);
-  imagesWrapper.appendChild(imagesContainer);
+  // Wrapper that positions the arrows over the panel media.
+  const sliderWrapper = createElement('div', { classes: `${blockName}__slider-wrapper` });
+  // DOM order produces the required focus order:
+  // tab -> previous arrow -> CTA (or the panel when it has none) -> next arrow
+  // -> out.
+  sliderWrapper.append(prev, panelsContainer, next);
 
-  const tabNavigation = buildTabNavigation(tabItems, (index) => {
-    if (imagesContainer.classList.contains('is-animating')) {
-      return;
-    }
+  // Replace the original authored rows with the refactored structure.
+  block.textContent = '';
+  block.append(tabNavigation, sliderWrapper);
 
-    setCarouselPosition(imagesContainer, index);
-  });
+  addTablistKeyboard(block, tabNavigation);
 
-  // Arrows
-  createArrowControls(imagesContainer);
+  // Prune any empty wrappers left over from authoring.
+  block.querySelectorAll('p, div').forEach((item) => stripEmptyTags(block, item));
 
-  block.prepend(tabNavigation);
+  // Visually-hidden live region for arrow-driven changes (focus stays on the
+  // arrow, so the new vehicle would otherwise be announced by nothing). Added
+  // after the strip loop above so this intentionally-empty element survives.
+  const liveRegion = createElement('div', { classes: `${blockName}__live-region` });
+  liveRegion.setAttribute('aria-live', 'polite');
+  liveRegion.setAttribute('role', 'status');
+  block.append(liveRegion);
 
-  const allDivs = block.querySelectorAll(':scope > div');
+  // Set the initial active/selected state (tab 0 + its panel).
+  activate(block, 0);
 
-  // Filter only the empty divs (no classes and no content)
-  const imageContainers = Array.from(allDivs).filter((div) => !div.classList.length);
-
-  tabItems.forEach((tabItem, i) => {
-    // Create div for image and append inside image div container
-    const picture = imageContainers[i].querySelector('picture');
-    const imageItem = createElement('div', { classes: `${blockName}__image-item` });
-    imageItem.appendChild(picture);
-    imagesContainer.appendChild(imageItem);
-
-    // Remove empty tags
-    block.querySelectorAll('p, div').forEach((item) => {
-      stripEmptyTags(tabItem, item);
-    });
-
-    const headings = descriptionItems[i].querySelectorAll('h1, h2, h3, h4, h5, h6');
-    headings.forEach((heading) => {
-      heading.classList.add('h6');
-    });
-    // Creating the description list (as in specification component)
-    descriptionItems[i].querySelectorAll('p').forEach((paragraph) => {
-      const strongEls = paragraph.querySelectorAll('strong');
-      const hasButton = paragraph.classList.contains('button-container');
-
-      if (strongEls.length > 0) {
-        paragraph.classList.add('font-small', 'description-value');
-        strongEls.forEach((el) => {
-          el.classList.add('h6');
-        });
-      } else if (!hasButton) {
-        paragraph.classList.add('font-small', 'description-label');
-      }
-    });
-    Array.from(descriptionItems[i].querySelectorAll('.description-label')).reverse().forEach((el) => {
-      const stat = document.createElement('div');
-      stat.classList.add('description-stat');
-      const valueEl = el.nextElementSibling;
-
-      stat.append(el);
-      stat.append(valueEl);
-      descriptionItems[i].prepend(stat);
-    });
-  });
-
-  // Update the button indicator on scroll
-  listenScroll(imagesContainer);
-
-  // Update text position + navigation line when page is resized
+  // Re-center the active tab when the viewport changes size.
   window.addEventListener('resize', () => {
-    const activeItem = imagesContainer.querySelector(`.${blockName}__image-item.active`);
-    const index = [...activeItem.parentNode.children].indexOf(activeItem);
-    updateActiveItem(index);
+    activate(block, getActiveIndex(block));
   });
 
   block.classList.add('full-width');

@@ -1,5 +1,45 @@
-import { stripEmptyTags } from '../../scripts/helpers.js';
+import { stripEmptyTags, forceHeadingLevel, getLanguageLabels } from '../../scripts/helpers.js';
 import { addModalHandling } from '../../scripts/modal-helper.js';
+
+// Accessible-name templates for the region country groups, English fallbacks.
+// {region} and {count} are substituted at runtime; {items} resolves to a
+// singular/plural word supplied per language. Localized via the
+// `country-selector` sheet in lanconfig.json (same mechanism as the other a11y
+// components); missing translations fall back to English.
+const A11Y_FALLBACKS = {
+  countryGroupLabel: '{region} countries, {count} {items}',
+  itemSingular: 'item',
+  itemPlural: 'items',
+};
+
+/**
+ * Programmatically groups each region's country lists under a descriptive,
+ * counted label so screen readers announce e.g. "Europe countries, 8 items,
+ * group" when focus enters (WCAG 1.3.1, 4.1.2). Native <ul>/<li> semantics are
+ * kept; role="group" only adds the region-level grouping native HTML can't
+ * express. Idempotent, so it can run again once the localized label resolves.
+ * @param {Element} block the decorated country-selector block
+ * @param {Object} labels resolved label set (template + singular/plural words)
+ */
+function applyRegionGroupLabels(block, labels) {
+  block.querySelectorAll('.country-selector-region-wrapper').forEach((wrapper) => {
+    const region = wrapper.querySelector('h1, h2, h3, h4, h5, h6')?.textContent.trim() || '';
+    const group = wrapper.querySelector('.country-selector-country-wrapper');
+    if (!group) return;
+
+    // One list per country, so the list count is the number of countries.
+    const count = group.querySelectorAll(':scope > ul').length;
+    const itemWord = count === 1 ? labels.itemSingular : labels.itemPlural;
+    group.setAttribute('role', 'group');
+    group.setAttribute(
+      'aria-label',
+      labels.countryGroupLabel
+        .replace('{region}', region)
+        .replace('{count}', String(count))
+        .replace('{items}', itemWord),
+    );
+  });
+}
 
 const ICON_TOKEN_REGEX = /:([\w-]+):/;
 const LOCALE_PREFIX_REGEX = /^\/([^/]+)\/([^/]+)(\/.*)?$/;
@@ -25,6 +65,19 @@ function getCurrentPagePath() {
   const match = window.location.pathname.match(LOCALE_PREFIX_REGEX);
   if (!match) return '';
   return (match[3] || '').replace(/^\/+/, '').replace(/(^|\/)index$/, '$1');
+}
+
+/**
+ * Returns the locale prefix ("/{country}/{lang}/", lower-cased) of a path or
+ * URL, e.g. "/es/es/heritage" -> "/es/es/", or '' when there is none (e.g. "/").
+ * Used to match a country/language option against any page of that locale.
+ * @param {string} path a path or URL
+ * @returns {string} the locale prefix
+ */
+function getLocalePrefix(path) {
+  const { pathname } = new URL(path, window.location.origin);
+  const match = pathname.match(LOCALE_PREFIX_REGEX);
+  return match ? `/${match[1]}/${match[2]}/`.toLowerCase() : '';
 }
 
 /**
@@ -160,8 +213,10 @@ function renderCountrySelector(block) {
       const blockHeading = dataRow.querySelector('h1, h2, h3, h4, h5, h6');
 
       if (blockHeading) {
-        blockHeading.classList.add('h2');
+        // The selector title is the page's main heading: enforce a semantic
+        // <h1> while keeping the .h2 visual size (WCAG 1.3.1, 2.4.6).
         blockHeadingWrapper = blockHeading.parentElement;
+        forceHeadingLevel(blockHeading, 'h1', 'h2');
         blockHeadingWrapper.classList.add('country-selector-heading-wrapper');
       }
 
@@ -178,9 +233,11 @@ function renderCountrySelector(block) {
       const countryLanguageList = dataRow.querySelector('ul');
 
       if (region?.textContent.trim()) {
-        region.classList.add('h5');
+        // Region headings sit one level below the selector title: enforce a
+        // semantic <h2> while keeping the .h5 visual size (WCAG 1.3.1).
+        const regionHeading = forceHeadingLevel(region, 'h2', 'h5');
         data.push({
-          region,
+          region: regionHeading,
           regionData: [],
         });
       }
@@ -255,8 +312,19 @@ function renderCountrySelector(block) {
 
           countryButton.classList.add('cs-button');
 
-          if (countryButton.getAttribute('href') === window.location.pathname) {
+          // The option whose locale ("/es/es/") is the current page's locale is
+          // the active one on every page of that locale, not only on its home
+          // page (e.g. "/es/es/heritage" too, KAW-11306).
+          const href = countryButton.getAttribute('href');
+          const currentLocale = getLocalePrefix(window.location.pathname);
+          if (href && currentLocale && getLocalePrefix(href) === currentLocale) {
             countryButton.classList.add('active');
+            // Expose the selected country/language as the current selection so
+            // screen readers announce it as "current" instead of just "same
+            // page link" (WCAG 1.3.1). This is a selection within the dialog
+            // group, so aria-current="true" is used (per the task's technical
+            // note); each locale has one option, so only one is flagged.
+            countryButton.setAttribute('aria-current', 'true');
           }
 
           if (countryButton.tagName === 'A' && countryButton.getAttribute('href')) {
@@ -284,6 +352,15 @@ function renderCountrySelector(block) {
   });
 
   block.append(dataContainer);
+
+  // Group each region's country lists under a descriptive, counted label so
+  // screen readers announce the group + item count on entry (WCAG 1.3.1). Apply
+  // the English fallback synchronously so the grouping is never unlabelled, then
+  // swap in the localized label once the dictionary resolves.
+  applyRegionGroupLabels(block, A11Y_FALLBACKS);
+  getLanguageLabels('country-selector', A11Y_FALLBACKS).then((labels) => {
+    applyRegionGroupLabels(block, labels);
+  });
 
   // add modal class only when header/footer has option of country change
   const hasGlobeIcon = document.querySelector('.icon-globe');

@@ -9,35 +9,47 @@
   width: 100%;
 }
 
-.table td {
+/* Header cells (<th scope="col">) share the data-cell box and left alignment
+   so the accessible markup adds no visual change vs. the previous all-<td>
+   rendering. */
+.table td,
+.table th {
   padding: 8px;
   border-top: 1px solid #ddd;
   vertical-align: top;
+  font-weight: inherit;
+  text-align: left;
 }
 
-.table tr:first-of-type td {
+.table tr:first-of-type td,
+.table tr:first-of-type th {
   border-top: none;
 }
 
-.table td p {
+.table td p,
+.table th p {
   margin: 0;
 }
 
-.table tr:nth-child(2n) td {
+.table tr:nth-child(2n) td,
+.table tr:nth-child(2n) th {
   background-color: var(--c-primary-white);
   color: #111;
 }
 
-.table tr:nth-child(2n + 1) td {
+.table tr:nth-child(2n + 1) td,
+.table tr:nth-child(2n + 1) th {
   background-color: #f9f9f9;
   color: #111;
 }
 
-.table tr:hover td {
+.table tr:hover td,
+.table tr:hover th {
   background-color: #f3f3f3;
 }
 
-.table.with-borders tr td {
+.table.with-borders tr td,
+.table.with-borders tr th {
   background-color: inherit;
   border: 1px solid #1d1d1b;
   vertical-align: middle;

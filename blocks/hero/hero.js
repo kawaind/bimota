@@ -1,6 +1,7 @@
 import { createOptimizedPicture } from '../../scripts/aem.js';
 import { customDecoreateIcons } from '../../scripts/decorate-icon-helper.js';
 import { getTextLabel } from '../../scripts/scripts.js';
+import { forceHeadingLevel } from '../../scripts/helpers.js';
 
 const addPauseButton = (block) => {
   const pauseButton = document.createElement('button');
@@ -44,8 +45,10 @@ const addScrollIcon = (block) => {
 const addLogoFlag = (block) => {
   const flagEl = document.createElement('span');
   flagEl.classList.add('hero-flag');
+  // The flag is decorative: hide it from assistive technology so screen
+  // readers don't announce an unnamed "image" (KAW-11341, WCAG 1.1.1).
   flagEl.innerHTML = `
-    <svg width="100" height="80" viewBox="0 0 100 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width="100" height="80" viewBox="0 0 100 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
       <rect y="0.351562" width="14.2857" height="80" fill="#ED1C24"/>
       <rect x="28.5714" y="0.351562" width="14.2857" height="80" fill="#ED1C24"/>
       <rect x="57.1429" y="0.351562" width="14.2857" height="80" fill="white"/>
@@ -168,7 +171,15 @@ export default function decorate(block) {
   textWrapper.append(...firstCell.querySelectorAll(':scope > *:not(picture, video)'));
 
   firstCell.append(textWrapper);
-  headings.forEach((h) => { h.classList.add('h1'); });
+  // Title: always semantic H1, visually sized as H1 (accessible outline).
+  headings.forEach((h) => { forceHeadingLevel(h, 'h1', 'h1'); });
+  // Secondary text: body copy paragraphs (excluding button links and the
+  // %TIME% countdown mount) visually sized as H6.
+  textWrapper.querySelectorAll(':scope > p').forEach((p) => {
+    if (!p.querySelector('a') && p.textContent.trim().toUpperCase() !== '%TIME%') {
+      p.classList.add('h6');
+    }
+  });
   links.forEach((link, index) => { link.classList.add(index ? 'secondary' : 'primary'); });
 
   addScrollIcon(block);

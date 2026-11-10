@@ -27,6 +27,13 @@ export default function customDecoreateIcons(main) {
       try {
         const svgIcon = await icon.text();
         const svgEl = document.createRange().createContextualFragment(svgIcon).children[0];
+        // never a keyboard tab stop (guards legacy Edge/IE behaviour)
+        svgEl.setAttribute('focusable', 'false');
+        // if the wrapper is marked decorative (e.g. the logo link is already
+        // labelled), hide the graphic itself from assistive tech too (WCAG 1.1.1)
+        if (inlineIcon.getAttribute('aria-hidden') === 'true') {
+          svgEl.setAttribute('aria-hidden', 'true');
+        }
         inlineIcon.innerHTML = svgEl.outerHTML;
       } catch (error) {
         // eslint-disable-next-line no-console

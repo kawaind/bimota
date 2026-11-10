@@ -43,6 +43,27 @@
   --action-default: #ed1c24;
   --action-hover: #ae2d27;
   --action-focus: #82221d;
+
+  /* button palette (accessibility button spec) */
+  --red-on-white: #e7131a; /* default red for buttons over white (light theme) */
+  --coral: #f48680;
+  --lt-bg-grey: #ccc; /* == grey-20 */
+  --lt-text-grey: #808080; /* == grey-50 */
+  --bt-grey: #bbb;
+  --bt-dark-grey: #999; /* == grey-40 */
+  --bt-darker-grey: #4d4d4d; /* == grey-70 */
+
+  /* Stable brand reds for buttons. The .dark scope remaps --action-* to
+     white/greys for legacy generic dark styling, so button rules that need the
+     actual red palette reference these instead (they are never remapped). */
+  --btn-red: #ed1c24;
+  --btn-dark-red: #ae2d27;
+  --btn-darker-red: #82221d;
+
+  /* focus ring - non-colour-only indicator for keyboard navigation (WCAG 2.4.7, 1.4.11) */
+  --focus-ring-color: #0b5fff;
+  --focus-ring-width: 3px;
+  --focus-ring-offset: 2px;
   --success: #2d9d78;
   --warning: #e68619;
   --error: #b81f2d;
@@ -78,6 +99,9 @@
   --action-default: #fff;
   --action-hover: #bbb;
   --action-focus: #999;
+
+  /* lighter ring keeps 3:1 contrast against dark backgrounds (WCAG 1.4.11) */
+  --focus-ring-color: #66a3ff;
 }
 
 :root .homepage,
@@ -108,8 +132,16 @@ body.appear {
   display: block;
 }
 
+/* Fixed from the first paint (same as blocks/header/header.css), so the page
+   layout doesn't change when the header block's styles load later: an in-flow
+   70px header first pushed <main> down, then main jumped up once the header
+   became fixed (a layout shift on every page). */
 header {
+  position: fixed;
+  top: 0;
+  width: 100vw;
   height: var(--nav-height);
+  z-index: var(--z-index-header);
 }
 
 h1,
@@ -356,14 +388,55 @@ button:hover {
 a:focus,
 button:focus {
   color: var(--action-focus);
-  outline: none;
 }
+
+/* visible, non-colour-only focus indicator for keyboard users (WCAG 2.4.7, 1.4.1) */
+a:focus-visible,
+button:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: 2px;
+}
+
+/* Inline (in-prose) links: any link sitting inside body copy that is not a
+   styled CTA/button. Unlike buttons these must flow within the text and are
+   always underlined so they are distinguishable from surrounding text by more
+   than colour (WCAG 1.4.1 Use of Color, Level A). Colour follows the spec:
+   default = black, hover = dark-red, focus = darker-red; the underline is
+   present in every state. Scope is every in-prose link inside main (any
+   block), excluding styled CTAs (.button) and the country-selector menu tiles
+   (.cs-button); table-cell links are covered too since they sit inside a <p>.
+   These rules intentionally follow the base link rule above, so the
+   source-order-based descending-specificity check is disabled for the block. */
+/* stylelint-disable no-descending-specificity */
+main :is(p, li) a:not(.button, .cs-button) {
+  display: inline;
+  white-space: normal;
+  color: var(--black);
+  font-weight: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+main :is(p, li) a:not(.button, .cs-button):hover {
+  color: var(--action-hover);
+}
+
+main :is(p, li) a:not(.button, .cs-button):focus {
+  color: var(--action-focus);
+}
+/* stylelint-enable no-descending-specificity */
 
 button:disabled,
 button:disabled:hover {
   cursor: not-allowed;
   color: var(--grey-50);
   border: none;
+}
+
+/* disabled controls must not be focusable/actionable (WCAG 4.1.2) */
+button:disabled {
+  pointer-events: none;
 }
 
 a.button span[class^="icon"] {
@@ -374,31 +447,40 @@ a.button.primary:any-link,
 button.primary,
 a.button.secondary:any-link,
 button.secondary {
-  padding: 0 20px;
+  /* The Boxed font's metrics sit its letters slightly above the centre of the
+     line box; 0.125em of top padding brings the label to the visual centre
+     (equal space above the capitals and below the baseline). */
+  padding: 0.125em 20px 0;
   border-radius: 24px;
   height: 48px;
 }
 
+/* LIGHT THEME (button over white background) */
+
+/* Primary: red-on-white default -> dark-red (hover) -> darker-red (focus);
+   white text. */
 a.button.primary:any-link,
 button.primary {
-  background: var(--action-default);
+  background: var(--red-on-white);
   color: var(--white);
-  border: solid 1px var(--action-default);
+  border: solid 1px var(--red-on-white);
 }
 
+/* Secondary: white bg, black text, red-on-white border by default; fills on
+   hover/focus. */
 a.button.secondary:any-link,
 button.secondary {
   background: var(--white);
-  color: var(--action-default);
-  border: 1px solid var(--action-default);
+  color: var(--black);
+  border: 1px solid var(--red-on-white);
 }
 
 a.button.primary:hover,
 button.primary:hover,
 a.button.secondary:hover,
 button.secondary:hover {
-  color: var(--action-hover);
-  background: var(--white);
+  color: var(--white);
+  background: var(--action-hover);
   border: 1px solid var(--action-hover);
 }
 
@@ -406,27 +488,37 @@ a.button.primary:focus,
 button.primary:focus,
 a.button.secondary:focus,
 button.secondary:focus {
-  color: var(--action-focus);
-  background: var(--white);
+  color: var(--white);
+  background: var(--action-focus);
   border: 1px solid var(--action-focus);
-  outline: none;
+}
+
+/* pill buttons: round the focus ring to match the 24px radius */
+a.button.primary:focus-visible,
+button.primary:focus-visible,
+a.button.secondary:focus-visible,
+button.secondary:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: 24px;
 }
 
 button.primary:disabled,
 button.primary:disabled:hover,
 button.primary:disabled:focus {
   cursor: not-allowed;
-  background-color: var(--grey-20);
-  color: var(--grey-50);
-  border-color: var(--grey-20);
+  background-color: var(--lt-bg-grey);
+  color: var(--lt-text-grey);
+  border-color: var(--lt-bg-grey);
 }
 
 button.secondary:disabled,
-button.secondary:disabled:hover {
+button.secondary:disabled:hover,
+button.secondary:disabled:focus {
   cursor: not-allowed;
   background-color: var(--white);
-  color: var(--grey-50);
-  border-color: var(--grey-50);
+  color: var(--lt-text-grey);
+  border-color: var(--lt-text-grey);
 }
 
 a.button.small,
@@ -446,53 +538,225 @@ button.secondary.small {
   padding: 3px 12px;
 }
 
+/* Tertiary button (light theme): a link that uses the page background. It is
+   always underlined so state is never conveyed by colour alone (WCAG 1.4.1).
+   Default black text / red underline; hover dark-red; focus darker-red;
+   disabled lt-text-grey. Scoped to main content so header/footer nav pills
+   (which are also plain .button but styled as pills) are unaffected. */
+/* stylelint-disable no-descending-specificity */
+main a.button:not(.primary, .secondary):any-link,
+main button.button:not(.primary, .secondary) {
+  background: transparent;
+  color: var(--black);
+  border: none;
+  text-decoration: underline;
+  text-decoration-color: var(--red-on-white);
+  text-underline-offset: 4px;
+}
+
+main a.button:not(.primary, .secondary):hover,
+main button.button:not(.primary, .secondary):hover {
+  color: var(--action-hover);
+  text-decoration-color: var(--action-hover);
+}
+
+main a.button:not(.primary, .secondary):focus,
+main button.button:not(.primary, .secondary):focus {
+  color: var(--action-focus);
+  text-decoration-color: var(--action-focus);
+}
+
+main button.button:not(.primary, .secondary):disabled,
+main button.button:not(.primary, .secondary):disabled:hover,
+main button.button:not(.primary, .secondary):disabled:focus {
+  cursor: not-allowed;
+  color: var(--lt-text-grey);
+  text-decoration-color: var(--lt-text-grey);
+}
+/* stylelint-enable no-descending-specificity */
+
+/* stylelint-disable-next-line no-descending-specificity */
 .dark a:any-link,
 .dark button {
   background-color: transparent;
 }
 
+/* DARK THEME (button over dark or image background) */
+/* stylelint-disable no-descending-specificity */
+
+/* Primary dark: white bg/black text -> hover white bg + dark-red text/border
+   -> focus bt-grey bg + darker-red text/border. */
 .dark a.button.primary,
 .dark button.primary {
   background: var(--white);
   color: var(--black);
-}
-
-.dark a.button.secondary:any-link,
-.dark button.secondary {
-  background-color: transparent;
+  border: solid 1px var(--white);
 }
 
 .dark a.button.primary:hover,
 .dark button.primary:hover {
-  color: #ae2d27;
-  border-color: #ae2d27;
+  color: var(--btn-dark-red);
+  background: var(--white);
+  border-color: var(--btn-dark-red);
 }
 
 .dark a.button.primary:focus,
 .dark button.primary:focus {
-  color: #82221d;
-  border-color: #82221d;
-  background: var(--action-hover);
+  color: var(--btn-darker-red);
+  background: var(--bt-grey);
+  border-color: var(--btn-darker-red);
 }
 
-.dark .button:disabled,
-.dark .button:disabled:focus,
-.dark .button:disabled:hover {
-  color: var(--grey-40);
-  border-color: var(--grey-40);
+/* Secondary dark: black bg/white text/white border -> hover white bg/dark-red
+   text -> focus bt-grey bg/darker-red text. */
+.dark a.button.secondary:any-link,
+.dark button.secondary {
+  background: var(--black);
+  color: var(--white);
+  border: 1px solid var(--white);
+}
+
+.dark a.button.secondary:hover,
+.dark button.secondary:hover {
+  color: var(--btn-dark-red);
+  background: var(--white);
+  border-color: var(--white);
+}
+
+.dark a.button.secondary:focus,
+.dark button.secondary:focus {
+  color: var(--btn-darker-red);
+  background: var(--bt-grey);
+  border-color: var(--bt-grey);
+}
+
+/* Tertiary dark: white text/red underline -> hover red/red -> focus coral/coral. */
+main .dark a.button:not(.primary, .secondary):any-link,
+main .dark button.button:not(.primary, .secondary) {
   background: transparent;
+  color: var(--white);
+  border: none;
+  text-decoration: underline;
+  text-decoration-color: var(--btn-red);
+  text-underline-offset: 4px;
 }
 
+main .dark a.button:not(.primary, .secondary):hover,
+main .dark button.button:not(.primary, .secondary):hover {
+  color: var(--btn-red);
+  text-decoration-color: var(--btn-red);
+}
+
+main .dark a.button:not(.primary, .secondary):focus,
+main .dark button.button:not(.primary, .secondary):focus {
+  color: var(--coral);
+  text-decoration-color: var(--coral);
+}
+
+/* Disabled (dark theme). Primary: bt-darker-grey bg / bt-dark-grey text.
+   Secondary: black bg / bt-dark-grey text + border. Tertiary: bt-dark-grey. */
 .dark .button.primary:disabled,
 .dark .button.primary:disabled:focus,
 .dark .button.primary:disabled:hover {
-  background: var(--grey-70);
+  cursor: not-allowed;
+  color: var(--bt-dark-grey);
+  background: var(--bt-darker-grey);
+  border-color: var(--bt-darker-grey);
 }
+
+.dark .button.secondary:disabled,
+.dark .button.secondary:disabled:focus,
+.dark .button.secondary:disabled:hover {
+  cursor: not-allowed;
+  color: var(--bt-dark-grey);
+  background: var(--black);
+  border-color: var(--bt-dark-grey);
+}
+
+main .dark .button:not(.primary, .secondary):disabled,
+main .dark .button:not(.primary, .secondary):disabled:focus,
+main .dark .button:not(.primary, .secondary):disabled:hover {
+  cursor: not-allowed;
+  color: var(--bt-dark-grey);
+  background: transparent;
+  text-decoration-color: var(--bt-dark-grey);
+}
+/* stylelint-enable no-descending-specificity */
 
 main img {
   max-width: 100%;
   width: auto;
   height: auto;
+}
+
+/* Skip-to-content link (WCAG 2.4.1 Bypass Blocks, KAW-11086): the first child
+   of <body>, so it is the first focusable element on the page. Hidden above the
+   viewport until focused; when focused it becomes a full-width bar at the top
+   of the page, in normal flow, so the whole page moves down below it (and the
+   fixed header moves down with it, see below). Styled after va.gov's skip link,
+   in the site font, with black text and the site focus ring. */
+.skip-link-wrapper {
+  position: absolute;
+  top: -20rem;
+  left: 0;
+  z-index: calc(var(--z-index-header) + 1);
+  box-sizing: border-box;
+  width: 100%;
+  padding: 1.0625rem;
+  background-color: var(--white);
+}
+
+.skip-link-wrapper:focus-within {
+  position: static;
+}
+
+a.skip-link:any-link {
+  display: block;
+  padding: 1.0625rem;
+  background-color: var(--white);
+  color: var(--black);
+  font-family: var(--body-font-family);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  text-decoration: underline;
+}
+
+a.skip-link:any-link:focus,
+a.skip-link:any-link:hover {
+  color: var(--black);
+}
+
+a.skip-link:any-link:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* while the skip link is shown, the fixed header sits below it and moves
+   together with the page (no transition), also when it hides again */
+.skip-link-closing header {
+  transition: none;
+}
+
+body:has(> .skip-link-wrapper:focus-within) header {
+  top: var(--skip-link-offset, 0);
+  transition: none;
+}
+
+/* Visually hidden but available to screen readers (e.g. "opens in a new tab"). */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .icon {
@@ -523,6 +787,16 @@ div[class$="-wrapper"]:not(:first-child) {
 
 main {
   margin-top: var(--nav-height);
+}
+
+/* Remove the default focus outline when <main> (skip link) or the page's h1
+   (back-to-top button, KAW-11340) is programmatically focused: they are focus
+   starting points, not controls, so no outline box is drawn around them. */
+main:focus,
+main:focus-visible,
+main h1[tabindex="-1"]:focus,
+main h1[tabindex="-1"]:focus-visible {
+  outline: none;
 }
 
 main.no-top-margin {
@@ -726,6 +1000,19 @@ body.modal-visible > *:not(.modal) {
   top: 0;
 }
 
+/* The dialog container is focused on open (tabindex=-1) for the screen-reader
+   announcement; it is not an interactive control, so suppress its focus ring. */
+.modal:focus {
+  outline: none;
+}
+
+/* Scrollable content made keyboard-focusable (no focusable children): the ring
+   is drawn inside, as the region fills the viewport edge to edge. */
+.modal .modal-content:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: calc(-1 * var(--focus-ring-width));
+}
+
 .modal .modal-close-button {
   position: fixed;
   bottom: 40px;
@@ -735,12 +1022,25 @@ body.modal-visible > *:not(.modal) {
   height: 42px;
   background: var(--white);
   border-radius: 50%;
-  border: solid 1px var(--action-default);
+  color: var(--red-on-white);
+  border: solid 1px var(--red-on-white);
+
+  /* Placed first in the DOM (before the full-viewport content) for keyboard
+     shortcut access, so it needs an explicit stacking order to stay on top. */
+  z-index: 1;
 }
 
+/* Close button colour follows the spec: red-on-white -> dark-red (hover) ->
+   darker-red (focus). Border and icon (currentColor) move together. */
 .modal .modal-close-button:hover,
 .modal .modal-close-button:active {
+  color: var(--action-hover);
   border-color: var(--action-hover);
+}
+
+.modal .modal-close-button:focus {
+  color: var(--action-focus);
+  border-color: var(--action-focus);
 }
 
 .modal .modal-close-button span {
@@ -802,6 +1102,7 @@ body.text-page ul {
   list-style-position: inside;
 }
 
+/* stylelint-disable-next-line no-descending-specificity */
 body.text-page a:any-link {
   text-wrap: auto;
   overflow-wrap: anywhere;

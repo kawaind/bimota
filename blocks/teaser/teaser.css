@@ -49,8 +49,14 @@
   display: flex;
 }
 
+/* Teaser CTAs follow the primary-button spec: white bg/black text ->
+   white bg + dark-red text/border (hover) -> bt-grey bg + darker-red
+   text/border (focus) -> bt-darker-grey bg / bt-dark-grey text (disabled).
+   Uses the stable --btn-* reds so colours are correct regardless of theme
+   scope. The ::after keeps the whole card clickable. */
 .teaser .teaser-card-body a.button {
-  border-color: transparent;
+  background: var(--white);
+  border-color: var(--white);
   color: var(--black);
 }
 
@@ -61,10 +67,27 @@
   content: "";
 }
 
-.teaser li:hover .teaser-card-body a.button {
-  border-color: var(--action-hover);
-  color: var(--action-hover);
+/* stylelint-disable no-descending-specificity */
+.teaser li:hover .teaser-card-body a.button,
+.teaser .teaser-card-body a.button:hover {
+  background: var(--white);
+  border-color: var(--btn-dark-red);
+  color: var(--btn-dark-red);
 }
+
+.teaser .teaser-card-body a.button:focus {
+  background: var(--bt-grey);
+  border-color: var(--btn-darker-red);
+  color: var(--btn-darker-red);
+}
+
+.teaser .teaser-card-body a.button:disabled,
+.teaser .teaser-card-body button.button:disabled {
+  background: var(--bt-darker-grey);
+  border-color: var(--bt-darker-grey);
+  color: var(--bt-dark-grey);
+}
+/* stylelint-enable no-descending-specificity */
 
 .teaser .teaser-card-image {
   line-height: 0;
@@ -87,12 +110,18 @@ div.teaser-wrapper + div.teaser-wrapper {
 }
 
 /* teaser image */
+
+/* Explicit black background so automated contrast validators evaluate the
+   white foreground text against #000 (>=4.5:1) rather than defaulting to the
+   UA white and reporting a false 1:1 ratio (WCAG 1.4.3). The background image
+   layered on top is unaffected. */
 .teaser.image-bg li {
   overflow: hidden;
   min-height: 464px;
   display: grid;
   justify-content: unset;
   color: white;
+  background-color: var(--black);
 }
 
 .teaser.image-bg .teaser-card-image {
@@ -107,12 +136,30 @@ div.teaser-wrapper + div.teaser-wrapper {
   grid-area: 1 / 1;
   margin: 0;
   padding: 20px 16px;
-  background-image: linear-gradient(
-    180deg,
-    rgb(0 0 0 / 0%) 40%,
-    rgba(0 0 0/ 40%) 99%
-  );
+  position: relative;
   justify-content: end;
+}
+
+/* Darkening overlay + backdrop blur behind the foreground text so the white
+   copy keeps sufficient contrast (WCAG 1.4.3). A uniform 61% black fill is
+   shaped by a mask matching the gradient stops, so BOTH the darkening and the
+   blur fade in together over the same band (transparent above 33.87%, full at
+   67.63%) - i.e. the blur only affects what sits under the gradient. */
+.teaser.image-bg .teaser-card-body::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: rgb(0 0 0 / 61%);
+  backdrop-filter: blur(13.5px);
+  mask-image: linear-gradient(180deg, transparent 33.87%, #000 67.63%);
+  pointer-events: none;
+}
+
+/* Keep the text above the overlay layer. */
+.teaser.image-bg .teaser-card-body > * {
+  position: relative;
+  z-index: 1;
 }
 
 .teaser.image-bg .teaser-card-body .button-container {

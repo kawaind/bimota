@@ -1,4 +1,76 @@
-import { createElement } from '../../scripts/helpers.js';
+import { createElement, getLanguageFromPath } from '../../scripts/helpers.js';
+import { withBrandSuffix } from '../../scripts/scripts.js';
+
+let uidCounter = 0;
+// Unique id suffix so multiple instances / repeated regions don't collide.
+const uid = () => {
+  uidCounter += 1;
+  return `wd-${uidCounter}`;
+};
+
+// Localized screen-reader / ARIA labels are authored in the global
+// lanconfig.json multi-sheet, one column per language code (en, it, fr, de,
+// nl, es, ja, lu) — the same dictionary the header uses for the skip link.
+// The `dealer-selector` sheet holds this component's labels; `sr-buttons`
+// already carries the shared "opensInNewTab" phrase, so we reuse it.
+const LABEL_FALLBACKS = {
+  dealerLocationsByRegion: 'Dealer locations by region',
+  dealerPhone: 'Phone',
+  dealerWebsite: 'Website',
+  dealerEmail: 'Email',
+  // Action-oriented link purposes (WCAG 2.4.4). `{name}` is replaced with the
+  // dealer name at render time; translations position the placeholder to suit
+  // each language's grammar. Used when a dealer name is present; the single-word
+  // labels above are the fallback when it is not.
+  dealerVisitWebsite: 'Visit website of {name}',
+  dealerSendEmail: 'Send an email to {name}',
+  opensInNewTab: '(opens in a new tab)',
+};
+
+let labelDict = null;
+
+/**
+ * Load and cache the localized dealer-selector labels for the current URL
+ * language from lanconfig.json (sheets `dealer-selector` and `sr-buttons`).
+ * Each row is a Key plus one column per language code; the column matching the
+ * current language wins, else English, else the hard-coded fallback. Adding a
+ * language is a pure authoring change (add a column). Falls back gracefully on
+ * any fetch/parse error so the block is always usable.
+ */
+async function loadLabels() {
+  if (labelDict) return labelDict;
+  const lang = getLanguageFromPath();
+  const dict = { ...LABEL_FALLBACKS };
+  try {
+    const resp = await fetch('/lanconfig.json?sheet=dealer-selector&sheet=sr-buttons');
+    if (resp.ok) {
+      const json = await resp.json();
+      const rows = [
+        ...(json['dealer-selector']?.data || []),
+        ...(json['sr-buttons']?.data || []),
+      ];
+      rows.forEach((row) => {
+        if (row.Key && Object.prototype.hasOwnProperty.call(dict, row.Key)) {
+          dict[row.Key] = row[lang] || row.en || dict[row.Key];
+        }
+      });
+    }
+  } catch (e) {
+    // keep fallbacks
+  }
+  labelDict = dict;
+  return labelDict;
+}
+
+/**
+ * Return a localized label by key, using whatever loadLabels resolved (or the
+ * English fallback before/if the dictionary is unavailable).
+ * @param {string} key label key (e.g. "dealerWebsite")
+ * @param {string} [fallback] optional override fallback
+ * @returns {string} the localized label
+ */
+const t = (key, fallback) => (labelDict && labelDict[key])
+  || fallback || LABEL_FALLBACKS[key] || key;
 
 const REGIONS = {
   africa: [
@@ -65,15 +137,27 @@ function getLocalizedCountryName(countryCode, langCode) {
   }
 }
 
-function buildDealerCard(store) {
+/**
+ * Build a single dealer as a semantic list item: the dealer name as a heading
+ * one level below its list's heading (WCAG 1.3.1), followed by an <address>
+ * element with the contact details (the name sits outside it, as <address>
+ * may not contain headings). Interactive links (website, phone, email) carry
+ * visually-hidden context so their purpose is clear out of context to a
+ * screen reader (WCAG 2.4.4).
+ * @param {Object} store the Woosmap store feature
+ * @param {string} [nameTag='p'] tag for the dealer name (h3 / h4 in a list)
+ * @returns {HTMLLIElement} the dealer list item
+ */
+function buildDealerCard(store, nameTag = 'p') {
   const { properties } = store;
   const { name, address, contact } = properties;
-  const card = createElement('div', { classes: 'dealer-card' });
+  const item = createElement('li', { classes: 'dealer-card' });
+  const addressEl = createElement('address', { classes: 'dealer-address' });
 
   if (name) {
-    const nameEl = createElement('p', { classes: 'dealer-name' });
+    const nameEl = createElement(nameTag, { classes: 'dealer-name' });
     nameEl.textContent = name;
-    card.append(nameEl);
+    item.append(nameEl);
   }
 
   const lines = address?.lines;
@@ -81,7 +165,7 @@ function buildDealerCard(store) {
   if (street) {
     const streetEl = createElement('p', { classes: 'dealer-street' });
     streetEl.textContent = street;
-    card.append(streetEl);
+    addressEl.append(streetEl);
   }
 
   const city = address?.city || '';
@@ -90,14 +174,28 @@ function buildDealerCard(store) {
   if (cityZip) {
     const cityEl = createElement('p', { classes: 'dealer-city' });
     cityEl.textContent = cityZip;
-    card.append(cityEl);
+    addressEl.append(cityEl);
   }
 
-  const phone = contact?.phone || '';
+  // Helper: append visually-hidden context so links read meaningfully out of
+  // context (e.g. "Phone: +32 …", "Website: … (opens in a new tab), <dealer>").
+  const withContext = (linkEl, contextText) => {
+    const ctx = createElement('span', { classes: 'sr-only' });
+    ctx.textContent = `${contextText} `;
+    linkEl.prepend(ctx);
+  };
+
+  const phone = (contact?.phone || '').trim();
   if (phone) {
     const phoneEl = createElement('p', { classes: 'dealer-phone' });
-    phoneEl.textContent = phone;
-    card.append(phoneEl);
+    const telHref = `tel:${phone.replace(/[^\d+]/g, '')}`;
+    const phoneLink = createElement('a', { classes: 'dealer-phone-link', props: { href: telHref } });
+    phoneLink.textContent = phone;
+    withContext(phoneLink, `${t('dealerPhone', 'Phone')}:`);
+    const phoneLabel = `${t('dealerPhone', 'Phone')}: ${phone}${name ? `, ${name}` : ''}`;
+    phoneLink.setAttribute('aria-label', phoneLabel);
+    phoneEl.append(phoneLink);
+    addressEl.append(phoneEl);
   }
 
   const url = contact?.website || '';
@@ -111,9 +209,22 @@ function buildDealerCard(store) {
         rel: 'noopener noreferrer',
       },
     });
-    link.textContent = url.replace(/^https?:\/\//, '');
+    const visibleUrl = url.replace(/^https?:\/\//, '');
+    link.textContent = visibleUrl;
+    // Accessible name states the purpose ("Visit website of <dealer>"), that it
+    // opens a new tab (WCAG 2.4.4, 3.2.5), and contains the visible link text
+    // (the URL) so the name matches what a speech-input user would speak (WCAG
+    // 2.5.3 Label in Name). Falls back to the plain "Website" label when the
+    // dealer has no name. The shared "opensInNewTab" phrase carries its own
+    // parentheses.
+    const newTab = t('opensInNewTab', '(opens in a new tab)');
+    const purpose = name
+      ? t('dealerVisitWebsite', 'Visit website of {name}').replace('{name}', name)
+      : t('dealerWebsite', 'Website');
+    const websiteLabel = `${purpose}, ${visibleUrl} ${newTab}`;
+    link.setAttribute('aria-label', websiteLabel);
     urlEl.append(link);
-    card.append(urlEl);
+    addressEl.append(urlEl);
   }
 
   const email = contact?.email || '';
@@ -121,11 +232,19 @@ function buildDealerCard(store) {
     const emailEl = createElement('p', { classes: 'dealer-email' });
     const mailLink = createElement('a', { props: { href: `mailto:${email}` } });
     mailLink.textContent = email;
+    // Accessible name states the purpose ("Send an email to <dealer>") and
+    // includes the visible address so it matches the spoken label (WCAG 2.4.4,
+    // 2.5.3). Falls back to the plain "Email" label when no dealer name.
+    const emailPurpose = name
+      ? t('dealerSendEmail', 'Send an email to {name}').replace('{name}', name)
+      : t('dealerEmail', 'Email');
+    mailLink.setAttribute('aria-label', `${emailPurpose}, ${email}`);
     emailEl.append(mailLink);
-    card.append(emailEl);
+    addressEl.append(emailEl);
   }
 
-  return card;
+  item.append(addressEl);
+  return item;
 }
 
 function sortStores(stores, isCountryDealers, langCode) {
@@ -257,7 +376,7 @@ function updatePageTitle(langCode) {
   const lang = langCode.toLowerCase();
   const translated = TRANSLATIONS.dealers?.[lang];
   if (translated) {
-    document.title = translated;
+    document.title = withBrandSuffix(translated);
   }
 }
 
@@ -301,6 +420,96 @@ function getLocalizedRegionName(region, langCode) {
     || region.charAt(0).toUpperCase() + region.slice(1);
 }
 
+/**
+ * Set the selected tab in a tablist that uses automatic activation (ARIA APG
+ * Tabs pattern): update aria-selected + roving tabindex on every tab, show the
+ * matching panel and hide the rest. Optionally move DOM focus to the newly
+ * selected tab (used by the arrow / Home / End keys, which move focus and
+ * activate together).
+ * @param {HTMLElement[]} tabs the tab buttons
+ * @param {HTMLElement[]} panels the tab panels (index-aligned with tabs)
+ * @param {number} index the tab to select
+ * @param {boolean} [focusTab=false] move focus onto the selected tab
+ */
+function selectTab(tabs, panels, index, focusTab = false) {
+  tabs.forEach((tab, i) => {
+    const selected = i === index;
+    tab.setAttribute('aria-selected', selected ? 'true' : 'false');
+    tab.setAttribute('tabindex', selected ? '0' : '-1');
+    tab.classList.toggle('active', selected);
+  });
+  panels.forEach((panel, i) => {
+    const selected = i === index;
+    panel.hidden = !selected;
+    panel.classList.toggle('active', selected);
+  });
+  if (focusTab) tabs[index].focus();
+}
+
+/**
+ * Build one country accordion (ARIA APG Accordion pattern): a native <button>
+ * wrapped in a heading, controlling a collapsible region. Expanded state is
+ * exposed via aria-expanded; the panel is linked back to its button with
+ * aria-labelledby (WCAG 1.3.1, 4.1.2).
+ * @param {string} countryName the localized country name
+ * @param {Object[]} dealers the stores in this country
+ * @param {string} headingTag semantic heading level for the trigger; dealer
+ * names inside the panel are headings one level below it
+ * @returns {HTMLElement} the accordion wrapper
+ */
+function buildCountryAccordion(countryName, dealers, headingTag) {
+  const dealerNameTag = `h${Number(headingTag[1]) + 1}`;
+  const instanceId = uid();
+  const buttonId = `${instanceId}-btn`;
+  const panelId = `${instanceId}-panel`;
+
+  const sortedDealers = [...dealers].sort((a, b) => {
+    const nameA = (a.properties?.name || '').toUpperCase();
+    const nameB = (b.properties?.name || '').toUpperCase();
+    return nameA.localeCompare(nameB);
+  });
+
+  const accordion = createElement('div', { classes: 'dealers-accordion' });
+
+  const heading = createElement(headingTag, { classes: 'dealers-accordion-heading' });
+  const button = createElement('button', {
+    classes: 'dealers-accordion-header',
+    props: {
+      type: 'button',
+      id: buttonId,
+      'aria-expanded': 'false',
+      'aria-controls': panelId,
+    },
+  });
+  const label = createElement('span', { classes: 'dealers-accordion-title' });
+  label.textContent = countryName;
+  button.append(label);
+  heading.append(button);
+  accordion.append(heading);
+
+  // Panel is a labelled region that wraps the dealer list. Keeping the region
+  // role on a container <div> (not the <ul>) preserves the list semantics of
+  // the <ul>/<li> dealer markup (WCAG 1.3.1).
+  const panel = createElement('div', {
+    classes: 'dealers-accordion-panel',
+    props: { id: panelId, role: 'region', 'aria-labelledby': buttonId },
+  });
+  panel.hidden = true;
+  const list = createElement('ul', { classes: 'dealers-grid' });
+  sortedDealers.forEach((store) => list.append(buildDealerCard(store, dealerNameTag)));
+  panel.append(list);
+  accordion.append(panel);
+
+  button.addEventListener('click', () => {
+    const expanded = button.getAttribute('aria-expanded') === 'true';
+    button.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+    panel.hidden = expanded;
+    accordion.classList.toggle('open', !expanded);
+  });
+
+  return accordion;
+}
+
 function buildRegionTabs(regionMap, langCode, container, userCountryIso) {
   const userRegion = userCountryIso ? getRegionForCountry(userCountryIso) : null;
   const sorted = Object.keys(regionMap).sort();
@@ -308,58 +517,122 @@ function buildRegionTabs(regionMap, langCode, container, userCountryIso) {
     ? [userRegion, ...sorted.filter((r) => r !== userRegion)]
     : sorted;
 
-  const tabNav = createElement('div', { classes: 'dealers-tabs' });
+  // Visually-hidden section heading for the region tabs (WCAG 1.3.1): it
+  // groups the countries below as their own h2 section and names the tablist.
+  const headingId = `${uid()}-heading`;
+  const sectionHeading = createElement('h2', { classes: 'sr-only', props: { id: headingId } });
+  sectionHeading.textContent = t('dealerLocationsByRegion', 'Dealer locations by region');
+
+  // Tablist (ARIA Tabs pattern, automatic activation).
+  const tabNav = createElement('ul', {
+    classes: 'dealers-tabs',
+    props: { role: 'tablist', 'aria-labelledby': headingId },
+  });
   const tabContent = createElement('div', { classes: 'dealers-tab-content' });
 
-  regionNames.forEach((region, index) => {
-    const tabBtn = createElement('button', { classes: 'dealers-tab-btn' });
-    tabBtn.textContent = getLocalizedRegionName(region, langCode);
-    tabBtn.setAttribute('data-region', region);
-    if (index === 0) tabBtn.classList.add('active');
-    tabBtn.addEventListener('click', () => {
-      tabNav.querySelectorAll('.dealers-tab-btn').forEach((b) => b.classList.remove('active'));
-      tabBtn.classList.add('active');
-      tabContent.querySelectorAll('.dealers-tab-panel').forEach((p) => p.classList.remove('active'));
-      tabContent.querySelector(`[data-region="${region}"]`).classList.add('active');
-    });
-    tabNav.append(tabBtn);
-  });
+  const tabs = [];
+  const panels = [];
 
   regionNames.forEach((region, index) => {
-    const panel = createElement('div', { classes: 'dealers-tab-panel' });
-    panel.setAttribute('data-region', region);
+    const instanceId = uid();
+    const tabId = `${instanceId}-tab`;
+    const panelId = `${instanceId}-tabpanel`;
+
+    const listItem = createElement('li', { classes: 'dealers-tab-item', props: { role: 'presentation' } });
+    const tabBtn = createElement('button', {
+      classes: 'dealers-tab-btn',
+      props: {
+        type: 'button',
+        role: 'tab',
+        id: tabId,
+        'aria-controls': panelId,
+        'aria-selected': index === 0 ? 'true' : 'false',
+        tabindex: index === 0 ? '0' : '-1',
+      },
+    });
+    tabBtn.textContent = getLocalizedRegionName(region, langCode);
+    if (index === 0) tabBtn.classList.add('active');
+    listItem.append(tabBtn);
+    tabNav.append(listItem);
+    tabs.push(tabBtn);
+
+    // The countries container (tabpanel) is not a Tab stop: tabindex="-1" keeps
+    // it out of the tab sequence, so Tab goes from the tablist straight to the
+    // first country button, while it can still be focused from script
+    // (KAW-11116). The ARIA APG only makes a panel a Tab stop when it has no
+    // focusable content, and these always contain the country buttons.
+    const panel = createElement('div', {
+      classes: 'dealers-tab-panel',
+      props: {
+        role: 'tabpanel',
+        id: panelId,
+        'aria-labelledby': tabId,
+        tabindex: '-1',
+      },
+    });
     if (index === 0) panel.classList.add('active');
+    panel.hidden = index !== 0;
 
     const countries = Object.keys(regionMap[region]).sort();
     countries.forEach((countryName) => {
-      const dealers = regionMap[region][countryName];
-      const sortedDealers = [...dealers].sort((a, b) => {
-        const nameA = (a.properties?.name || '').toUpperCase();
-        const nameB = (b.properties?.name || '').toUpperCase();
-        return nameA.localeCompare(nameB);
-      });
-
-      const details = document.createElement('details');
-      details.classList.add('dealers-accordion');
-
-      const summary = document.createElement('summary');
-      summary.classList.add('dealers-accordion-header');
-      summary.textContent = countryName;
-      details.append(summary);
-
-      const grid = createElement('div', { classes: 'dealers-grid' });
-      sortedDealers.forEach((store) => {
-        grid.append(buildDealerCard(store));
-      });
-      details.append(grid);
-      panel.append(details);
+      // Region heading is <h2> in the section, so country triggers are <h3>.
+      panel.append(buildCountryAccordion(countryName, regionMap[region][countryName], 'h3'));
     });
 
     tabContent.append(panel);
+    panels.push(panel);
   });
 
+  // Automatic activation: selecting (via click) or focusing (via keyboard)
+  // a tab activates it.
+  tabs.forEach((tab, index) => {
+    tab.addEventListener('click', () => selectTab(tabs, panels, index));
+  });
+
+  tabNav.addEventListener('keydown', (e) => {
+    const current = tabs.indexOf(document.activeElement);
+    if (current === -1) return;
+    let next;
+    switch (e.key) {
+      case 'ArrowRight':
+        next = current === tabs.length - 1 ? 0 : current + 1;
+        break;
+      case 'ArrowLeft':
+        next = current === 0 ? tabs.length - 1 : current - 1;
+        break;
+      case 'Home':
+        next = 0;
+        break;
+      case 'End':
+        next = tabs.length - 1;
+        break;
+      default:
+        return;
+    }
+    e.preventDefault();
+    selectTab(tabs, panels, next, true);
+  });
+
+  container.append(sectionHeading);
   container.append(tabNav);
   container.append(tabContent);
+}
+
+/**
+ * Give the page its h1 (WCAG 1.3.1) when nothing else does: a visually-hidden
+ * "Dealers" heading (localized, as the document title) at the start of the
+ * first dealer list, so the country list and the region tabs are its h2
+ * sections. Skipped when the page already has an h1 or a block that renders
+ * one (hero, global-title), so there is never a second h1.
+ * @param {HTMLElement} container the block's container, already in <main>
+ * @param {string} langCode the URL language code
+ */
+function addPageHeading(container, langCode) {
+  const main = container.closest('main');
+  if (!main || main.querySelector('h1, .hero, .woosmapdealers.global-title')) return;
+  const heading = createElement('h1', { classes: 'sr-only' });
+  heading.textContent = TRANSLATIONS.dealers[langCode.toLowerCase()] || TRANSLATIONS.dealers.en;
+  container.append(heading);
 }
 
 async function decoratePriorityDealers(block) {
@@ -388,7 +661,7 @@ async function decoratePriorityDealers(block) {
 
   const stores = await fetchDealers(apiKey, query);
   const sorted = sortStores(stores, false, langCode);
-  const grid = createElement('div', { classes: 'dealers-grid' });
+  const grid = createElement('ul', { classes: 'dealers-grid' });
   sorted.forEach((store) => {
     grid.append(buildDealerCard(store));
   });
@@ -396,6 +669,11 @@ async function decoratePriorityDealers(block) {
 }
 
 export default async function decorate(block) {
+  // Ensure the localized label dictionary is loaded before we build labels, so
+  // the ARIA labels render in the site language on first paint (requirement
+  // #4). loadLabels caches, so this is a no-op after the first call.
+  await loadLabels();
+
   if (block.classList.contains('global-title')) {
     decorateGlobalTitle(block);
     return;
@@ -427,8 +705,9 @@ export default async function decorate(block) {
   const container = createElement('div', { classes: 'dealers-container' });
   const loading = createElement('div', { classes: 'dealers-loading' });
   loading.textContent = '...';
-  container.append(loading);
   block.append(container);
+  addPageHeading(container, langCode);
+  container.append(loading);
 
   let stores;
 
@@ -456,10 +735,12 @@ export default async function decorate(block) {
       container.append(heading);
     }
 
+    // Dealer names sit one level below the country heading (h2).
+    const dealerNameTag = countryName ? 'h3' : 'h2';
     const sorted = sortStores(stores, true, langCode);
-    const grid = createElement('div', { classes: 'dealers-grid' });
+    const grid = createElement('ul', { classes: 'dealers-grid' });
     sorted.forEach((store) => {
-      grid.append(buildDealerCard(store));
+      grid.append(buildDealerCard(store, dealerNameTag));
     });
     container.append(grid);
   }

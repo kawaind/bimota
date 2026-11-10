@@ -184,6 +184,69 @@ export function stripEmptyTags(main, child) {
 }
 
 /**
+ * Replace a heading with one at a fixed semantic level, preserving its content
+ * (including inline markup like sup/sub/strong) and applying a visual class.
+ * Used to enforce a consistent, accessible heading outline regardless of the
+ * tag the author chose. If the source is already the target tag it is reused so
+ * event listeners/references are not lost; only the visual class is applied.
+ * @param {HTMLElement} source the authored heading/element to normalise
+ * @param {string} tagName the semantic tag to enforce (e.g. 'h2')
+ * @param {string} [visualClass] optional visual size class (e.g. 'h3')
+ * @returns {HTMLElement} the resulting element (new or the reused source)
+ */
+export function forceHeadingLevel(source, tagName, visualClass) {
+  let el = source;
+  if (source.tagName.toLowerCase() !== tagName.toLowerCase()) {
+    el = document.createElement(tagName);
+    el.append(...source.childNodes);
+    [...source.attributes].forEach((attr) => el.setAttribute(attr.name, attr.value));
+    source.replaceWith(el);
+  }
+  if (visualClass) {
+    el.classList.add(visualClass);
+  }
+  return el;
+}
+
+let describedButtonId = 0;
+
+/**
+ * Ensure an element has an id, generating a stable unique one if needed.
+ * @param {HTMLElement} el the element
+ * @param {string} [prefix='lbl'] id prefix used when generating
+ * @returns {string} the element's id
+ */
+export const ensureId = (el, prefix = 'lbl') => {
+  if (!el.id) {
+    describedButtonId += 1;
+    el.id = `${prefix}-${describedButtonId}`;
+  }
+  return el.id;
+};
+
+/**
+ * Give a button a descriptive accessible name for screen readers: its own text,
+ * a comma, then a contextual title (e.g. the heading above it), so a generic
+ * "Discover" reads as "Discover, <title>" (WCAG 2.4.6, 4.1.2). Native
+ * <button>s keep their role; non-button elements (links that act as buttons)
+ * get role="button". For plain navigation links use labelWithContext() instead,
+ * which names the link the same way but keeps its native link role.
+ * @param {HTMLElement} button the button/link element
+ * @param {HTMLElement} parent the element whose text provides context
+ */
+export function describeButton(button, parent) {
+  if (!button || !parent) return;
+
+  if (button.tagName !== 'BUTTON') {
+    button.setAttribute('role', 'button');
+  }
+
+  // Own text first (with the comma pause), then the contextual title.
+  // eslint-disable-next-line no-use-before-define
+  labelWithContext(button, parent);
+}
+
+/**
  * Create an element with the given id and classes.
  * @param {string} tagName the tag
  * @param {Object} options the element options
@@ -209,6 +272,81 @@ export function createElement(tagName, options = {}) {
   }
 
   return elem;
+}
+
+/**
+ * Give a control a contextual accessible name through aria-labelledby: its own
+ * label, a comma, then the context element(s). A generic CTA "Explore" next to
+ * the "Tesi H2" tab is announced as "Explore, Tesi H2" (WCAG 2.4.4, 2.4.6), and
+ * because the visible text comes first the name still satisfies Label in Name
+ * (WCAG 2.5.3). Reusable by any CTA or action button on the site.
+ *
+ * aria-labelledby joins the referenced texts with a space, so a comma placed in
+ * its own element would read "Explore , Tesi H2". The comma is therefore put
+ * inside the first referenced element, which is always one this helper owns:
+ * - without `label`: the control's own visible text is wrapped in a span and a
+ *   zero-size comma is appended to it (no visual change);
+ * - with `label`: a `hidden` span holding "label," is appended to the control
+ *   (hidden text is still used when it is referenced by aria-labelledby, and is
+ *   not read twice in browse mode).
+ * Idempotent: calling it again on the same control replaces the previous setup.
+ * @param {Element} control the link/button (or other element) to name
+ * @param {Element|Element[]} context element(s) whose text follows the comma
+ * @param {Object} [options]
+ * @param {string} [options.label] use this text as the first part instead of
+ *   the control's visible text
+ * @param {string} [options.separator] separator glued to the first part;
+ *   defaults to the page language's comma (',' — or '、' for Japanese)
+ */
+export function labelWithContext(control, context, {
+  label,
+  separator = (document.documentElement.lang || '').toLowerCase().startsWith('ja') ? '、' : ',',
+} = {}) {
+  let first = control.querySelector(':scope > [data-label-own]');
+
+  if (label !== undefined) {
+    if (first && !first.hidden) {
+      first.replaceWith(...first.childNodes);
+      first = null;
+    }
+    if (!first) {
+      first = createElement('span', { props: { 'data-label-own': '' } });
+      first.hidden = true;
+      control.append(first);
+    }
+    first.textContent = `${label}${separator}`;
+  } else {
+    if (first?.hidden) {
+      first.remove();
+      first = null;
+    }
+    if (!first) {
+      // Wrap the control's own text; decorative children (icons, SVGs,
+      // aria-hidden nodes) stay outside so they never join the name.
+      first = createElement('span', { props: { 'data-label-own': '' } });
+      const textNodes = [...control.childNodes].filter((node) => (
+        node.nodeType === Node.TEXT_NODE
+        || (node.nodeType === Node.ELEMENT_NODE
+          && !node.matches('.icon, [class*="icon-"], svg, img, [aria-hidden="true"]'))
+      ));
+      textNodes[0]?.before(first);
+      first.append(...textNodes);
+    }
+    first.querySelector(':scope > [data-label-separator]')?.remove();
+    const sep = createElement('span', { props: { 'data-label-separator': '' } });
+    // Zero-size, so it adds nothing visually but stays in the computed name.
+    // line-height 0 too: with the inherited line-height it still made the line
+    // box taller and pushed the visible label up off-centre in buttons.
+    sep.style.fontSize = '0';
+    sep.style.lineHeight = '0';
+    sep.textContent = separator;
+    first.append(sep);
+  }
+
+  const contextIds = (Array.isArray(context) ? context : [context])
+    .filter(Boolean)
+    .map((el) => ensureId(el));
+  control.setAttribute('aria-labelledby', [ensureId(first), ...contextIds].join(' '));
 }
 
 export const isInViewport = (element) => {
@@ -252,23 +390,101 @@ export const autoScrollSlidesWhenInView = (block, {
   getActiveIndex, slideCount, scrollToSlide, animationTime = 3,
 }) => {
   let interval = null;
+  // Auto-rotation pauses while the user hovers or keyboard-focuses inside the
+  // block, so they can read at their own pace (WCAG 2.2.2 Pause, Stop, Hide).
+  let paused = false;
+
+  const startRotation = () => {
+    if (interval || paused || !isInViewport(block)) return;
+    interval = setInterval(() => {
+      const activeIndex = getActiveIndex(block);
+      const newActiveIndex = activeIndex === slideCount - 1 ? 0 : activeIndex + 1;
+
+      scrollToSlide(block, newActiveIndex);
+    }, animationTime * 1000);
+  };
+
+  const stopRotation = () => {
+    clearInterval(interval);
+    interval = null;
+  };
+
+  const pause = () => {
+    paused = true;
+    stopRotation();
+  };
+
+  const resume = () => {
+    paused = false;
+    startRotation();
+  };
+
+  // Mouse users: pause on hover. Keyboard users: pause while focus is within.
+  block.addEventListener('mouseenter', pause);
+  block.addEventListener('mouseleave', resume);
+  block.addEventListener('focusin', pause);
+  block.addEventListener('focusout', resume);
 
   window.addEventListener('scroll', debounce(() => {
     if (isInViewport(block) && !interval) {
       block.classList.add('active');
-
-      interval = setInterval(() => {
-        const activeIndex = getActiveIndex(block);
-        const newActiveIndex = activeIndex === slideCount - 1 ? 0 : activeIndex + 1;
-
-        scrollToSlide(block, newActiveIndex);
-      }, animationTime * 1000);
+      startRotation();
     } else if (!isInViewport(block)) {
       block.classList.remove('active');
-      clearInterval(interval);
-      interval = null;
+      stopRotation();
     }
   }, 100));
+};
+
+/**
+ * Maps a full locale path segment (e.g. "fr-be") to a base language code.
+ * Locales not listed here fall back to the base segment if it is a supported
+ * language, otherwise to the provided default.
+ */
+export const LOCALE_TO_LANGUAGE = {
+  'fr-be': 'fr',
+  'nl-be': 'nl',
+  'en-be': 'en',
+  'nl-nl': 'nl',
+  'en-nl': 'en',
+  'en-ca': 'en',
+  'en-us': 'en',
+  'fr-ca': 'fr',
+  'en-mx': 'en',
+  'es-mx': 'es',
+  'en-lu': 'en',
+  'fr-lu': 'fr',
+};
+
+export const SUPPORTED_LANGUAGES = ['en', 'it', 'ja', 'es', 'fr', 'de', 'nl', 'lu'];
+
+export const getPathSegments = (pathname = '') => pathname
+  .toLowerCase()
+  .split('/')
+  .filter(Boolean);
+
+/**
+ * Resolves the base language code for the current (or given) URL path.
+ * @param {string} [pathname] path to inspect; defaults to window.location
+ * @param {string} [defaultLang] fallback when the locale is unknown
+ * @returns {string} base language code (e.g. "en", "fr", "ja")
+ */
+export const getLanguageFromPath = (pathname, defaultLang = 'it') => {
+  const currentPathname = pathname
+    ?? (typeof window !== 'undefined' ? window.location.pathname : '');
+
+  const segments = getPathSegments(currentPathname);
+  const locale = segments[1];
+
+  if (locale && LOCALE_TO_LANGUAGE[locale]) {
+    return LOCALE_TO_LANGUAGE[locale];
+  }
+
+  if (locale && SUPPORTED_LANGUAGES.includes(locale)) {
+    return locale;
+  }
+
+  return defaultLang;
 };
 
 export const getLocale = () => {
@@ -315,6 +531,34 @@ const getLanguageConfigSheet = (config, sheetName) => {
 };
 
 /**
+ * Resolve a set of screen-reader/ARIA labels translated for the current URL's
+ * language from a named /lanconfig.json sheet. Each row is a Key plus one
+ * column per language code; the column matching the current language wins, else
+ * English, else the caller's fallback. Adding a language is a pure authoring
+ * change (add a column). Returns the fallbacks as-is on any fetch/parse error,
+ * so callers are always usable.
+ * @param {string} sheetName the lanconfig sheet holding the labels
+ * @param {Object<string,string>} fallbacks map of key -> English default
+ * @returns {Promise<Object<string,string>>} map of key -> localized label
+ */
+export const getLanguageLabels = async (sheetName, fallbacks) => {
+  const labels = { ...fallbacks };
+  try {
+    const config = await fetchLanguageConfig();
+    const rows = getLanguageConfigSheet(config, sheetName);
+    if (!rows.length) return labels;
+    const { language } = getLocale();
+    Object.keys(fallbacks).forEach((key) => {
+      const row = rows.find((r) => (r.Key || r.key) === key);
+      if (row) labels[key] = row[language] || row.en || row.En || fallbacks[key];
+    });
+  } catch (e) {
+    // keep fallbacks
+  }
+  return labels;
+};
+
+/**
  * Resolve the "opens in a new tab" warning translated for the current URL's
  * language, read from the "sr-buttons" sheet in /lanconfig.json (row keyed
  * "opensInNewTab", one column per language code). Falls back to English, then
@@ -323,13 +567,6 @@ const getLanguageConfigSheet = (config, sheetName) => {
  */
 export const getOpensInNewTabLabel = async () => {
   const fallback = '(opens in a new tab)';
-  const config = await fetchLanguageConfig();
-  const rows = getLanguageConfigSheet(config, 'sr-buttons');
-  if (!rows.length) return fallback;
-
-  const row = rows.find((r) => (r.Key || r.key) === 'opensInNewTab');
-  if (!row) return fallback;
-
-  const { language } = getLocale();
-  return row[language] || row.en || row.En || fallback;
+  const labels = await getLanguageLabels('sr-buttons', { opensInNewTab: fallback });
+  return labels.opensInNewTab;
 };

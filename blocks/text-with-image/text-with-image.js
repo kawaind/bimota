@@ -1,4 +1,6 @@
-import { throttle, gatherButtons } from '../../scripts/helpers.js';
+import {
+  throttle, gatherButtons, forceHeadingLevel,
+} from '../../scripts/helpers.js';
 
 const moveImageOnScroll = (block, settings = {}) => {
   const [firstImage, secondImage] = block.querySelectorAll('.column-with-images img');
@@ -61,9 +63,8 @@ export default async function decorate(block) {
 
   const headings = block.querySelectorAll('h1, h2, h3, h4, h5, h6');
 
-  headings.forEach((heading) => {
-    heading.classList.add('h3');
-  });
+  // Title: always semantic H2, visually sized as H3 (accessible outline).
+  headings.forEach((heading) => forceHeadingLevel(heading, 'h2', 'h3'));
 
   gatherButtons(block.querySelectorAll('.button-container'));
 

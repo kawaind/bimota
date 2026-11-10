@@ -2,6 +2,19 @@
   color: var(--black);
 }
 
+/* Visually-hidden text: available to screen readers, removed from view. */
+.woosmapdealers .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .woosmapdealers .dealers-container {
   width: 100%;
 }
@@ -13,26 +26,39 @@
   color: var(--grey-90);
 }
 
-/* Tabs */
+/* Tabs. The tablist scrolls sideways on small screens, and a scroll container
+   clips anything outside its padding box, so it gets 6px of padding (offset by
+   a negative margin, keeping the tabs aligned with the content) for the focus
+   ring to fit in (KAW-11108). The bottom padding is the 40px gap between the
+   selected tab's red line and the grey line, which sits on the tab content so
+   it spans exactly the content width (KAW-11109). */
 .woosmapdealers .dealers-tabs {
   display: flex;
   justify-content: flex-start;
   gap: 80px;
-  border-bottom: 1px solid var(--grey-20);
-  overflow-x: auto;
+  overflow: auto hidden;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+  list-style: none;
+  margin: -6px -6px 0;
+  padding: 22px 6px 40px;
 }
 
 .woosmapdealers .dealers-tabs::-webkit-scrollbar {
   display: none;
 }
 
+.woosmapdealers .dealers-tab-item {
+  margin: 0;
+  padding: 0;
+}
+
+/* the selected tab's 1px red line sits directly under the text (KAW-11109) */
 .woosmapdealers .dealers-tab-btn {
   background: none;
   border: none;
-  border-bottom: 3px solid transparent;
-  padding: 16px 0;
+  border-bottom: 1px solid transparent;
+  padding: 0;
   font-family: var(--font-family-boxed, 'Boxed', sans-serif);
   font-size: 28px;
   font-weight: 500;
@@ -49,32 +75,52 @@
   color: #ed1c24;
 }
 
-.woosmapdealers .dealers-tab-btn.active {
-  color: #ed1c24;
-  border-bottom-color: #ed1c24;
+/* Focused tab: clear visible focus indicator (WCAG 2.4.7). */
+.woosmapdealers .dealers-tab-btn:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: 2px;
+  color: var(--action-focus);
+}
+
+.woosmapdealers .dealers-tab-btn.active,
+.woosmapdealers .dealers-tab-btn[aria-selected='true'] {
+  color: var(--action-hover);
+  border-bottom-color: var(--action-hover);
   font-weight: 500;
 }
 
 /* Tab panels */
 .woosmapdealers .dealers-tab-content {
   width: 100%;
+  border-top: 1px solid var(--grey-20);
 }
 
-.woosmapdealers .dealers-tab-panel {
+.woosmapdealers .dealers-tab-panel[hidden] {
   display: none;
 }
 
-.woosmapdealers .dealers-tab-panel.active {
+.woosmapdealers .dealers-tab-panel {
   display: block;
 }
 
-/* Dealer grid */
+/* Dealer grid (semantic list) */
 .woosmapdealers .dealers-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 0;
   max-width: 100%;
   overflow: hidden;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.woosmapdealers .dealers-grid[hidden] {
+  display: none;
+}
+
+.woosmapdealers .dealer-address {
+  font-style: normal;
 }
 
 /* Accordion */
@@ -82,40 +128,66 @@
   border-bottom: 1px solid var(--grey-20);
 }
 
+.woosmapdealers .dealers-accordion-heading {
+  margin: 0;
+  font: inherit;
+}
+
 .woosmapdealers .dealers-accordion-header {
+  width: 100%;
+  background: none;
+  border: none;
   font-weight: 500;
   font-style: normal;
   font-size: 20px;
   line-height: 130%;
   letter-spacing: 0;
   color: #1a1a1a;
-  padding: 24px 0;
+  padding: 16px 0; /* KAW-11111 */
   cursor: pointer;
-  list-style: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  text-align: left;
   user-select: none;
+
+  /* the global button rule clips overflow, which cut off the arrow */
+  overflow: visible;
 }
 
-.woosmapdealers .dealers-accordion-header::-webkit-details-marker {
-  display: none;
+/* Clear visible focus indicator for the accordion trigger (WCAG 2.4.7). */
+.woosmapdealers .dealers-accordion-header:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: 2px;
 }
 
+/* Expand/collapse arrow: the site chevron icon, centred in the button and
+   fully inside it (KAW-11106); #E7131A when collapsed, #82221D when expanded
+   (KAW-11107). Not shown on S/XS viewports, per the design (KAW-11112). */
 .woosmapdealers .dealers-accordion-header::after {
   content: '';
-  width: 12px;
-  height: 12px;
-  border-right: 2px solid #ed1c24;
-  border-bottom: 2px solid #ed1c24;
-  transform: rotate(45deg);
-  transition: transform 0.3s ease;
   flex-shrink: 0;
+  width: 24px;
+  height: 24px;
   margin-left: 16px;
+  background-color: var(--red-on-white);
+  mask: url('/icons/chevron.svg') center / contain no-repeat;
+  transition: transform 0.3s ease;
 }
 
-.woosmapdealers .dealers-accordion[open] > .dealers-accordion-header::after {
-  transform: rotate(-135deg);
+.woosmapdealers .dealers-accordion-header[aria-expanded='true']::after {
+  background-color: var(--btn-darker-red);
+  transform: rotate(180deg);
+}
+
+@media (width < 1025px) {
+  .woosmapdealers .dealers-accordion-header::after {
+    display: none;
+  }
+}
+
+.woosmapdealers .dealers-accordion-panel[hidden] {
+  display: none;
 }
 
 .woosmapdealers .dealers-accordion .dealers-grid {
@@ -158,12 +230,16 @@
   line-height: 130%;
   letter-spacing: 0;
   color: #1a1a1a;
-  margin-bottom: 4px;
+  margin-bottom: 24px; /* KAW-11113 */
 }
 
+/* Dealer website / email links: black by default, dark-red on hover,
+   darker-red on focus; always underlined so state is never conveyed by
+   colour alone (WCAG 1.4.1). */
 .woosmapdealers .dealer-url a,
-.woosmapdealers .dealer-email a {
-  color: var(--action-default);
+.woosmapdealers .dealer-email a,
+.woosmapdealers .dealer-phone-link {
+  color: var(--black);
   text-decoration: underline;
   font-weight: 500;
   font-size: 16px;
@@ -174,8 +250,21 @@
 }
 
 .woosmapdealers .dealer-url a:hover,
-.woosmapdealers .dealer-email a:hover {
+.woosmapdealers .dealer-email a:hover,
+.woosmapdealers .dealer-phone-link:hover {
   color: var(--action-hover);
+  text-decoration: underline;
+}
+
+/* Distinct, visible focus indicator for every interactive dealer element
+   (WCAG 2.4.7). */
+.woosmapdealers .dealer-url a:focus-visible,
+.woosmapdealers .dealer-email a:focus-visible,
+.woosmapdealers .dealer-phone-link:focus-visible {
+  color: var(--action-focus);
+  text-decoration: underline;
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: 2px;
 }
 
 /* global-title variant */

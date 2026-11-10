@@ -11,7 +11,17 @@
   flex-direction: column;
   gap: 32px;
   grid-area: 1 / 1 / 2 / 2;
-  transition: opacity 500ms ease-in-out;
+
+  /* Inactive slides are hidden from AT and taken out of the layer once faded
+     out. `visibility` is transitioned with a delay so it flips to hidden only
+     after the 500ms opacity fade completes, keeping the existing effect. */
+  visibility: hidden;
+  transition: opacity 500ms ease-in-out, visibility 0s linear 500ms;
+}
+
+.feature .feature-slide.active {
+  visibility: visible;
+  transition: opacity 500ms ease-in-out, visibility 0s linear 0s;
 }
 
 .feature .feature-image {
@@ -36,24 +46,64 @@
   right: 0;
   top: calc(75vw + 40px);
   margin-right: calc(var(--section-x-padding) * -1);
-  z-index: 1;
+
+  /* above the active slide, which gets z-index:1 from setActiveSlide() and
+     comes later in the DOM: at an equal z-index it covered the dots and took
+     every mouse click / tap (KAW-11189) */
+  z-index: 2;
 }
 
 .feature .feature-slide-nav-item {
+  position: relative;
   width: 42px;
   height: 42px;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  touch-action: manipulation;
+
+  /* the global button rule clips overflow, which would cut off the hit area */
+  overflow: visible;
+}
+
+/* Invisible hit area: 58x58px, filling the 16px gaps between the dots without
+   overlapping, so one tap or click always lands on a dot (WCAG 2.5.5 / 2.5.8).
+   The visible dot and the layout are unchanged. */
+.feature .feature-slide-nav-item::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
 }
 
 .feature-slide-nav-dot {
-  width: 8px;
-  height: 8px;
-  display: block;
-  border: solid 1px var(--grey-90);
+  width: 10px;
+  height: 10px;
+
+  /* Flex-centre the number in the dot at every viewport so the active-dot digit
+     is always centred (bug KAW-10947 — previously the centring lived only in
+     the >=768px media query, so the number was off-centre on mobile). */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--black);
+
+  /* The decorative number is suppressed with font-size:0 (rather than a
+     transparent colour) so contrast checkers don't evaluate it as visible
+     text (WCAG 1.4.3). It is re-shown, white, only on the active dot. */
   color: transparent;
+  font-size: 0;
   overflow: hidden;
+  border-radius: 50%;
+}
+
+/* Non-colour-only, visible keyboard focus indicator (WCAG 2.4.7). The 42px
+   button box is larger than every dot state (10/20/32px), so the outline wraps
+   the dot without clipping at any size (spec: focus wraps changing dot sizes).
+   border-radius:50% keeps the ring circular around the round dot (WCAG 2.4.11). */
+.feature .feature-slide-nav-item:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
   border-radius: 50%;
 }
 
@@ -64,6 +114,34 @@
   border-radius: 50%;
   border-width: 0;
   letter-spacing: 0;
+
+  /* Re-show the number on the active dot: white on the black fill (>=4.5:1).
+     Centring is inherited from the base .feature-slide-nav-dot flex rule, so
+     the digit is centred at every viewport (bug KAW-10947). */
+  color: var(--white);
+  font-size: 14px;
+}
+
+/* Hover/focus dot state (spec): a 20x20 filled black dot. Applies to
+   non-active dots; the active dot keeps its own larger numbered style. The
+   hover part only applies to devices that can hover, so a tap on a touch
+   screen is never taken as a hover first (KAW-11189). */
+.feature .feature-slide-nav-item:not(.active):focus-visible .feature-slide-nav-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 20px;
+  border-width: 0;
+  background: var(--black);
+}
+
+@media (hover: hover) {
+  .feature .feature-slide-nav-item:not(.active):hover .feature-slide-nav-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 20px;
+    border-width: 0;
+    background: var(--black);
+  }
 }
 
 .feature .feature-text {
@@ -94,7 +172,7 @@
     width: 42px;
     top: 0;
     margin-right: 0;
-    z-index: 1;
+    z-index: 2;
   }
 
   .feature .feature-slide-nav-item {
