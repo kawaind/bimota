@@ -82,4 +82,9 @@ export default function decorate(block) {
       }
     });
   });
+
+  // Authored horizontal lines (e.g. between a heading and its text on the
+  // heritage page) are purely decorative: hide them from assistive technology
+  // so screen readers don't announce "horizontal splitter" (WCAG 1.3.1).
+  block.querySelectorAll('hr').forEach((hr) => hr.setAttribute('aria-hidden', 'true'));
 }
