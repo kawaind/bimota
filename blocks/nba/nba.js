@@ -38,6 +38,8 @@ export default async function decorate(block) {
     }
     if (isGroup) {
       const item = document.createElement('li');
+      // The class also keeps unwrapDivs() (which removes bare elements) off the <li>.
+      item.className = 'nba-button-item';
       item.append(button);
       buttonWrapper.append(item);
     } else {
