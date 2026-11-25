@@ -20,7 +20,7 @@ const A11Y_FALLBACKS = {
   // Country/language selector "Change" link (WCAG 2.4.4, 4.1.2).
   changeCountryLanguage: 'Change country and language (current: {current})',
   // Social icon links (WCAG 1.1.1, 2.4.4): "Bimota on X" etc.
-  socialLink: 'Bimota on {network}',
+  socialLink: 'bimota on {network}',
   opensInNewTab: '(opens in a new tab)',
   // Proper display names per network icon token (fallbacks; localizable).
   'networkName-x': 'X',
