@@ -20,7 +20,7 @@ const CHOOSE_COUNTRY_FALLBACK = 'Choose your country';
  * @returns {Promise<string>} the resolved, language-appropriate logo alt text
  */
 async function getLogoAlt() {
-  const fallback = 'Bimota - Home';
+  const fallback = 'bimota - Home';
   try {
     const resp = await fetch('/logoconfig.json');
     if (!resp.ok) return fallback;

@@ -5,7 +5,7 @@ import { getPathSegments, getLanguageFromPath, getLanguageLabels } from '../../s
 // label resolves (or if the dictionary lookup fails), so the map always exposes
 // a descriptive name and never a generic ("Map") or missing one (WCAG 4.1.2;
 // technique H64 when the map is an iframe).
-const DEALER_MAP_TITLE_FALLBACK = 'Map of Bimota dealer locations';
+const DEALER_MAP_TITLE_FALLBACK = 'Map of bimota dealer locations';
 
 /**
  * Give the Woosmap map a descriptive, localized accessible name so screen
